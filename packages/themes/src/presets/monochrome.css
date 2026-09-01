@@ -1,0 +1,18 @@
+/* Theme preset: monochrome.
+ * Apply with data-theme="monochrome" on the <html> element. Drops brand hue
+ * entirely — useful for editorial surfaces and for testing that no component
+ * relies on colour alone to convey state. */
+
+[data-theme="monochrome"] {
+  --primary: var(--color-neutral-900);
+  --primary-hover: var(--color-neutral-800);
+  --primary-active: var(--color-neutral-700);
+  --primary-foreground: var(--color-neutral-50);
+}
+
+.dark[data-theme="monochrome"] {
+  --primary: var(--color-neutral-100);
+  --primary-hover: var(--color-neutral-50);
+  --primary-active: var(--color-neutral-300);
+  --primary-foreground: var(--color-neutral-950);
+}

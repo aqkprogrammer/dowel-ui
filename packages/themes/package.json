@@ -1,0 +1,38 @@
+{
+  "name": "@dowel/themes",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Design tokens and theme presets.",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./src/index.css",
+    "./tokens.css": "./src/tokens.css",
+    "./base.css": "./src/base.css",
+    "./presets.css": "./src/presets/index.css",
+    "./presets/*.css": "./src/presets/*.css"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "peerDependencies": {
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "@dowel/config": "workspace:*",
+    "tailwindcss": "4.3.3",
+    "tsdown": "0.22.14",
+    "typescript": "6.0.3"
+  }
+}

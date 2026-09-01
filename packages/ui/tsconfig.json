@@ -1,0 +1,18 @@
+{
+  "extends": "@dowel/config/tsconfig/react-library.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vitest/globals", "vite/client", "node"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "vitest.config.ts",
+    "tsdown.config.ts",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx"
+  ]
+}

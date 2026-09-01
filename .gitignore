@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+.turbo/
+storybook-static/
+*.tsbuildinfo
+.DS_Store
+.env
+.env.*
+!.env.example
+packages/registry/r/
+apps/docs/public/r/
+apps/docs/src/lib/previews.generated.ts
+.next/

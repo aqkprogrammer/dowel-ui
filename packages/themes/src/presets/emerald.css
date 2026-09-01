@@ -1,0 +1,17 @@
+/* Theme preset: emerald.
+ * Apply with data-theme="emerald" on the <html> element. Only the brand-carrying
+ * tokens are reassigned; every neutral, radius and motion token is inherited. */
+
+[data-theme="emerald"] {
+  --primary: oklch(0.53 0.13 162);
+  --primary-hover: oklch(0.5 0.13 162);
+  --primary-active: oklch(0.447 0.13 162);
+  --primary-foreground: oklch(0.985 0.002 265);
+}
+
+.dark[data-theme="emerald"] {
+  --primary: oklch(0.645 0.12 162);
+  --primary-hover: oklch(0.69 0.12 162);
+  --primary-active: oklch(0.6 0.12 162);
+  --primary-foreground: oklch(0.155 0.03 162);
+}

@@ -1,0 +1,48 @@
+{
+  "name": "dowel-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "build:registry": "pnpm --filter @dowel/registry build",
+    "dev": "turbo run dev",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:scripts": "vitest run",
+    "test:watch": "pnpm --filter @dowel/ui test:watch",
+    "storybook": "pnpm --filter @dowel/ui storybook",
+    "docs": "pnpm --filter @dowel/docs dev",
+    "build-storybook": "pnpm --filter @dowel/ui build-storybook",
+    "check:branding": "tsx scripts/check-branding.ts",
+    "audit:all": "pnpm audit:contrast && pnpm audit:tokens && pnpm audit:api && pnpm audit:bundle",
+    "audit:contrast": "tsx scripts/audit/contrast.ts",
+    "audit:tokens": "tsx scripts/audit/tokens.ts",
+    "audit:api": "tsx scripts/audit/api.ts",
+    "audit:bundle": "tsx scripts/audit/bundle.ts",
+    "rebrand": "tsx scripts/rebrand.ts",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@changesets/cli": "3.0.1",
+    "@dowel/config": "workspace:*",
+    "@types/node": "26.4.0",
+    "eslint": "10.9.1",
+    "prettier": "3.9.6",
+    "prettier-plugin-tailwindcss": "0.8.1",
+    "tsx": "4.23.13",
+    "turbo": "2.10.12",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}

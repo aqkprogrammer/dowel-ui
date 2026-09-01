@@ -1,0 +1,178 @@
+/* -----------------------------------------------------------------------------
+ * Tier 2 — semantic tokens.
+ *
+ * Components reference ONLY these. Because every semantic token resolves through
+ * a var(), a theme preset can re-skin the entire system by reassigning a handful
+ * of values without touching a single component file.
+ * -------------------------------------------------------------------------- */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius-scale: 1;
+
+  --background: oklch(1 0 0);
+  --foreground: var(--color-neutral-900);
+
+  --card: oklch(1 0 0);
+  --card-foreground: var(--color-neutral-900);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--color-neutral-900);
+
+  --primary: oklch(0.545 0.196 275);
+  --primary-hover: oklch(0.5 0.196 275);
+  --primary-active: oklch(0.462 0.19 275);
+  --primary-foreground: oklch(0.985 0.002 265);
+
+  --secondary: var(--color-neutral-100);
+  --secondary-foreground: var(--color-neutral-900);
+
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-500);
+
+  --accent: var(--color-neutral-100);
+  --accent-foreground: var(--color-neutral-900);
+
+  --destructive: var(--color-red-500);
+  --destructive-foreground: oklch(0.985 0.002 265);
+
+  --success: var(--color-green-500);
+  --success-foreground: oklch(0.985 0.002 265);
+
+  --warning: var(--color-amber-500);
+  --warning-foreground: oklch(0.985 0.002 265);
+
+  --info: var(--color-blue-500);
+  --info-foreground: oklch(0.985 0.002 265);
+
+  --border: var(--color-neutral-200);
+  --border-strong: var(--color-neutral-300);
+  --input: oklch(0.66 0.013 265);
+  --ring: var(--primary);
+
+  --overlay: oklch(0.212 0.011 265 / 0.55);
+  --shadow-color: oklch(0.212 0.011 265 / 0.1);
+}
+
+.dark {
+  --background: var(--color-neutral-950);
+  --foreground: var(--color-neutral-100);
+
+  --card: oklch(0.178 0.011 265);
+  --card-foreground: var(--color-neutral-100);
+
+  --popover: oklch(0.196 0.011 265);
+  --popover-foreground: var(--color-neutral-100);
+
+  --primary: oklch(0.645 0.17 275);
+  --primary-hover: oklch(0.69 0.165 275);
+  --primary-active: oklch(0.6 0.17 275);
+  --primary-foreground: oklch(0.155 0.03 275);
+
+  --secondary: oklch(0.245 0.012 265);
+  --secondary-foreground: var(--color-neutral-100);
+
+  --muted: oklch(0.245 0.012 265);
+  --muted-foreground: var(--color-neutral-400);
+
+  --accent: oklch(0.268 0.013 265);
+  --accent-foreground: var(--color-neutral-50);
+
+  --destructive: var(--color-red-400);
+  --destructive-foreground: oklch(0.155 0.02 27);
+
+  --success: var(--color-green-400);
+  --success-foreground: oklch(0.16 0.02 152);
+
+  --warning: var(--color-amber-400);
+  --warning-foreground: oklch(0.16 0.02 78);
+
+  --info: var(--color-blue-400);
+  --info-foreground: oklch(0.16 0.02 240);
+
+  --border: oklch(0.279 0.012 265);
+  --border-strong: oklch(0.34 0.013 265);
+  --input: oklch(0.48 0.013 265);
+  --ring: var(--primary);
+
+  --overlay: oklch(0.1 0.008 265 / 0.7);
+  --shadow-color: oklch(0 0 0 / 0.45);
+}
+
+/* Map semantic tokens into Tailwind's color namespace. `inline` keeps the
+ * utility referencing the var() rather than baking in the light-mode value,
+ * which is what makes a single class work in both modes. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-primary) 26%, transparent);
+  }
+
+  /* Respect the OS setting globally (design spec §14). Individual components do
+   * not need to re-implement this. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

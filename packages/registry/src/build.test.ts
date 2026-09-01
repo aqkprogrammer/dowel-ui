@@ -1,0 +1,130 @@
+import { describe, expect, it } from "vitest";
+
+import { buildIndex, buildRegistry } from "./build";
+import { hashContent } from "./hash";
+import { registryIndexSchema, registryItemSchema } from "./schema";
+
+/**
+ * The registry is the boundary with every consumer's project, so these tests
+ * check the shape and the invariants the CLI relies on — not the contents of
+ * any particular component.
+ */
+
+const items = buildRegistry();
+
+describe("hashContent", () => {
+  it("produces a stable prefixed sha256", () => {
+    expect(hashContent("hello")).toMatch(/^sha256:[0-9a-f]{64}$/);
+    expect(hashContent("hello")).toBe(hashContent("hello"));
+  });
+
+  it("distinguishes different content", () => {
+    expect(hashContent("a")).not.toBe(hashContent("b"));
+  });
+
+  it("ignores line endings, so a Windows checkout is not all modified", () => {
+    expect(hashContent("a\r\nb")).toBe(hashContent("a\nb"));
+  });
+});
+
+describe("buildRegistry", () => {
+  it("emits every item in the published shape", () => {
+    for (const item of items) {
+      expect(() => registryItemSchema.parse(item)).not.toThrow();
+    }
+  });
+
+  it("includes the two items init depends on", () => {
+    const names = items.map((item) => item.name);
+    expect(names).toContain("utils");
+    expect(names).toContain("theme");
+  });
+
+  it("ships the components as registry:ui items", () => {
+    const button = items.find((item) => item.name === "button");
+    expect(button?.type).toBe("registry:ui");
+    expect(button?.files[0]?.path).toBe("ui/button.tsx");
+  });
+
+  it("ships the tokens as a style item, not a file to write", () => {
+    const theme = items.find((item) => item.name === "theme");
+    expect(theme?.files[0]?.type).toBe("registry:style");
+    expect(theme?.files[0]?.content).toContain("@theme");
+    expect(theme?.files[0]?.content).toContain("--radius-scale");
+  });
+
+  it("hashes match the content actually published", () => {
+    for (const item of items) {
+      for (const file of item.files) {
+        expect(file.hash).toBe(hashContent(file.content));
+      }
+    }
+  });
+
+  it("names every registry dependency that exists", () => {
+    const names = new Set(items.map((item) => item.name));
+    for (const item of items) {
+      for (const dependency of item.registryDependencies) {
+        expect(names.has(dependency), `${item.name} depends on missing "${dependency}"`).toBe(
+          true,
+        );
+      }
+    }
+  });
+
+  it("has no dependency cycles", () => {
+    const graph = new Map(items.map((item) => [item.name, item.registryDependencies]));
+    const state = new Map<string, "visiting" | "done">();
+
+    function visit(name: string, trail: string[]): void {
+      const current = state.get(name);
+      if (current === "done") return;
+      expect(current, `cycle: ${[...trail, name].join(" → ")}`).not.toBe("visiting");
+
+      state.set(name, "visiting");
+      for (const dependency of graph.get(name) ?? []) visit(dependency, [...trail, name]);
+      state.set(name, "done");
+    }
+
+    for (const name of graph.keys()) visit(name, []);
+  });
+
+  it("preserves directives that must stay on the first line", () => {
+    const dialog = items.find((item) => item.name === "dialog");
+    expect(dialog?.files[0]?.content.startsWith('"use client"')).toBe(true);
+  });
+
+  it("does not ship tests or stories", () => {
+    for (const item of items) {
+      for (const file of item.files) {
+        expect(file.path).not.toMatch(/\.(test|stories)\./);
+      }
+    }
+  });
+
+  it("is deterministic — the same source produces identical output", () => {
+    expect(JSON.stringify(buildRegistry())).toBe(JSON.stringify(items));
+  });
+});
+
+describe("buildIndex", () => {
+  const index = buildIndex(items);
+
+  it("matches the published shape", () => {
+    expect(() => registryIndexSchema.parse(index)).not.toThrow();
+  });
+
+  it("lists every item", () => {
+    expect(index.items).toHaveLength(items.length);
+  });
+
+  it("records where it was generated from, not when", () => {
+    // A timestamp would make every build a diff even when nothing changed.
+    expect(index.generatedFrom).toMatch(/^@[\w-]+\/ui@\d+\.\d+\.\d+$/);
+    expect(JSON.stringify(index)).not.toMatch(/\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("omits file contents, so the index stays small", () => {
+    expect(JSON.stringify(index)).not.toContain("export function");
+  });
+});

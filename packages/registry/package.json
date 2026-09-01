@@ -1,0 +1,39 @@
+{
+  "name": "@dowel/registry",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Registry schema and the build that emits the public registry JSON.",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "build-registry": "./dist/build.js"
+  },
+  "scripts": {
+    "build": "tsdown && tsx src/build.ts --out r",
+    "build:registry": "tsx src/build.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo r"
+  },
+  "dependencies": {
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@dowel/config": "workspace:*",
+    "@dowel/themes": "workspace:*",
+    "@dowel/ui": "workspace:*",
+    "@types/node": "26.4.0",
+    "tsdown": "0.22.14",
+    "tsx": "4.23.13",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}

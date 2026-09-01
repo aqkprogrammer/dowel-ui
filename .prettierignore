@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+storybook-static/
+.turbo/
+pnpm-lock.yaml
+CHANGELOG.md
+.next/
+
+# Generated: the registry payloads and the previews map are build output, and
+# reformatting them would only make the build non-deterministic.
+packages/registry/r/
+apps/docs/public/r/
+*.generated.ts
