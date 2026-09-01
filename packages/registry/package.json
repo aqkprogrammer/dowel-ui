@@ -1,11 +1,12 @@
 {
   "name": "@dowel-ui/registry",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Registry schema and the build that emits the public registry JSON.",
   "files": [
     "dist",
-    "src"
+    "src",
+    "!src/**/*.test.ts"
   ],
   "exports": {
     ".": {
