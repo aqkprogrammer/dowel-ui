@@ -32,10 +32,16 @@ claimed one exits zero, even when you are not a member.
 npm org ls <scope>   # 404 = free, exit 0 = already claimed
 ```
 
-The unscoped package name `dowel` is free, which is what makes `npx dowel`
-work — the CLI publishes under it, and the libraries under the scope.
+Run it against a scope you know is taken and one you know is not before trusting
+the answer — the failure mode of every other method is a false "free".
 
-Then create the `dowel-ui` GitHub organisation and register `dowel.dev`.
+**`@dowel` is already claimed**, which is why the packages publish under
+`@dowel-ui` (checked 2026-09-01, free at the time). The unscoped package name
+`dowel` is free, and that is what makes `npx dowel` work: the CLI publishes
+under it, the libraries under the scope.
+
+So there is one organisation to create, `dowel-ui`, plus the `dowel-ui` GitHub
+organisation and the `dowel.dev` domain.
 
 ### 2. Point the repository at its remote
 
@@ -150,7 +156,9 @@ pnpm publish -r --access public
 ```
 
 `-r` publishes every public workspace package. `--access public` is required
-for the first publish of a scoped package; without it npm assumes private and
+for the first publish of a scoped package (`@dowel-ui/*`); the unscoped `dowel`
+is public by default, and the flag is harmless there. Without it npm assumes
+private and
 rejects it.
 
 ### 4. Tag
