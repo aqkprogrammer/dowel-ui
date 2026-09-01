@@ -1,4 +1,5 @@
 import { render } from "@testing-library/react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
@@ -23,6 +24,26 @@ describe("Skeleton", () => {
     const skeleton = container.firstElementChild;
     expect(skeleton).toHaveClass("h-4", "w-32", "rounded-full");
     expect(skeleton).not.toHaveClass("rounded-md");
+  });
+
+  it("survives HTML parsing inside a paragraph", () => {
+    // A skeleton stands in for content, so it lands inside paragraphs, labels
+    // and headings — all of which accept phrasing content only. A `div` there
+    // is invalid, and the parser closes the paragraph early to correct it, so
+    // the server HTML and the client tree disagree and hydration fails.
+    //
+    // Rendering through the real parser is what makes this catchable: React
+    // builds the DOM with appendChild and never applies parsing rules, so
+    // `render` alone reproduces neither the correction nor the failure.
+    const host = document.createElement("div");
+    host.innerHTML = renderToStaticMarkup(
+      <p>
+        <Skeleton className="h-7 w-24" />
+      </p>,
+    );
+
+    const skeleton = host.querySelector("[data-slot='skeleton']");
+    expect(skeleton?.parentElement?.tagName).toBe("P");
   });
 
   it("has no accessibility violations", async () => {

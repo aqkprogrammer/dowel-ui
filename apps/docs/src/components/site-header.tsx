@@ -34,7 +34,7 @@ export function SiteHeader({ searchEntries }: { searchEntries: SearchEntry[] }) 
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
           <Search entries={searchEntries} />
           <ThemeControls />
         </div>
