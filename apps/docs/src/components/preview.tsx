@@ -30,7 +30,10 @@ export function Preview({ component, source, className, children }: PreviewProps
 
   return (
     <div className={cn("not-prose my-6 grid gap-3", className)}>
-      <Tabs defaultValue="preview">
+      {/* min-w-0: this is a grid item, and the default min-width:auto would
+          refuse to shrink below the preview's intrinsic width, defeating the
+          scroll container below and widening the whole page instead. */}
+      <Tabs defaultValue="preview" className="min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <TabsList variant="underline">
             <TabsTrigger value="preview" variant="underline">
@@ -67,8 +70,16 @@ export function Preview({ component, source, className, children }: PreviewProps
         </div>
 
         <TabsContent value="preview">
-          <div className="grid min-h-40 place-items-center rounded-xl border border-border p-8">
-            {children ?? <StoryPreview component={component} story={story} />}
+          {/* The surface scrolls its own overflow rather than widening the page.
+              A block is a full application surface and its intrinsic width can
+              exceed the prose column on a narrow screen; without this the whole
+              document scrolled sideways. `min-w-min` lets the inner grid grow to
+              the content's own width so the scrollbar lands here, while still
+              filling — and centring within — the column when content is small. */}
+          <div className="overflow-x-auto rounded-xl border border-border">
+            <div className="grid min-h-40 min-w-min place-items-center p-8">
+              {children ?? <StoryPreview component={component} story={story} />}
+            </div>
           </div>
         </TabsContent>
 

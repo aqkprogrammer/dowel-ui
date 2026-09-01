@@ -53,10 +53,12 @@ export function Search({ entries }: { entries: SearchEntry[] }) {
 
   return (
     <>
+      {/* Grows into whatever space the header has left on small screens and
+          shrinks with it; a fixed width above sm, where there is room. */}
       <Button
         variant="outline"
         size="sm"
-        className="w-full justify-start gap-2 text-muted-foreground sm:w-56"
+        className="min-w-0 flex-1 justify-start gap-2 text-muted-foreground sm:w-56 sm:flex-none"
         onClick={() => {
           setOpen(true);
         }}
