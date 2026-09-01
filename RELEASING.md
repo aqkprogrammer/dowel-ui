@@ -17,13 +17,23 @@ These are one-time, and all three are first-come.
 
 ```bash
 npm login
-npm org create dowel
 ```
 
-`npm org create` is the only reliable way to confirm the scope is free —
-the unauthenticated registry endpoints cannot distinguish an unclaimed scope
-from a claimed one. The unscoped package name `dowel` was verified free, which
-is what makes `npx dowel` work.
+Organisations are created on the website — <https://www.npmjs.com/org/create>.
+There is no `npm org create`; the CLI only has `set`, `rm` and `ls` for managing
+members of an org that already exists.
+
+Once logged in, `npm org ls <scope>` is the reliable availability check, and the
+only one there is: unauthenticated endpoints cannot distinguish a claimed scope
+from a free one. A free scope exits non-zero with `404 Scope not found`; a
+claimed one exits zero, even when you are not a member.
+
+```bash
+npm org ls <scope>   # 404 = free, exit 0 = already claimed
+```
+
+The unscoped package name `dowel` is free, which is what makes `npx dowel`
+work — the CLI publishes under it, and the libraries under the scope.
 
 Then create the `dowel-ui` GitHub organisation and register `dowel.dev`.
 
