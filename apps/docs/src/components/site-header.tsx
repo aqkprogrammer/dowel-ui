@@ -3,6 +3,7 @@ import { Button } from "@dowel-ui/react/button";
 import Link from "next/link";
 
 import { branding } from "~/lib/branding";
+import { version } from "~/lib/version.generated";
 
 import { Search, type SearchEntry } from "./search";
 import { ThemeControls } from "./theme-controls";
@@ -17,7 +18,7 @@ export function SiteHeader({ searchEntries }: { searchEntries: SearchEntry[] }) 
         >
           {branding.libraryName}
           <Badge size="sm" variant="secondary">
-            0.1.0
+            {version}
           </Badge>
         </Link>
 
