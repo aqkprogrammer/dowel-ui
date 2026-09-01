@@ -7,5 +7,5 @@
 export const branding = {
   libraryName: "Dowel",
   cliName: "dowel",
-  registryUrl: "https://dowel.dev/r",
+  registryUrl: "https://dowel-eight.vercel.app/r",
 } as const;

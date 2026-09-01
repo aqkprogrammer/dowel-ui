@@ -1,0 +1,18 @@
+# Build output. Vercel builds from source, so uploading these wastes the
+# entire upload budget — 212 MB of artifacts against ~1 MB of actual sources.
+node_modules
+.git
+.next
+.turbo
+dist
+coverage
+storybook-static
+
+# Generated during the build by apps/docs/scripts/prepare.ts and the registry
+# package. Shipping a copy would risk deploying a stale registry.
+packages/registry/r
+apps/docs/public/r
+*.generated.ts
+
+.vercel
+.env*

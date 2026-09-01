@@ -4,8 +4,10 @@ Two things ship independently: the **packages** on npm, and the **documentation
 site**, which is also the registry the CLI reads.
 
 They are coupled in one direction. The CLI resolves components from
-`https://dowel.dev/r`, so **the site must be deployed before the CLI is
-published** — otherwise `dowel add button` points at a URL that returns nothing.
+`https://dowel-eight.vercel.app/r`, so **the site must be deployed before the CLI
+is published** — otherwise `dowel add button` points at a URL that returns
+nothing. The registry URL is compiled into each published version, so a version
+shipped against a dead URL stays broken: npm versions are immutable.
 
 ---
 
@@ -40,8 +42,15 @@ the answer — the failure mode of every other method is a false "free".
 `dowel` is free, and that is what makes `npx dowel` work: the CLI publishes
 under it, the libraries under the scope.
 
-So there is one organisation to create, `dowel-ui`, plus the `dowel-ui` GitHub
-organisation and the `dowel.dev` domain.
+The npm organisation `dowel-ui` exists and is owned by `aqkprogrammer`.
+
+The site is deployed at `dowel-eight.vercel.app`, which is the registry URL the
+published CLI resolves against. `dowel.dev` has not been bought yet; when it is,
+link it in the Vercel dashboard and the `.vercel.app` alias keeps working
+alongside it, so nothing already published breaks. Switching the CLI's default
+to the custom domain is then a normal release, not a migration.
+
+Still to do: the `dowel-ui` GitHub organisation and the git remote.
 
 ### 2. Point the repository at its remote
 
@@ -106,7 +115,7 @@ without it, and the CLI is unaffected either way.
 ### Verify the deployment
 
 ```bash
-curl -s https://dowel.dev/r/index.json | head -5
+curl -s https://dowel-eight.vercel.app/r/index.json | head -5
 ```
 
 Then install into a scratch project against the live registry, before
@@ -116,7 +125,7 @@ publishing anything:
 mkdir /tmp/dowel-smoke && cd /tmp/dowel-smoke
 # a React 19 + Tailwind v4 + TypeScript project
 pnpm dlx tsx path/to/dowel/packages/cli/src/index.ts \
-  --registry https://dowel.dev/r init --yes
+  --registry https://dowel-eight.vercel.app/r init --yes
 ```
 
 ---
