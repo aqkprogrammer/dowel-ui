@@ -15,7 +15,7 @@ export const branding = {
   /** Binary name users type: `npx <cliName> add button`. */
   cliName: "dowel",
   /** Base URL the CLI resolves registry items from. */
-  registryUrl: "https://dowel.dev/r",
+  registryUrl: "https://dowel-eight.vercel.app/r",
   /** Documentation site title. */
   docsTitle: "Dowel — source-first React UI for SaaS and AI products",
   /** One-line description used in package.json files and the README. */

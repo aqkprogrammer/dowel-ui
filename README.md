@@ -19,9 +19,9 @@ from it over HTTP. Forty-six components, eight blocks, the CLI, the registry and
 the documentation site are all under the full quality gate, and the design
 tokens pass WCAG AA contrast in every mode and every preset.
 
-What remains is publishing: deploying the docs site to `dowel.dev` so the
-registry has a public URL, creating the `@dowel-ui` npm scope, and cutting a first
-release from the changesets already written.
+The docs site and registry are live at
+[dowel-eight.vercel.app](https://dowel-eight.vercel.app), and the `@dowel-ui` npm
+organisation is registered. A custom domain will replace the Vercel one later.
 
 | Phase | Scope                                                                          | Status      |
 | ----- | ------------------------------------------------------------------------------ | ----------- |
