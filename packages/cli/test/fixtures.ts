@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-/** The registry emitted by `@dowel/registry`'s build, in this same commit. */
+/** The registry emitted by `@dowel-ui/registry`'s build, in this same commit. */
 export const LOCAL_REGISTRY = join(here, "..", "..", "registry", "r");
 
 export interface FixtureOptions {

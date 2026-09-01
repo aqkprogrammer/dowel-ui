@@ -1,7 +1,7 @@
 ---
-"@dowel/ui": minor
-"@dowel/cli": minor
-"@dowel/registry": minor
+"@dowel-ui/react": minor
+"dowel": minor
+"@dowel-ui/registry": minor
 ---
 
 Add blocks: whole page sections assembled from the components.

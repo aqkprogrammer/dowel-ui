@@ -62,15 +62,15 @@ jobs:
       # The docs site is the registry's host and the library's first consumer,
       # so a break here means the published package is broken for everyone else.
       - name: Build docs
-        run: pnpm --filter @dowel/docs build
+        run: pnpm --filter @dowel-ui/docs build
 
       # A non-deterministic registry makes every publish look like a change and
       # hides the ones that matter. Compared directly rather than through git,
       # since the output directory is not tracked.
       - name: Verify the registry build is deterministic
         run: |
-          pnpm --filter @dowel/registry exec tsx src/build.ts --out /tmp/registry-a
-          pnpm --filter @dowel/registry exec tsx src/build.ts --out /tmp/registry-b
+          pnpm --filter @dowel-ui/registry exec tsx src/build.ts --out /tmp/registry-a
+          pnpm --filter @dowel-ui/registry exec tsx src/build.ts --out /tmp/registry-b
           diff -r /tmp/registry-a /tmp/registry-b
 
   branding:

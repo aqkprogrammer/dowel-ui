@@ -1,5 +1,5 @@
-import { Badge } from "@dowel/ui/badge";
-import { CodeBlock } from "@dowel/ui/code-block";
+import { Badge } from "@dowel-ui/react/badge";
+import { CodeBlock } from "@dowel-ui/react/code-block";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 

@@ -1,5 +1,5 @@
-import { Badge } from "@dowel/ui/badge";
-import { Button } from "@dowel/ui/button";
+import { Badge } from "@dowel-ui/react/badge";
+import { Button } from "@dowel-ui/react/button";
 import Link from "next/link";
 
 import { InstallCommand } from "~/components/install-command";

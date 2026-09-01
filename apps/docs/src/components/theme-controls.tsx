@@ -1,7 +1,7 @@
 "use client";
 
-import { THEME_PRESETS } from "@dowel/themes";
-import { Button } from "@dowel/ui/button";
+import { THEME_PRESETS } from "@dowel-ui/themes";
+import { Button } from "@dowel-ui/react/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +10,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@dowel/ui/dropdown-menu";
+} from "@dowel-ui/react/dropdown-menu";
 import { Monitor, Moon, Palette, Sun } from "lucide-react";
 
 import { useTheme } from "./theme-provider";

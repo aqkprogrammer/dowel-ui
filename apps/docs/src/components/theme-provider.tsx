@@ -7,7 +7,7 @@ import {
   THEME_PRESETS,
   type ColorMode,
   type ThemePreset,
-} from "@dowel/themes";
+} from "@dowel-ui/themes";
 import {
   createContext,
   useCallback,

@@ -1,5 +1,5 @@
 {
-  "name": "@dowel/registry",
+  "name": "@dowel-ui/registry",
   "version": "0.1.0",
   "type": "module",
   "description": "Registry schema and the build that emits the public registry JSON.",
@@ -27,9 +27,9 @@
     "zod": "4.5.4"
   },
   "devDependencies": {
-    "@dowel/config": "workspace:*",
-    "@dowel/themes": "workspace:*",
-    "@dowel/ui": "workspace:*",
+    "@dowel-ui/config": "workspace:*",
+    "@dowel-ui/themes": "workspace:*",
+    "@dowel-ui/react": "workspace:*",
     "@types/node": "26.4.0",
     "tsdown": "0.22.14",
     "tsx": "4.23.13",

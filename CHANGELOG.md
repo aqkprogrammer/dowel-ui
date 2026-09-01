@@ -7,9 +7,18 @@ and live alongside each package. This file records repository-level milestones.
 
 ### Naming
 
-- The library is now **Dowel**: `@dowel/*` packages, a `dowel` CLI command, and
-  `dowel.dev` for the documentation site and registry. A dowel is the hidden pin
-  that joins two pieces without visible fasteners.
+- The library is now **Dowel**: `@dowel-ui/*` packages, an unscoped `dowel` CLI
+  command, and `dowel.dev` for the documentation site and registry. A dowel is
+  the hidden pin that joins two pieces without visible fasteners.
+- The `@dowel` scope was already claimed on npm, so the packages publish under
+  `@dowel-ui` — the same shape as `@radix-ui` and `@tanstack`. The component
+  package is `@dowel-ui/react` rather than `@dowel-ui/ui`, which would have read
+  redundantly at every import. The CLI is published unscoped as `dowel`, which
+  is what makes `npx dowel add button` work without a scope prefix.
+- **Fix:** `rebrand` hardcoded the original `libname` placeholders for the domain
+  and CLI name, so a second rename silently left both untouched. Every
+  replacement is now derived from the current `branding.config.ts`, and the
+  tokens are matched longest-first so one is never rewritten inside another.
 - **Fix:** `check:branding` derived its placeholder list from
   `branding.config.ts`, which `rebrand` rewrites — so after a rename it reported
   the real branding as an unreplaced placeholder. The list now lives in the

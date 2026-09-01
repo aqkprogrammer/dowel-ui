@@ -7,7 +7,7 @@
 export const branding = {
   libraryName: "Dowel",
   cliName: "dowel",
-  packageScope: "@dowel",
+  packageScope: "@dowel-ui",
   registryUrl: "https://dowel.dev/r",
   repository: "dowel-ui/dowel",
   description:

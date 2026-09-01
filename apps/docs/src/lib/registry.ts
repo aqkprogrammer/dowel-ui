@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import type { RegistryIndex, RegistryItem } from "@dowel/registry";
+import type { RegistryIndex, RegistryItem } from "@dowel-ui/registry";
 
 /**
  * Reads the registry the site itself serves.

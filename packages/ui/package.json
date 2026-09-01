@@ -1,5 +1,5 @@
 {
-  "name": "@dowel/ui",
+  "name": "@dowel-ui/react",
   "version": "0.1.0",
   "type": "module",
   "description": "Source-first React components.",
@@ -45,8 +45,8 @@
     "tailwind-merge": "3.6.0"
   },
   "devDependencies": {
-    "@dowel/config": "workspace:*",
-    "@dowel/themes": "workspace:*",
+    "@dowel-ui/config": "workspace:*",
+    "@dowel-ui/themes": "workspace:*",
     "@storybook/addon-a11y": "10.5.10",
     "@storybook/addon-docs": "10.5.10",
     "@storybook/react-vite": "10.5.10",

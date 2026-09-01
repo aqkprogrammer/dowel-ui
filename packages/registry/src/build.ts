@@ -2,7 +2,7 @@ import { readFileSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { blockMetas, componentMetas, type ComponentMeta } from "@dowel/ui/registry";
+import { blockMetas, componentMetas, type ComponentMeta } from "@dowel-ui/react/registry";
 
 import { hashContent } from "./hash";
 import {

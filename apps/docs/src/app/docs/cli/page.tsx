@@ -1,5 +1,12 @@
-import { CodeBlock } from "@dowel/ui/code-block";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@dowel/ui/table";
+import { CodeBlock } from "@dowel-ui/react/code-block";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@dowel-ui/react/table";
 import type { Metadata } from "next";
 
 import { Prose } from "~/components/prose";

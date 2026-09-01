@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["dowel-monorepo", "@dowel/config"]
+  "ignore": ["dowel-monorepo", "@dowel-ui/config"]
 }

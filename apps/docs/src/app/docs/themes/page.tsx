@@ -1,14 +1,14 @@
 "use client";
 
-import { THEME_PRESETS } from "@dowel/themes";
-import { Badge } from "@dowel/ui/badge";
-import { Button } from "@dowel/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@dowel/ui/card";
-import { CodeBlock } from "@dowel/ui/code-block";
-import { Input } from "@dowel/ui/input";
-import { Label } from "@dowel/ui/label";
-import { Slider } from "@dowel/ui/slider";
-import { cn } from "@dowel/ui";
+import { THEME_PRESETS } from "@dowel-ui/themes";
+import { Badge } from "@dowel-ui/react/badge";
+import { Button } from "@dowel-ui/react/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@dowel-ui/react/card";
+import { CodeBlock } from "@dowel-ui/react/code-block";
+import { Input } from "@dowel-ui/react/input";
+import { Label } from "@dowel-ui/react/label";
+import { Slider } from "@dowel-ui/react/slider";
+import { cn } from "@dowel-ui/react";
 import { useState } from "react";
 
 import { Prose } from "~/components/prose";

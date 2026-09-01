@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
  * Two jobs, both about not keeping a second copy of anything:
  *
  * 1. Publishes the registry the CLI reads. The docs site is the registry's
- *    host, so `public/r` is a copy of what `@dowel/registry` just built —
+ *    host, so `public/r` is a copy of what `@dowel-ui/registry` just built —
  *    never hand-maintained.
  * 2. Generates static imports for every Storybook story, so the previews on a
  *    component's page are literally the stories that are tested in CI. There is
@@ -46,7 +46,7 @@ function publishRegistry(): number {
 
   if (!existsSync(index)) {
     throw new Error(
-      `No registry at ${registryDir}. Run \`pnpm --filter @dowel/registry build\` first.`,
+      `No registry at ${registryDir}. Run \`pnpm --filter @dowel-ui/registry build\` first.`,
     );
   }
 
@@ -57,7 +57,7 @@ function publishRegistry(): number {
   if (newestMtime(componentsDir) > statSync(index).mtimeMs) {
     throw new Error(
       "The registry is older than the component sources it was generated from.\n" +
-        "Run `pnpm --filter @dowel/registry build` (or build through turbo, which does it for you).",
+        "Run `pnpm --filter @dowel-ui/registry build` (or build through turbo, which does it for you).",
     );
   }
 

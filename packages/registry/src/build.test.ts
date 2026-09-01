@@ -120,7 +120,8 @@ describe("buildIndex", () => {
 
   it("records where it was generated from, not when", () => {
     // A timestamp would make every build a diff even when nothing changed.
-    expect(index.generatedFrom).toMatch(/^@[\w-]+\/ui@\d+\.\d+\.\d+$/);
+    // Scope and package name are branding, so only the shape is asserted here.
+    expect(index.generatedFrom).toMatch(/^@[\w-]+\/[\w-]+@\d+\.\d+\.\d+$/);
     expect(JSON.stringify(index)).not.toMatch(/\d{4}-\d{2}-\d{2}T/);
   });
 

@@ -1,4 +1,4 @@
-import { cn } from "@dowel/ui";
+import { cn } from "@dowel-ui/react";
 import type { ComponentPropsWithRef } from "react";
 
 /**

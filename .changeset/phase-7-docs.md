@@ -1,5 +1,5 @@
 ---
-"@dowel/ui": patch
+"@dowel-ui/react": patch
 ---
 
 Fix two packaging defects that made the published package unusable in React

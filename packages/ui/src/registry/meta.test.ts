@@ -207,7 +207,7 @@ describe("registry metadata", () => {
       for (const dependency of meta.dependencies) {
         expect(
           declaredNpmDependencies.has(dependency),
-          `${dependency} is declared in meta but missing from @dowel/ui dependencies`,
+          `${dependency} is declared in meta but missing from @dowel-ui/react dependencies`,
         ).toBe(true);
       }
     });

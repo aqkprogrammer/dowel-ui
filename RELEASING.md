@@ -61,7 +61,7 @@ The site is a Next.js app at `apps/docs` that also serves the registry from
 
 ### What the build does
 
-`pnpm --filter @dowel/docs build` runs `scripts/prepare.ts` first, which:
+`pnpm --filter @dowel-ui/docs build` runs `scripts/prepare.ts` first, which:
 
 1. copies the registry from `packages/registry/r` into `public/r`, and
 2. generates the preview imports from the Storybook stories.
@@ -130,7 +130,7 @@ Applies every pending changeset: bumps versions, writes each package's
 `CHANGELOG.md`, and deletes the consumed changesets. Review the diff — this is
 the last point at which a version bump is cheap to change.
 
-`dowel-monorepo` and `@dowel/config` are private and are never published.
+`dowel-monorepo` and `@dowel-ui/config` are private and are never published.
 
 ### 2. Verify
 

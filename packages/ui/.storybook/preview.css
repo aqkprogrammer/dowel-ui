@@ -1,5 +1,5 @@
-@import "@dowel/themes/styles.css";
-@import "@dowel/themes/presets.css";
+@import "@dowel-ui/themes/styles.css";
+@import "@dowel-ui/themes/presets.css";
 
 /* Tailwind scans from the importing stylesheet, and the theme package lives
  * outside this package, so component sources are declared explicitly. */

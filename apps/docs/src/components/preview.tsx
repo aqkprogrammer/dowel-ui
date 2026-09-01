@@ -1,8 +1,8 @@
 "use client";
 
-import { CodeBlock } from "@dowel/ui/code-block";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@dowel/ui/tabs";
-import { cn } from "@dowel/ui";
+import { CodeBlock } from "@dowel-ui/react/code-block";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@dowel-ui/react/tabs";
+import { cn } from "@dowel-ui/react";
 import { useState, type ReactNode } from "react";
 
 import { StoryPreview, getStoryNames } from "./story-preview";

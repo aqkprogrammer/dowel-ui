@@ -1,6 +1,6 @@
 ---
-"@dowel/registry": minor
-"@dowel/cli": minor
+"@dowel-ui/registry": minor
+"dowel": minor
 ---
 
 Add the CLI and registry.

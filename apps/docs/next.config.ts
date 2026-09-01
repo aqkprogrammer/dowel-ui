@@ -7,7 +7,7 @@ const config: NextConfig = {
   // That source imports `@/lib/utils`, so `@/` has to mean the library here —
   // which is why the docs app itself uses `~/`. It is the same alias collision
   // the CLI rewrites away when it installs into someone else's project.
-  transpilePackages: ["@dowel/ui", "@dowel/themes"],
+  transpilePackages: ["@dowel-ui/react", "@dowel-ui/themes"],
 
   // Typed routes are off on purpose. Every component link on this site is built
   // from the registry, so the hrefs are strings by construction and typed routes

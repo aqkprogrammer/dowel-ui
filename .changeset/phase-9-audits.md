@@ -1,6 +1,6 @@
 ---
-"@dowel/themes": minor
-"@dowel/cli": minor
+"@dowel-ui/themes": minor
+"dowel": minor
 ---
 
 Fix colour contrast across the palette, and add the `remove` command.
