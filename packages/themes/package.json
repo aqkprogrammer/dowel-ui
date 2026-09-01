@@ -1,5 +1,5 @@
 {
-  "name": "@dowel/themes",
+  "name": "@dowel-ui/themes",
   "version": "0.1.0",
   "type": "module",
   "description": "Design tokens and theme presets.",
@@ -30,7 +30,7 @@
     "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
-    "@dowel/config": "workspace:*",
+    "@dowel-ui/config": "workspace:*",
     "tailwindcss": "4.3.3",
     "tsdown": "0.22.14",
     "typescript": "6.0.3"

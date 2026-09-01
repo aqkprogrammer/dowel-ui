@@ -1,5 +1,5 @@
 ---
-"@dowel/ui": minor
+"@dowel-ui/react": minor
 ---
 
 Add the AI layer: Conversation, Message, Response, Prompt Input, Tool Call,

@@ -38,7 +38,7 @@ afterEach(() => {
 beforeAll(() => {
   if (!existsSync(join(LOCAL_REGISTRY, "index.json"))) {
     throw new Error(
-      `No registry at ${LOCAL_REGISTRY}. Run \`pnpm --filter @dowel/registry build\` first.`,
+      `No registry at ${LOCAL_REGISTRY}. Run \`pnpm --filter @dowel-ui/registry build\` first.`,
     );
   }
 });

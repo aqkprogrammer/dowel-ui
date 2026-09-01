@@ -8,8 +8,8 @@ import {
   CommandItem,
   CommandList,
   CommandShortcut,
-} from "@dowel/ui/command";
-import { Button } from "@dowel/ui/button";
+} from "@dowel-ui/react/command";
+import { Button } from "@dowel-ui/react/button";
 import { Search as SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

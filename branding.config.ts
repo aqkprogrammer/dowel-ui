@@ -11,7 +11,7 @@ export const branding = {
   /** Human-facing product name. Appears in docs, README and Storybook. */
   libraryName: "Dowel",
   /** npm scope for published packages, including the leading "@". */
-  packageScope: "@dowel",
+  packageScope: "@dowel-ui",
   /** Binary name users type: `npx <cliName> add button`. */
   cliName: "dowel",
   /** Base URL the CLI resolves registry items from. */

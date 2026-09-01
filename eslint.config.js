@@ -1,4 +1,4 @@
-import { react } from "@dowel/config/eslint/react";
+import { react } from "@dowel-ui/config/eslint/react";
 
 export default [
   ...react,

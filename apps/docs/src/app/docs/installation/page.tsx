@@ -1,4 +1,4 @@
-import { CodeBlock } from "@dowel/ui/code-block";
+import { CodeBlock } from "@dowel-ui/react/code-block";
 import type { Metadata } from "next";
 import Link from "next/link";
 

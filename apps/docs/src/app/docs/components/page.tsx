@@ -1,4 +1,4 @@
-import { Badge } from "@dowel/ui/badge";
+import { Badge } from "@dowel-ui/react/badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 

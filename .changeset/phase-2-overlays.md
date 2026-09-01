@@ -1,6 +1,6 @@
 ---
-"@dowel/themes": minor
-"@dowel/ui": minor
+"@dowel-ui/themes": minor
+"@dowel-ui/react": minor
 ---
 
 Add the interactive overlay layer: Dialog, Sheet, Drawer, Popover, Tooltip,

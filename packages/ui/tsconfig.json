@@ -1,5 +1,5 @@
 {
-  "extends": "@dowel/config/tsconfig/react-library.json",
+  "extends": "@dowel-ui/config/tsconfig/react-library.json",
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"]

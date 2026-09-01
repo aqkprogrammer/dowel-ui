@@ -1,5 +1,5 @@
 {
-  "extends": "@dowel/config/tsconfig/base.json",
+  "extends": "@dowel-ui/config/tsconfig/base.json",
   "compilerOptions": {
     "types": ["node", "vitest/globals"]
   },

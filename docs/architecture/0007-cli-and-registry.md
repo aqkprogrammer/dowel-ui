@@ -17,7 +17,7 @@ hardest to diagnose.
 tests.** `/r/index.json` for browsing, `/r/<name>.json` per item. No backend, no
 database.
 
-Generated from the `meta.ts` files via the typed barrel in `@dowel/ui`, so
+Generated from the `meta.ts` files via the typed barrel in `@dowel-ui/react`, so
 there is no second copy of a component to drift. The build is **deterministic**:
 it records the package version it came from, never a timestamp, so identical
 source always produces byte-identical output and a rebuild is not a diff.

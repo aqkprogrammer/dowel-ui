@@ -20,7 +20,7 @@ the documentation site are all under the full quality gate, and the design
 tokens pass WCAG AA contrast in every mode and every preset.
 
 What remains is publishing: deploying the docs site to `dowel.dev` so the
-registry has a public URL, creating the `@dowel` npm scope, and cutting a first
+registry has a public URL, creating the `@dowel-ui` npm scope, and cutting a first
 release from the changesets already written.
 
 | Phase | Scope                                                                          | Status      |
@@ -63,7 +63,15 @@ Login · Sign up · Forgot password · Dashboard · Admin users · Settings ·
 Pricing · AI Chat
 
 ```tsx
-import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle, Input } from "@dowel/ui";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Input,
+} from "@dowel-ui/react";
 
 <Card>
   <CardHeader>
@@ -97,7 +105,7 @@ Toast has an imperative API, callable from anywhere — no hook, no provider
 lookup. Render `<Toaster />` once near the root:
 
 ```tsx
-import { toast } from "@dowel/ui";
+import { toast } from "@dowel-ui/react";
 
 toast.success("Project created", { description: "It is ready to use." });
 

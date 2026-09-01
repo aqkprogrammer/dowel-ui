@@ -1,5 +1,5 @@
 {
-  "name": "@dowel/docs",
+  "name": "@dowel-ui/docs",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,16 +13,16 @@
     "clean": "rm -rf .next .turbo public/r src/lib/previews.generated.ts"
   },
   "dependencies": {
-    "@dowel/themes": "workspace:*",
-    "@dowel/ui": "workspace:*",
+    "@dowel-ui/themes": "workspace:*",
+    "@dowel-ui/react": "workspace:*",
     "lucide-react": "1.38.0",
     "next": "16.3.3",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@dowel/config": "workspace:*",
-    "@dowel/registry": "workspace:*",
+    "@dowel-ui/config": "workspace:*",
+    "@dowel-ui/registry": "workspace:*",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.4.0",
     "@types/react": "19.2.18",

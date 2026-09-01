@@ -1,5 +1,5 @@
 ---
-"@dowel/ui": minor
+"@dowel-ui/react": minor
 ---
 
 Add the data layer: Table, Data Table, Pagination, Command, Empty State,

@@ -1,5 +1,5 @@
 {
-  "name": "@dowel/cli",
+  "name": "dowel",
   "version": "0.1.0",
   "type": "module",
   "description": "Adds components to your project as source you own.",
@@ -31,8 +31,8 @@
     "zod": "4.5.4"
   },
   "devDependencies": {
-    "@dowel/config": "workspace:*",
-    "@dowel/registry": "workspace:*",
+    "@dowel-ui/config": "workspace:*",
+    "@dowel-ui/registry": "workspace:*",
     "@types/node": "26.4.0",
     "tsdown": "0.22.14",
     "tsx": "4.23.13",

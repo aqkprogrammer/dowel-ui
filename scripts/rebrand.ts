@@ -57,16 +57,26 @@ if (!scope.startsWith("@")) {
 }
 
 // Ordered longest-first so overlapping tokens cannot be partially rewritten.
+/** Host of the current registry URL, e.g. "dowel.dev". */
+const currentDomain = new URL(branding.registryUrl).host;
+
+// Every entry is derived from the current branding rather than from the
+// original placeholders. Hardcoding those meant the second rename silently
+// did nothing to the domain or the CLI name, because by then no file contained
+// them any more.
 const REPLACEMENTS: [string, string][] = [
   [branding.repository, repo ?? `${cli}/${cli}`],
-  ["libname.dev", domain],
+  [currentDomain, domain],
   [branding.packageScope, scope],
   [branding.libraryName, name],
-  ["libname", cli],
+  [branding.cliName, cli],
 ];
 
 const pattern = new RegExp(
-  REPLACEMENTS.map(([from]) => from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
+  [...REPLACEMENTS]
+    .sort(([a], [b]) => b.length - a.length)
+    .map(([from]) => from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|"),
   "g",
 );
 

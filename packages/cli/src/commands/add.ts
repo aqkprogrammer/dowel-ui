@@ -2,7 +2,7 @@ import * as prompts from "@clack/prompts";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { hashContent, type RegistryItem } from "@dowel/registry";
+import { hashContent, type RegistryItem } from "@dowel-ui/registry";
 
 import { readConfig, writeConfig, type Config } from "../lib/config";
 import { CliError } from "../lib/errors";

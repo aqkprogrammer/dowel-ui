@@ -1,11 +1,11 @@
 ---
-"@dowel/themes": minor
-"@dowel/registry": minor
-"@dowel/cli": minor
-"@dowel/ui": minor
+"@dowel-ui/themes": minor
+"@dowel-ui/registry": minor
+"dowel": minor
+"@dowel-ui/react": minor
 ---
 
 Rename the library to Dowel.
 
-Packages are published under the `@dowel` scope, the CLI command is `dowel`, and
+Packages are published under the `@dowel-ui` scope, the CLI command is `dowel`, and
 the registry is served from `dowel.dev/r`.

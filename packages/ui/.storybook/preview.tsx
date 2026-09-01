@@ -1,4 +1,4 @@
-import { COLOR_MODES, THEME_PRESETS } from "@dowel/themes";
+import { COLOR_MODES, THEME_PRESETS } from "@dowel-ui/themes";
 import type { Decorator, Preview } from "@storybook/react-vite";
 import { useEffect, type ReactNode } from "react";
 

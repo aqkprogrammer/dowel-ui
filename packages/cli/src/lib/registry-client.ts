@@ -7,7 +7,7 @@ import {
   registryItemSchema,
   type RegistryIndex,
   type RegistryItem,
-} from "@dowel/registry";
+} from "@dowel-ui/registry";
 
 import { CliError } from "./errors";
 

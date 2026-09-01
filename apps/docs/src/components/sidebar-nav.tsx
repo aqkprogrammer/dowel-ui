@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@dowel/ui";
+import { cn } from "@dowel-ui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

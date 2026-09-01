@@ -1,5 +1,5 @@
 ---
-"@dowel/ui": minor
+"@dowel-ui/react": minor
 ---
 
 Add the form layer: Checkbox, Radio Group, Switch, Slider, Select, Form,

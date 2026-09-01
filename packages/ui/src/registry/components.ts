@@ -107,7 +107,7 @@ export const componentMetas: ComponentMeta[] = [
   tooltipMeta,
 ];
 
-// This file is the `@dowel/ui/registry` entry point, so the block barrel is
+// This file is the `@dowel-ui/react/registry` entry point, so the block barrel is
 // re-exported here — the registry build reads both through one import.
 export { blockMetas } from "./blocks";
 export { COMPONENT_CATEGORIES, COMPONENT_STATUSES } from "./schema";
