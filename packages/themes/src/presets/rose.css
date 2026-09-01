@@ -1,0 +1,17 @@
+/* Theme preset: rose.
+ * Apply with data-theme="rose" on the <html> element. Only the brand-carrying
+ * tokens are reassigned; every neutral, radius and motion token is inherited. */
+
+[data-theme="rose"] {
+  --primary: oklch(0.545 0.195 17);
+  --primary-hover: oklch(0.5 0.195 17);
+  --primary-active: oklch(0.462 0.195 17);
+  --primary-foreground: oklch(0.985 0.002 265);
+}
+
+.dark[data-theme="rose"] {
+  --primary: oklch(0.645 0.17 17);
+  --primary-hover: oklch(0.69 0.17 17);
+  --primary-active: oklch(0.6 0.17 17);
+  --primary-foreground: oklch(0.155 0.03 17);
+}

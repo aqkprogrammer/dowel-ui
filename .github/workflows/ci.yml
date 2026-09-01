@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  STORYBOOK_DISABLE_TELEMETRY: 1
+
+jobs:
+  verify:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Test the audit scripts
+        run: pnpm test:scripts
+
+      # Contrast cannot be checked by the per-component accessibility tests,
+      # which run in an environment that never paints. This checks the palette
+      # at the source instead.
+      - name: Audit
+        run: pnpm run audit:all
+
+      - name: Build
+        run: pnpm build
+
+      - name: Build Storybook
+        run: pnpm build-storybook
+
+      # The docs site is the registry's host and the library's first consumer,
+      # so a break here means the published package is broken for everyone else.
+      - name: Build docs
+        run: pnpm --filter @dowel/docs build
+
+      # A non-deterministic registry makes every publish look like a change and
+      # hides the ones that matter. Compared directly rather than through git,
+      # since the output directory is not tracked.
+      - name: Verify the registry build is deterministic
+        run: |
+          pnpm --filter @dowel/registry exec tsx src/build.ts --out /tmp/registry-a
+          pnpm --filter @dowel/registry exec tsx src/build.ts --out /tmp/registry-b
+          diff -r /tmp/registry-a /tmp/registry-b
+
+  branding:
+    name: Branding placeholder report
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Informational until naming is settled. The release workflow runs this
+      # with --strict, which fails on any surviving placeholder.
+      - name: Report placeholders
+        run: pnpm check:branding

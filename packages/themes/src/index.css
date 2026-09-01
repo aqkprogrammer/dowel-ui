@@ -1,0 +1,4 @@
+/* Entry point consumers import once, at the root of their app. */
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./base.css";

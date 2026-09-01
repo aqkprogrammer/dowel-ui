@@ -1,0 +1,7 @@
+/* Import individually, or import this file to make every preset available. */
+@import "./ocean.css";
+@import "./emerald.css";
+@import "./violet.css";
+@import "./rose.css";
+@import "./amber.css";
+@import "./monochrome.css";

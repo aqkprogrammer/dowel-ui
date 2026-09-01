@@ -1,0 +1,21 @@
+/* Theme preset: amber.
+ * Apply with data-theme="amber" on the <html> element. Only the brand-carrying
+ * tokens are reassigned; every neutral, radius and motion token is inherited. */
+
+[data-theme="amber"] {
+  /* Darker than the amber a brand palette would pick. A bright amber cannot be
+     read as text on a light background — it tops out around 2.4:1 — and this
+     token is also the focus ring, which has its own 3:1 floor. The colour that
+     satisfies both is an ochre. */
+  --primary: oklch(0.55 0.155 70);
+  --primary-hover: oklch(0.505 0.155 70);
+  --primary-active: oklch(0.467 0.155 70);
+  --primary-foreground: oklch(0.985 0.002 265);
+}
+
+.dark[data-theme="amber"] {
+  --primary: oklch(0.8 0.15 70);
+  --primary-hover: oklch(0.845 0.15 70);
+  --primary-active: oklch(0.755 0.15 70);
+  --primary-foreground: oklch(0.16 0.02 70);
+}
