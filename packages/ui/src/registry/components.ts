@@ -31,6 +31,8 @@ import { meta as emptyStateMeta } from "@/components/empty-state/meta";
 import { meta as formMeta } from "@/components/form/meta";
 import { meta as inputMeta } from "@/components/input/meta";
 import { meta as labelMeta } from "@/components/label/meta";
+import { meta as meterMeta } from "@/components/meter/meta";
+import { meta as metricDeltaMeta } from "@/components/metric-delta/meta";
 import { meta as paginationMeta } from "@/components/pagination/meta";
 import { meta as popoverMeta } from "@/components/popover/meta";
 import { meta as progressMeta } from "@/components/progress/meta";
@@ -90,6 +92,8 @@ export const componentMetas: ComponentMeta[] = [
   formMeta,
   inputMeta,
   labelMeta,
+  meterMeta,
+  metricDeltaMeta,
   paginationMeta,
   popoverMeta,
   progressMeta,
