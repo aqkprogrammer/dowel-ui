@@ -54,6 +54,7 @@ export * from "./components/switch";
 export * from "./components/table";
 export * from "./components/tabs";
 export * from "./components/tags-input";
+export * from "./components/time-range-picker";
 export * from "./components/toast";
 export * from "./components/tooltip";
 

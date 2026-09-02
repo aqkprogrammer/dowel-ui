@@ -56,6 +56,7 @@ import { meta as switchMeta } from "@/components/switch/meta";
 import { meta as tableMeta } from "@/components/table/meta";
 import { meta as tabsMeta } from "@/components/tabs/meta";
 import { meta as tagsInputMeta } from "@/components/tags-input/meta";
+import { meta as timeRangePickerMeta } from "@/components/time-range-picker/meta";
 import { meta as toastMeta } from "@/components/toast/meta";
 import { meta as tooltipMeta } from "@/components/tooltip/meta";
 
@@ -127,6 +128,7 @@ export const componentMetas: ComponentMeta[] = [
   tableMeta,
   tabsMeta,
   tagsInputMeta,
+  timeRangePickerMeta,
   toastMeta,
   tooltipMeta,
 ];
