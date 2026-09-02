@@ -1,0 +1,40 @@
+{
+  "name": "dowel-cli",
+  "version": "0.2.0",
+  "type": "module",
+  "description": "One-word alias for @dowel-ui/cli, so `npx dowel-cli add button` works. The CLI itself lives in @dowel-ui/cli.",
+  "keywords": [
+    "cli",
+    "react",
+    "ui",
+    "components",
+    "design-system",
+    "tailwind",
+    "registry",
+    "shadcn",
+    "dowel"
+  ],
+  "license": "MIT",
+  "homepage": "https://dowel-eight.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aqkprogrammer/dowel-ui.git",
+    "directory": "packages/cli-alias"
+  },
+  "bugs": {
+    "url": "https://github.com/aqkprogrammer/dowel-ui/issues"
+  },
+  "files": [
+    "bin.js"
+  ],
+  "bin": {
+    "dowel-cli": "./bin.js",
+    "dowel": "./bin.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@dowel-ui/cli": "workspace:*"
+  }
+}
