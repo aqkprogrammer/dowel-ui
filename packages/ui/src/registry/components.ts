@@ -30,6 +30,7 @@ import { meta as commandMeta } from "@/components/command/meta";
 import { meta as dataTableMeta } from "@/components/data-table/meta";
 import { meta as datePickerMeta } from "@/components/date-picker/meta";
 import { meta as dialogMeta } from "@/components/dialog/meta";
+import { meta as diffViewerMeta } from "@/components/diff-viewer/meta";
 import { meta as drawerMeta } from "@/components/drawer/meta";
 import { meta as dropdownMenuMeta } from "@/components/dropdown-menu/meta";
 import { meta as emptyStateMeta } from "@/components/empty-state/meta";
@@ -100,6 +101,7 @@ export const componentMetas: ComponentMeta[] = [
   dataTableMeta,
   datePickerMeta,
   dialogMeta,
+  diffViewerMeta,
   drawerMeta,
   dropdownMenuMeta,
   emptyStateMeta,

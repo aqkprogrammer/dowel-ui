@@ -7,6 +7,27 @@ and live alongside each package. This file records repository-level milestones.
 
 ### New components
 
+- **diff-viewer** — two versions of a file, side by side or unified, with the
+  changed words inside a line marked rather than the whole line flagged, and
+  unchanged runs collapsed with the count of what was hidden stated rather than
+  silently dropped. Hunks can be accepted or rejected, which is the case Dowel
+  exists for: an agent proposing a change to a file. Decisions are controlled —
+  the component reports the decision and applies nothing, because writing to a
+  file is the application's call.
+
+  The diff algorithm is jsdiff's, not a reimplementation. What every packaged
+  *viewer* welds on is a styling strategy — emotion in
+  `react-diff-viewer-continued`, HTML strings and a stylesheet in `diff2html` —
+  and that is exactly what design tokens cannot reach and what is awkward under
+  RSC. jsdiff itself is BSD-licensed, dependency-free, and ships types.
+
+  It renders a semantic table, not a `role="grid"`: a grid would promise
+  cell-by-cell arrow navigation that does not exist here and makes no sense for
+  reading code. Every row states added, removed or unchanged in text, because a
+  plus sign and a green tint are not information, and line numbers are hidden
+  from assistive technology — announcing two numbers before every line makes a
+  diff unlistenable.
+
 - **log-viewer** — a streaming console: level facets, substring or regex
   filtering with the matches highlighted in place, expandable structured fields,
   and follow mode that detaches when you scroll up. The incumbent,
