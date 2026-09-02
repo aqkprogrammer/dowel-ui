@@ -50,6 +50,7 @@ export function ResponseCaret({ className, ...props }: ComponentPropsWithRef<"sp
     <span
       data-slot="response-caret"
       aria-hidden="true"
+      data-motion="indicator"
       className={cn(
         "ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em] animate-caret bg-current align-baseline",
         className,

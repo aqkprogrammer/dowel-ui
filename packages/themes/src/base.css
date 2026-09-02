@@ -164,14 +164,36 @@
   }
 
   /* Respect the OS setting globally (design spec §14). Individual components do
-   * not need to re-implement this. */
+   * not need to re-implement this.
+   *
+   * Two layers, because "reduce motion" is not "remove all movement". The scale
+   * collapses every token-driven duration, which covers everything this library
+   * animates. The blanket below still catches animation written by the consumer
+   * that does not use the tokens — but it exempts elements marked
+   * data-motion="indicator", so a spinner and a streaming caret keep reporting
+   * that something is happening. A frozen spinner is not a gentler experience;
+   * it says the application has hung. */
   @media (prefers-reduced-motion: reduce) {
-    *,
-    ::before,
-    ::after {
+    :root {
+      /* Sub-millisecond rather than zero: the overlay primitives wait on
+       * animationend to unmount, and a zero-duration animation can resolve
+       * before the listener is attached. */
+      --motion-scale: 0.001;
+
+      /* Slowed, not stopped. Halving the rate removes most of the movement
+       * while the indicator still reads as active. */
+      --motion-scale-indicator: 2;
+    }
+
+    *:not([data-motion="indicator"]),
+    *:not([data-motion="indicator"])::before,
+    *:not([data-motion="indicator"])::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+    }
+
+    * {
       scroll-behavior: auto !important;
     }
   }

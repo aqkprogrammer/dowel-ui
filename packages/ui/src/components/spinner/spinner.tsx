@@ -38,6 +38,11 @@ export function Spinner({ className, size, label, ...props }: SpinnerProps) {
         viewBox="0 0 24 24"
         fill="none"
         aria-hidden="true"
+        // Exempt from the reduced-motion blanket: this is not decoration. A
+        // spinner that stops turning reports that the application has hung,
+        // which is a worse experience than the motion it was avoiding. It is
+        // slowed instead — see --motion-scale-indicator.
+        data-motion="indicator"
         className={cn(spinnerVariants({ size }), className)}
         {...props}
       >
