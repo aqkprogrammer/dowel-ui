@@ -121,8 +121,8 @@ await toast.promise(save(), {
 Set a project up once, then add components as source you own:
 
 ```bash
-npx dowel init
-npx dowel add button card dialog
+npx @dowel-ui/cli init
+npx @dowel-ui/cli add button card dialog
 ```
 
 `add` pulls in whatever a component depends on — `add date-picker` also installs

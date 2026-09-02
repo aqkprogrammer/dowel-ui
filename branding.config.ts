@@ -12,8 +12,16 @@ export const branding = {
   libraryName: "Dowel",
   /** npm scope for published packages, including the leading "@". */
   packageScope: "@dowel-ui",
-  /** Binary name users type: `npx <cliName> add button`. */
+  /** The command the installed package provides: `dowel add button`. */
   cliName: "dowel",
+  /**
+   * The npm package name, which is NOT the command name. npm rejected the
+   * unscoped `dowel` as too similar to `del` and `bower` — a rule that runs
+   * only at publish time, so a 404 from the registry proves a name is unused,
+   * never that it can be claimed. This is what follows `npx`; `cliName` is the
+   * binary the package installs.
+   */
+  cliPackage: "@dowel-ui/cli",
   /** Base URL the CLI resolves registry items from. */
   registryUrl: "https://dowel-eight.vercel.app/r",
   /** Documentation site title. */

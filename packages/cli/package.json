@@ -1,5 +1,5 @@
 {
-  "name": "dowel",
+  "name": "@dowel-ui/cli",
   "version": "0.1.1",
   "type": "module",
   "description": "Adds components to your project as source you own.",

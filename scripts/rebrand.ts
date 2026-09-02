@@ -69,6 +69,7 @@ const REPLACEMENTS: [string, string][] = [
   [currentDomain, domain],
   [branding.packageScope, scope],
   [branding.libraryName, name],
+  [branding.cliPackage, `${scope}/cli`],
   [branding.cliName, cli],
 ];
 

@@ -28,7 +28,9 @@ export function InstallCommand({ args }: { args: string }) {
         ))}
       </TabsList>
       {RUNNERS.map((runner) => {
-        const command = `${runner.prefix} ${branding.cliName} ${args}`;
+        // cliPackage, not cliName: this follows `npx`, so it is the npm
+        // package name — which is not the same as the binary it installs.
+        const command = `${runner.prefix} ${branding.cliPackage} ${args}`;
         return (
           <TabsContent key={runner.id} value={runner.id}>
             <CodeBlock language="bash" title="Terminal" code={command}>
