@@ -2,14 +2,17 @@ import type { ComponentMeta } from "./schema";
 
 import { meta as accordionMeta } from "@/components/accordion/meta";
 import { meta as activityFeedMeta } from "@/components/activity-feed/meta";
+import { meta as aiActionLedgerMeta } from "@/components/ai-action-ledger/meta";
 import { meta as aiAgentStatusMeta } from "@/components/ai-agent-status/meta";
 import { meta as aiConversationMeta } from "@/components/ai-conversation/meta";
+import { meta as aiInlineCompletionMeta } from "@/components/ai-inline-completion/meta";
 import { meta as aiMessageMeta } from "@/components/ai-message/meta";
 import { meta as aiModelSelectorMeta } from "@/components/ai-model-selector/meta";
 import { meta as aiPromptInputMeta } from "@/components/ai-prompt-input/meta";
 import { meta as aiReasoningMeta } from "@/components/ai-reasoning/meta";
 import { meta as aiResponseMeta } from "@/components/ai-response/meta";
 import { meta as aiSourcesMeta } from "@/components/ai-sources/meta";
+import { meta as aiStructuredOutputMeta } from "@/components/ai-structured-output/meta";
 import { meta as aiTokenUsageMeta } from "@/components/ai-token-usage/meta";
 import { meta as aiToolMeta } from "@/components/ai-tool/meta";
 import { meta as alertMeta } from "@/components/alert/meta";
@@ -64,14 +67,17 @@ import { meta as tooltipMeta } from "@/components/tooltip/meta";
 export const componentMetas: ComponentMeta[] = [
   accordionMeta,
   activityFeedMeta,
+  aiActionLedgerMeta,
   aiAgentStatusMeta,
   aiConversationMeta,
+  aiInlineCompletionMeta,
   aiMessageMeta,
   aiModelSelectorMeta,
   aiPromptInputMeta,
   aiReasoningMeta,
   aiResponseMeta,
   aiSourcesMeta,
+  aiStructuredOutputMeta,
   aiTokenUsageMeta,
   aiToolMeta,
   alertMeta,

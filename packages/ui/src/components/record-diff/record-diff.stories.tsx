@@ -4,7 +4,7 @@ import { RecordDiff } from "./record-diff";
 
 /** Named so its type is nameable in declaration output (TS2883). */
 const withWidth: Decorator = (Story) => (
-  <div className="max-w-2xl">
+  <div className="w-full max-w-2xl">
     <Story />
   </div>
 );
