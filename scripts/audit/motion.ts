@@ -98,18 +98,35 @@ const sources = walk(uiSrc, [".tsx"]).filter(
   (file) => !file.endsWith(".test.tsx") && !file.endsWith(".stories.tsx"),
 );
 
+/**
+ * Lines that are comments.
+ *
+ * Without this the check flags any file that merely *discusses* the attribute —
+ * including the comment explaining why a component deliberately does not use
+ * it, which is exactly the file most likely to mention it.
+ */
+function isComment(line: string): boolean {
+  const trimmed = line.trimStart();
+  return trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*");
+}
+
 const exemptions: string[] = [];
 for (const file of sources) {
-  const contents = readFileSync(file, "utf8");
-  if (!contents.includes('data-motion="indicator"') && !contents.includes('"indicator"'))
-    continue;
-  if (!/data-motion[=\s]/.test(contents)) continue;
+  const code = readFileSync(file, "utf8")
+    .split("\n")
+    .map((line) => (isComment(line) ? "" : line));
+
+  // Both spellings: the literal attribute, and the conditional form a component
+  // uses when the exemption only applies in one state. Matching only the
+  // literal silently under-reports, which is worse than a false positive.
+  const line =
+    code.findIndex((text) => text.includes("data-motion") && text.includes('"indicator"')) + 1;
+  if (line === 0) continue;
 
   const relativePath = relative(join(uiSrc, "components"), file);
   exemptions.push(relativePath);
 
   if (!ALLOWED_INDICATORS.has(relativePath)) {
-    const line = contents.split("\n").findIndex((text) => text.includes("data-motion")) + 1;
     findings.push({
       file: relative(repoRoot, file),
       line,
