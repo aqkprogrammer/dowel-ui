@@ -35,6 +35,7 @@ export * from "./components/file-upload";
 export * from "./components/form";
 export * from "./components/input";
 export * from "./components/label";
+export * from "./components/log-viewer";
 export * from "./components/meter";
 export * from "./components/metric-delta";
 export * from "./components/record-diff";
