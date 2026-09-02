@@ -172,10 +172,26 @@ pnpm publish -r --access public
 ```
 
 `-r` publishes every public workspace package. `--access public` is required
-for the first publish of a scoped package (`@dowel-ui/*`); the unscoped `dowel`
-is public by default, and the flag is harmless there. Without it npm assumes
-private and
-rejects it.
+for the first publish of a scoped package (`@dowel-ui/*`); the unscoped
+`dowel-cli` is public by default, and the flag is harmless there. Without it npm
+assumes private and rejects it.
+
+Publishing requires a one-time code: the `aqkprogrammer` account has 2FA set to
+`auth-and-writes`, so every publish prompts for an OTP, or takes one on the
+command line as `--otp=<code>`.
+
+### The `dowel-cli` alias
+
+`packages/cli-alias` publishes as the unscoped **`dowel-cli`**, purely so that
+`npx dowel-cli add button` works — `npx` resolves a package name, not a binary,
+so a one-word invocation needs a one-word package. It contains no logic: a
+single `import "@dowel-ui/cli"`, and an exact pin on that version, so the two
+can never disagree.
+
+Because the pin is exact, **the alias must be versioned and published in the
+same release as the CLI**. `pnpm publish -r` handles this: `workspace:*` is
+rewritten to the concrete version at pack time. Publishing the alias alone
+against an older CLI is what to avoid.
 
 ### 4. Tag
 
