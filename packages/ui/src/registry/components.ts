@@ -37,6 +37,7 @@ import { meta as fileUploadMeta } from "@/components/file-upload/meta";
 import { meta as formMeta } from "@/components/form/meta";
 import { meta as inputMeta } from "@/components/input/meta";
 import { meta as labelMeta } from "@/components/label/meta";
+import { meta as logViewerMeta } from "@/components/log-viewer/meta";
 import { meta as meterMeta } from "@/components/meter/meta";
 import { meta as metricDeltaMeta } from "@/components/metric-delta/meta";
 import { meta as paginationMeta } from "@/components/pagination/meta";
@@ -106,6 +107,7 @@ export const componentMetas: ComponentMeta[] = [
   formMeta,
   inputMeta,
   labelMeta,
+  logViewerMeta,
   meterMeta,
   metricDeltaMeta,
   paginationMeta,
