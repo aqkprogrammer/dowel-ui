@@ -52,6 +52,9 @@ export function Progress({ className, size, tone, value, ...props }: ProgressPro
     >
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
+        // Only while indeterminate: the sweep is the signal that work is
+        // ongoing, and freezing it reads as a stalled zero percent.
+        data-motion={indeterminate ? "indicator" : undefined}
         className={cn(
           "h-full w-full flex-1 rounded-full bg-[var(--progress-fill)]",
           "transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out-quint)]",

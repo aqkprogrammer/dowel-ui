@@ -102,7 +102,7 @@
   --ease-in-out-quint: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-overshoot: cubic-bezier(0.34, 1.4, 0.64, 1);
 
-  --animate-spin: spin 0.7s linear infinite;
+  --animate-spin: spin calc(0.7s * var(--motion-scale-indicator)) linear infinite;
   --animate-pulse-soft: pulse-soft 1.8s var(--ease-in-out-quint) infinite;
 
   /* Overlay surfaces. Exits are deliberately faster than entrances: an opening
@@ -131,7 +131,12 @@
 
   /* The caret that trails streaming text. Steps rather than a fade, so it reads
    * as a terminal cursor rather than as something loading. */
-  --animate-caret: caret 1s steps(2, start) infinite;
+  --animate-caret: caret calc(1s * var(--motion-scale-indicator)) steps(2, start) infinite;
+
+  /* A streamed value that has finished arriving. Distinct from appearing:
+   * "here is a token" and "this field is final" are different facts, and in a
+   * streamed object they are otherwise indistinguishable. */
+  --animate-settle: settle var(--duration-slow) var(--ease-out-quint);
 
   --animate-accordion-open: accordion-open var(--duration-normal) var(--ease-out-quint);
   --animate-accordion-close: accordion-close var(--duration-fast) var(--ease-in-quint);
@@ -208,6 +213,13 @@
     }
   }
 
+  @keyframes settle {
+    from {
+      opacity: 0;
+      transform: translateY(3px);
+    }
+  }
+
   @keyframes accordion-open {
     from {
       height: 0;
@@ -252,11 +264,25 @@
  * consumed via var() or arbitrary values (e.g. z-[var(--z-popover)]).
  */
 :root {
-  --duration-instant: 75ms;
-  --duration-fast: 130ms;
-  --duration-normal: 200ms;
-  --duration-slow: 320ms;
-  --duration-slower: 480ms;
+  /* One multiplier re-times the whole system, the way --radius-scale
+   * re-proportions every corner. 0 stops choreography outright; 1.4 makes it
+   * deliberate. Set it per surface if a dense admin table wants to feel brisker
+   * than a marketing page.
+   *
+   * Reduced motion drives this rather than blanket-overriding every duration,
+   * which is what lets indicators keep reporting — see base.css. */
+  --motion-scale: 1;
+
+  /* Indicators that report ongoing state — a spinner, a streaming caret. Scaled
+   * separately because stopping them is not a reduction, it is a lie: a frozen
+   * spinner says the application has hung. */
+  --motion-scale-indicator: 1;
+
+  --duration-instant: calc(75ms * var(--motion-scale));
+  --duration-fast: calc(130ms * var(--motion-scale));
+  --duration-normal: calc(200ms * var(--motion-scale));
+  --duration-slow: calc(320ms * var(--motion-scale));
+  --duration-slower: calc(480ms * var(--motion-scale));
 
   --size-icon-xs: 0.75rem;
   --size-icon-sm: 0.875rem;

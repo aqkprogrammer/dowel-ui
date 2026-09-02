@@ -220,6 +220,83 @@ describe("StructuredOutput", () => {
     });
   });
 
+  describe("the settle", () => {
+    it("does not play for a field that was already final on mount", () => {
+      // Nothing arrived; there is nothing to report as having finished.
+      const { container } = render(
+        <StructuredOutput fields={FIELDS} value={{ vendor: "Acme" }} />,
+      );
+      expect(fieldEl(container, "vendor")).not.toHaveAttribute("data-settled");
+    });
+
+    it("plays on the transition from streaming to settled", () => {
+      const { container, rerender } = render(
+        <StructuredOutput fields={FIELDS} value={{ vendor: "Ac" }} streaming />,
+      );
+      expect(fieldEl(container, "vendor")).toHaveAttribute("data-state", "streaming");
+
+      // A later field arriving proves the earlier one finished.
+      rerender(
+        <StructuredOutput fields={FIELDS} value={{ vendor: "Acme", total: 12 }} streaming />,
+      );
+
+      expect(fieldEl(container, "vendor")).toHaveAttribute("data-state", "settled");
+      expect(fieldEl(container, "vendor")).toHaveAttribute("data-settled");
+    });
+
+    it("does not re-trigger as later fields arrive", () => {
+      // A CSS animation replays only when the class is re-added, so the thing
+      // that would cause a second play is the marker flickering off and on.
+      const { container, rerender } = render(
+        <StructuredOutput fields={FIELDS} value={{ vendor: "Ac" }} streaming />,
+      );
+      rerender(
+        <StructuredOutput fields={FIELDS} value={{ vendor: "Acme", total: 12 }} streaming />,
+      );
+      expect(fieldEl(container, "vendor")).toHaveAttribute("data-settled");
+
+      rerender(
+        <StructuredOutput
+          fields={FIELDS}
+          value={{ vendor: "Acme", total: 12, dueDate: "x" }}
+          streaming
+        />,
+      );
+      expect(fieldEl(container, "vendor")).toHaveAttribute("data-settled");
+    });
+
+    it("carries the animation class only on a field that arrived", () => {
+      const { container, rerender } = render(
+        <StructuredOutput fields={FIELDS} value={{ vendor: "Ac" }} streaming />,
+      );
+      rerender(
+        <StructuredOutput fields={FIELDS} value={{ vendor: "Acme", total: 12 }} streaming />,
+      );
+
+      const settledValue = fieldEl(container, "vendor").querySelector(
+        "[data-slot='structured-field-value']",
+      );
+      const stillStreaming = fieldEl(container, "total").querySelector(
+        "[data-slot='structured-field-value']",
+      );
+
+      expect(settledValue).toHaveClass("animate-settle");
+      expect(stillStreaming).not.toHaveClass("animate-settle");
+    });
+
+    it("does not play when a pending field arrives already settled", () => {
+      // pending -> settled with no streaming step still counts as arriving,
+      // because the reader did watch it appear.
+      const { container, rerender } = render(
+        <StructuredOutput fields={FIELDS} value={{}} streaming />,
+      );
+      expect(fieldEl(container, "vendor")).toHaveAttribute("data-state", "pending");
+
+      rerender(<StructuredOutput fields={FIELDS} value={{ vendor: "Acme" }} />);
+      expect(fieldEl(container, "vendor")).toHaveAttribute("data-settled");
+    });
+  });
+
   it("throws a useful error when a part is used outside the root", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
     expect(() => render(<StructuredField name="vendor" />)).toThrow(

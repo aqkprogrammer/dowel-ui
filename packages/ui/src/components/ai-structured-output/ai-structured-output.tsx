@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useMemo,
+  useState,
   type ComponentPropsWithRef,
   type ReactNode,
 } from "react";
@@ -167,10 +168,28 @@ export function StructuredField({ className, name, children, ...props }: Structu
   const state = stateOf(name);
   const raw = value[name];
 
+  // "A token arrived" and "this field is final" are different facts, and in a
+  // streamed object they look identical. The settle makes that distinction
+  // visible — so it plays on the transition into settled, and never on a field
+  // that was already final when the component mounted.
+  //
+  // State adjusted during render rather than tracked in a ref: reading a ref
+  // while rendering is unsafe under concurrent rendering, and an effect would
+  // paint the plain value first and animate a frame later. React re-renders
+  // immediately here and discards the intermediate pass.
+  const [seenState, setSeenState] = useState<FieldState>(state);
+  const [hasSettled, setHasSettled] = useState(false);
+
+  if (seenState !== state) {
+    setSeenState(state);
+    if (state === "settled" && seenState !== "settled") setHasSettled(true);
+  }
+
   return (
     <div
       data-slot="structured-field"
       data-state={state}
+      data-settled={hasSettled || undefined}
       data-field={name}
       className={cn("flex flex-col gap-1", className)}
       {...props}
@@ -195,7 +214,12 @@ export function StructuredField({ className, name, children, ...props }: Structu
             className="block h-4 w-24 animate-pulse-soft rounded bg-muted"
           />
         ) : (
-          (children ?? formatValue(raw, name))
+          <span
+            data-slot="structured-field-value"
+            className={cn(hasSettled && "inline-block animate-settle")}
+          >
+            {children ?? formatValue(raw, name)}
+          </span>
         )}
       </dd>
     </div>

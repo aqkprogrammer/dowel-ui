@@ -204,6 +204,13 @@ the system at once.
 `monochrome` is not only a style — it is a standing check that no component uses
 colour as its only signal.
 
+Motion works the same way. `--motion-scale` is a single multiplier every
+duration derives from, so one property re-times the whole system. Under
+`prefers-reduced-motion` it collapses — but indicators that report ongoing
+state, like a spinner or a streaming caret, are slowed rather than stopped via
+`--motion-scale-indicator`, because a frozen spinner says the application has
+hung.
+
 ## Accessibility
 
 Targeted at WCAG 2.2 AA. Every component has an axe assertion in its test suite
