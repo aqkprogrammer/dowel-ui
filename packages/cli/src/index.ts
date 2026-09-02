@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
+
 import { Command } from "commander";
 
 import { branding } from "./branding";
@@ -10,12 +12,22 @@ import { update } from "./commands/update";
 import { CliError } from "./lib/errors";
 import { logger, pc } from "./lib/logger";
 
+/**
+ * Read from the manifest rather than hardcoded, so `--version` cannot drift
+ * away from what was actually published. `src/index.ts` and the built
+ * `dist/index.js` both sit one directory below package.json, so this resolves
+ * to the same file whether the CLI is run from source or from the tarball.
+ */
+const { version } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+) as { version: string };
+
 const program = new Command();
 
 program
   .name(branding.cliName)
   .description(`Add ${branding.libraryName} components to your project as source you own.`)
-  .version("0.1.0")
+  .version(version)
   .option("-c, --cwd <path>", "project root", process.cwd())
   .option("-r, --registry <url>", "registry base URL, or a directory on disk");
 

@@ -29,6 +29,7 @@ export * from "./components/dialog";
 export * from "./components/drawer";
 export * from "./components/dropdown-menu";
 export * from "./components/empty-state";
+export * from "./components/file-upload";
 export * from "./components/form";
 export * from "./components/input";
 export * from "./components/label";

@@ -31,6 +31,7 @@ import { meta as dialogMeta } from "@/components/dialog/meta";
 import { meta as drawerMeta } from "@/components/drawer/meta";
 import { meta as dropdownMenuMeta } from "@/components/dropdown-menu/meta";
 import { meta as emptyStateMeta } from "@/components/empty-state/meta";
+import { meta as fileUploadMeta } from "@/components/file-upload/meta";
 import { meta as formMeta } from "@/components/form/meta";
 import { meta as inputMeta } from "@/components/input/meta";
 import { meta as labelMeta } from "@/components/label/meta";
@@ -97,6 +98,7 @@ export const componentMetas: ComponentMeta[] = [
   drawerMeta,
   dropdownMenuMeta,
   emptyStateMeta,
+  fileUploadMeta,
   formMeta,
   inputMeta,
   labelMeta,

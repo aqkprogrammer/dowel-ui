@@ -7,6 +7,17 @@ and live alongside each package. This file records repository-level milestones.
 
 ### New components
 
+- **file-upload** — a dropzone over a real `input[type=file]`, plus the queue
+  almost nobody ships: per-file progress, cancel, retry with backoff, and a
+  concurrency limit. The transport is injected as a single `upload` function, so
+  the component never constructs a request — a presigned S3 PUT, a multipart
+  POST and tus are all the consumer's to write. `xhrUpload` ships as a working
+  example rather than a dependency, and uses XMLHttpRequest because `fetch`
+  still cannot report upload progress in any shipping browser.
+
+  Split across two files on purpose: `upload-queue.ts` is the part worth owning
+  and is testable without rendering anything.
+
 - **tags-input** — a list of short values: invited emails, allowed domains,
   stop sequences. The behaviour worth shipping is what happens to input that
   fails validation. Every implementation surveyed either refuses to create the
