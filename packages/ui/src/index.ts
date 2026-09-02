@@ -48,6 +48,7 @@ export * from "./components/spinner";
 export * from "./components/switch";
 export * from "./components/table";
 export * from "./components/tabs";
+export * from "./components/tags-input";
 export * from "./components/toast";
 export * from "./components/tooltip";
 

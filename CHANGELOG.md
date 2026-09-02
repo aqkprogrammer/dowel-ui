@@ -5,6 +5,22 @@ and live alongside each package. This file records repository-level milestones.
 
 ## Unreleased
 
+### New components
+
+- **tags-input** — a list of short values: invited emails, allowed domains,
+  stop sequences. The behaviour worth shipping is what happens to input that
+  fails validation. Every implementation surveyed either refuses to create the
+  token or creates it and silently discards it, and both leave the reader with
+  a field that did not do what they asked and nothing to correct. Here an
+  invalid entry becomes a token like any other, marked and carrying its reason.
+  Refusals — duplicates, hitting the limit — are announced rather than looking
+  like nothing happened.
+
+  Deliberately no suggestion list. A token field with an anchored listbox is a
+  multi-select combobox, and there are already 544 lines of hand-rolled combobox
+  ARIA in this library; a second copy would be the kind of duplication that
+  drifts. Multi-select belongs in Combobox.
+
 ### Motion
 
 - **`--motion-scale`** — one multiplier re-times the whole system, the way
