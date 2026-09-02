@@ -54,17 +54,18 @@ they want to change something.
 
 ## What is in it
 
-**52 components** and **8 blocks**, every one keyboard-operable and audited for
+**56 components** and **8 blocks**, every one keyboard-operable and audited for
 contrast.
 
 **AI** — the reason this library exists
 Conversation · Message · Response · Prompt Input · Tool Call · Reasoning ·
-Sources · Model Selector · Token Usage · Agent Status · **Action Ledger** ·
-**Structured Output** · **Inline Completion**
+Sources · Model Selector · Token Usage · Agent Status · **Agent Plan** ·
+**Approval Request** · **Action Ledger** · **Structured Output** ·
+**Inline Completion**
 
 **Forms**
 Input · Label · Checkbox · Radio Group · Switch · Slider · Select · Combobox ·
-Form · Calendar · Date Picker
+Form · Calendar · Date Picker · **Tags Input** · **File Upload**
 
 **Overlays**
 Dialog · Sheet · Drawer · Popover · Tooltip · Dropdown Menu
@@ -86,6 +87,11 @@ Tabs · Command · Pagination · Card · Badge · Avatar · Button · Separator
 Most "AI component libraries" ship a chat transcript and stop. Real AI features
 inside real software are extraction, enrichment, autofill and agents that
 _change things_ — and those need surfaces nobody else provides.
+
+**`ai-agent-plan` + `ai-approval-request` + `ai-action-ledger`** — the whole
+sequence, which no other library covers: what the agent intends, the gate where
+you approve it (after correcting the arguments it got wrong), and the record of
+what it actually did.
 
 **`ai-action-ledger`** — what the agent actually did, and what can be undone.
 Everyone ships approval _before_ a tool runs. Nothing ships the part after,
