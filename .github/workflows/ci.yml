@@ -32,6 +32,14 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      # Before anything type-aware. The docs app imports @dowel-ui/react, whose
+      # types live in dist/, so on a clean checkout every typed lint rule sees
+      # `any` and reports hundreds of unsafe-member-access errors that say
+      # nothing about the code. This passed locally for months only because a
+      # dist/ from an earlier build was always lying around.
+      - name: Build
+        run: pnpm build
+
       - name: Format check
         run: pnpm format:check
 
@@ -52,9 +60,6 @@ jobs:
       # at the source instead.
       - name: Audit
         run: pnpm run audit:all
-
-      - name: Build
-        run: pnpm build
 
       - name: Build Storybook
         run: pnpm build-storybook
