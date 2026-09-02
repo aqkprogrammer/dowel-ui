@@ -3,6 +3,16 @@
   "version": "0.1.1",
   "type": "module",
   "description": "Registry schema and the build that emits the public registry JSON.",
+  "license": "MIT",
+  "homepage": "https://dowel-eight.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aqkprogrammer/dowel-ui.git",
+    "directory": "packages/registry"
+  },
+  "bugs": {
+    "url": "https://github.com/aqkprogrammer/dowel-ui/issues"
+  },
   "files": [
     "dist",
     "src",

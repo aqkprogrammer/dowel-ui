@@ -3,6 +3,16 @@
   "version": "0.1.1",
   "type": "module",
   "description": "Adds components to your project as source you own.",
+  "license": "MIT",
+  "homepage": "https://dowel-eight.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aqkprogrammer/dowel-ui.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/aqkprogrammer/dowel-ui/issues"
+  },
   "files": [
     "dist"
   ],
