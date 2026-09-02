@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
@@ -42,10 +42,14 @@ describe("binary", () => {
     expect(result.stdout).toContain("update");
   });
 
-  it("prints its version", () => {
+  it("prints the version from the manifest, not a hardcoded copy", () => {
+    const manifest = JSON.parse(readFileSync(join(here, "..", "package.json"), "utf8")) as {
+      version: string;
+    };
+
     const result = run(["--version"]);
     expect(result.status).toBe(0);
-    expect(result.stdout.trim()).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(result.stdout.trim()).toBe(manifest.version);
   });
 
   it("initialises and adds a component through the real argument parser", () => {
