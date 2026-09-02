@@ -2,7 +2,7 @@
   "name": "@dowel-ui/registry",
   "version": "0.2.0",
   "type": "module",
-  "description": "Registry schema and the build that emits the public registry JSON.",
+  "description": "Builds the static component registry that the Dowel CLI installs from. For hosting your own registry or a fork.",
   "keywords": [
     "registry",
     "build-tool",
