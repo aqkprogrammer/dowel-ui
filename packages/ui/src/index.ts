@@ -29,6 +29,8 @@ export * from "./components/empty-state";
 export * from "./components/form";
 export * from "./components/input";
 export * from "./components/label";
+export * from "./components/meter";
+export * from "./components/metric-delta";
 export * from "./components/pagination";
 export * from "./components/popover";
 export * from "./components/progress";
