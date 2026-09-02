@@ -199,5 +199,8 @@ export async function init(options: InitOptions): Promise<void> {
     logger.info(`  ${missing.join(" ")}`);
   }
   logger.blank();
-  logger.info(`Next: ${pc.bold(`${branding.cliName} add button`)}`);
+  // The npx form rather than the bare binary: whoever ran this through npx
+  // has no `dowel` on their PATH, and pointing them at a command they do not
+  // have is a poor first impression.
+  logger.info(`Next: ${pc.bold(`npx ${branding.cliPackage} add button`)}`);
 }

@@ -5,6 +5,21 @@ and live alongside each package. This file records repository-level milestones.
 
 ## 0.1.1
 
+### Naming
+
+- **Fix:** the CLI publishes as `@dowel-ui/cli`, not as an unscoped `dowel`. npm
+  refuses that name — "too similar to existing packages del, bower" — under a
+  typosquat rule that runs only at publish time. A 404 from the registry proves
+  a name is unused; it does not prove the name can be claimed, and nothing short
+  of attempting the publish distinguishes the two. Scoped names skip the check.
+- `branding` gains `cliPackage` alongside `cliName`. They were the same string
+  and so were used interchangeably — the npm package after `npx`, and the binary
+  the package installs. They are no longer the same string, and conflating them
+  is what let the wrong assumption spread through the docs.
+- `init` now closes with the `npx @dowel-ui/cli add button` form. Anyone who
+  reached it through npx has no `dowel` on their PATH, so the bare binary was
+  pointing them at a command they do not have.
+
 ### Packaging
 
 - **Fix:** `@dowel-ui/react` published its entire test and story suite — 110
@@ -34,7 +49,8 @@ reaching it — so the CLI starts at 0.1.1.
   `@dowel-ui` — the same shape as `@radix-ui` and `@tanstack`. The component
   package is `@dowel-ui/react` rather than `@dowel-ui/ui`, which would have read
   redundantly at every import. The CLI is published unscoped as `dowel`, which
-  is what makes `npx dowel add button` work without a scope prefix.
+  would have made `npx dowel add button` work without a scope prefix. This turned
+  out to be wrong — see 0.1.1.
 - **Fix:** `rebrand` hardcoded the original `libname` placeholders for the domain
   and CLI name, so a second rename silently left both untouched. Every
   replacement is now derived from the current `branding.config.ts`, and the

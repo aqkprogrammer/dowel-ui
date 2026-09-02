@@ -39,8 +39,12 @@ the answer — the failure mode of every other method is a false "free".
 
 **`@dowel` is already claimed**, which is why the packages publish under
 `@dowel-ui` (checked 2026-09-01, free at the time). The unscoped package name
-`dowel` is free, and that is what makes `npx dowel` work: the CLI publishes
-under it, the libraries under the scope.
+The CLI publishes as `@dowel-ui/cli`, not as an unscoped `dowel`. npm rejects
+that name — "too similar to existing packages del, bower" — under a typosquat
+rule that runs **only at publish time**. A 404 from the registry therefore
+proves a name is unused, never that it can be claimed; there is no way to check
+availability short of attempting the publish. Scoped names skip the check
+entirely, which is why `@dowel-ui/cli` is safe.
 
 The npm organisation `dowel-ui` exists and is owned by `aqkprogrammer`.
 
@@ -188,8 +192,8 @@ package contents:
 ```bash
 cd /tmp && pnpm create next-app@latest dowel-check --ts --tailwind --app
 cd dowel-check
-pnpm dlx dowel init
-pnpm dlx dowel add button dialog data-table
+pnpm dlx @dowel-ui/cli init
+pnpm dlx @dowel-ui/cli add button dialog data-table
 pnpm build
 ```
 
