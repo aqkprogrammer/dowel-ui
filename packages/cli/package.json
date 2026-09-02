@@ -2,7 +2,7 @@
   "name": "@dowel-ui/cli",
   "version": "0.2.0",
   "type": "module",
-  "description": "Adds components to your project as source you own.",
+  "description": "Installs Dowel components into your project as source you own, with dependencies resolved and imports rewritten to your path aliases.",
   "keywords": [
     "cli",
     "react",
