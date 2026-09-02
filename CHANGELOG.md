@@ -5,6 +5,14 @@ and live alongside each package. This file records repository-level milestones.
 
 ## 0.3.0
 
+### Naming
+
+- `dowel-cli` is marked private and will not be published. npm refuses the name
+  as "too similar to existing package del-cli" — the second refusal on this
+  pattern after `dowel` itself, which was too similar to `del` and `bower`. The
+  check runs only at publish, so a 404 from the registry proves a name is
+  unused, never that it can be claimed. `npx @dowel-ui/cli` is the way in.
+
 ### New components
 
 - **ai-approval-request** — the gate between an agent deciding to act and it
