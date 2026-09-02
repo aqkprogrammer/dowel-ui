@@ -7,6 +7,16 @@ and live alongside each package. This file records repository-level milestones.
 
 ### New components
 
+- **ai-approval-request** — the gate between an agent deciding to act and it
+  acting, which completes the sequence: plan, approve, execute, account for.
+  Two things separate it from the confirmations that exist. The proposed
+  arguments are editable, so "approve this but fix the address first" is
+  possible — every surveyed implementation returns a boolean over a read-only
+  payload, forcing a choice between approving something wrong and denying it
+  outright. And it renders while the arguments are still arriving, rather than
+  returning null until the tool input completes and showing nothing at the
+  moment approval becomes relevant.
+
 - **ai-agent-plan** — what an agent intends to do, and how far through it is.
   Not a stepper: a wizard's steps are fixed, while an agent revises its plan as
   it learns. Revision is therefore the feature rather than an edge case, and a
