@@ -1,63 +1,82 @@
+<div align="center">
+
 # Dowel
 
-A modern, source-first React UI library for building beautiful SaaS, AI and
-enterprise applications.
+### Source-first React components for SaaS and AI products
 
-A dowel is the hidden pin that joins two pieces without visible fasteners. That
-is the idea here: components you install as source, that fit together and then
-get out of the way.
+**You install the code, not a dependency.**
 
-Components are installed as source into your own repository. You own the code,
-you can read it, and you can change it — there is no runtime package standing
-between you and the markup.
+[![npm](https://img.shields.io/npm/v/@dowel-ui/react?color=5b5bd6&label=%40dowel-ui%2Freact)](https://www.npmjs.com/package/@dowel-ui/react)
+[![CI](https://github.com/aqkprogrammer/dowel-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/aqkprogrammer/dowel-ui/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/@dowel-ui/react?color=5b5bd6)](LICENSE)
 
-## Status
+[**Documentation**](https://dowel-eight.vercel.app) · [**Components**](https://dowel-eight.vercel.app/docs/components) · [**CLI**](https://dowel-eight.vercel.app/docs/cli)
 
-**All nine phases complete, and not yet deployed or published.** Everything
-works today: the docs site builds, serves the registry, and the CLI installs
-from it over HTTP. Forty-six components, eight blocks, the CLI, the registry and
-the documentation site are all under the full quality gate, and the design
-tokens pass WCAG AA contrast in every mode and every preset.
+</div>
 
-The docs site and registry are live at
-[dowel-eight.vercel.app](https://dowel-eight.vercel.app), and the `@dowel-ui` npm
-organisation is registered. A custom domain will replace the Vercel one later.
+---
 
-| Phase | Scope                                                                          | Status      |
-| ----- | ------------------------------------------------------------------------------ | ----------- |
-| 1     | Monorepo, tokens, themes, conventions, 10 foundation components                | ✅ Complete |
-| 2     | Dialog, Popover, Tooltip, Dropdown, Tabs, Accordion, Sheet, Drawer, Toast      | Next        |
-| 3     | Checkbox, Radio, Switch, Select, Combobox, Form, Calendar, Date Picker, Slider | Planned     |
-| 4     | CLI + registry                                                                 | Planned     |
-| 5     | Table, Data Table, Pagination, Command, Empty State, Progress                  | Planned     |
-| 6     | AI components                                                                  | Planned     |
-| 7     | Documentation site                                                             | Planned     |
-| 8     | Blocks                                                                         | Planned     |
-| 9     | Audits and polish                                                              | Planned     |
+A dowel is the hidden pin that joins two pieces of wood without a visible
+fastener. That is the idea here: components that fit together, hold, and then
+get out of your way.
 
-## Components
+```bash
+npx @dowel-ui/cli init
+npx @dowel-ui/cli add button
+```
 
-**Foundation** — Button · Input · Label · Card · Badge · Avatar · Separator ·
-Skeleton · Alert · Spinner
+That second command writes `button.tsx` into your project. Open it. Change it.
+It is your file now — there is no package standing between you and the markup.
+
+**Live:** [dowel-eight.vercel.app](https://dowel-eight.vercel.app) — docs, every
+component, and the registry the CLI reads.
+**Published:** `@dowel-ui/react`, `@dowel-ui/cli`, `@dowel-ui/themes`,
+`@dowel-ui/registry`.
+
+## What is in it
+
+**52 components** and **8 blocks**, every one keyboard-operable and audited for
+contrast in light and dark.
+
+**AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
+Reasoning · Sources · Model Selector · Token Usage · Agent Status ·
+Action Ledger · Structured Output · Inline Completion
+
+**Forms** — Input · Label · Checkbox · Radio Group · Switch · Slider · Select ·
+Combobox · Form · Calendar · Date Picker
 
 **Overlays** — Dialog · Sheet · Drawer · Popover · Tooltip · Dropdown Menu
 
-**Forms** — Checkbox · Radio Group · Switch · Slider · Select · Combobox ·
-Form · Calendar · Date Picker
+**Data** — Table · Data Table · Accordion · Activity Feed · Code Block ·
+Metric Delta · Record Diff
 
-**Navigation** — Tabs · Pagination · Command
+**Feedback** — Alert · Toast · Progress · Meter · Skeleton · Spinner ·
+Empty State
 
-**Data** — Table · Data Table · Accordion · Activity Feed
+**Navigation & layout** — Tabs · Command · Pagination · Card · Badge · Avatar ·
+Button · Separator
 
-**Feedback** — Toast · Progress · Empty State
+## The AI components
 
-**AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
-Reasoning · Sources · Model Selector · Token Usage · Agent Status · Code Block
+Most AI component sets ship a chat transcript and stop. Real AI features inside
+real software are extraction, enrichment, autofill, and agents that _change
+things_ — which need surfaces nobody else provides.
+
+**`ai-action-ledger`** — what the agent actually did, and what can be undone.
+Everyone ships approval _before_ a tool runs; nothing ships the part after,
+where a deletion can be reverted, a refund can only be offset by another
+transaction, and a sent email cannot be taken back at all.
+
+**`ai-structured-output`** — an object arriving field by field, layout reserved
+up front so nothing jumps as it fills in.
+
+**`ai-inline-completion`** — ghost text in a real textarea. Escape always gives
+Tab back to focus management, so a keyboard user is never trapped.
 
 ## Blocks
 
-Whole sections, assembled from the components. Installing one brings everything
-it is built from — `add ai-chat` resolves eleven components.
+Whole sections, assembled from components. Installing one brings everything it
+is built from — `add ai-chat` resolves fourteen components.
 
 Login · Sign up · Forgot password · Dashboard · Admin users · Settings ·
 Pricing · AI Chat
@@ -160,14 +179,15 @@ pnpm install
 pnpm storybook
 ```
 
-| Command               | Does                                           |
-| --------------------- | ---------------------------------------------- |
-| `pnpm storybook`      | Component development environment on :6006     |
-| `pnpm test`           | Vitest, including the registry integrity suite |
-| `pnpm lint`           | ESLint, including `jsx-a11y`                   |
-| `pnpm typecheck`      | `tsc --noEmit` across every package            |
-| `pnpm build`          | Build all packages                             |
-| `pnpm check:branding` | List every surviving branding placeholder      |
+| Command               | Does                                                     |
+| --------------------- | -------------------------------------------------------- |
+| `pnpm storybook`      | Component development environment on :6006               |
+| `pnpm test`           | Vitest, including the registry integrity suite           |
+| `pnpm lint`           | ESLint, including `jsx-a11y`                             |
+| `pnpm typecheck`      | `tsc --noEmit` across every package                      |
+| `pnpm build`          | Build all packages                                       |
+| `pnpm check:branding` | List every surviving branding placeholder                |
+| `pnpm audit:all`      | Contrast, tokens, API conventions, bundle, npm packaging |
 
 ## Design system
 

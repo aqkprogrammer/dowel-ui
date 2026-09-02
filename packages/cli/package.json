@@ -1,8 +1,23 @@
 {
   "name": "@dowel-ui/cli",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "description": "Adds components to your project as source you own.",
+  "keywords": [
+    "cli",
+    "react",
+    "ui",
+    "components",
+    "component-library",
+    "design-system",
+    "tailwind",
+    "scaffolding",
+    "registry",
+    "code-generation",
+    "shadcn",
+    "source-first",
+    "dowel"
+  ],
   "license": "MIT",
   "homepage": "https://dowel-eight.vercel.app",
   "repository": {

@@ -1,8 +1,17 @@
 {
   "name": "@dowel-ui/registry",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "description": "Registry schema and the build that emits the public registry JSON.",
+  "keywords": [
+    "registry",
+    "build-tool",
+    "component-registry",
+    "react",
+    "design-system",
+    "tooling",
+    "dowel"
+  ],
   "license": "MIT",
   "homepage": "https://dowel-eight.vercel.app",
   "repository": {

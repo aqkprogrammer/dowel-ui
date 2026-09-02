@@ -1,8 +1,23 @@
 {
   "name": "@dowel-ui/themes",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "description": "Design tokens and theme presets.",
+  "keywords": [
+    "css",
+    "design-tokens",
+    "theme",
+    "theming",
+    "tailwind",
+    "tailwindcss",
+    "oklch",
+    "dark-mode",
+    "accessible",
+    "wcag",
+    "contrast",
+    "design-system",
+    "dowel"
+  ],
   "license": "MIT",
   "homepage": "https://dowel-eight.vercel.app",
   "repository": {
