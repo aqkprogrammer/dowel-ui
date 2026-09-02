@@ -3,6 +3,7 @@ import type { ComponentMeta } from "./schema";
 import { meta as accordionMeta } from "@/components/accordion/meta";
 import { meta as activityFeedMeta } from "@/components/activity-feed/meta";
 import { meta as aiActionLedgerMeta } from "@/components/ai-action-ledger/meta";
+import { meta as aiAgentPlanMeta } from "@/components/ai-agent-plan/meta";
 import { meta as aiAgentStatusMeta } from "@/components/ai-agent-status/meta";
 import { meta as aiConversationMeta } from "@/components/ai-conversation/meta";
 import { meta as aiInlineCompletionMeta } from "@/components/ai-inline-completion/meta";
@@ -70,6 +71,7 @@ export const componentMetas: ComponentMeta[] = [
   accordionMeta,
   activityFeedMeta,
   aiActionLedgerMeta,
+  aiAgentPlanMeta,
   aiAgentStatusMeta,
   aiConversationMeta,
   aiInlineCompletionMeta,

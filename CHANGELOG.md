@@ -7,6 +7,16 @@ and live alongside each package. This file records repository-level milestones.
 
 ### New components
 
+- **ai-agent-plan** — what an agent intends to do, and how far through it is.
+  Not a stepper: a wizard's steps are fixed, while an agent revises its plan as
+  it learns. Revision is therefore the feature rather than an edge case, and a
+  structural change is announced — watching a list quietly grow is not the same
+  as being told the model added a step. Status changes stay silent, because
+  announcing every transition would talk over the reader continuously.
+
+  Pairs with `ai-action-ledger`: the plan is what it intends, the ledger is what
+  it did. Approval, the step between them, is still unbuilt.
+
 - **file-upload** — a dropzone over a real `input[type=file]`, plus the queue
   almost nobody ships: per-file progress, cancel, retry with backoff, and a
   concurrency limit. The transport is injected as a single `upload` function, so
