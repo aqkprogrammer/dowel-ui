@@ -1,8 +1,9 @@
 {
   "name": "dowel-cli",
   "version": "0.2.0",
+  "private": true,
   "type": "module",
-  "description": "One-word alias for @dowel-ui/cli, so `npx dowel-cli add button` works. The CLI itself lives in @dowel-ui/cli.",
+  "description": "Unpublished. npm refuses the name 'dowel-cli' as too similar to 'del-cli'. Use @dowel-ui/cli.",
   "keywords": [
     "cli",
     "react",

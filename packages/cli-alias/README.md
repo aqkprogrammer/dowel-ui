@@ -2,27 +2,37 @@
 
 # dowel-cli
 
-### A one-word name for `npx`
-
-[![npm](https://img.shields.io/npm/v/dowel-cli?color=5b5bd6)](https://www.npmjs.com/package/dowel-cli)
+### Not published
 
 </div>
 
 ---
 
-```bash
-npx dowel-cli init
-npx dowel-cli add button calendar
+This package exists so `npx dowel-cli` could work, because npx resolves a
+_package_ name rather than a binary. **npm will not accept the name.**
+
+```
+403 Forbidden - PUT https://registry.npmjs.org/dowel-cli
+Package name too similar to existing package del-cli
 ```
 
-**This package contains no code.** It exists because `npx` resolves a package
-name rather than a binary, so a one-word invocation needs a one-word package.
-It pins [`@dowel-ui/cli`](https://www.npmjs.com/package/@dowel-ui/cli) and hands
-straight over to it.
+That is the second refusal on the same pattern. `dowel` was rejected earlier as
+too similar to `del` and `bower`. npm's typosquat check runs only at publish
+time, so a 404 from the registry proves a name is unused — never that it can be
+claimed.
 
-Every command, flag and behaviour is documented there. If you are already
-installing globally, prefer the real thing — it gives you the same `dowel`
-command:
+It is marked `private` so it cannot break a release again, and kept because the
+code is two lines and the situation may change. Anyone wanting a shorter name
+would need one further from `del`: `getdowel` and `usedowel` are both unused,
+though unused is not the same as claimable.
+
+## Use this instead
+
+```bash
+npx @dowel-ui/cli add button
+```
+
+Or install it, which gives you the plain `dowel` command:
 
 ```bash
 npm i -g @dowel-ui/cli
