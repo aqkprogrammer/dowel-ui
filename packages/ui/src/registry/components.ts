@@ -5,6 +5,7 @@ import { meta as activityFeedMeta } from "@/components/activity-feed/meta";
 import { meta as aiActionLedgerMeta } from "@/components/ai-action-ledger/meta";
 import { meta as aiAgentPlanMeta } from "@/components/ai-agent-plan/meta";
 import { meta as aiAgentStatusMeta } from "@/components/ai-agent-status/meta";
+import { meta as aiApprovalRequestMeta } from "@/components/ai-approval-request/meta";
 import { meta as aiConversationMeta } from "@/components/ai-conversation/meta";
 import { meta as aiInlineCompletionMeta } from "@/components/ai-inline-completion/meta";
 import { meta as aiMessageMeta } from "@/components/ai-message/meta";
@@ -73,6 +74,7 @@ export const componentMetas: ComponentMeta[] = [
   aiActionLedgerMeta,
   aiAgentPlanMeta,
   aiAgentStatusMeta,
+  aiApprovalRequestMeta,
   aiConversationMeta,
   aiInlineCompletionMeta,
   aiMessageMeta,

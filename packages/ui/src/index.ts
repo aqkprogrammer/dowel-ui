@@ -5,6 +5,7 @@ export * from "./components/ai-inline-completion";
 export * from "./components/ai-structured-output";
 export * from "./components/ai-agent-plan";
 export * from "./components/ai-agent-status";
+export * from "./components/ai-approval-request";
 export * from "./components/ai-conversation";
 export * from "./components/ai-message";
 export * from "./components/ai-model-selector";
