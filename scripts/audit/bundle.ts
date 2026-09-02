@@ -16,14 +16,33 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const registryDir = join(repoRoot, "packages", "registry", "r");
 const distDir = join(repoRoot, "packages", "ui", "dist");
 
-/** A single source file this big is a component that wants splitting up. */
+/**
+ * A single source file this big is a component that wants splitting up.
+ *
+ * Enforced per file, which is what it has always said. It was summed across the
+ * entry until an entry appeared whose two files were each comfortably inside it
+ * and whose total was not — at which point the sum was failing a component for
+ * having taken the rule's own advice. The entry total is still reported below,
+ * and flagged past `SPRAWL_BYTES`, so splitting cannot quietly hide bulk.
+ */
 const SOURCE_BUDGET_BYTES = 24_000;
+
+/**
+ * An entry this big gets a line of its own in the output.
+ *
+ * Deliberately a report and not a gate: unlike the per-file rule it has no
+ * principle behind the number, only the observation that it is well clear of
+ * anything here today. Argue with it rather than raising it.
+ */
+const SPRAWL_BYTES = 36_000;
 
 interface Row {
   name: string;
   kind: string;
   sourceBytes: number;
   gzipBytes: number;
+  fileCount: number;
+  largestFile: { name: string; bytes: number };
   npmDependencies: string[];
 }
 
@@ -41,15 +60,27 @@ for (const file of readdirSync(registryDir)) {
     name: string;
     type: string;
     dependencies: string[];
-    files: { content: string }[];
+    files: { path: string; content: string }[];
   };
 
   const source = item.files.map((entry) => entry.content).join("\n");
+  const largestFile = item.files
+    .map((entry) => ({
+      name: entry.path.split("/").pop() ?? entry.path,
+      bytes: Buffer.byteLength(entry.content, "utf8"),
+    }))
+    .reduce((largest, entry) => (entry.bytes > largest.bytes ? entry : largest), {
+      name: "",
+      bytes: 0,
+    });
+
   rows.push({
     name: item.name,
     kind: item.type.replace("registry:", ""),
     sourceBytes: Buffer.byteLength(source, "utf8"),
     gzipBytes: gzipSync(Buffer.from(source, "utf8")).length,
+    fileCount: item.files.length,
+    largestFile,
     npmDependencies: item.dependencies,
   });
 }
@@ -96,13 +127,26 @@ if (existsSync(distDir)) {
   );
 }
 
-const oversized = rows.filter((row) => row.sourceBytes > SOURCE_BUDGET_BYTES);
+const sprawling = rows.filter((row) => row.sourceBytes > SPRAWL_BYTES);
+if (sprawling.length > 0) {
+  console.log(`\n  Entries over ${kb(SPRAWL_BYTES)} in total, worth a second look`);
+  for (const row of sprawling) {
+    console.log(
+      `    ${row.name.padEnd(20)} ${kb(row.sourceBytes)} across ${String(row.fileCount)} files` +
+        `, largest ${row.largestFile.name} at ${kb(row.largestFile.bytes)}`,
+    );
+  }
+}
+
+const oversized = rows.filter((row) => row.largestFile.bytes > SOURCE_BUDGET_BYTES);
 if (oversized.length > 0) {
-  console.error(`\nOver the ${kb(SOURCE_BUDGET_BYTES)} source budget:\n`);
+  console.error(`\nOver the ${kb(SOURCE_BUDGET_BYTES)} per-file source budget:\n`);
   for (const row of oversized) {
-    console.error(`  ${row.name.padEnd(20)} ${kb(row.sourceBytes)}`);
+    console.error(
+      `  ${row.name.padEnd(20)} ${row.largestFile.name} is ${kb(row.largestFile.bytes)}`,
+    );
   }
   process.exit(1);
 }
 
-console.log(`\nAll entries within the ${kb(SOURCE_BUDGET_BYTES)} source budget.`);
+console.log(`\nEvery source file is within the ${kb(SOURCE_BUDGET_BYTES)} budget.`);
