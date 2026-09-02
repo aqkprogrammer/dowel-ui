@@ -3,6 +3,16 @@
   "version": "0.1.1",
   "type": "module",
   "description": "Source-first React components.",
+  "license": "MIT",
+  "homepage": "https://dowel-eight.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aqkprogrammer/dowel-ui.git",
+    "directory": "packages/ui"
+  },
+  "bugs": {
+    "url": "https://github.com/aqkprogrammer/dowel-ui/issues"
+  },
   "sideEffects": false,
   "files": [
     "dist",

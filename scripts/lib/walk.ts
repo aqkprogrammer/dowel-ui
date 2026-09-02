@@ -13,6 +13,21 @@ const IGNORED_DIRECTORIES = new Set([
 
 const IGNORED_FILES = new Set(["pnpm-lock.yaml", "CHANGELOG.md"]);
 
+/**
+ * Text files that carry no extension.
+ *
+ * Without these the walker skips them silently, which is not hypothetical: the
+ * LICENSE kept its placeholder copyright through a full rename because neither
+ * `rebrand` nor `check-branding` could see it.
+ */
+const EXTENSIONLESS_TEXT_FILES = new Set([
+  "LICENSE",
+  "LICENCE",
+  "NOTICE",
+  "AUTHORS",
+  "CONTRIBUTORS",
+]);
+
 const TEXT_EXTENSIONS = new Set([
   ".ts",
   ".tsx",
@@ -44,7 +59,16 @@ export function walkTextFiles(root: string): string[] {
 
       if (IGNORED_FILES.has(entry)) continue;
 
-      const extension = entry.slice(entry.lastIndexOf("."));
+      if (EXTENSIONLESS_TEXT_FILES.has(entry)) {
+        results.push(relative(root, absolute));
+        continue;
+      }
+
+      // lastIndexOf returns -1 when there is no dot, and slice(-1) then yields
+      // the final character — so "LICENSE" reported an extension of "E". Guard
+      // the -1 rather than relying on the slice.
+      const dot = entry.lastIndexOf(".");
+      const extension = dot === -1 ? "" : entry.slice(dot);
       if (TEXT_EXTENSIONS.has(extension)) {
         results.push(relative(root, absolute));
       }

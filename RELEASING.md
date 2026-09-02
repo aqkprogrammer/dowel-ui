@@ -54,12 +54,15 @@ link it in the Vercel dashboard and the `.vercel.app` alias keeps working
 alongside it, so nothing already published breaks. Switching the CLI's default
 to the custom domain is then a normal release, not a migration.
 
-Still to do: the `dowel-ui` GitHub organisation and the git remote.
+The repository lives at `aqkprogrammer/dowel-ui`. If it later moves to a
+`dowel-ui` organisation, GitHub redirects the old URL, so links and remotes
+keep working — but `branding.repository` should still be updated and the
+docs redeployed.
 
 ### 2. Point the repository at its remote
 
 ```bash
-git remote add origin git@github.com:dowel-ui/dowel.git
+git remote add origin git@github.com:aqkprogrammer/dowel-ui.git
 git push -u origin main
 ```
 

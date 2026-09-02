@@ -30,7 +30,7 @@ export const branding = {
   description:
     "A modern, source-first React UI library for building beautiful SaaS, AI and enterprise applications.",
   /** GitHub repository in owner/name form. */
-  repository: "dowel-ui/dowel",
+  repository: "aqkprogrammer/dowel-ui",
 } as const;
 
 export type Branding = typeof branding;
