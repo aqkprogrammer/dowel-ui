@@ -10,6 +10,8 @@ packages/registry/r/
 apps/docs/public/r/
 apps/docs/src/lib/previews.generated.ts
 apps/docs/src/lib/version.generated.ts
+# Next rewrites this on every dev/build, flipping between the two variants.
+apps/docs/next-env.d.ts
 .next/
 .vercel
 .env*
