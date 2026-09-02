@@ -7,6 +7,32 @@ and live alongside each package. This file records repository-level milestones.
 
 ### New components
 
+- **time-range-picker** — the control Grafana, Datadog, Sentry, PostHog,
+  Vercel, Honeycomb, Cloudflare and Amplitude each maintain a bespoke copy of,
+  and which no React package ships. It looks like a date picker and is not one:
+  its value is an expression, `now-6h/h..now`, so it is still the last six hours
+  tomorrow, where two resolved timestamps are six hours of last Tuesday forever.
+  That is what lets a dashboard URL survive being bookmarked and reloaded.
+
+  The grammar is a deliberate subset of the one those products converged on, and
+  the model is pure and separately importable: `resolveTimeRange(expression,
+  { now, timeZone })` for anyone who wants to build a query without rendering a
+  picker. Two details are the ones every reimplementation gets wrong, and both
+  have tests. Snapping rounds the opening side down and the closing side up, so
+  `now/d..now/d` is all of today rather than a window of zero length; and day,
+  week, month and year offsets are calendar arithmetic, so a month back from the
+  31st is the end of a shorter month rather than an overflow into the next one,
+  and a day back is the same wall-clock time even where a zone changed offset
+  overnight.
+
+  Two omissions are deliberate, on the research's advice: no timezone combobox —
+  `timeZone` is a prop, because it is a 400-entry list and a decision an app
+  makes once — and no comparison range, which belongs to whatever draws the
+  chart.
+
+  An invalid expression says why and is not applied. A chart quietly re-scoping
+  itself to a window nobody asked for is worse than one that refuses.
+
 - **diff-viewer** — two versions of a file, side by side or unified, with the
   changed words inside a line marked rather than the whole line flagged, and
   unchanged runs collapsed with the count of what was hidden stated rather than
@@ -45,6 +71,16 @@ and live alongside each package. This file records repository-level milestones.
   Adds `@tanstack/react-virtual`, the second TanStack dependency. It is
   measurement-only and headless; every pixel of DOM, ARIA and filtering is in
   the component's own source.
+
+### Fixed
+
+- **audit:bundle** enforces its source budget per file, which is what its own
+  docstring has always said. It summed the whole registry entry instead, which
+  was identical for the single-file components that made up the library and only
+  diverged once an entry had two files — at which point it failed a component
+  for having taken the rule's own advice and split up. Entry totals are still
+  reported, and flagged past a looser threshold, so splitting cannot hide bulk.
+
 
 ## 0.3.0
 
