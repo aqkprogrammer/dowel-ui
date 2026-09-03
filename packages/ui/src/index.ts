@@ -34,6 +34,7 @@ export * from "./components/data-table";
 export * from "./components/date-picker";
 export * from "./components/dialog";
 export * from "./components/diff-viewer";
+export * from "./components/dns-record";
 export * from "./components/drawer";
 export * from "./components/dropdown-menu";
 export * from "./components/empty-state";
