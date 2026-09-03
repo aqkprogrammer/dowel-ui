@@ -54,7 +54,7 @@ they want to change something.
 
 ## What is in it
 
-**65 components** and **8 blocks**, every one keyboard-operable and audited for
+**66 components** and **8 blocks**, every one keyboard-operable and audited for
 contrast.
 
 **AI** — the reason this library exists
@@ -75,7 +75,7 @@ Dialog · Sheet · Drawer · Popover · Tooltip · Dropdown Menu
 
 **Data**
 Table · Data Table · Accordion · Activity Feed · Code Block · Metric Delta ·
-Record Diff · **Log Viewer** · **Diff Viewer**
+Record Diff · **Log Viewer** · **Diff Viewer** · **Permission Matrix**
 
 **Feedback**
 Alert · Toast · Progress · Meter · Skeleton · Spinner · Empty State

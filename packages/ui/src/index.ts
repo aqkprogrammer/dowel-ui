@@ -46,6 +46,7 @@ export * from "./components/meter";
 export * from "./components/metric-delta";
 export * from "./components/record-diff";
 export * from "./components/pagination";
+export * from "./components/permission-matrix";
 export * from "./components/popover";
 export * from "./components/progress";
 export * from "./components/radio-group";

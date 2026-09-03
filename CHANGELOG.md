@@ -154,6 +154,33 @@ per-package changelogs, whatever an earlier version of this line claimed.
   select-all and copy. The point is that the name passed through the reader's
   attention, not their keyboard.
 
+- **permission-matrix** — roles across, permissions down, a checkbox at every
+  crossing. Every admin panel has one and every admin panel builds it, because
+  the hard part is not the checkboxes: a role inherits from another, so a box
+  is ticked without anyone having ticked it; an Owner has everything and none
+  of it can be unticked; a section of eight permissions wants one control; and
+  sixty checkboxes are sixty tab stops unless something is done about it.
+
+  Something is done about it. This is a grid in the WAI-ARIA sense — one tab
+  stop, arrow keys between cells, Home and End along a row — which is the
+  right call here and was the wrong one for the diff viewer: a diff is read,
+  a matrix is operated. Every checkbox is named by both coordinates, so a
+  reader arriving by arrow key knows where they are without re-reading the
+  headers.
+
+  An inherited grant is a checked box that cannot be unchecked here, with the
+  role it came from beside it and in the box's description. A disabled control
+  would be the obvious rendering, and it would take the box out of the tab
+  order and the arrow-key path, so a keyboard user would step over the one
+  cell whose state needs explaining. Changes are reported, never applied, and
+  a group toggle reports every permission it touched in one call — only the
+  ones that can change, since inherited grants stay either way — so an
+  application saves one change rather than eight.
+
+  The model is pure and exported: a server can answer "may this role do this"
+  from the same grants the matrix edits, with the same rule for inheritance,
+  which is resolved transitively and survives a cycle.
+
 ## 0.4.0
 
 ### New components
