@@ -225,6 +225,29 @@ per-package changelogs, whatever an earlier version of this line claimed.
   who is typing needs to be told. On by default for that reason, and it can
   be turned off.
 
+- **session-expiry** — "your session ends in two minutes, stay signed in?"
+  Every product with an idle timeout builds this, and WCAG 2.2.1 says what it
+  has to do: warn before the time runs out and give at least twenty seconds
+  to extend it with a simple action. Most implementations get the first half
+  and fail the second in one of two ways: the warning can be dismissed
+  without choosing, so a reader who closed it to see the page underneath is
+  signed out with no further word; or the countdown is a live region, so a
+  screen reader user hears a number every second for two minutes and cannot
+  hear the question.
+
+  So this is an alert dialog that cannot be waved away. Escape and the
+  backdrop do nothing, because dismissing a session warning without choosing
+  is choosing nothing, and focus opens on the safe choice rather than on
+  "Sign out now". The countdown ticks on screen and is announced at four
+  moments — when the warning opens, at one minute, thirty seconds and ten —
+  and a threshold a slow tick skipped over is still said once. When time runs
+  out, `onExpire` fires once and the dialog says so with a slot for whatever
+  the application offers next; it signs nobody out, because the server did.
+
+  The clock is read in an effect, never during render, so the server renders
+  nothing rather than a countdown from the wrong instant. Supply `now` to
+  drive it yourself, or in tests.
+
 ## 0.4.0
 
 ### New components

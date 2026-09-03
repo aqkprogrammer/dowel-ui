@@ -56,6 +56,7 @@ import { meta as recordDiffMeta } from "@/components/record-diff/meta";
 import { meta as secretFieldMeta } from "@/components/secret-field/meta";
 import { meta as selectMeta } from "@/components/select/meta";
 import { meta as separatorMeta } from "@/components/separator/meta";
+import { meta as sessionExpiryMeta } from "@/components/session-expiry/meta";
 import { meta as sheetMeta } from "@/components/sheet/meta";
 import { meta as skeletonMeta } from "@/components/skeleton/meta";
 import { meta as sliderMeta } from "@/components/slider/meta";
@@ -137,6 +138,7 @@ export const componentMetas: ComponentMeta[] = [
   secretFieldMeta,
   selectMeta,
   separatorMeta,
+  sessionExpiryMeta,
   sheetMeta,
   skeletonMeta,
   sliderMeta,

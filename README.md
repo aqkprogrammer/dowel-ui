@@ -35,7 +35,7 @@ component, and the registry the CLI reads.
 
 ## What is in it
 
-**68 components** and **8 blocks**, every one keyboard-operable and audited for
+**69 components** and **8 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
@@ -56,7 +56,7 @@ Metric Delta · Record Diff · **Log Viewer** · **Diff Viewer** · **Permission
 **DNS Record**
 
 **Feedback** — Alert · Toast · Progress · Meter · Skeleton · Spinner ·
-Empty State · **Sync Status**
+Empty State · **Sync Status** · **Session Expiry**
 
 **Navigation & layout** — Tabs · Command · Pagination · Card · Badge · Avatar ·
 Button · Separator
