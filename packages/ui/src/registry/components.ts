@@ -50,6 +50,7 @@ import { meta as popoverMeta } from "@/components/popover/meta";
 import { meta as progressMeta } from "@/components/progress/meta";
 import { meta as radioGroupMeta } from "@/components/radio-group/meta";
 import { meta as recordDiffMeta } from "@/components/record-diff/meta";
+import { meta as secretFieldMeta } from "@/components/secret-field/meta";
 import { meta as selectMeta } from "@/components/select/meta";
 import { meta as separatorMeta } from "@/components/separator/meta";
 import { meta as sheetMeta } from "@/components/sheet/meta";
@@ -126,6 +127,7 @@ export const componentMetas: ComponentMeta[] = [
   progressMeta,
   radioGroupMeta,
   recordDiffMeta,
+  secretFieldMeta,
   selectMeta,
   separatorMeta,
   sheetMeta,

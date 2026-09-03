@@ -109,6 +109,30 @@ per-package changelogs, whatever an earlier version of this line claimed.
   without losing a frequency. Left as it is, and noted so nobody has to
   wonder whether it was seen.
 
+- **secret-field** — an API key, token or signing secret in the three states
+  it actually has: shown once at creation and never again; hidden but
+  revealable, for a secret the server can show again; and gone, where a prefix
+  and the last four remain and the only thing left to do is regenerate.
+  Stripe, GitHub, OpenAI and Vercel each draw this by hand. The nearest thing
+  any library ships is a password input, which is for entering a secret you
+  know, not for handling one you have just been given.
+
+  "Shown once" is a first-class state rather than a toast, because it is the
+  one that costs people money: the key is on screen, the tab closes, and the
+  next hour goes on regenerating it and updating every client. The field says
+  it in a sentence beside the value, and the way out is a button that says
+  what it means — "I have saved it" — rather than the value vanishing on
+  navigation. While hidden, the secret is not in the DOM: the preview is what
+  renders, so a screenshot or an extension sees what the server itself keeps.
+  Reveals are reported, since an audit log of who looked is the reason the
+  hidden state exists, and copy works while hidden because a key is for
+  pasting, not reading.
+
+  Copying is announced, and so is failure, with what to do instead. A missing
+  clipboard API fails the same way as a refused one rather than throwing out
+  of the click. Regenerating is confirmed inline with the consequence stated,
+  because it revokes the current key.
+
 ## 0.4.0
 
 ### New components
