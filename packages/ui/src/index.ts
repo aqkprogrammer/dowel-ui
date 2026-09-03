@@ -28,6 +28,7 @@ export * from "./components/checkbox";
 export * from "./components/code-block";
 export * from "./components/combobox";
 export * from "./components/command";
+export * from "./components/confirm-typed";
 export * from "./components/cron-editor";
 export * from "./components/data-table";
 export * from "./components/date-picker";

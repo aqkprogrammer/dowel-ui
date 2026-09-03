@@ -133,6 +133,27 @@ per-package changelogs, whatever an earlier version of this line claimed.
   of the click. Regenerating is confirmed inline with the consequence stated,
   because it revokes the current key.
 
+- **confirm-typed** — type the name to confirm. The GitHub pattern for the
+  action that cannot be undone, copied by every product and absent from every
+  component library, and usually built wrong in the one place it matters:
+  what happens when the text does not match. The common version disables the
+  button and says nothing, so a keyboard or screen reader user presses it, or
+  Enter, and nothing happens at all.
+
+  Here a mismatch is said. The button stays reachable, dimmed rather than
+  disabled, and pressing it or Enter before the text matches announces what
+  was expected, marks the field invalid and returns focus to it. The match is
+  announced once, on the transition, naming the action that became available.
+  Typing itself stays silent, because a verdict on every keystroke is noise.
+  Surrounding whitespace never decides it, since a reader cannot see it to
+  know why they failed.
+
+  Pasting is allowed, deliberately. Blocking it is a popular piece of friction
+  that punishes exactly the people who cannot type a long name easily — switch
+  users, voice users, anyone with a tremor — and stops nobody who can
+  select-all and copy. The point is that the name passed through the reader's
+  attention, not their keyboard.
+
 ## 0.4.0
 
 ### New components
