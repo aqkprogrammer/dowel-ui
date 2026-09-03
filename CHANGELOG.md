@@ -205,6 +205,26 @@ per-package changelogs, whatever an earlier version of this line claimed.
   copy results are announced separately so they never replace a check result
   mid-sentence.
 
+- **sync-status** — "offline, 3 changes will save when you're back". Linear,
+  Notion, Figma and Google Docs each built it, and nothing in a component
+  library touches network state at all. It is small, and it is the difference
+  between an app that loses work and one that says it is holding it.
+
+  `navigator.onLine` is believed in one direction only. False is reliable;
+  true means there is an interface, not that the server is reachable, so an
+  application's own failed request is the real signal and outranks it. The
+  hook is exported so the rest of an app shares the same reading, and the
+  server render assumes online, since a page with no interface to report has
+  no business saying offline.
+
+  Announcements are for transitions, not states. Every save flips "Saving…"
+  to "Saved", and a live region on that text narrates the whole session. So
+  the visible text is not live; a separate region says something only when
+  the situation changes — went offline with what will happen to the changes,
+  came back with what is being saved, could not save — which is when a reader
+  who is typing needs to be told. On by default for that reason, and it can
+  be turned off.
+
 ## 0.4.0
 
 ### New components

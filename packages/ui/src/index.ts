@@ -59,6 +59,7 @@ export * from "./components/skeleton";
 export * from "./components/slider";
 export * from "./components/spinner";
 export * from "./components/switch";
+export * from "./components/sync-status";
 export * from "./components/table";
 export * from "./components/tabs";
 export * from "./components/tags-input";

@@ -61,6 +61,7 @@ import { meta as skeletonMeta } from "@/components/skeleton/meta";
 import { meta as sliderMeta } from "@/components/slider/meta";
 import { meta as spinnerMeta } from "@/components/spinner/meta";
 import { meta as switchMeta } from "@/components/switch/meta";
+import { meta as syncStatusMeta } from "@/components/sync-status/meta";
 import { meta as tableMeta } from "@/components/table/meta";
 import { meta as tabsMeta } from "@/components/tabs/meta";
 import { meta as tagsInputMeta } from "@/components/tags-input/meta";
@@ -141,6 +142,7 @@ export const componentMetas: ComponentMeta[] = [
   sliderMeta,
   spinnerMeta,
   switchMeta,
+  syncStatusMeta,
   tableMeta,
   tabsMeta,
   tagsInputMeta,
