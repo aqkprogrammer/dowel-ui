@@ -15,6 +15,7 @@ export * from "./components/ai-prompt-input";
 export * from "./components/ai-reasoning";
 export * from "./components/ai-response";
 export * from "./components/ai-sources";
+export * from "./components/ai-suggested-value";
 export * from "./components/ai-token-usage";
 export * from "./components/ai-tool";
 export * from "./components/alert";

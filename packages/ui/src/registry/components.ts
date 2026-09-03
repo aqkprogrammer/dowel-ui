@@ -17,6 +17,7 @@ import { meta as aiReasoningMeta } from "@/components/ai-reasoning/meta";
 import { meta as aiResponseMeta } from "@/components/ai-response/meta";
 import { meta as aiSourcesMeta } from "@/components/ai-sources/meta";
 import { meta as aiStructuredOutputMeta } from "@/components/ai-structured-output/meta";
+import { meta as aiSuggestedValueMeta } from "@/components/ai-suggested-value/meta";
 import { meta as aiTokenUsageMeta } from "@/components/ai-token-usage/meta";
 import { meta as aiToolMeta } from "@/components/ai-tool/meta";
 import { meta as alertMeta } from "@/components/alert/meta";
@@ -91,6 +92,7 @@ export const componentMetas: ComponentMeta[] = [
   aiResponseMeta,
   aiSourcesMeta,
   aiStructuredOutputMeta,
+  aiSuggestedValueMeta,
   aiTokenUsageMeta,
   aiToolMeta,
   alertMeta,

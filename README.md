@@ -35,13 +35,14 @@ component, and the registry the CLI reads.
 
 ## What is in it
 
-**61 components** and **8 blocks**, every one keyboard-operable and audited for
+**62 components** and **8 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
 Reasoning · Sources · Model Selector · Token Usage · Agent Status ·
 Agent Plan · Approval Request · Action Ledger · Structured Output ·
-Inline Completion · Disclosure · **Extraction Review**
+Inline Completion · Disclosure · **Extraction Review** ·
+**Suggested Value**
 
 **Forms** — Input · Label · Checkbox · Radio Group · Switch · Slider · Select ·
 Combobox · Form · Calendar · Date Picker · Tags Input · File Upload ·
