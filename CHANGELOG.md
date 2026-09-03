@@ -49,6 +49,32 @@ per-package changelogs, whatever an earlier version of this line claimed.
   this review finished" on the server from the decisions the client sent, rather
   than from a flag it sent alongside them.
 
+- **ai-suggested-value** — an AI-proposed value for any form control, offered
+  beside it rather than written into it. Autofill is the most common shape AI
+  takes inside ordinary software — enrich this contact, fill this form from the
+  upload — and nearly every implementation writes the value into the field as
+  if the person had typed it. A plausible, wrong value then rides through on
+  their own Submit, and once submitted the record cannot tell a value the model
+  supplied from one a human typed, which is the fact an audit later needs.
+
+  So the suggestion stays pending until accepted, and acceptance is reported
+  rather than performed: the component hands the value to `onAccept` and never
+  touches the control. That is what lets it wrap a select, a date or a number
+  where ghost text can only complete a string — `ai-inline-completion` does
+  text, this does the rest. Afterwards the field says it was filled by AI,
+  says if it was edited since, and Undo puts back what was there. Inside a
+  `FormControl` the id and ARIA it passes down are forwarded to the control,
+  and an existing `aria-describedby` is merged rather than replaced.
+
+  The suggestion is the control's description, so a reader who lands on the
+  field hears it. Announcing on arrival is opt-in, because a form filling
+  twenty fields at once would narrate all twenty; when it is on, the row is
+  already in the accessibility tree, since a live region that appears at the
+  same moment as its content announces nothing.
+
+  Deliberately no "accept all". A button that takes every suggestion at once is
+  the review deleting itself.
+
 ## 0.4.0
 
 ### New components
