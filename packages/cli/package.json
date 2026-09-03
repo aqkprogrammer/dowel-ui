@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/cli",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "description": "Installs Dowel components into your project as source you own, with dependencies resolved and imports rewritten to your path aliases.",
   "keywords": [
