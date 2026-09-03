@@ -3,6 +3,52 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### New components
+
+- **ai-extraction-review** — the check after extraction: the document on one
+  side, what the model read out of it on the other, and a decision about every
+  field. Invoice capture, KYC onboarding and claims intake all have this screen,
+  each built from scratch, because a value that cannot be checked can only be
+  trusted. Every extraction demo shows the filled object and stops; no component
+  library ships the step after it.
+
+  The link is the component. Each field carries where in the source it was read
+  from — highlighted in the document as a `mark`, and quoted in text under the
+  value, so a reviewer who cannot see the highlight still has the evidence and a
+  sighted one has the comparison in view: "1 March 2026" beside "2026-03-01" is
+  a normalisation, not an error, and only reads that way with both present. A
+  value with no evidence is said outright, "the model supplied this without
+  evidence", because that is the case the review exists to catch and the one a
+  filled-object view renders identically to a good value. The running count
+  says how many such fields there are before the reviewer starts.
+
+  Evidence is a text offset, not a bounding box. A language model reads text and
+  a text layer with offsets is what every OCR pipeline already yields; boxes
+  over a rendered page need page rendering, zoom and geometry, and are a
+  different component. Offsets from a model are wrong often enough that
+  refusing to render on a bad one would blank the whole review, so a span past
+  the end is clamped and an inverted one counts as no evidence, which is what it
+  is. Overlapping spans — a total inside the line that contains it — cut into
+  nested runs rather than two marks fighting over the same characters.
+
+  Decisions are controlled and the component writes nothing. What comes back is
+  richer than a form's values: accepted as proposed, corrected from what was
+  proposed with the model's value kept beside the reviewer's, or rejected. An
+  accepted value that is edited afterwards says "changed since it was accepted"
+  and releases the button, because a record that silently kept the old decision
+  would be a guess. Nothing is spliced into the source text for assistive
+  technology — a document read aloud with field names inserted is not the
+  document — and focus anywhere in a field brings its evidence into view without
+  moving focus, so a keyboard user is shown the source rather than sent into it.
+  Enter accepts, except while an IME is composing, for the same reason the
+  prompt input checks.
+
+  The model is pure and separately importable: `summarizeReview` answers "is
+  this review finished" on the server from the decisions the client sent, rather
+  than from a flag it sent alongside them.
+
 ## 0.4.0
 
 ### New components

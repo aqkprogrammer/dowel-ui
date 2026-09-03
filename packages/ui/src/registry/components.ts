@@ -8,6 +8,7 @@ import { meta as aiAgentStatusMeta } from "@/components/ai-agent-status/meta";
 import { meta as aiApprovalRequestMeta } from "@/components/ai-approval-request/meta";
 import { meta as aiConversationMeta } from "@/components/ai-conversation/meta";
 import { meta as aiDisclosureMeta } from "@/components/ai-disclosure/meta";
+import { meta as aiExtractionReviewMeta } from "@/components/ai-extraction-review/meta";
 import { meta as aiInlineCompletionMeta } from "@/components/ai-inline-completion/meta";
 import { meta as aiMessageMeta } from "@/components/ai-message/meta";
 import { meta as aiModelSelectorMeta } from "@/components/ai-model-selector/meta";
@@ -81,6 +82,7 @@ export const componentMetas: ComponentMeta[] = [
   aiApprovalRequestMeta,
   aiConversationMeta,
   aiDisclosureMeta,
+  aiExtractionReviewMeta,
   aiInlineCompletionMeta,
   aiMessageMeta,
   aiModelSelectorMeta,
