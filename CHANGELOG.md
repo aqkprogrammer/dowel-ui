@@ -7,6 +7,40 @@ and live alongside each package. This file records repository-level milestones.
 
 ### New components
 
+- **ai-disclosure** — telling someone they are looking at AI. Not one registry
+  ships this — not AI Elements, assistant-ui, prompt-kit, CopilotKit or shadcn —
+  while every one of them ships the chat surface that needs it.
+
+  The research flagged that this component's case rested on an EU AI Act
+  Article 50 claim nobody had read. It was checked before building, and it holds
+  more sharply than assumed: Article 50 has applied since 2 August 2026, with
+  penalties up to €15M or 3% of worldwide turnover. So the four `kind`s are not
+  invented — they are the human-visible situations the Article creates:
+  interaction (50(1)), generated and manipulated media (50(4), "deep fakes"),
+  and public-interest text, plus the assisted case the same paragraph exempts
+  where there is human review.
+
+  What it cannot do is stated in the source, the metadata and on the docs page:
+  Article 50(2) requires synthetic output to be marked *in a machine-readable
+  format*, in the artifact, by whoever generated it. No React component can do
+  that. This is a disclosure control, not a compliance product, and nothing in
+  it is legal advice.
+
+  Provenance is rendered as claims, never as proof. "Made with Acme Diffusion 3"
+  looks like a fact and is a string somebody put in a file, so the panel names
+  who asserts it and says in words whether anyone checked — defaulting to "not
+  checked", because a component that stays quiet about verification reads as
+  verified. `verified` is supplied, never computed: checking a C2PA manifest
+  means parsing signed COSE and walking a certificate chain, which would mean a
+  wasm blob in the browser that you cannot read, and cannot be trusted
+  client-side anyway, since the page doing the checking is the page making the
+  claim.
+
+  The Commission's three icons are free to use without attribution and are
+  deliberately not bundled — an official mark inside a component library ends up
+  on content nobody checked — so `icon` is a prop. Their own line holds either
+  way: using them "does not establish legal compliance by itself".
+
 - **time-range-picker** — the control Grafana, Datadog, Sentry, PostHog,
   Vercel, Honeycomb, Cloudflare and Amplitude each maintain a bespoke copy of,
   and which no React package ships. It looks like a date picker and is not one:
