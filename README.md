@@ -35,7 +35,7 @@ component, and the registry the CLI reads.
 
 ## What is in it
 
-**66 components** and **8 blocks**, every one keyboard-operable and audited for
+**67 components** and **8 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
@@ -52,7 +52,8 @@ Combobox · Form · Calendar · Date Picker · Tags Input · File Upload ·
 **Overlays** — Dialog · Sheet · Drawer · Popover · Tooltip · Dropdown Menu
 
 **Data** — Table · Data Table · Accordion · Activity Feed · Code Block ·
-Metric Delta · Record Diff · **Log Viewer** · **Diff Viewer** · **Permission Matrix**
+Metric Delta · Record Diff · **Log Viewer** · **Diff Viewer** · **Permission Matrix** ·
+**DNS Record**
 
 **Feedback** — Alert · Toast · Progress · Meter · Skeleton · Spinner ·
 Empty State

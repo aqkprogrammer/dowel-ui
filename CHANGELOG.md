@@ -181,6 +181,30 @@ per-package changelogs, whatever an earlier version of this line claimed.
   from the same grants the matrix edits, with the same rule for inheritance,
   which is resolved transitively and survives a cycle.
 
+- **dns-record** — "add this record at your DNS provider". Vercel, Resend,
+  Cloudflare, Postmark and every product that verifies a domain or routes its
+  mail draws this card by hand, and they all learn the same three things the
+  hard way.
+
+  The parts are copied separately, because a provider's form has a Name
+  field, a Type field and a Value field, and one button that copies the whole
+  line copies something nobody can paste anywhere. The Name field is a trap:
+  some providers want the host relative to the zone, some want the full name,
+  and some take the relative form and append the zone themselves, so a full
+  name pasted in becomes `_dmarc.acme.com.acme.com` and the check fails for a
+  reason nobody can see. The host is shown both ways, with the sentence that
+  says which to use, and `dnsHostForms` is exported so a backend that stores
+  the full name and one that stores the relative host both render the same
+  card.
+
+  A failed check says what was found. "Not verified" sends people back to
+  stare at a record that is correct and has not propagated; "found v=spf1
+  -all" sends them to the typo. Nothing found is said as nothing found, with
+  how long that can take, because it is not the same as wrong. The status is
+  a live region so the answer to a check arrives where it was asked for, and
+  copy results are announced separately so they never replace a check result
+  mid-sentence.
+
 ## 0.4.0
 
 ### New components
