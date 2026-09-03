@@ -8,6 +8,7 @@ export * from "./components/ai-agent-status";
 export * from "./components/ai-approval-request";
 export * from "./components/ai-conversation";
 export * from "./components/ai-disclosure";
+export * from "./components/ai-extraction-review";
 export * from "./components/ai-message";
 export * from "./components/ai-model-selector";
 export * from "./components/ai-prompt-input";
