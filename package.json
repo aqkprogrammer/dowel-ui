@@ -23,7 +23,7 @@
     "docs": "pnpm --filter @dowel-ui/docs dev",
     "build-storybook": "pnpm --filter @dowel-ui/react build-storybook",
     "check:branding": "tsx scripts/check-branding.ts",
-    "audit:all": "pnpm run audit:contrast && pnpm run audit:tokens && pnpm run audit:api && pnpm run audit:bundle && pnpm run audit:package && pnpm run audit:motion",
+    "audit:all": "pnpm run audit:contrast && pnpm run audit:tokens && pnpm run audit:api && pnpm run audit:bundle && pnpm run audit:package && pnpm run audit:motion && pnpm run audit:counts",
     "audit:contrast": "tsx scripts/audit/contrast.ts",
     "audit:tokens": "tsx scripts/audit/tokens.ts",
     "audit:api": "tsx scripts/audit/api.ts",
@@ -33,7 +33,8 @@
     "rebrand": "tsx scripts/rebrand.ts",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "clean": "turbo run clean && rm -rf node_modules",
+    "audit:counts": "tsx scripts/audit/counts.ts"
   },
   "devDependencies": {
     "@changesets/cli": "3.0.1",
