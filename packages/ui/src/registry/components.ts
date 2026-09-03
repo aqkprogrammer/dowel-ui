@@ -47,6 +47,7 @@ import { meta as logViewerMeta } from "@/components/log-viewer/meta";
 import { meta as meterMeta } from "@/components/meter/meta";
 import { meta as metricDeltaMeta } from "@/components/metric-delta/meta";
 import { meta as paginationMeta } from "@/components/pagination/meta";
+import { meta as permissionMatrixMeta } from "@/components/permission-matrix/meta";
 import { meta as popoverMeta } from "@/components/popover/meta";
 import { meta as progressMeta } from "@/components/progress/meta";
 import { meta as radioGroupMeta } from "@/components/radio-group/meta";
@@ -125,6 +126,7 @@ export const componentMetas: ComponentMeta[] = [
   meterMeta,
   metricDeltaMeta,
   paginationMeta,
+  permissionMatrixMeta,
   popoverMeta,
   progressMeta,
   radioGroupMeta,
