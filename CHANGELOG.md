@@ -75,6 +75,40 @@ per-package changelogs, whatever an earlier version of this line claimed.
   Deliberately no "accept all". A button that takes every suggestion at once is
   the review deleting itself.
 
+- **cron-editor** — a schedule as a cron expression, with the sentence beside
+  it that makes `0 9 * * 1` readable and the next five runs in a named zone.
+  GitHub Actions, Vercel, Airflow, Sentry and every admin panel with a
+  "run this nightly" setting draw this control by hand; the packages that
+  exist are bound to Ant Design or ship their own stylesheet, the problem the
+  diff viewer already solved once.
+
+  The dialect is POSIX five-field cron — what crontab, GitHub Actions, Vercel,
+  Kubernetes and Airflow read — with the `@daily` shortcuts. Not Quartz: no
+  seconds field and no `L`, `W` or `#`, because an expression this editor
+  produces has to run where it is pasted. The model is pure and separately
+  importable, so `nextRuns` can compute the next run on the server from the
+  same expression the editor produced.
+
+  Two things every reimplementation gets wrong, both tested. When day of month
+  and day of week are both restricted, cron fires when either matches, and the
+  sentence says "or" because "and" is what readers assume. And a wall-clock
+  time that does not exist on the day the clocks go forward is skipped rather
+  than run at a made-up instant, while an ambiguous one in autumn runs once,
+  at its first occurrence.
+
+  Next runs are headed by the zone they are in, since a time with no zone is
+  the classic scheduling mistake, and a schedule that never runs — the 30th of
+  February — says so rather than showing an empty list. Days 29 to 31 say in
+  text that shorter months skip them. An invalid expression says why and is
+  not applied.
+
+  Both files are within the per-file budget, but together the entry is the
+  first past the audit's sprawl line, at 38 kB against 36. The line is a
+  report rather than a gate and asks to be argued with: the model is half the
+  entry and is the part worth owning, and the builder cannot lose a control
+  without losing a frequency. Left as it is, and noted so nobody has to
+  wonder whether it was seen.
+
 ## 0.4.0
 
 ### New components
