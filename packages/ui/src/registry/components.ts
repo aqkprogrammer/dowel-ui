@@ -30,6 +30,7 @@ import { meta as checkboxMeta } from "@/components/checkbox/meta";
 import { meta as codeBlockMeta } from "@/components/code-block/meta";
 import { meta as comboboxMeta } from "@/components/combobox/meta";
 import { meta as commandMeta } from "@/components/command/meta";
+import { meta as cronEditorMeta } from "@/components/cron-editor/meta";
 import { meta as dataTableMeta } from "@/components/data-table/meta";
 import { meta as datePickerMeta } from "@/components/date-picker/meta";
 import { meta as dialogMeta } from "@/components/dialog/meta";
@@ -105,6 +106,7 @@ export const componentMetas: ComponentMeta[] = [
   codeBlockMeta,
   comboboxMeta,
   commandMeta,
+  cronEditorMeta,
   dataTableMeta,
   datePickerMeta,
   dialogMeta,
