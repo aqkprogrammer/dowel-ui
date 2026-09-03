@@ -54,7 +54,7 @@ they want to change something.
 
 ## What is in it
 
-**68 components** and **8 blocks**, every one keyboard-operable and audited for
+**69 components** and **8 blocks**, every one keyboard-operable and audited for
 contrast.
 
 **AI** — the reason this library exists
@@ -80,7 +80,7 @@ Record Diff · **Log Viewer** · **Diff Viewer** · **Permission Matrix** ·
 
 **Feedback**
 Alert · Toast · Progress · Meter · Skeleton · Spinner · Empty State ·
-**Sync Status**
+**Sync Status** · **Session Expiry**
 
 **Navigation & layout**
 Tabs · Command · Pagination · Card · Badge · Avatar · Button · Separator
