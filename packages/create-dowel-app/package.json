@@ -1,0 +1,66 @@
+{
+  "name": "create-dowel-app",
+  "version": "0.5.1",
+  "type": "module",
+  "description": "Creates a Next.js application wired to Dowel: design tokens, path aliases and the blocks for the kind of product you are building, installed as source you own.",
+  "keywords": [
+    "create",
+    "scaffold",
+    "starter",
+    "template",
+    "next",
+    "nextjs",
+    "react",
+    "ui",
+    "components",
+    "design-system",
+    "tailwind",
+    "saas",
+    "ai",
+    "dowel"
+  ],
+  "license": "MIT",
+  "homepage": "https://dowel-eight.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aqkprogrammer/dowel-ui.git",
+    "directory": "packages/create-dowel-app"
+  },
+  "bugs": {
+    "url": "https://github.com/aqkprogrammer/dowel-ui/issues"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "bin": {
+    "create-dowel-app": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@clack/prompts": "1.7.0",
+    "commander": "15.0.0",
+    "picocolors": "1.1.1"
+  },
+  "devDependencies": {
+    "@dowel-ui/config": "workspace:*",
+    "@types/node": "26.4.0",
+    "tsdown": "0.22.14",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}
