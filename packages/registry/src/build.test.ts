@@ -1,8 +1,11 @@
+import { mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { buildIndex, buildRegistry } from "./build";
+import { buildIndex, buildRegistry, freeItems, proItems, writeRegistry } from "./build";
 import { hashContent } from "./hash";
-import { registryIndexSchema, registryItemSchema } from "./schema";
+import { registryIndexSchema, registryItemSchema, type RegistryItem } from "./schema";
 
 /**
  * The registry is the boundary with every consumer's project, so these tests
@@ -127,5 +130,46 @@ describe("buildIndex", () => {
 
   it("omits file contents, so the index stays small", () => {
     expect(JSON.stringify(index)).not.toContain("export function");
+  });
+});
+
+describe("access", () => {
+  it("defaults every item to free, since free is a promise", () => {
+    for (const item of items) {
+      expect(item.access, item.name).toBe("free");
+    }
+  });
+
+  it("lists licensed items in the index but withholds their bodies", () => {
+    const licensed: RegistryItem = {
+      ...items[2]!,
+      name: "pro-thing",
+      access: "pro",
+    };
+    const all = [...items, licensed];
+
+    // The catalogue names it: an item nobody can see is an item nobody buys.
+    const entry = buildIndex(all).items.find((item) => item.name === "pro-thing");
+    expect(entry).toBeDefined();
+    expect(entry?.access).toBe("pro");
+    expect(entry?.fileCount).toBeGreaterThan(0);
+
+    // The goods are not in the public set.
+    expect(freeItems(all).map((item) => item.name)).not.toContain("pro-thing");
+    expect(proItems(all).map((item) => item.name)).toEqual(["pro-thing"]);
+  });
+
+  it("writes no licensed body into the public directory", () => {
+    const outDir = mkdtempSync(join(tmpdir(), "registry-access-"));
+    try {
+      const result = writeRegistry(outDir);
+
+      expect(result.licensed).toBe(0);
+      // Every listed free item has a file; the count is the contract.
+      const written = readdirSync(outDir).filter((file) => file !== "index.json");
+      expect(written).toHaveLength(freeItems(buildRegistry()).length);
+    } finally {
+      rmSync(outDir, { recursive: true, force: true });
+    }
   });
 });

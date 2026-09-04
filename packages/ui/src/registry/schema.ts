@@ -50,6 +50,14 @@ export interface ComponentMeta {
   files: string[];
   /** Accessibility notes surfaced on the docs page. */
   a11y?: string;
+  /**
+   * Whether the source is public.
+   *
+   * Omitted means `free`, and free is a promise: an item that has shipped
+   * installable without a licence stays that way. Marking an existing component
+   * `pro` breaks every project that already installs it.
+   */
+  access?: "free" | "pro";
 }
 
 /** Identity helper that gives editors autocomplete inside `meta.ts`. */
