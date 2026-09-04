@@ -2,7 +2,7 @@
 
 import type { ComponentType, ReactNode } from "react";
 
-import { storyModules } from "~/lib/previews.generated";
+import { storyModules, storyOrder } from "~/lib/previews.generated";
 import {
   asStory,
   asStoryMeta,
@@ -26,14 +26,30 @@ export interface StoryPreviewProps {
   fallback?: ReactNode;
 }
 
-/** Story exports in file order, minus the meta and any plain helpers. */
+/**
+ * Story exports in file order, minus the meta and any plain helpers.
+ *
+ * The order comes from the generated table, not from the module: a module
+ * namespace object sorts its own keys, so reading them directly showed
+ * whichever story was alphabetically first as the canonical one.
+ */
 export function getStoryNames(component: string): string[] {
   const storyModule = storyModules[component];
   if (!storyModule) return [];
 
-  return Object.keys(storyModule).filter(
-    (name) => name !== "default" && asStory(storyModule[name]) !== undefined,
+  const isStory = (name: string) =>
+    name !== "default" && asStory(storyModule[name]) !== undefined;
+
+  const ordered = (storyOrder[component] ?? []).filter(isStory);
+
+  // Anything the generator did not see — an export written in a form the source
+  // scan does not recognise — is appended rather than dropped. Losing a story
+  // silently would be worse than showing it last.
+  const rest = Object.keys(storyModule).filter(
+    (name) => isStory(name) && !ordered.includes(name),
   );
+
+  return [...ordered, ...rest];
 }
 
 export function StoryPreview({ component, story, fallback }: StoryPreviewProps) {
