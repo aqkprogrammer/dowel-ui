@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description: `Set a project up to use ${branding.libraryName}.`,
 };
 
+const CREATE = `npx create-dowel-app my-app`;
+
 const USAGE = `import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -37,6 +39,29 @@ export default function InstallationPage() {
       <h1 className="text-2xl font-semibold tracking-tight">Installation</h1>
 
       <Prose>
+        <h2>Starting from nothing</h2>
+        <p>
+          If there is no project yet, the scaffolder writes one and fetches the components for
+          it. It asks what you are building — a starter, a SaaS application or an AI product —
+          and which of the seven themes to start on.
+        </p>
+      </Prose>
+
+      <div className="not-prose my-4">
+        <CodeBlock language="bash" title="Terminal" code={CREATE}>
+          {CREATE}
+        </CodeBlock>
+      </div>
+
+      <Prose>
+        <p>
+          The templates do not contain the components. They are the application files plus a
+          list of registry names, and the scaffolder runs the same CLI you would run yourself —
+          so a project created today is built from today&rsquo;s registry rather than from
+          whatever was current when the template was written.
+        </p>
+
+        <h2>Adding it to a project you already have</h2>
         <p>You need a React 19 project with Tailwind CSS v4 already set up, and TypeScript.</p>
 
         <h2>1. Initialise</h2>

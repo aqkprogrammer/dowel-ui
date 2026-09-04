@@ -11,6 +11,43 @@ shipped against a dead URL stays broken: npm versions are immutable.
 
 ---
 
+## Licensing configuration
+
+Licensed registry items are served by the site, so the site is where the
+licensing is configured. Nothing here is in the repository, and nothing here
+should be.
+
+| Variable                 | Required         | What it does                                                                        |
+| ------------------------ | ---------------- | ----------------------------------------------------------------------------------- |
+| `POLAR_ACCESS_TOKEN`     | to sell anything | Enables the Polar provider. Without it the registry refuses every licensed request. |
+| `POLAR_ORGANIZATION_ID`  | no               | Restricts which organisation's keys are accepted.                                   |
+| `POLAR_API_URL`          | no               | Defaults to `https://api.polar.sh`. For a sandbox.                                  |
+| `DOWEL_DEV_LICENSE_KEYS` | no               | Comma-separated keys accepted **only outside production**, for local work.          |
+
+**It fails closed.** With no provider configured, `POST /r/license` and
+`GET /r/pro/<name>` refuse everything and say that licensing is not configured.
+That is deliberate: allowing by default would give the paid catalogue away the
+first time a deployment was misconfigured, silently, and for as long as nobody
+noticed. A 402 on every licensed install is a support ticket; the other way
+round is a leak.
+
+`DOWEL_DEV_LICENSE_KEYS` is double-gated — it needs the variable _and_
+`NODE_ENV !== "production"` — because a test key that worked in production would
+be a free licence for anyone who read the source, and the source is public.
+
+### Marking an item as licensed
+
+Set `access: "pro"` in the component's `meta.ts`. The build then lists it in the
+public index — title, description, dependencies, file count — and withholds its
+body from `public/r`, emitting it into the module the gated route imports.
+
+**Do not do this to an item that has already shipped free.** `access` defaults to
+`free` and a registry written before the field existed parses as `free`, both on
+purpose: an item that has been installable without a licence is one people have
+installed, and moving it behind a paywall breaks their next `update`.
+
+---
+
 ## Before the first release
 
 These are one-time, and all three are first-come.
@@ -156,8 +193,18 @@ move with them:
 
 ```
 packages/ui  packages/cli  packages/registry  packages/themes
-packages/config  apps/docs
+packages/mcp  packages/create-dowel-app  packages/config  apps/docs
 ```
+
+`packages/mcp` and `packages/create-dowel-app` are published and shipped at
+0.5.1 alongside the CLI they were introduced with, rather than at the 0.5.0 the
+rest of that release carries.
+
+`create-dowel-app` ships its `templates/` directory, which is application files
+only — the components it installs come from the registry at creation time, so a
+template cannot go stale between releases. That also means **the site must be
+deployed before it is published**, for the same reason the CLI must: it runs the
+CLI against the live registry URL.
 
 `packages/cli-alias` stays where it is; it is private, unpublished, and has been
 at 0.2.0 since it was retired. The root `dowel-monorepo` version is not used for
