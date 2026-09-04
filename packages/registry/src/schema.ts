@@ -38,6 +38,18 @@ export const registryItemTypeSchema = z.enum([
 
 export type RegistryItemType = z.infer<typeof registryItemTypeSchema>;
 
+/**
+ * Whether an item's source is public.
+ *
+ * `free` is the default and stays the default: an item that has ever been
+ * installable without a licence must never quietly become one that is not.
+ * Existing registries carry no `access` field at all, which parses as `free` —
+ * so an older registry read by a newer CLI behaves exactly as it did.
+ */
+export const registryAccessSchema = z.enum(["free", "pro"]).default("free");
+
+export type RegistryAccess = z.infer<typeof registryAccessSchema>;
+
 export const registryFileSchema = z.object({
   /**
    * Logical path within the registry, e.g. `ui/button.tsx`, `lib/utils.ts`.
@@ -76,10 +88,20 @@ export const registryItemSchema = z.object({
   registryDependencies: z.array(z.string()),
   files: z.array(registryFileSchema).min(1),
   a11y: z.string().optional(),
+  access: registryAccessSchema,
 });
 
 export type RegistryItem = z.infer<typeof registryItemSchema>;
 
+/**
+ * The index entry.
+ *
+ * Carries `access` so a licensed item is *listed* — with its title, what it
+ * depends on and how many files it has — while its source is not. Hiding paid
+ * items entirely would mean nobody could discover them; including their source
+ * would mean nobody needed to buy them. The index is the catalogue; the item
+ * body is the goods.
+ */
 export const registryIndexEntrySchema = registryItemSchema
   .pick({
     name: true,
@@ -90,6 +112,7 @@ export const registryIndexEntrySchema = registryItemSchema
     status: true,
     dependencies: true,
     registryDependencies: true,
+    access: true,
   })
   .extend({ fileCount: z.number().int().positive() });
 

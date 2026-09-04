@@ -8,7 +8,7 @@ import { readConfig, writeConfig } from "../lib/config";
 import { CliError } from "../lib/errors";
 import { logger, pc } from "../lib/logger";
 import { resolveDestination, rewriteImports } from "../lib/paths";
-import { fetchItem } from "../lib/registry-client";
+import { fetchIndex, fetchItem } from "../lib/registry-client";
 
 export interface UpdateOptions {
   cwd: string;
@@ -81,10 +81,17 @@ export async function update(names: string[], options: UpdateOptions): Promise<v
     );
   }
 
+  // Same as `add`: a licensed item is fetched from the licensed path with
+  // credentials, and which items those are is the index's answer to give.
+  const index = await fetchIndex(registry);
+  const licensed = new Set(
+    index.items.filter((entry) => entry.access === "pro").map((entry) => entry.name),
+  );
+
   const reports: UpdateReport[] = [];
 
   for (const name of targets) {
-    const item = await fetchItem(registry, name);
+    const item = await fetchItem(registry, name, { licensed: licensed.has(name) });
     const recorded = config.installed[name]?.files ?? {};
 
     for (const file of item.files) {
