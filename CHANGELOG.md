@@ -248,6 +248,26 @@ per-package changelogs, whatever an earlier version of this line claimed.
   nothing rather than a countdown from the wrong instant. Supply `now` to
   drive it yourself, or in tests.
 
+- **shortcut-recorder** — press the keys you want. Linear, Slack, VS Code,
+  Figma and Superhuman each wrote one, and no component library ships the
+  recorder, only the `kbd` that displays the result. The recorder is the
+  hard part: a button that, when pressed, stops being a button and starts
+  being a keyboard listener, and has to come back.
+
+  Three things it does that a listener bolted onto an input does not. It
+  reads letters from `code`, not `key`, so Option-K records as Option K and
+  not as the ˚ the Mac produced. It stores `Mod`, not Command or Control, so
+  a binding saved on one machine is right on the other — the decision every
+  app makes and few make explicitly. And it refuses a bare printable key by
+  saying why, because a shortcut that fires while someone types a sentence is
+  the bug every app that allowed it later fixed.
+
+  Tab and Escape are never recorded: Tab leaves, Escape cancels, and a
+  recorder that captures both is a keyboard trap with a nice label. A chord
+  another command already uses is said, with that command's name, and applied
+  only if the person says to use it anyway. The model is pure and exported,
+  so the same parser can validate a saved binding on the server.
+
 ## 0.4.0
 
 ### New components
