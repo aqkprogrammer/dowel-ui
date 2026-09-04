@@ -41,6 +41,19 @@ export default function ThemesPage() {
     <article className="max-w-3xl">
       <h1 className="text-2xl font-semibold tracking-tight">Themes</h1>
 
+      <div className="not-prose mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 p-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium">Build your own preset</p>
+          <p className="text-sm text-muted-foreground">
+            Pick a colour and be told whether text can be read on it — checked with the same
+            conversion that gates CI.
+          </p>
+        </div>
+        <Button asChild size="sm">
+          <a href="/theme-studio">Open Theme Studio</a>
+        </Button>
+      </div>
+
       <Prose>
         <p>
           Tokens come in two tiers. Raw scales — a cool-tinted OKLCH neutral ramp, a radius
