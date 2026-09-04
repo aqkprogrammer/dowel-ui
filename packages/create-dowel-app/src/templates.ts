@@ -44,7 +44,7 @@ export const TEMPLATES: Template[] = [
     description:
       "Adds an application shell with dashboard, analytics, billing, settings and onboarding.",
     layers: ["base", "app-shell", "saas"],
-    items: ["dashboard", "analytics", "billing", "settings", "onboarding"],
+    items: ["sidebar", "dashboard", "analytics", "billing", "settings", "onboarding"],
     routes: ["/", "/app", "/app/analytics", "/app/billing", "/app/settings"],
   },
   {
@@ -52,7 +52,7 @@ export const TEMPLATES: Template[] = [
     title: "AI product",
     description: "Adds a chat surface, an agent console and a usage dashboard.",
     layers: ["base", "app-shell", "ai"],
-    items: ["ai-chat", "agent-console", "ai-dashboard"],
+    items: ["sidebar", "ai-chat", "agent-console", "ai-dashboard"],
     routes: ["/", "/app", "/app/agents", "/app/usage"],
   },
 ];
