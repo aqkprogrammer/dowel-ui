@@ -140,6 +140,8 @@
 
   --animate-accordion-open: accordion-open var(--duration-normal) var(--ease-out-quint);
   --animate-accordion-close: accordion-close var(--duration-fast) var(--ease-in-quint);
+  --animate-collapse-down: collapse-down var(--duration-normal) var(--ease-out-quint);
+  --animate-collapse-up: collapse-up var(--duration-fast) var(--ease-in-quint);
 
   @keyframes fade-in {
     from {
@@ -239,6 +241,24 @@
     to {
       height: 0;
       opacity: 0;
+    }
+  }
+
+  @keyframes collapse-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-collapsible-content-height);
+    }
+  }
+
+  @keyframes collapse-up {
+    from {
+      height: var(--radix-collapsible-content-height);
+    }
+    to {
+      height: 0;
     }
   }
 
