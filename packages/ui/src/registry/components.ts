@@ -68,6 +68,7 @@ import { meta as tableMeta } from "@/components/table/meta";
 import { meta as tabsMeta } from "@/components/tabs/meta";
 import { meta as tagsInputMeta } from "@/components/tags-input/meta";
 import { meta as timeRangePickerMeta } from "@/components/time-range-picker/meta";
+import { meta as textareaMeta } from "@/components/textarea/meta";
 import { meta as toastMeta } from "@/components/toast/meta";
 import { meta as tooltipMeta } from "@/components/tooltip/meta";
 
@@ -151,6 +152,7 @@ export const componentMetas: ComponentMeta[] = [
   tabsMeta,
   tagsInputMeta,
   timeRangePickerMeta,
+  textareaMeta,
   toastMeta,
   tooltipMeta,
 ];
