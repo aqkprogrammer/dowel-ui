@@ -1,3 +1,33 @@
+export {
+  checkPreset,
+  derivePreset,
+  foregroundFor,
+  formatPreset,
+  slugify,
+  TEXT_MINIMUM,
+  type ContrastCheck,
+  type DerivedPreset,
+  type DeriveOptions,
+  type PresetMode,
+} from "./preset";
+
+export {
+  composite,
+  contrastRatio,
+  decodeSrgb,
+  encodeSrgb,
+  formatOklch,
+  hexToOklch,
+  linearRgbToOklch,
+  luminance,
+  oklchToHex,
+  oklchToLinearRgb,
+  parseOklch,
+  resolveColour,
+  type Oklch,
+  type Rgb,
+} from "./colour";
+
 /**
  * Typed surface of the theme layer. The CSS is the implementation; these
  * constants exist so theme switchers, the docs playground and the future CLI

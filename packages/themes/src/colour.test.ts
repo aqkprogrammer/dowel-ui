@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   contrastRatio,
+  formatOklch,
+  hexToOklch,
+  linearRgbToOklch,
   luminance,
+  oklchToHex,
   oklchToLinearRgb,
   parseOklch,
   resolveColour,
@@ -88,5 +92,68 @@ describe("resolveColour", () => {
   it("leaves an opaque colour alone", () => {
     const over = oklchToLinearRgb(1, 0, 0);
     expect(resolveColour("oklch(0 0 0)", over)?.r).toBeCloseTo(0, 4);
+  });
+});
+
+describe("hexToOklch", () => {
+  it("round-trips a colour back to the hex it came from", () => {
+    for (const hex of ["#5b5bd6", "#0ea5e9", "#ffffff", "#000000", "#7c3aed"]) {
+      const oklch = hexToOklch(hex);
+      expect(oklch).toBeDefined();
+      expect(oklchToHex(oklch!)).toBe(hex);
+    }
+  });
+
+  it("expands the three-digit form", () => {
+    expect(hexToOklch("#fff")).toEqual(hexToOklch("#ffffff"));
+  });
+
+  it("accepts a value with no leading hash", () => {
+    expect(hexToOklch("5b5bd6")).toEqual(hexToOklch("#5b5bd6"));
+  });
+
+  it("rejects anything that is not a hex colour", () => {
+    for (const value of ["", "#12345", "rebeccapurple", "oklch(0.5 0.1 270)", "#gggggg"]) {
+      expect(hexToOklch(value)).toBeUndefined();
+    }
+  });
+
+  it("agrees with the forward conversion the audit uses", () => {
+    // The two directions are separate implementations of the same matrix, so a
+    // sign error in either shows up here rather than in a shipped theme.
+    const oklch = hexToOklch("#5b5bd6");
+    expect(oklch).toBeDefined();
+
+    const round = linearRgbToOklch(oklchToLinearRgb(oklch!.l, oklch!.c, oklch!.h));
+    expect(round.l).toBeCloseTo(oklch!.l, 6);
+    expect(round.c).toBeCloseTo(oklch!.c, 6);
+    expect(round.h).toBeCloseTo(oklch!.h, 4);
+  });
+
+  it("reports a hue in [0, 360)", () => {
+    for (const hex of ["#ff0000", "#00ff00", "#0000ff", "#ff00ff"]) {
+      const oklch = hexToOklch(hex);
+      expect(oklch!.h).toBeGreaterThanOrEqual(0);
+      expect(oklch!.h).toBeLessThan(360);
+    }
+  });
+
+  it("gives grey a hue of zero rather than an arbitrary one", () => {
+    expect(hexToOklch("#808080")!.c).toBeLessThan(0.001);
+    expect(hexToOklch("#808080")!.h).toBe(0);
+  });
+});
+
+describe("formatOklch", () => {
+  it("writes the form the tokens are authored in, and parses back", () => {
+    const value = formatOklch({ l: 0.545, c: 0.196, h: 275 });
+    expect(value).toBe("oklch(0.545 0.196 275)");
+
+    const parsed = parseOklch(value);
+    expect(parsed).toMatchObject({ l: 0.545, c: 0.196, h: 275, alpha: 1 });
+  });
+
+  it("does not print trailing zeros", () => {
+    expect(formatOklch({ l: 0.5, c: 0.1, h: 270 })).toBe("oklch(0.5 0.1 270)");
   });
 });
