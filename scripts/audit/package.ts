@@ -11,7 +11,7 @@
  *   pnpm audit:package
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -31,6 +31,20 @@ const NEVER_PUBLISH = [
   { pattern: /(^|\/)coverage\//, why: "coverage report" },
 ] as const;
 
+/**
+ * Files a scaffolder ships as payload rather than as its own configuration.
+ *
+ * `create-dowel-app` publishes `templates/base/tsconfig.json` on purpose: it is
+ * the tsconfig the *generated* project gets, and a scaffolder that did not ship
+ * one would generate a project that does not compile. The rule above is about a
+ * package leaking its own build configuration, which is a different thing that
+ * happens to look identical from the outside — so the exception is narrow:
+ * inside `templates/`, in a package named like a scaffolder.
+ */
+function isScaffolderPayload(pkg: string, path: string): boolean {
+  return pkg.startsWith("create-") && /(^|\/)templates\//.test(path);
+}
+
 /** Unpacked size past which a package deserves a second look, not a failure. */
 const SIZE_ADVISORY_BYTES = 2_000_000;
 
@@ -48,9 +62,21 @@ interface PackReport {
   files: PackedFile[];
 }
 
-/** Workspace packages that are actually published, read from the manifests. */
+/**
+ * Workspace packages that are actually published, discovered from the manifests.
+ *
+ * Discovered rather than listed, because a hardcoded list fails silently: a new
+ * package is simply never audited, and nothing says so — which is how the
+ * problem this script exists to catch would come back through a package the
+ * script had never heard of.
+ */
 function publishablePackages(): { dir: string; name: string }[] {
-  const dirs = ["packages/ui", "packages/cli", "packages/themes", "packages/registry"];
+  const packagesDir = join(repoRoot, "packages");
+  const dirs = readdirSync(packagesDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => `packages/${entry.name}`)
+    .sort();
+
   const found: { dir: string; name: string }[] = [];
 
   for (const dir of dirs) {
@@ -110,6 +136,8 @@ for (const { dir, name } of packages) {
   }
 
   for (const file of report.files) {
+    if (isScaffolderPayload(name, file.path)) continue;
+
     for (const rule of NEVER_PUBLISH) {
       if (rule.pattern.test(file.path)) {
         violations.push({ pkg: name, path: file.path, why: rule.why });

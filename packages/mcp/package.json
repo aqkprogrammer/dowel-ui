@@ -1,0 +1,63 @@
+{
+  "name": "@dowel-ui/mcp",
+  "version": "0.5.1",
+  "type": "module",
+  "description": "Model Context Protocol server for Dowel. Lets a coding agent search the component registry, read a component's source and conventions, and get the exact install command — instead of guessing what exists.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "agent",
+    "claude",
+    "cursor",
+    "react",
+    "ui",
+    "components",
+    "design-system",
+    "registry",
+    "dowel"
+  ],
+  "license": "MIT",
+  "homepage": "https://dowel-eight.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aqkprogrammer/dowel-ui.git",
+    "directory": "packages/mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/aqkprogrammer/dowel-ui/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "dowel-mcp": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@dowel-ui/config": "workspace:*",
+    "@dowel-ui/registry": "workspace:*",
+    "@types/node": "26.4.0",
+    "tsdown": "0.22.14",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}
