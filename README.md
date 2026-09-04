@@ -21,6 +21,12 @@ fastener. That is the idea here: components that fit together, hold, and then
 get out of your way.
 
 ```bash
+npx create-dowel-app my-app
+```
+
+Or add it to a project you already have:
+
+```bash
 npx @dowel-ui/cli init
 npx @dowel-ui/cli add button
 ```
@@ -29,13 +35,16 @@ That second command writes `button.tsx` into your project. Open it. Change it.
 It is your file now — there is no package standing between you and the markup.
 
 **Live:** [dowel-eight.vercel.app](https://dowel-eight.vercel.app) — docs, every
-component, and the registry the CLI reads.
+component, and the registry the CLI reads. Also a
+[playground](https://dowel-eight.vercel.app/playground), a
+[theme studio](https://dowel-eight.vercel.app/theme-studio) that checks contrast
+as you pick, and [per-component quality](https://dowel-eight.vercel.app/quality).
 **Published:** `@dowel-ui/react`, `@dowel-ui/cli`, `@dowel-ui/themes`,
-`@dowel-ui/registry`.
+`@dowel-ui/registry`, `@dowel-ui/mcp`, `create-dowel-app`.
 
 ## What is in it
 
-**70 components** and **8 blocks**, every one keyboard-operable and audited for
+**70 components** and **13 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
@@ -83,8 +92,19 @@ Tab back to focus management, so a keyboard user is never trapped.
 Whole sections, assembled from components. Installing one brings everything it
 is built from — `add ai-chat` resolves fourteen components.
 
-Login · Sign up · Forgot password · Dashboard · Admin users · Settings ·
-Pricing · AI Chat
+**Auth** — Login · Sign up · Forgot password
+
+**SaaS** — Dashboard · **Analytics** · **Billing** · **Onboarding** ·
+Admin users · Settings · Pricing
+
+**AI** — AI Chat · **AI Dashboard** · **Agent Console**
+
+`billing` states every usage meter in words rather than as a bar that turns red.
+`analytics` treats its chart as a picture — one summarising label, and the exact
+numbers as a real table anyone can open. `ai-dashboard` marks spend and failure
+rate as lower-is-better, because a dashboard that paints a rising bill green is
+congratulating you on it. `agent-console` puts whatever the run is blocked on
+above the plan and the history, since it is the only part waiting on a person.
 
 ```tsx
 import {
@@ -159,6 +179,9 @@ rewrites imports to your project's own path alias.
 | `add <names…>` | Installs components and everything they depend on                  |
 | `list`         | Shows the registry, marking what you already have                  |
 | `update`       | Compares installed components against the registry                 |
+| `agents`       | Writes the catalogue for the coding agents in this project         |
+| `login`        | Stores a licence key, for components that need one                 |
+| `whoami`       | Reports whether this machine is signed in                          |
 
 Useful flags: `--registry <url-or-directory>` to point at a fork or mirror,
 `--yes` for CI, `--overwrite` to replace files you have edited, `--cwd` to run
@@ -174,6 +197,147 @@ The CLI refuses, loudly, to install into a project it cannot support correctly:
 Tailwind v3 (the tokens use `@theme`), a JavaScript project (the published
 source is TypeScript), or a non-React project. Each refusal says what to do
 instead.
+
+## Starting from scratch
+
+```bash
+npx create-dowel-app my-app
+```
+
+Asks what you are building, and which theme, then writes a Next.js app and
+fetches the components for it.
+
+| Template  | What you get                                                                     |
+| --------- | -------------------------------------------------------------------------------- |
+| `starter` | The app, the tokens, the aliases, and a landing page                             |
+| `saas`    | An application shell with dashboard, analytics, billing, settings and onboarding |
+| `ai`      | A chat surface, an agent console and a usage dashboard                           |
+
+**The templates do not contain the components.** They are the application files
+plus a list of registry names, and the scaffolder runs the same CLI you would
+run yourself. A template carrying its own copy of Button is carrying whichever
+Button was current the day it was written, and nothing ever says so — this way a
+project created today is built from today's registry, and a template stays a
+dozen files instead of a hundred.
+
+Flags: `--template`, `--theme`, `--pm`, `--yes`, `--skip-install`.
+
+## Generating a screen
+
+```bash
+npx @dowel-ui/cli list          # what exists
+```
+
+[**dowel-eight.vercel.app/generate**](https://dowel-eight.vercel.app/generate) —
+describe a screen, get the components that build it, the install command, and a
+brief to paste into your coding agent. The MCP server exposes the same thing as
+`plan_ui`, so an agent can ask for it directly.
+
+Every suggestion is resolved against the registry before anything is written, so
+it cannot name a component that does not exist — which is what asking a model
+directly gets you, complete with a `variant` nobody implemented. It also does
+not guess at props: the registry publishes what a component _is_ and what it
+depends on, not the shape of its arguments, so the output stops at the
+composition and links to the page where the props are documented. A plausible
+invented prop is worse than an obvious gap — one is a TODO, the other is a bug
+wearing the costume of working code.
+
+## Your own registry
+
+The CLI has always installed from any registry — `--registry` takes a URL or a
+directory. `@dowel-ui/registry` now builds one, so an organisation can publish
+its own components and have them installed exactly the same way.
+
+```ts
+import { buildCustomRegistry, defineRegistryConfig } from "@dowel-ui/registry";
+
+const result = await buildCustomRegistry(
+  defineRegistryConfig({
+    root: "src",
+    generatedFrom: "@acme/ui@1.0.0",
+    // One URL that serves both your components and everything upstream.
+    extends: "https://dowel-eight.vercel.app/r",
+    items: [
+      {
+        name: "acme-callout",
+        title: "Acme Callout",
+        description: "Acme's house callout, built on the upstream Badge.",
+        category: "display",
+        registryDependencies: ["badge"],
+        files: ["acme-callout.tsx"],
+      },
+    ],
+  }),
+);
+```
+
+Point a project at the result and `add acme-callout` installs it, pulling in
+`badge` from upstream on the way.
+
+**A local item replaces an upstream one of the same name**, and the build tells
+you which — overriding upstream's Button is a legitimate thing to want and a
+catastrophic thing to do by accident, and the difference is whether anyone was
+told.
+
+The build refuses three things rather than letting them fail in a consumer's
+repository:
+
+- a **file it cannot read**;
+- an import written against the **installed** path (`@/components/ui/badge`)
+  rather than the authored one (`@/components/badge`) — the leading group is
+  rewritten to wherever the project keeps its components, so naming it twice
+  produces a path that resolves nowhere;
+- a component that **imports something it never declared**, which would not be
+  installed alongside it.
+
+## Coding agents
+
+An agent that has never heard of Dowel writes its own Button — a second one,
+with a different focus ring, different disabled semantics and hardcoded
+colours, and now the design system has a hole in it that nobody notices until
+someone tabs into it.
+
+```bash
+npx @dowel-ui/cli agents
+```
+
+Writes the catalogue and the conventions into your repository, generated from
+the registry you install from, marking what you already have:
+
+| Writes                             | For                                           |
+| ---------------------------------- | --------------------------------------------- |
+| `.dowel/*.md`                      | Any agent that reads the repository           |
+| `AGENTS.md`                        | A marked block; the rest of the file is yours |
+| `.claude/skills/dowel-ui/SKILL.md` | Claude Code                                   |
+| `.cursor/rules/dowel-ui.mdc`       | Cursor                                        |
+
+`--check` writes nothing, reports what is stale and exits non-zero — a
+catalogue a release behind is worse than none, because the agent trusts it.
+
+**MCP.** The files are a snapshot; `@dowel-ui/mcp` is the live version. The
+agent queries the registry directly, reads a component's real source rather
+than a description of it, and is told when it has typed a name that does not
+exist.
+
+```json
+{
+  "mcpServers": {
+    "dowel": {
+      "command": "npx",
+      "args": ["-y", "@dowel-ui/mcp"],
+      "env": { "DOWEL_IMPORT_FROM": "@/components/ui" }
+    }
+  }
+}
+```
+
+Four tools: `search_components`, `get_component`, `get_guide`,
+`install_command`.
+
+**llms.txt.** For an agent that can fetch a URL but not run a server, the site
+serves [`/llms.txt`](https://dowel-eight.vercel.app/llms.txt) (the index) and
+[`/llms-full.txt`](https://dowel-eight.vercel.app/llms-full.txt) (everything in
+one request), generated at build time from the same registry.
 
 ## Development
 

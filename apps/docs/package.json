@@ -10,7 +10,8 @@
     "dev": "next dev --port 3333",
     "start": "next start --port 3333",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .next .turbo public/r src/lib/previews.generated.ts src/lib/version.generated.ts"
+    "test": "vitest run",
+    "clean": "rm -rf .next .turbo public/r src/lib/previews.generated.ts src/lib/variants.generated.ts src/lib/quality.generated.ts src/lib/licensed-registry.generated.ts src/lib/version.generated.ts"
   },
   "dependencies": {
     "@dowel-ui/themes": "workspace:*",
@@ -18,17 +19,18 @@
     "lucide-react": "1.38.0",
     "next": "16.3.3",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "@dowel-ui/registry": "workspace:*"
   },
   "devDependencies": {
     "@dowel-ui/config": "workspace:*",
-    "@dowel-ui/registry": "workspace:*",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.4.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.13",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
   }
 }
