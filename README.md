@@ -44,7 +44,7 @@ as you pick, and [per-component quality](https://dowel-eight.vercel.app/quality)
 
 ## What is in it
 
-**72 components** and **13 blocks**, every one keyboard-operable and audited for
+**75 components** and **13 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
@@ -67,8 +67,9 @@ Metric Delta · Record Diff · **Log Viewer** · **Diff Viewer** · **Permission
 **Feedback** — Alert · Toast · Progress · Meter · Skeleton · Spinner ·
 Empty State · **Sync Status** · **Session Expiry**
 
-**Navigation & layout** — Tabs · Command · Pagination · Card · Badge · Avatar ·
-Button · Separator
+**Navigation & layout** — Tabs · Command · Pagination · **Breadcrumb** ·
+**Sidebar** · **Collapsible** · Card · Badge · Avatar · Button · Separator ·
+**Direction Provider**
 
 ## The AI components
 

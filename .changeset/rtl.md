@@ -13,7 +13,7 @@ review. The library audits 322 contrast pairs across every preset and then
 shipped a set that could not be read right-to-left.
 
 `pnpm audit:rtl` fails on any physical property that has a logical form, and
-runs in CI with the rest. A style that must follow the *visual* side whatever the
+runs in CI with the rest. A style that must follow the _visual_ side whatever the
 language has to say why in a comment — asserting it is not enough, because "this
 one is fine" with no reason is how a rule erodes.
 
@@ -23,7 +23,7 @@ Two things the audit knows about, both found by converting and then checking:
   symmetric and already correct both ways; `start-1/2` flips while `translate-x`
   does not, landing the element half a width off the middle. Matched as a pair,
   so `left-1/2` without the translate is still a finding.
-- **Sheet's `left` and `right` sides stay physical.** The variant is *named*
+- **Sheet's `left` and `right` sides stay physical.** The variant is _named_
   `left`, and a sheet asked for on the left that opens on the right in Arabic is
   an API telling a lie. The logical version is a `start`/`end` side, which is a
   rename rather than a restyle.

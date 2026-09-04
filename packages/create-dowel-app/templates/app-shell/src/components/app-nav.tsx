@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { cn } from "@/lib/utils";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuLabel,
+} from "@/components/ui/sidebar";
 
 export interface AppNavLink {
   href: string;
@@ -11,36 +16,26 @@ export interface AppNavLink {
 }
 
 /**
- * The application's own navigation.
+ * The application's navigation entries.
  *
- * `aria-current="page"` rather than only a highlight: which page you are on is
- * information, and a background colour is not a way of conveying it.
+ * `asChild` so Next's Link does the routing while the sidebar does the styling
+ * and the semantics — `aria-current` on the active entry comes from
+ * SidebarMenuButton rather than being hand-wired here.
  */
 export function AppNav({ links }: { links: AppNavLink[] }) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Application" className="flex flex-col gap-1">
-      {links.map((link) => {
-        const active = pathname === link.href;
-
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "rounded-md px-3 py-2 text-sm transition-colors",
-              "outline-none focus-visible:ring-2 focus-visible:ring-ring/55",
-              active
-                ? "bg-accent font-medium text-accent-foreground"
-                : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
-            )}
-          >
-            {link.label}
-          </Link>
-        );
-      })}
-    </nav>
+    <SidebarMenu>
+      {links.map((link) => (
+        <SidebarMenuItem key={link.href}>
+          <SidebarMenuButton asChild isActive={pathname === link.href}>
+            <Link href={link.href}>
+              <SidebarMenuLabel>{link.label}</SidebarMenuLabel>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
   );
 }

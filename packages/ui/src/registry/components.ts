@@ -23,11 +23,13 @@ import { meta as aiToolMeta } from "@/components/ai-tool/meta";
 import { meta as alertMeta } from "@/components/alert/meta";
 import { meta as avatarMeta } from "@/components/avatar/meta";
 import { meta as badgeMeta } from "@/components/badge/meta";
+import { meta as breadcrumbMeta } from "@/components/breadcrumb/meta";
 import { meta as buttonMeta } from "@/components/button/meta";
 import { meta as calendarMeta } from "@/components/calendar/meta";
 import { meta as cardMeta } from "@/components/card/meta";
 import { meta as checkboxMeta } from "@/components/checkbox/meta";
 import { meta as codeBlockMeta } from "@/components/code-block/meta";
+import { meta as collapsibleMeta } from "@/components/collapsible/meta";
 import { meta as comboboxMeta } from "@/components/combobox/meta";
 import { meta as commandMeta } from "@/components/command/meta";
 import { meta as confirmTypedMeta } from "@/components/confirm-typed/meta";
@@ -58,6 +60,7 @@ import { meta as secretFieldMeta } from "@/components/secret-field/meta";
 import { meta as selectMeta } from "@/components/select/meta";
 import { meta as separatorMeta } from "@/components/separator/meta";
 import { meta as sessionExpiryMeta } from "@/components/session-expiry/meta";
+import { meta as sidebarMeta } from "@/components/sidebar/meta";
 import { meta as sheetMeta } from "@/components/sheet/meta";
 import { meta as shortcutRecorderMeta } from "@/components/shortcut-recorder/meta";
 import { meta as skeletonMeta } from "@/components/skeleton/meta";
@@ -108,11 +111,13 @@ export const componentMetas: ComponentMeta[] = [
   alertMeta,
   avatarMeta,
   badgeMeta,
+  breadcrumbMeta,
   buttonMeta,
   calendarMeta,
   cardMeta,
   checkboxMeta,
   codeBlockMeta,
+  collapsibleMeta,
   comboboxMeta,
   commandMeta,
   confirmTypedMeta,
@@ -144,6 +149,7 @@ export const componentMetas: ComponentMeta[] = [
   separatorMeta,
   sessionExpiryMeta,
   sheetMeta,
+  sidebarMeta,
   shortcutRecorderMeta,
   skeletonMeta,
   sliderMeta,
