@@ -146,7 +146,7 @@ export function PermissionMatrix({
             <th
               role="columnheader"
               scope="col"
-              className="px-3 py-2 text-left text-xs font-medium"
+              className="px-3 py-2 text-start text-xs font-medium"
             >
               Permission
             </th>
@@ -186,7 +186,7 @@ export function PermissionMatrix({
                 <th
                   role="rowheader"
                   scope="row"
-                  className="px-3 py-1.5 text-left text-xs font-medium"
+                  className="px-3 py-1.5 text-start text-xs font-medium"
                 >
                   {row.label}
                   <span className="sr-only">, all</span>
@@ -216,8 +216,8 @@ export function PermissionMatrix({
                   role="rowheader"
                   scope="row"
                   className={cn(
-                    "px-3 py-2 text-left font-normal",
-                    row.permission.group !== undefined && "pl-6",
+                    "px-3 py-2 text-start font-normal",
+                    row.permission.group !== undefined && "ps-6",
                   )}
                 >
                   {row.permission.label}

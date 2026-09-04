@@ -197,10 +197,10 @@ function UnifiedRow({ row }: { row: DiffRow }) {
     <tr data-slot="diff-row" data-kind={row.kind} className={ROW_STYLES[row.kind]}>
       <LineNumber value={row.before} />
       <LineNumber value={row.after} />
-      <td className="w-4 pr-1 text-center text-muted-foreground select-none" aria-hidden="true">
+      <td className="w-4 pe-1 text-center text-muted-foreground select-none" aria-hidden="true">
         {row.kind === "added" ? "+" : row.kind === "removed" ? "−" : ""}
       </td>
-      <td className="w-full py-0.5 pr-3 break-all whitespace-pre-wrap">
+      <td className="w-full py-0.5 pe-3 break-all whitespace-pre-wrap">
         {/* The kind, for anyone who cannot see the sign or the tint. Reading a
             diff aloud without it is reading the same file twice. */}
         <span className="sr-only">{KIND_LABEL[row.kind]}: </span>
@@ -226,7 +226,7 @@ function SplitCell({ row, side }: { row: DiffRow | null; side: "before" | "after
     <>
       <LineNumber value={side === "before" ? row.before : row.after} />
       <td
-        className={cn("w-1/2 py-0.5 pr-3 break-all whitespace-pre-wrap", ROW_STYLES[row.kind])}
+        className={cn("w-1/2 py-0.5 pe-3 break-all whitespace-pre-wrap", ROW_STYLES[row.kind])}
       >
         <span className="sr-only">{KIND_LABEL[row.kind]}: </span>
         <RowContent row={row} />
@@ -267,7 +267,7 @@ function LineNumber({ value }: { value?: number }) {
       // Decorative: the line number is orientation for a sighted reader, and
       // announcing two numbers before every line makes the diff unlistenable.
       aria-hidden="true"
-      className="w-10 border-r border-border bg-muted/40 px-2 py-0.5 text-right text-muted-foreground tabular-nums select-none"
+      className="w-10 border-e border-border bg-muted/40 px-2 py-0.5 text-end text-muted-foreground tabular-nums select-none"
     >
       {value ?? ""}
     </td>

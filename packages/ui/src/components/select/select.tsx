@@ -158,7 +158,7 @@ export function SelectItem({ className, label, children, ...props }: SelectItemP
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-md py-1.5 pr-8 pl-2 text-sm outline-none select-none",
+        "relative flex w-full cursor-default items-center gap-2 rounded-md py-1.5 ps-2 pe-8 text-sm outline-none select-none",
         "transition-colors duration-[var(--duration-instant)]",
         "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-55",
@@ -176,7 +176,7 @@ export function SelectItem({ className, label, children, ...props }: SelectItemP
         </>
       )}
       {/* Decorative: selection is already announced through aria-selected. */}
-      <span className="absolute right-2 grid size-4 place-items-center">
+      <span className="absolute end-2 grid size-4 place-items-center">
         <SelectPrimitive.ItemIndicator>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-3.5">
             <path

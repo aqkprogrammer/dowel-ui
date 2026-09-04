@@ -9,7 +9,7 @@ const inputVariants = cva(
     "flex w-full min-w-0 rounded-md border border-input bg-background text-foreground shadow-xs",
     "transition-[border-color,box-shadow] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
     "placeholder:text-muted-foreground",
-    "file:mr-3 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
+    "file:me-3 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
     "focus-visible:border-ring",
     "disabled:cursor-not-allowed disabled:opacity-55",
     focusRingInset,

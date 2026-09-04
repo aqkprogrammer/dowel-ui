@@ -66,7 +66,7 @@ export function DialogContent({
             data-slot="dialog-close"
             aria-label="Close"
             className={cn(
-              "absolute top-4 right-4 grid size-7 place-items-center rounded-md text-muted-foreground",
+              "absolute end-4 top-4 grid size-7 place-items-center rounded-md text-muted-foreground",
               "transition-colors duration-[var(--duration-fast)] hover:bg-accent hover:text-foreground",
               "[&_svg]:size-4",
               focusRing,
@@ -91,7 +91,7 @@ export function DialogHeader({ className, ...props }: ComponentPropsWithRef<"div
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-1.5 pr-8 text-left", className)}
+      className={cn("flex flex-col gap-1.5 pe-8 text-start", className)}
       {...props}
     />
   );

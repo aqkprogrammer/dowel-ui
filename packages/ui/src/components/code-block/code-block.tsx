@@ -143,7 +143,7 @@ export function CopyButton({
       onClick={copy}
       aria-label={label}
       className={cn(
-        "ml-auto grid size-6 shrink-0 place-items-center rounded text-muted-foreground",
+        "ms-auto grid size-6 shrink-0 place-items-center rounded text-muted-foreground",
         "transition-colors duration-[var(--duration-fast)] hover:bg-accent hover:text-foreground",
         focusRing,
         className,

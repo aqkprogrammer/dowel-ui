@@ -232,7 +232,7 @@ export function TagsInput({
                       removeAt(index);
                     }}
                     className={cn(
-                      "-mr-0.5 grid size-4 place-items-center rounded-full",
+                      "-me-0.5 grid size-4 place-items-center rounded-full",
                       "transition-colors hover:bg-foreground/10",
                       focusRing,
                       disabledStyles,

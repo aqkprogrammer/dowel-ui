@@ -203,7 +203,7 @@ export function LogViewer({
                   data-index={item.index}
                   data-slot="log-viewer-row"
                   data-level={line.level}
-                  className="absolute top-0 left-0 w-full"
+                  className="absolute start-0 top-0 w-full"
                   style={{ transform: `translateY(${String(item.start)}px)` }}
                 >
                   <LogViewerRow
@@ -296,7 +296,7 @@ export function LogViewerRow({ line, expanded = false, onToggle }: LogViewerRowP
       {expanded && line.fields ? (
         <dl
           data-slot="log-viewer-fields"
-          className="mt-1 mb-1 ml-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 border-l border-border pl-3"
+          className="ms-4 mt-1 mb-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 border-s border-border ps-3"
         >
           {Object.entries(line.fields).map(([key, value]) => (
             <div key={key} className="contents">

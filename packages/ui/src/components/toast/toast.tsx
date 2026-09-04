@@ -28,7 +28,7 @@ import {
 const toastVariants = cva(
   cn(
     "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden",
-    "rounded-lg border p-4 pr-10 shadow-lg",
+    "rounded-lg border p-4 pe-10 shadow-lg",
     "[--slide-x:calc(100%+1rem)]",
     "data-[state=closed]:animate-float-out data-[state=open]:animate-slide-in",
     "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none",
@@ -122,7 +122,7 @@ export function ToastClose({
       data-slot="toast-close"
       aria-label="Dismiss"
       className={cn(
-        "absolute top-3 right-3 grid size-6 place-items-center rounded-md text-muted-foreground",
+        "absolute end-3 top-3 grid size-6 place-items-center rounded-md text-muted-foreground",
         "transition-colors duration-[var(--duration-fast)] hover:bg-accent hover:text-foreground",
         focusRing,
         className,
@@ -145,12 +145,12 @@ export type ToastPosition =
   "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
 
 const viewportPositions: Record<ToastPosition, string> = {
-  "top-left": "top-0 left-0 sm:flex-col-reverse",
+  "top-left": "top-0 start-0 sm:flex-col-reverse",
   "top-center": "top-0 left-1/2 -translate-x-1/2 sm:flex-col-reverse",
-  "top-right": "top-0 right-0 sm:flex-col-reverse",
-  "bottom-left": "bottom-0 left-0",
+  "top-right": "top-0 end-0 sm:flex-col-reverse",
+  "bottom-left": "bottom-0 start-0",
   "bottom-center": "bottom-0 left-1/2 -translate-x-1/2",
-  "bottom-right": "bottom-0 right-0",
+  "bottom-right": "bottom-0 end-0",
 };
 
 export interface ToasterProps {

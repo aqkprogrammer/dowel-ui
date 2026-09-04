@@ -98,8 +98,8 @@ export function TableHead({ className, ...props }: ComponentPropsWithRef<"th">) 
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-3 text-left align-middle text-xs font-medium whitespace-nowrap text-muted-foreground",
-        "[&:has([role=checkbox])]:w-px [&:has([role=checkbox])]:pr-0",
+        "h-10 px-3 text-start align-middle text-xs font-medium whitespace-nowrap text-muted-foreground",
+        "[&:has([role=checkbox])]:w-px [&:has([role=checkbox])]:pe-0",
         className,
       )}
       {...props}
@@ -113,7 +113,7 @@ export function TableCell({ className, ...props }: ComponentPropsWithRef<"td">) 
       data-slot="table-cell"
       className={cn(
         "px-3 py-2.5 align-middle",
-        "[&:has([role=checkbox])]:w-px [&:has([role=checkbox])]:pr-0",
+        "[&:has([role=checkbox])]:w-px [&:has([role=checkbox])]:pe-0",
         className,
       )}
       {...props}

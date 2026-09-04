@@ -34,6 +34,7 @@ import { meta as confirmTypedMeta } from "@/components/confirm-typed/meta";
 import { meta as cronEditorMeta } from "@/components/cron-editor/meta";
 import { meta as dataTableMeta } from "@/components/data-table/meta";
 import { meta as datePickerMeta } from "@/components/date-picker/meta";
+import { meta as directionMeta } from "@/components/direction/meta";
 import { meta as dialogMeta } from "@/components/dialog/meta";
 import { meta as diffViewerMeta } from "@/components/diff-viewer/meta";
 import { meta as dnsRecordMeta } from "@/components/dns-record/meta";
@@ -119,6 +120,7 @@ export const componentMetas: ComponentMeta[] = [
   dataTableMeta,
   datePickerMeta,
   dialogMeta,
+  directionMeta,
   diffViewerMeta,
   dnsRecordMeta,
   drawerMeta,

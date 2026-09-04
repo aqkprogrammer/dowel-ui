@@ -285,7 +285,7 @@ export function AnalyticsBlock({
                 <TableHeader>
                   <TableRow>
                     <TableHead scope="col">Period</TableHead>
-                    <TableHead scope="col" className="text-right">
+                    <TableHead scope="col" className="text-end">
                       {seriesLabel}
                     </TableHead>
                   </TableRow>
@@ -296,7 +296,7 @@ export function AnalyticsBlock({
                       <TableHead scope="row" className="font-normal text-foreground">
                         <time dateTime={point.at}>{point.label}</time>
                       </TableHead>
-                      <TableCell className="text-right tabular-nums">
+                      <TableCell className="text-end tabular-nums">
                         {seriesFormat(point.value)}
                       </TableCell>
                     </TableRow>
@@ -321,10 +321,10 @@ export function AnalyticsBlock({
               <TableHeader>
                 <TableRow>
                   <TableHead scope="col">{breakdownColumn}</TableHead>
-                  <TableHead scope="col" className="text-right">
+                  <TableHead scope="col" className="text-end">
                     Visits
                   </TableHead>
-                  <TableHead scope="col" className="text-right">
+                  <TableHead scope="col" className="text-end">
                     Share
                   </TableHead>
                 </TableRow>
@@ -339,10 +339,10 @@ export function AnalyticsBlock({
                       <TableHead scope="row" className="font-normal text-foreground">
                         {row.label}
                       </TableHead>
-                      <TableCell className="text-right tabular-nums">
+                      <TableCell className="text-end tabular-nums">
                         {defaultFormat(row.value)}
                       </TableCell>
-                      <TableCell className="text-right tabular-nums">
+                      <TableCell className="text-end tabular-nums">
                         {percentFormatter.format(share)}
                       </TableCell>
                     </TableRow>

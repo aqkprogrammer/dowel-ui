@@ -222,7 +222,7 @@ export function PromptInputSubmit({
       disabled={disabled}
       onClick={busy ? onStop : undefined}
       className={cn(
-        "ml-auto grid size-8 shrink-0 place-items-center rounded-lg",
+        "ms-auto grid size-8 shrink-0 place-items-center rounded-lg",
         "bg-primary text-primary-foreground transition-colors duration-[var(--duration-fast)]",
         "hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-55",
         focusRing,

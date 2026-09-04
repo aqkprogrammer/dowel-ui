@@ -141,7 +141,7 @@ export function Meter({
                   data-slot="meter-segment"
                   data-tone={segment.tone ?? "primary"}
                   className={cn(
-                    "h-full first:rounded-l-full last:rounded-r-full",
+                    "h-full first:rounded-s-full last:rounded-e-full",
                     "transition-[width] duration-[var(--duration-slow)] ease-[var(--ease-out-quint)]",
                     TONES[segment.tone ?? "primary"],
                   )}

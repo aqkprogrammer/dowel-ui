@@ -241,19 +241,19 @@ export function RecordDiffTable({
             <tr className="border-b border-border">
               <th
                 scope="col"
-                className="px-3 py-2 text-left text-xs font-medium text-muted-foreground"
+                className="px-3 py-2 text-start text-xs font-medium text-muted-foreground"
               >
                 Field
               </th>
               <th
                 scope="col"
-                className="px-3 py-2 text-left text-xs font-medium text-muted-foreground"
+                className="px-3 py-2 text-start text-xs font-medium text-muted-foreground"
               >
                 Before
               </th>
               <th
                 scope="col"
-                className="px-3 py-2 text-left text-xs font-medium text-muted-foreground"
+                className="px-3 py-2 text-start text-xs font-medium text-muted-foreground"
               >
                 After
               </th>
@@ -271,7 +271,7 @@ export function RecordDiffTable({
                     rather than as a loose cell in a wall of table. */}
                 <th
                   scope="row"
-                  className="px-3 py-2 text-left align-top font-medium whitespace-nowrap"
+                  className="px-3 py-2 text-start align-top font-medium whitespace-nowrap"
                 >
                   {field.label}
                   {/* The change kind must not be carried by row colour alone. */}

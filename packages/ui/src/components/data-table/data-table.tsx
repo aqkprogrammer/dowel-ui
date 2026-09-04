@@ -253,7 +253,7 @@ export function DataTableColumnHeader({
           <Button
             variant="ghost"
             size="sm"
-            className="-ml-2 h-7 gap-1 px-2 font-medium text-muted-foreground data-[state=open]:bg-accent"
+            className="-ms-2 h-7 gap-1 px-2 font-medium text-muted-foreground data-[state=open]:bg-accent"
           >
             {title}
             <SortIcon direction={sorted === false ? undefined : sorted} />

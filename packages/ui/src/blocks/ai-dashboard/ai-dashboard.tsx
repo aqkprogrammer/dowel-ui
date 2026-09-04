@@ -220,13 +220,13 @@ export function AiDashboardBlock({
               <TableHeader>
                 <TableRow>
                   <TableHead scope="col">Model</TableHead>
-                  <TableHead scope="col" className="text-right">
+                  <TableHead scope="col" className="text-end">
                     Runs
                   </TableHead>
-                  <TableHead scope="col" className="text-right">
+                  <TableHead scope="col" className="text-end">
                     Tokens
                   </TableHead>
-                  <TableHead scope="col" className="text-right">
+                  <TableHead scope="col" className="text-end">
                     Cost
                   </TableHead>
                 </TableRow>
@@ -237,13 +237,11 @@ export function AiDashboardBlock({
                     <TableHead scope="row" className="font-normal text-foreground">
                       {model.model}
                     </TableHead>
-                    <TableCell className="text-right tabular-nums">
-                      {count(model.runs)}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-end tabular-nums">{count(model.runs)}</TableCell>
+                    <TableCell className="text-end tabular-nums">
                       {count(model.tokens)}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">{model.cost}</TableCell>
+                    <TableCell className="text-end tabular-nums">{model.cost}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -255,11 +253,9 @@ export function AiDashboardBlock({
               <TableFooter>
                 <TableRow>
                   <TableHead scope="row">Total</TableHead>
-                  <TableCell className="text-right tabular-nums">{count(totalRuns)}</TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {count(totalTokens)}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">{spend}</TableCell>
+                  <TableCell className="text-end tabular-nums">{count(totalRuns)}</TableCell>
+                  <TableCell className="text-end tabular-nums">{count(totalTokens)}</TableCell>
+                  <TableCell className="text-end tabular-nums">{spend}</TableCell>
                 </TableRow>
               </TableFooter>
             </Table>

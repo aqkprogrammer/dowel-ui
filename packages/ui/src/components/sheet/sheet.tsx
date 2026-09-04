@@ -49,8 +49,12 @@ const sheetVariants = cva(
       side: {
         top: "inset-x-0 top-0 border-b [--slide-y:-100%]",
         bottom: "inset-x-0 bottom-0 border-t [--slide-y:100%]",
-        left: "inset-y-0 left-0 h-full w-3/4 max-w-sm border-r [--slide-x:-100%]",
-        right: "inset-y-0 right-0 h-full w-3/4 max-w-sm border-l [--slide-x:100%]",
+        // rtl-ok: the variant is named `left`, and a sheet asked for on the
+        // left that opens on the right in Arabic is an API telling a lie. The
+        // logical version of this is a `start`/`end` side, which is a rename
+        // rather than a restyle.
+        left: "inset-y-0 left-0 h-full w-3/4 max-w-sm border-r [--slide-x:-100%]", // rtl-ok: named side
+        right: "inset-y-0 right-0 h-full w-3/4 max-w-sm border-l [--slide-x:100%]", // rtl-ok: named side
       },
     },
     defaultVariants: {
@@ -87,7 +91,7 @@ export function SheetContent({
             data-slot="sheet-close"
             aria-label="Close"
             className={cn(
-              "absolute top-4 right-4 grid size-7 place-items-center rounded-md text-muted-foreground",
+              "absolute end-4 top-4 grid size-7 place-items-center rounded-md text-muted-foreground",
               "transition-colors duration-[var(--duration-fast)] hover:bg-accent hover:text-foreground",
               "[&_svg]:size-4",
               focusRing,
@@ -112,7 +116,7 @@ export function SheetHeader({ className, ...props }: ComponentPropsWithRef<"div"
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-col gap-1.5 pr-8 text-left", className)}
+      className={cn("flex flex-col gap-1.5 pe-8 text-start", className)}
       {...props}
     />
   );

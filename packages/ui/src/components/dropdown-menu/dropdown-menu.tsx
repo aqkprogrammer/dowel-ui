@@ -80,7 +80,7 @@ export function DropdownMenuItem({
       data-variant={variant}
       className={cn(
         menuItem,
-        inset && "pl-8",
+        inset && "ps-8",
         variant === "destructive" &&
           "text-destructive data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive",
         className,
@@ -94,7 +94,7 @@ export function DropdownMenuItem({
  * aria-checked, so announcing it twice would be noise. */
 function ItemIndicator({ radio = false }: { radio?: boolean }) {
   return (
-    <span className="pointer-events-none absolute left-2 grid size-4 place-items-center">
+    <span className="pointer-events-none absolute start-2 grid size-4 place-items-center">
       <DropdownMenuPrimitive.ItemIndicator>
         {radio ? (
           <span className="size-2 rounded-full bg-current" />
@@ -122,7 +122,7 @@ export function DropdownMenuCheckboxItem({
   return (
     <DropdownMenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
-      className={cn(menuItem, "pl-8", className)}
+      className={cn(menuItem, "ps-8", className)}
       {...props}
     >
       <ItemIndicator />
@@ -139,7 +139,7 @@ export function DropdownMenuRadioItem({
   return (
     <DropdownMenuPrimitive.RadioItem
       data-slot="dropdown-menu-radio-item"
-      className={cn(menuItem, "pl-8", className)}
+      className={cn(menuItem, "ps-8", className)}
       {...props}
     >
       <ItemIndicator radio />
@@ -160,7 +160,7 @@ export function DropdownMenuLabel({ className, inset, ...props }: DropdownMenuLa
       data-slot="dropdown-menu-label"
       className={cn(
         "px-2 py-1.5 text-xs font-medium text-muted-foreground",
-        inset && "pl-8",
+        inset && "ps-8",
         className,
       )}
       {...props}
@@ -188,7 +188,7 @@ export function DropdownMenuShortcut({ className, ...props }: ComponentPropsWith
     <span
       data-slot="dropdown-menu-shortcut"
       aria-hidden="true"
-      className={cn("ml-auto text-2xs tracking-wide text-muted-foreground", className)}
+      className={cn("ms-auto text-2xs tracking-wide text-muted-foreground", className)}
       {...props}
     />
   );
@@ -209,11 +209,11 @@ export function DropdownMenuSubTrigger({
   return (
     <DropdownMenuPrimitive.SubTrigger
       data-slot="dropdown-menu-sub-trigger"
-      className={cn(menuItem, "data-[state=open]:bg-accent", inset && "pl-8", className)}
+      className={cn(menuItem, "data-[state=open]:bg-accent", inset && "ps-8", className)}
       {...props}
     >
       {children}
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="ml-auto size-3.5">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="ms-auto size-3.5">
         <path
           d="m9 18 6-6-6-6"
           stroke="currentColor"
