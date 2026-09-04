@@ -44,7 +44,7 @@ as you pick, and [per-component quality](https://dowel-eight.vercel.app/quality)
 
 ## What is in it
 
-**70 components** and **13 blocks**, every one keyboard-operable and audited for
+**71 components** and **13 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
@@ -55,7 +55,7 @@ Inline Completion · Disclosure · **Extraction Review** ·
 
 **Forms** — Input · Label · Checkbox · Radio Group · Switch · Slider · Select ·
 Combobox · Form · Calendar · Date Picker · Tags Input · File Upload ·
-**Time Range Picker** · **Cron Editor** · **Secret Field** ·
+**Textarea** · **Time Range Picker** · **Cron Editor** · **Secret Field** ·
 **Confirm Typed** · **Shortcut Recorder**
 
 **Overlays** — Dialog · Sheet · Drawer · Popover · Tooltip · Dropdown Menu
