@@ -26,6 +26,8 @@ export function SiteHeader({ searchEntries }: { searchEntries: SearchEntry[] }) 
           {[
             { href: "/docs", label: "Docs" },
             { href: "/docs/components", label: "Components" },
+            { href: "/playground", label: "Playground" },
+            { href: "/generate", label: "Generate" },
             { href: "/docs/cli", label: "CLI" },
             { href: "/docs/themes", label: "Themes" },
           ].map((link) => (

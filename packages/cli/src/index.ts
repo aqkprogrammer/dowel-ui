@@ -5,6 +5,8 @@ import { Command } from "commander";
 
 import { branding } from "./branding";
 import { add } from "./commands/add";
+import { agents } from "./commands/agents";
+import { login, logout, whoami } from "./commands/auth";
 import { init } from "./commands/init";
 import { list } from "./commands/list";
 import { remove } from "./commands/remove";
@@ -102,6 +104,46 @@ program
   });
 
 program
+  .command("agents")
+  .description("write documentation for the coding agents working in this project")
+  .argument("[targets...]", "any of: dowel, agents, claude, cursor (default: all)")
+  .option("--check", "report what is out of date and exit non-zero, writing nothing", false)
+  .action(async (targets: string[], options: { check: boolean }) => {
+    const { cwd, registry } = globals();
+    await agents({ cwd, registry, targets, check: options.check });
+  });
+
+program
+  .command("login")
+  .description("store a licence key, so licensed components can be installed")
+  .argument("[key]", "the licence key; prompted for when omitted")
+  .option("-y, --yes", "do not prompt; requires the key as an argument", false)
+  .action(async (key: string | undefined, options: { yes: boolean }) => {
+    const { registry } = globals();
+    await login({
+      registry: registry ?? branding.registryUrl,
+      token: key,
+      yes: options.yes,
+    });
+  });
+
+program
+  .command("logout")
+  .description("remove the stored licence key from this machine")
+  .action(() => {
+    logout();
+  });
+
+program
+  .command("whoami")
+  .description("report whether this machine is signed in")
+  .option("--check", "ask the registry whether the licence is still active", false)
+  .action(async (options: { check: boolean }) => {
+    const { registry } = globals();
+    await whoami({ registry: registry ?? branding.registryUrl, check: options.check });
+  });
+
+program
   .command("update")
   .description("compare installed components against the registry")
   .argument("[components...]", "component names; defaults to everything installed")
@@ -140,4 +182,4 @@ async function main(): Promise<void> {
 
 void main();
 
-export { add, init, list, remove, update };
+export { add, agents, init, login, logout, list, remove, update, whoami };
