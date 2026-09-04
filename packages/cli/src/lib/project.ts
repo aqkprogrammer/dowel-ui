@@ -105,6 +105,65 @@ export function findCssEntry(root: string): string | undefined {
 }
 
 /**
+ * Strips comments and trailing commas from JSON with extensions, without
+ * touching what is inside a string.
+ *
+ * A regex cannot do this. `tsconfig.json` aliases are written `"@/*"`, which
+ * contains `/*`, and the `include` globs are written `"**\/*.ts"`, which
+ * contains `*\/` — so a naive block-comment regex treats everything between
+ * them as a comment and eats the `paths` block. Every stock Next.js tsconfig
+ * has both, which is exactly the project this tool is most often pointed at.
+ * The parse then failed, `detectResolve` returned undefined, and `init`
+ * either asked for an alias it could already see or, under `--yes`, refused.
+ *
+ * So this walks the text instead, and only treats `//` and `/*` as comments
+ * when they are outside a string.
+ */
+export function stripJsonComments(text: string): string {
+  let out = "";
+  let inString = false;
+  let escaped = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i] ?? "";
+    const next = text[i + 1] ?? "";
+
+    if (inString) {
+      out += char;
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = true;
+      out += char;
+      continue;
+    }
+
+    if (char === "/" && next === "*") {
+      const end = text.indexOf("*/", i + 2);
+      i = end === -1 ? text.length : end + 1;
+      continue;
+    }
+
+    if (char === "/" && next === "/") {
+      const end = text.indexOf("\n", i);
+      if (end === -1) break;
+      i = end - 1;
+      continue;
+    }
+
+    out += char;
+  }
+
+  // Trailing commas are legal in tsconfig and not in JSON. Safe to do with a
+  // regex now that no string can contain an unbalanced brace from a comment.
+  return out.replace(/,(\s*[}\]])/g, "$1");
+}
+
+/**
  * Reads the first wildcard alias out of tsconfig paths.
  *
  * `"@/*": ["./src/*"]` becomes `{ prefix: "@/", base: "src" }`. Only the
@@ -118,13 +177,7 @@ export function detectResolve(root: string): ProjectInfo["resolve"] {
 
     let parsed: { compilerOptions?: { paths?: Record<string, string[]> } };
     try {
-      // Strip comments and trailing commas: tsconfig is JSON with extensions,
-      // and real projects use both.
-      const raw = readFileSync(path, "utf8")
-        .replace(/\/\*[\s\S]*?\*\//g, "")
-        .replace(/(^|[^:])\/\/.*$/gm, "$1")
-        .replace(/,(\s*[}\]])/g, "$1");
-      parsed = JSON.parse(raw) as typeof parsed;
+      parsed = JSON.parse(stripJsonComments(readFileSync(path, "utf8"))) as typeof parsed;
     } catch {
       continue;
     }
