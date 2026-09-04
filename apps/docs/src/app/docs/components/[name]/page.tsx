@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { InstallCommand } from "~/components/install-command";
 import { Preview } from "~/components/preview";
 import { Prose } from "~/components/prose";
+import { QualityChecks } from "~/components/quality-checks";
 import { branding } from "~/lib/branding";
 import { getComponents, getRegistryItem } from "~/lib/registry";
 
@@ -88,7 +89,11 @@ export default async function ComponentPage({ params }: PageProps) {
             <p>{item.a11y}</p>
           </>
         ) : null}
+      </Prose>
 
+      <QualityChecks name={item.name} />
+
+      <Prose>
         <h2 id="source">Source</h2>
         <p>
           This is exactly what{" "}
