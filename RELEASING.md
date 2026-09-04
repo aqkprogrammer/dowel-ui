@@ -139,18 +139,33 @@ pnpm dlx tsx path/to/dowel/packages/cli/src/index.ts \
 
 ## Publishing the packages
 
-Versioning is [Changesets](https://github.com/changesets/changesets). Nine
-changesets are already written, one per phase.
+Versions are bumped by hand, in lockstep, and the release is recorded in the
+single root `CHANGELOG.md`.
+
+Changesets is still installed and its config is still here, but `changeset
+version` is deliberately not run: it writes a `CHANGELOG.md` into every package,
+and this repository keeps one changelog, not six. That was decided at 0.4.0 and
+it is what 0.4.0 and 0.5.0 were both cut with. Either finish the job — delete
+the dependency — or leave it as the escape hatch it currently is, but do not
+half-use it.
 
 ### 1. Version
 
-```bash
-pnpm changeset version
+Set the same version in every package that ships, plus the two private ones that
+move with them:
+
+```
+packages/ui  packages/cli  packages/registry  packages/themes
+packages/config  apps/docs
 ```
 
-Applies every pending changeset: bumps versions, writes each package's
-`CHANGELOG.md`, and deletes the consumed changesets. Review the diff — this is
-the last point at which a version bump is cheap to change.
+`packages/cli-alias` stays where it is; it is private, unpublished, and has been
+at 0.2.0 since it was retired. The root `dowel-monorepo` version is not used for
+anything and does not move either.
+
+Then change `## Unreleased` in the root `CHANGELOG.md` to the new version. The
+prose is written as the work lands, not at release time, so this is a heading
+edit and nothing more.
 
 `dowel-monorepo` and `@dowel-ui/config` are private and are never published.
 
@@ -229,9 +244,11 @@ Three things this catches that nothing earlier does:
 
 ## Subsequent releases
 
-1. Write a changeset with the change: `pnpm changeset`
+1. Write the change up in the root `CHANGELOG.md` under `## Unreleased`, as
+   part of the commit that makes it
 2. Merge to `main`
-3. `pnpm changeset version`, review, commit
+3. Bump the versions and close the changelog section (step 1 above), then run
+   the gate in step 2 and commit as `release: <version>`
 4. Deploy the site **first** — the registry is what the CLI reads
 5. `pnpm publish -r`
 

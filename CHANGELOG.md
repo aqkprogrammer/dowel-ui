@@ -3,7 +3,7 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
-## Unreleased
+## 0.5.0
 
 ### New components
 
@@ -267,6 +267,15 @@ per-package changelogs, whatever an earlier version of this line claimed.
   another command already uses is said, with that command's name, and applied
   only if the person says to use it anyway. The model is pure and exported,
   so the same parser can validate a saved binding on the server.
+### Fixed
+
+- **secret-field's fixture is no longer a live-shaped Stripe key.** The story
+  and the test used `sk_live_…` as sample data, and GitHub's push protection
+  blocked the push on it — correctly, since that prefix belongs to a
+  real-money credential and nothing about the string said otherwise. The
+  replacement cannot be mistaken for one. The component's doc comment keeps
+  the bare prefix, which is a prefix and not a key, and is the point being
+  made there.
 
 ## 0.4.0
 

@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/react",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "type": "module",
   "description": "Source-first React components for SaaS and AI products \u2014 70 accessible components you install as code you own, not as a dependency.",
   "keywords": [
