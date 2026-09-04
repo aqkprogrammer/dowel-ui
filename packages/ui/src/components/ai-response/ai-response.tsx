@@ -31,7 +31,7 @@ export function Response({ className, streaming, children, ...props }: ResponseP
         // Minimal prose styling for consumers who pass rendered Markdown.
         "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4",
         "[&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.9em]",
-        "[&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5",
+        "[&_ol]:my-2 [&_ol]:list-decimal [&_ol]:ps-5 [&_ul]:my-2 [&_ul]:list-disc [&_ul]:ps-5",
         "[&_p+p]:mt-3",
         className,
       )}
@@ -52,7 +52,7 @@ export function ResponseCaret({ className, ...props }: ComponentPropsWithRef<"sp
       aria-hidden="true"
       data-motion="indicator"
       className={cn(
-        "ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em] animate-caret bg-current align-baseline",
+        "ms-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em] animate-caret bg-current align-baseline",
         className,
       )}
       {...props}

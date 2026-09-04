@@ -29,7 +29,7 @@ export function ActivityItem({ className, last, ...props }: ActivityItemProps) {
         "relative flex gap-3 pb-6 last:pb-0",
         // The rail is a pseudo-element on the item, so it is decorative by
         // construction rather than by remembering an aria-hidden.
-        "before:absolute before:top-7 before:bottom-1 before:left-[0.6875rem] before:w-px before:bg-border",
+        "before:absolute before:start-[0.6875rem] before:top-7 before:bottom-1 before:w-px before:bg-border",
         "last:before:hidden data-[last]:before:hidden",
         className,
       )}

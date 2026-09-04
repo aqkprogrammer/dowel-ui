@@ -499,7 +499,7 @@ export function ComboboxItem({
         }
       }}
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-md py-1.5 pr-8 pl-2 text-sm outline-none select-none",
+        "relative flex cursor-default items-center gap-2 rounded-md py-1.5 ps-2 pe-8 text-sm outline-none select-none",
         "transition-colors duration-[var(--duration-instant)]",
         "data-[active]:bg-accent data-[active]:text-accent-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-55",
@@ -510,7 +510,7 @@ export function ComboboxItem({
     >
       {children ?? value}
       {selected ? (
-        <span className="absolute right-2 grid size-4 place-items-center">
+        <span className="absolute end-2 grid size-4 place-items-center">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-3.5">
             <path
               d="m5 13 4 4L19 7"

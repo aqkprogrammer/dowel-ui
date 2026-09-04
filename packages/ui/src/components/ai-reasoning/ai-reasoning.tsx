@@ -98,7 +98,7 @@ export function ReasoningContent({
       )}
       {...props}
     >
-      <div className="mt-2 border-l-2 border-border pl-3 text-sm whitespace-pre-wrap text-muted-foreground">
+      <div className="mt-2 border-s-2 border-border ps-3 text-sm whitespace-pre-wrap text-muted-foreground">
         {children}
       </div>
     </CollapsiblePrimitive.Content>

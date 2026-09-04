@@ -347,7 +347,7 @@ export function BillingBlock({
                         {STATUS_LABEL[invoice.status]}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-end">
                       {invoice.href ? (
                         <Button asChild variant="link" size="sm">
                           {/*

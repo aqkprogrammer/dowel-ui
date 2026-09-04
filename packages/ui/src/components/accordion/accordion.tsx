@@ -37,7 +37,7 @@ export function AccordionTrigger({ className, children, ...props }: AccordionTri
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "flex flex-1 items-start justify-between gap-4 py-4 text-left text-sm font-medium",
+          "flex flex-1 items-start justify-between gap-4 py-4 text-start text-sm font-medium",
           "transition-colors duration-[var(--duration-fast)] hover:text-primary",
           "disabled:pointer-events-none disabled:opacity-55",
           "[&[data-state=open]>svg]:rotate-180",

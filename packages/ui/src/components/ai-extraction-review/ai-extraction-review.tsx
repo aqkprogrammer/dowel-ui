@@ -456,7 +456,7 @@ function ReviewField({
           {sourced ? (
             <FieldButton
               aria-label={`Show in source — ${field.label}`}
-              className="ml-auto"
+              className="ms-auto"
               onClick={onActivate}
             >
               Show in source
