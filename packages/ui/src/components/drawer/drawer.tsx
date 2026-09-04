@@ -221,7 +221,7 @@ export function DrawerHeader({ className, ...props }: ComponentPropsWithRef<"div
   return (
     <div
       data-slot="drawer-header"
-      className={cn("flex shrink-0 flex-col gap-1.5 px-6 pt-4 pb-2 text-left", className)}
+      className={cn("flex shrink-0 flex-col gap-1.5 px-6 pt-4 pb-2 text-start", className)}
       {...props}
     />
   );

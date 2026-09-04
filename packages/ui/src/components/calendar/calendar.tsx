@@ -70,12 +70,12 @@ export function Calendar({
         ),
         // Range middles keep the muted surface so the two ends stay legible as
         // the actual selection.
-        range_start: cn(defaults.range_start, "rounded-l-md bg-accent"),
+        range_start: cn(defaults.range_start, "rounded-s-md bg-accent"),
         range_middle: cn(
           defaults.range_middle,
           "bg-accent [&>button]:bg-transparent [&>button]:text-accent-foreground",
         ),
-        range_end: cn(defaults.range_end, "rounded-r-md bg-accent"),
+        range_end: cn(defaults.range_end, "rounded-e-md bg-accent"),
         today: cn(defaults.today, "[&>button]:font-semibold [&>button]:text-primary"),
         outside: cn(defaults.outside, "text-muted-foreground opacity-50"),
         disabled: cn(defaults.disabled, "opacity-40"),

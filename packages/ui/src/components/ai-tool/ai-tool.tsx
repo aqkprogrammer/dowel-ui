@@ -82,7 +82,7 @@ export function ToolHeader({
     <CollapsiblePrimitive.Trigger
       data-slot="tool-header"
       className={cn(
-        "flex w-full items-center gap-2 px-3 py-2 text-left",
+        "flex w-full items-center gap-2 px-3 py-2 text-start",
         "transition-colors duration-[var(--duration-fast)] hover:bg-accent/50",
         "[&[data-state=open]>svg:last-child]:rotate-180",
         focusRing,
@@ -97,7 +97,7 @@ export function ToolHeader({
       <span
         data-slot="tool-status"
         className={cn(
-          "ml-auto text-xs",
+          "ms-auto text-xs",
           status === "error" ? "text-destructive" : "text-muted-foreground",
         )}
       >

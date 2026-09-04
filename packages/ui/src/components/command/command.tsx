@@ -438,7 +438,7 @@ export function CommandShortcut({ className, ...props }: ComponentPropsWithRef<"
     <span
       data-slot="command-shortcut"
       aria-hidden="true"
-      className={cn("ml-auto text-2xs tracking-wide text-muted-foreground", className)}
+      className={cn("ms-auto text-2xs tracking-wide text-muted-foreground", className)}
       {...props}
     />
   );

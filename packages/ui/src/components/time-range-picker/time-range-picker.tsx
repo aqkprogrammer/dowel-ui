@@ -324,7 +324,7 @@ export function TimeRangePresets({
     <div
       data-slot="time-range-presets"
       className={cn(
-        "max-h-80 min-w-52 overflow-y-auto border-border p-1.5 sm:border-r",
+        "max-h-80 min-w-52 overflow-y-auto border-border p-1.5 sm:border-e",
         className,
       )}
       {...props}
@@ -344,7 +344,7 @@ export function TimeRangePresets({
                 close();
               }}
               className={cn(
-                "flex w-full items-center rounded-md px-2 py-1.5 text-left text-sm transition-colors",
+                "flex w-full items-center rounded-md px-2 py-1.5 text-start text-sm transition-colors",
                 preset.expression === value
                   ? "bg-accent font-medium text-accent-foreground"
                   : "hover:bg-accent hover:text-accent-foreground",
@@ -482,7 +482,7 @@ export function TimeRangeCalendar({
   return (
     <div
       data-slot="time-range-calendar"
-      className={cn("border-t border-border p-1 sm:border-t-0 sm:border-l", className)}
+      className={cn("border-t border-border p-1 sm:border-s sm:border-t-0", className)}
       {...props}
     >
       <Calendar

@@ -17,4 +17,4 @@ forty-one characters remaining" between every letter. Here it is silent while
 there is room and goes live only once the limit is close, which is the point at
 which it is information rather than chatter. It states the remainder in words
 rather than as `141/200`, which is read aloud as two unlabelled numbers, and
-says how far *over* rather than showing a negative.
+says how far _over_ rather than showing a negative.
