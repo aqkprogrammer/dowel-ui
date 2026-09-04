@@ -3,6 +3,30 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## 0.5.1
+
+`@dowel-ui/cli` only. The other packages are unaffected and stay at 0.5.0, and
+the registry the site serves is unchanged, so nothing needs redeploying.
+
+### Fixed
+
+- **`init` could not read a path alias from any Next.js project**, and had not
+  been able to since the first release. The tsconfig comment stripper was a
+  regex: the alias `"@/*"` contains `/*`, which it read as opening a block
+  comment, and the first `*/` it then found was inside `"**/*.ts"` in the
+  `include` array. Everything between went, `paths` with it, so the JSON no
+  longer parsed and the failure was swallowed by the surrounding catch.
+
+  Every stock Next.js tsconfig has both halves. Under `--yes` init refused
+  outright while pointing at the block it had just deleted; interactively it
+  asked for an alias it could already see, which is why four releases went by
+  without anyone noticing. Comments are now stripped by a scanner that knows
+  what a string is.
+
+  `project.ts` had no tests, which is the real reason this shipped. It has 15
+  now. Found by running the post-publish install test this file's sibling
+  documents, against the published 0.5.0.
+
 ## 0.5.0
 
 ### New components
