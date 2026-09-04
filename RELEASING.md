@@ -163,6 +163,12 @@ packages/config  apps/docs
 at 0.2.0 since it was retired. The root `dowel-monorepo` version is not used for
 anything and does not move either.
 
+Lockstep is for feature releases, where the registry content changes and every
+package should agree on which release it belongs to. A patch confined to one
+package moves that package alone — 0.5.1 was `@dowel-ui/cli` by itself — and
+when the registry content has not changed, the site does not need redeploying
+and the ordering rule below has nothing to order.
+
 Then change `## Unreleased` in the root `CHANGELOG.md` to the new version. The
 prose is written as the work lands, not at release time, so this is a heading
 edit and nothing more.
