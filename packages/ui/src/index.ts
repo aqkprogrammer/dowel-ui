@@ -56,6 +56,7 @@ export * from "./components/select";
 export * from "./components/separator";
 export * from "./components/session-expiry";
 export * from "./components/sheet";
+export * from "./components/shortcut-recorder";
 export * from "./components/skeleton";
 export * from "./components/slider";
 export * from "./components/spinner";

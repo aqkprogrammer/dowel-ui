@@ -54,7 +54,7 @@ they want to change something.
 
 ## What is in it
 
-**69 components** and **8 blocks**, every one keyboard-operable and audited for
+**70 components** and **8 blocks**, every one keyboard-operable and audited for
 contrast.
 
 **AI** — the reason this library exists
@@ -68,7 +68,7 @@ Disclosure · **Extraction Review** ·
 Input · Label · Checkbox · Radio Group · Switch · Slider · Select · Combobox ·
 Form · Calendar · Date Picker · Tags Input · File Upload ·
 **Time Range Picker** · **Cron Editor** · **Secret Field** ·
-**Confirm Typed**
+**Confirm Typed** · **Shortcut Recorder**
 
 **Overlays**
 Dialog · Sheet · Drawer · Popover · Tooltip · Dropdown Menu

@@ -58,6 +58,7 @@ import { meta as selectMeta } from "@/components/select/meta";
 import { meta as separatorMeta } from "@/components/separator/meta";
 import { meta as sessionExpiryMeta } from "@/components/session-expiry/meta";
 import { meta as sheetMeta } from "@/components/sheet/meta";
+import { meta as shortcutRecorderMeta } from "@/components/shortcut-recorder/meta";
 import { meta as skeletonMeta } from "@/components/skeleton/meta";
 import { meta as sliderMeta } from "@/components/slider/meta";
 import { meta as spinnerMeta } from "@/components/spinner/meta";
@@ -140,6 +141,7 @@ export const componentMetas: ComponentMeta[] = [
   separatorMeta,
   sessionExpiryMeta,
   sheetMeta,
+  shortcutRecorderMeta,
   skeletonMeta,
   sliderMeta,
   spinnerMeta,
