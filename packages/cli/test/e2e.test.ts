@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { add } from "../src/commands/add";
+import { agents } from "../src/commands/agents";
 import { init, insertTokens, TOKENS_MARKER } from "../src/commands/init";
 import { list } from "../src/commands/list";
 import { remove } from "../src/commands/remove";
@@ -564,5 +565,214 @@ describe("insertTokens", () => {
     expect(insertTokens(edited, `${TOKENS_MARKER}\n@theme { --color-primary: red; }`)).toBe(
       edited,
     );
+  });
+});
+
+describe("add — dependencies when the files are already current", () => {
+  it("installs packages that are missing even when nothing needs writing", async () => {
+    // The gap this covers: `add --skip-install` leaves the source in place and
+    // the packages absent. Re-running without the flag used to report "already
+    // up to date" and return, so the components could never resolve.
+    const root = project();
+    await initialise(root);
+
+    await add(["button"], {
+      cwd: root,
+      registry: LOCAL_REGISTRY,
+      yes: true,
+      overwrite: false,
+      skipInstall: true,
+    });
+
+    const installed: string[][] = [];
+    const packageManager = await import("../src/lib/package-manager");
+    vi.spyOn(packageManager, "installDependencies").mockImplementation(
+      (_manager, _cwd, packages) => {
+        installed.push(packages);
+      },
+    );
+
+    await add(["button"], {
+      cwd: root,
+      registry: LOCAL_REGISTRY,
+      yes: true,
+      overwrite: false,
+      skipInstall: false,
+    });
+
+    expect(installed.flat()).toContain("class-variance-authority");
+  });
+
+  it("still says nothing to do when the packages are there too", async () => {
+    const root = project();
+    await initialise(root);
+
+    const packageManager = await import("../src/lib/package-manager");
+    vi.spyOn(packageManager, "missingDependencies").mockReturnValue([]);
+    const install = vi.spyOn(packageManager, "installDependencies").mockImplementation(() => {
+      // Nothing to install; asserted below.
+    });
+
+    await add(["button"], {
+      cwd: root,
+      registry: LOCAL_REGISTRY,
+      yes: true,
+      overwrite: false,
+      skipInstall: false,
+    });
+    await add(["button"], {
+      cwd: root,
+      registry: LOCAL_REGISTRY,
+      yes: true,
+      overwrite: false,
+      skipInstall: false,
+    });
+
+    expect(install).not.toHaveBeenCalled();
+  });
+
+  it("does not install behind --skip-install, but says what is missing", async () => {
+    const root = project();
+    await initialise(root);
+
+    await add(["button"], {
+      cwd: root,
+      registry: LOCAL_REGISTRY,
+      yes: true,
+      overwrite: false,
+      skipInstall: true,
+    });
+
+    const packageManager = await import("../src/lib/package-manager");
+    const install = vi.spyOn(packageManager, "installDependencies");
+
+    await add(["button"], {
+      cwd: root,
+      registry: LOCAL_REGISTRY,
+      yes: true,
+      overwrite: false,
+      skipInstall: true,
+    });
+
+    expect(install).not.toHaveBeenCalled();
+  });
+});
+
+describe("agents", () => {
+  async function writeAgentDocs(root: string, targets: string[] = []) {
+    await agents({ cwd: root, registry: LOCAL_REGISTRY, targets, check: false });
+  }
+
+  it("writes every integration by default", async () => {
+    const root = project();
+    await initialise(root);
+    await writeAgentDocs(root);
+
+    for (const path of [
+      ".dowel/conventions.md",
+      ".dowel/components.md",
+      ".dowel/ai.md",
+      ".dowel/themes.md",
+      "AGENTS.md",
+      ".claude/skills/dowel-ui/SKILL.md",
+      ".cursor/rules/dowel-ui.mdc",
+    ]) {
+      expect(existsSync(join(root, path)), path).toBe(true);
+    }
+  });
+
+  it("writes only the targets asked for", async () => {
+    const root = project();
+    await initialise(root);
+    await writeAgentDocs(root, ["claude"]);
+
+    expect(existsSync(join(root, ".claude/skills/dowel-ui/SKILL.md"))).toBe(true);
+    expect(existsSync(join(root, ".dowel/components.md"))).toBe(false);
+    expect(existsSync(join(root, "AGENTS.md"))).toBe(false);
+  });
+
+  it("rejects a target it does not know, naming the ones it does", async () => {
+    const root = project();
+    await initialise(root);
+
+    await expect(writeAgentDocs(root, ["windsurf"])).rejects.toThrow(CliError);
+  });
+
+  it("tells the agent to import from the project alias, not the package", async () => {
+    // A source-first install resolves to the consumer's own alias. Telling an
+    // agent to import from the published package produces imports that do not
+    // resolve against what the CLI actually wrote.
+    const root = project();
+    await initialise(root);
+    await writeAgentDocs(root, ["dowel"]);
+
+    const conventions = read(root, ".dowel/conventions.md");
+    expect(conventions).toContain(readConfig(root).aliases.ui);
+    expect(conventions).not.toContain('from "@dowel-ui/react"');
+  });
+
+  it("marks what is installed, and updates when more is", async () => {
+    const root = project();
+    await initialise(root);
+    await writeAgentDocs(root, ["dowel"]);
+    expect(read(root, ".dowel/components.md")).not.toContain("✓ **button**");
+
+    await add(["button"], {
+      cwd: root,
+      registry: LOCAL_REGISTRY,
+      yes: true,
+      overwrite: false,
+      skipInstall: true,
+    });
+    await writeAgentDocs(root, ["dowel"]);
+    expect(read(root, ".dowel/components.md")).toContain("✓ **button**");
+  });
+
+  it("keeps an existing AGENTS.md and replaces only its own block", async () => {
+    const root = project();
+    await initialise(root);
+    writeFileSync(join(root, "AGENTS.md"), "# House rules\n\nRun the tests.\n");
+
+    await writeAgentDocs(root, ["agents"]);
+    await writeAgentDocs(root, ["agents"]);
+
+    const written = read(root, "AGENTS.md");
+    expect(written).toContain("# House rules");
+    expect(written).toContain("Run the tests.");
+    expect(written.split("<!-- dowel:start -->")).toHaveLength(2);
+  });
+
+  it("is idempotent", async () => {
+    const root = project();
+    await initialise(root);
+    await writeAgentDocs(root);
+    const first = read(root, ".dowel/components.md");
+
+    await writeAgentDocs(root);
+    expect(read(root, ".dowel/components.md")).toBe(first);
+  });
+
+  it("--check reports staleness without writing, and exits non-zero", async () => {
+    const root = project();
+    await initialise(root);
+
+    // Nothing written yet, so everything is out of date.
+    await agents({ cwd: root, registry: LOCAL_REGISTRY, targets: ["dowel"], check: true });
+    expect(process.exitCode).toBe(1);
+    expect(existsSync(join(root, ".dowel/components.md"))).toBe(false);
+
+    process.exitCode = 0;
+    await writeAgentDocs(root, ["dowel"]);
+    await agents({ cwd: root, registry: LOCAL_REGISTRY, targets: ["dowel"], check: true });
+    expect(process.exitCode).toBe(0);
+  });
+
+  it("works before init, describing the package form instead", async () => {
+    // Browsing what exists should not require a project, and a project with no
+    // components.json is consuming the published package.
+    const root = project();
+    await writeAgentDocs(root, ["dowel"]);
+
+    expect(read(root, ".dowel/conventions.md")).toContain('from "@dowel-ui/react"');
   });
 });

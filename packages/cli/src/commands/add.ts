@@ -10,7 +10,7 @@ import { logger, pc } from "../lib/logger";
 import { installDependencies, missingDependencies } from "../lib/package-manager";
 import { resolveDestination, rewriteImports } from "../lib/paths";
 import { inspectProject } from "../lib/project";
-import { resolveItems } from "../lib/registry-client";
+import { fetchIndex, resolveItems } from "../lib/registry-client";
 
 export interface AddOptions {
   cwd: string;
@@ -91,12 +91,21 @@ export async function add(names: string[], options: AddOptions): Promise<void> {
     );
   }
 
-  const { cwd, yes, overwrite } = options;
+  const { cwd, yes, overwrite, skipInstall } = options;
   const config = readConfig(cwd);
   const registry = options.registry ?? config.registry;
   const project = inspectProject(cwd);
 
-  const items = await resolveItems(registry, names);
+  // The index says which items are licensed, so the fetch can go to the right
+  // place with the right credentials. Guessing by trying the public path first
+  // would report "not found" for something that exists and is simply not paid
+  // for, which is the least useful thing it could say.
+  const index = await fetchIndex(registry);
+  const licensed = new Set(
+    index.items.filter((entry) => entry.access === "pro").map((entry) => entry.name),
+  );
+
+  const items = await resolveItems(registry, names, licensed);
   const requested = new Set(names);
   const pulledIn = items.filter((item) => !requested.has(item.name));
 
@@ -120,16 +129,34 @@ export async function add(names: string[], options: AddOptions): Promise<void> {
 
   const writable = overwrite ? [...toWrite, ...modified] : toWrite;
 
-  if (writable.length === 0) {
-    logger.success(unchanged.length > 0 ? "Already up to date." : "Nothing to write.");
-    return;
-  }
-
+  // Computed before the early return below, not after it. Files being current
+  // does not mean the packages they import are installed: anything added with
+  // --skip-install has its source in place and its dependencies missing, and
+  // returning at that point left the components unable to resolve with nothing
+  // said about it.
   const dependencies = [...new Set(items.flatMap((item) => item.dependencies))];
   const missing = missingDependencies(
     { ...project.packageJson.dependencies, ...project.packageJson.devDependencies },
     dependencies,
   );
+
+  if (writable.length === 0) {
+    if (missing.length === 0 || skipInstall) {
+      logger.success(unchanged.length > 0 ? "Already up to date." : "Nothing to write.");
+      if (missing.length > 0) {
+        logger.blank();
+        logger.info(pc.dim("Still missing:"));
+        logger.info(`  ${missing.join(" ")}`);
+      }
+      return;
+    }
+
+    logger.success("Already up to date, but some packages were missing.");
+    logger.blank();
+    logger.step(`Installing ${missing.join(", ")}`);
+    installDependencies(project.packageManager, cwd, missing);
+    return;
+  }
 
   if (!yes) {
     logger.info(pc.dim("Will write:"));
