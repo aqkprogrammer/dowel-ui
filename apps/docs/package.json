@@ -11,7 +11,7 @@
     "start": "next start --port 3333",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "clean": "rm -rf .next .turbo public/r src/lib/previews.generated.ts src/lib/variants.generated.ts src/lib/quality.generated.ts src/lib/licensed-registry.generated.ts src/lib/version.generated.ts"
+    "clean": "rm -rf .next .turbo public/r src/lib/previews.generated.ts src/lib/variants.generated.ts src/lib/quality.generated.ts src/lib/licensed-registry.generated.ts src/lib/version.generated.ts src/lib/design-tokens.generated.ts public/figma"
   },
   "dependencies": {
     "@dowel-ui/themes": "workspace:*",
