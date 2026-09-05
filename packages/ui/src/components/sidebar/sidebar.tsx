@@ -7,6 +7,7 @@ import {
   useId,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ComponentPropsWithRef,
   type ReactNode,
 } from "react";
@@ -29,11 +30,52 @@ import { cn } from "@/lib/utils";
  * button whose only content is an icon, and an icon has no accessible name. The
  * label here is not removed but visually hidden, so the control keeps its name
  * whether or not the text is on screen.
+ *
+ * The overlay is mounted only on a narrow screen, and it has its own open
+ * state. Mounting it always and hiding it with CSS was the first version, and
+ * it was wrong in a way no visual check catches: a modal dialog that is
+ * `display: none` is still modal. It marks the rest of the page `aria-hidden`,
+ * traps focus in an element nothing can focus, and turns pointer events off on
+ * the body — so on a desktop the whole application was invisible to a screen
+ * reader and unclickable the moment the sidebar was open, which is its default.
  */
 
+/** Below Tailwind's `md` breakpoint, which is where the rail gives way to the overlay. */
+const NARROW_QUERY = "(max-width: 767px)";
+
+function subscribeToNarrow(callback: () => void): () => void {
+  const query = window.matchMedia(NARROW_QUERY);
+  query.addEventListener("change", callback);
+  return () => {
+    query.removeEventListener("change", callback);
+  };
+}
+
+/**
+ * Whether the viewport is narrow enough for the overlay.
+ *
+ * The server snapshot says "wide": the rail renders in the HTML and CSS hides
+ * it below the breakpoint, so a narrow screen shows nothing wrong before
+ * hydration and the sheet mounts, closed, straight after.
+ */
+function useIsNarrow(): boolean {
+  return useSyncExternalStore(
+    subscribeToNarrow,
+    () => window.matchMedia(NARROW_QUERY).matches,
+    () => false,
+  );
+}
+
 interface SidebarContextValue {
+  /** The rail is expanded rather than collapsed. */
   open: boolean;
   setOpen: (open: boolean) => void;
+  /** The viewport is narrow, so the navigation is an overlay. */
+  narrow: boolean;
+  /** The overlay is showing. Only meaningful when `narrow`. */
+  overlayOpen: boolean;
+  setOverlayOpen: (open: boolean) => void;
+  /** Whichever of the two states applies on this viewport. */
   toggle: () => void;
   /** Id of the sidebar element, for the trigger's aria-controls. */
   sidebarId: string;
@@ -65,6 +107,11 @@ export function SidebarProvider({
 }: SidebarProviderProps) {
   const [uncontrolled, setUncontrolled] = useState(defaultOpen);
   const open = openProp ?? uncontrolled;
+  // Separate from `open`, and never true to begin with: "expanded by default"
+  // is a fact about the rail. An overlay that covers the page on first load is
+  // a menu nobody asked for.
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  const narrow = useIsNarrow();
   const sidebarId = useId();
 
   const value = useMemo<SidebarContextValue>(() => {
@@ -76,12 +123,16 @@ export function SidebarProvider({
     return {
       open,
       setOpen,
+      narrow,
+      overlayOpen,
+      setOverlayOpen,
       toggle: () => {
-        setOpen(!open);
+        if (narrow) setOverlayOpen(!overlayOpen);
+        else setOpen(!open);
       },
       sidebarId,
     };
-  }, [open, openProp, onOpenChange, sidebarId]);
+  }, [open, openProp, onOpenChange, narrow, overlayOpen, sidebarId]);
 
   return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>;
 }
@@ -100,7 +151,7 @@ export interface SidebarProps extends ComponentPropsWithRef<"aside"> {
 }
 
 export function Sidebar({ className, label, mobileTitle, children, ...props }: SidebarProps) {
-  const { open, setOpen, sidebarId } = useSidebar("Sidebar");
+  const { open, narrow, overlayOpen, setOverlayOpen, sidebarId } = useSidebar("Sidebar");
 
   return (
     <>
@@ -109,15 +160,20 @@ export function Sidebar({ className, label, mobileTitle, children, ...props }: S
         traps focus, closes on Escape and marks the rest of the page inert,
         none of which a transform does — and without them the page behind stays
         reachable by Tab while the menu covers it.
+
+        Mounted only when the screen is narrow. Those three behaviours are
+        exactly why it must not exist on a wide one: see the note at the top.
       */}
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-72 p-0 md:hidden">
-          <SheetTitle className="sr-only">{mobileTitle ?? label}</SheetTitle>
-          <nav aria-label={label} className="flex h-full flex-col gap-2 p-3">
-            {children}
-          </nav>
-        </SheetContent>
-      </Sheet>
+      {narrow ? (
+        <Sheet open={overlayOpen} onOpenChange={setOverlayOpen}>
+          <SheetContent side="left" className="w-72 p-0">
+            <SheetTitle className="sr-only">{mobileTitle ?? label}</SheetTitle>
+            <nav aria-label={label} className="flex h-full flex-col gap-2 p-3">
+              {children}
+            </nav>
+          </SheetContent>
+        </Sheet>
+      ) : null}
 
       <aside
         id={sidebarId}
@@ -174,14 +230,16 @@ export function SidebarGroup({ className, ...props }: ComponentPropsWithRef<"div
  * survives for anyone not reading the layout visually.
  */
 export function SidebarGroupLabel({ className, ...props }: ComponentPropsWithRef<"div">) {
-  const { open } = useSidebar("SidebarGroupLabel");
+  const { open, narrow } = useSidebar("SidebarGroupLabel");
 
   return (
     <div
       data-slot="sidebar-group-label"
       className={cn(
         "px-2 text-xs font-medium tracking-wide text-muted-foreground uppercase",
-        !open && "sr-only",
+        // The rail's collapsed state is not the overlay's: a sheet is always
+        // wide enough for its labels.
+        !open && !narrow && "sr-only",
         className,
       )}
       {...props}
@@ -252,12 +310,12 @@ export function SidebarMenuButton({
  * announced as "link".
  */
 export function SidebarMenuLabel({ className, ...props }: ComponentPropsWithRef<"span">) {
-  const { open } = useSidebar("SidebarMenuLabel");
+  const { open, narrow } = useSidebar("SidebarMenuLabel");
 
   return (
     <span
       data-slot="sidebar-menu-label"
-      className={cn("min-w-0 truncate", !open && "sr-only", className)}
+      className={cn("min-w-0 truncate", !open && !narrow && "sr-only", className)}
       {...props}
     />
   );
@@ -269,17 +327,28 @@ export interface SidebarTriggerProps extends ComponentPropsWithRef<"button"> {
 }
 
 export function SidebarTrigger({ className, label, ...props }: SidebarTriggerProps) {
-  const { open, toggle, sidebarId } = useSidebar("SidebarTrigger");
+  const { open, narrow, overlayOpen, toggle, sidebarId } = useSidebar("SidebarTrigger");
+
+  const expanded = narrow ? overlayOpen : open;
+  const fallback = narrow
+    ? overlayOpen
+      ? "Close navigation"
+      : "Open navigation"
+    : open
+      ? "Collapse navigation"
+      : "Expand navigation";
 
   return (
     <button
       type="button"
       data-slot="sidebar-trigger"
-      aria-expanded={open}
-      aria-controls={sidebarId}
+      aria-expanded={expanded}
+      // The rail is what this controls. The overlay is a dialog that names
+      // itself, and pointing at an element CSS has hidden helps nobody.
+      aria-controls={narrow ? undefined : sidebarId}
       // Says what pressing it does, not what the state currently is. "Collapse
       // navigation" while it is expanded is the useful half.
-      aria-label={label ?? (open ? "Collapse navigation" : "Expand navigation")}
+      aria-label={label ?? fallback}
       onClick={toggle}
       className={cn(
         "grid size-9 shrink-0 place-items-center rounded-md text-muted-foreground",

@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
 import {
@@ -177,5 +177,79 @@ describe("Sidebar", () => {
   it("has no accessibility violations", async () => {
     const { container } = render(<Shell />);
     await expectNoA11yViolations(container);
+  });
+});
+
+/** A viewport on the far side of the breakpoint, for the length of one test. */
+function pretendNarrow(): void {
+  vi.spyOn(window, "matchMedia").mockImplementation(
+    (query: string) =>
+      ({
+        matches: query.includes("max-width"),
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      }) as MediaQueryList,
+  );
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+describe("Sidebar on a wide screen", () => {
+  it("does not mount the overlay, so the page beside it stays reachable", () => {
+    render(<Shell />);
+
+    // The bug this guards against: a modal sheet that CSS hides is still modal.
+    // It hid the whole page from assistive technology and turned pointer
+    // events off on the body, on every desktop, whenever the rail was open.
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("main")).not.toHaveAttribute("aria-hidden");
+    expect(document.body.style.pointerEvents).not.toBe("none");
+  });
+});
+
+describe("Sidebar on a narrow screen", () => {
+  it("starts closed, whatever the rail's default", () => {
+    pretendNarrow();
+    render(<Shell defaultOpen />);
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open navigation" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+  });
+
+  it("opens the navigation as a named dialog, and closes it on Escape", async () => {
+    pretendNarrow();
+    const user = userEvent.setup();
+    render(<Shell />);
+
+    await user.click(screen.getByRole("button", { name: "Open navigation" }));
+    const dialog = screen.getByRole("dialog", { name: "Application" });
+    expect(within(dialog).getByRole("link", { name: "Billing" })).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("shows the labels in the overlay even when the rail is collapsed", async () => {
+    pretendNarrow();
+    const user = userEvent.setup();
+    render(<Shell defaultOpen={false} />);
+
+    await user.click(screen.getByRole("button", { name: "Open navigation" }));
+    const dialog = screen.getByRole("dialog", { name: "Application" });
+
+    // The rail's collapsed state hides labels visually; the sheet is always
+    // wide enough for them, and hiding them there would leave icon-only links.
+    const label = within(dialog).getByText("Billing");
+    expect(label).not.toHaveClass("sr-only");
   });
 });

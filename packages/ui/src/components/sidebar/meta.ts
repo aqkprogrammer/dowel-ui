@@ -18,5 +18,8 @@ export const meta = defineMeta({
     "behind stays reachable by Tab while the menu covers it. When the rail collapses, labels " +
     "are visually hidden rather than removed — removing them leaves controls whose only content " +
     "is an icon, which is how a collapsed sidebar becomes a column of links all announced as " +
-    '"link". The trigger says what pressing it will do, not what the state currently is.',
+    '"link". The trigger says what pressing it will do, not what the state currently is. The ' +
+    "overlay is mounted only on a narrow screen and has its own open state: a modal dialog that " +
+    "CSS hides is still modal, and mounting it always made every wide screen aria-hidden and " +
+    "unclickable whenever the rail was open.",
 });
