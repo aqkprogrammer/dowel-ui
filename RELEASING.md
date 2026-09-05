@@ -17,14 +17,20 @@ Licensed registry items are served by the site, so the site is where the
 licensing is configured. Nothing here is in the repository, and nothing here
 should be.
 
-| Variable                 | Required         | What it does                                                                        |
-| ------------------------ | ---------------- | ----------------------------------------------------------------------------------- |
-| `POLAR_ACCESS_TOKEN`     | to sell anything | Enables the Polar provider. Without it the registry refuses every licensed request. |
-| `POLAR_ORGANIZATION_ID`  | no               | Restricts which organisation's keys are accepted.                                   |
-| `POLAR_API_URL`          | no               | Defaults to `https://api.polar.sh`. For a sandbox.                                  |
-| `DOWEL_DEV_LICENSE_KEYS` | no               | Comma-separated keys accepted **only outside production**, for local work.          |
-| `PRO_CHECKOUT_URL`       | to sell anything | Where the Pro button on `/pricing` goes. Unset, the page says "opening soon".       |
-| `SALES_CONTACT_URL`      | no               | Where Teams & Enterprise conversations start. Defaults to the GitHub discussions.   |
+| Variable                 | Required         | What it does                                                                      |
+| ------------------------ | ---------------- | --------------------------------------------------------------------------------- |
+| `POLAR_ACCESS_TOKEN`     | to sell anything | Organisation access token with the `license_keys` scopes.                         |
+| `POLAR_ORGANIZATION_ID`  | to sell anything | Whose keys are accepted. The validation endpoint requires it.                     |
+| `POLAR_API_URL`          | no               | Defaults to `https://api.polar.sh`. For a sandbox.                                |
+| `DOWEL_DEV_LICENSE_KEYS` | no               | Comma-separated keys accepted **only outside production**, for local work.        |
+| `PRO_CHECKOUT_URL`       | to sell anything | Where the Pro button on `/pricing` goes. Unset, the page says "opening soon".     |
+| `SALES_CONTACT_URL`      | no               | Where Teams & Enterprise conversations start. Defaults to the GitHub discussions. |
+
+**Both Polar variables are required, together.** The endpoint takes
+`organization_id` in the body, so a token without one would fail every check
+with a malformed-request error that a customer sees as a problem with their
+key. A half-configured deployment is therefore treated as unconfigured, which
+at least says so.
 
 **It fails closed.** With no provider configured, `POST /r/license` and
 `GET /r/pro/<name>` refuse everything and say that licensing is not configured.
@@ -42,18 +48,34 @@ be a free licence for anyone who read the source, and the source is public.
 Everything in the repository is done; what remains is outside it, and is the
 same three steps on every deployment of this site:
 
-1. **Create the product in Polar** (a licence-key benefit on a yearly product,
-   $79 per developer is what the pricing page says), and generate an
-   organisation access token with permission to validate licence keys.
-2. **Set the variables on the host** — `POLAR_ACCESS_TOKEN`, optionally
-   `POLAR_ORGANIZATION_ID`, and `PRO_CHECKOUT_URL` pointing at the product's
-   checkout — then redeploy. Until the token is set, every licensed request is
-   refused with a message saying licensing is not configured, which is the
-   fail-closed behaviour described below and is what a Pro block's install
-   reports today.
-3. **Buy one and install it.** `dowel login` with the key, then
+1. **Create the product in Polar.** A yearly product at $79 per developer, to
+   match the pricing page, with a **licence key** benefit attached — the
+   benefit is what issues keys, and a product without one sells nothing this
+   registry can validate.
+2. **Generate an organisation access token** with the `license_keys` scopes
+   (`license_keys:read` and `license_keys:write`; validation records a
+   validation against the key, so read alone is not enough). Copy the
+   organisation id from the same settings page.
+3. **Set three variables on the host** and redeploy:
+   `POLAR_ACCESS_TOKEN`, `POLAR_ORGANIZATION_ID`, and `PRO_CHECKOUT_URL`
+   pointing at the product's checkout link.
+4. **Confirm it took**, without buying anything:
+
+   ```bash
+   curl -s https://dowel-eight.vercel.app/r/license/health
+   ```
+
+   `{"provider":"polar","ready":true,...}` means keys will be validated
+   upstream. `"unconfigured"` means the variables did not reach the running
+   deployment — the commonest cause being that they were added but nothing was
+   redeployed.
+
+5. **Buy one and install it.** `dowel login` with the key, then
    `dowel add crm` into a scratch project. That is the whole path, and it is
    worth walking before announcing anything.
+
+Locally, `DOWEL_DEV_LICENSE_KEYS=test-key pnpm docs` exercises the same gated
+route without Polar at all, which is the cheaper way to check the CLI's half.
 
 The blocks currently licensed are `crm`, `command-center`, `ai-workspace` and
 `admin-dashboard`. The registry build test names every block that has ever
