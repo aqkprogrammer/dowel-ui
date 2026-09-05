@@ -3,6 +3,260 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## 0.6.0
+
+The largest release so far, and the one that turns a component library into
+something you can build a product on: an agent surface, a playground, a theme
+studio, per-component quality, five blocks, a scaffolder, licensing, private
+registries and a grounded generator — plus two new published packages.
+
+Everything here is additive. Nothing that was installable without a licence has
+stopped being one, and no component's API changed.
+
+### New packages
+
+- **`@dowel-ui/mcp`** — a Model Context Protocol server over the registry.
+  `search_components`, `get_component` (source on request), `get_guide`,
+  `install_command` and `plan_ui`. An agent that has never heard of this library
+  writes its own Button — a second one, with a different focus ring and
+  hardcoded colours — and the hole it leaves is not noticed until someone tabs
+  into it. A mistyped name is answered with the nearest real one rather than
+  silence.
+
+- **`create-dowel-app`** — `npx create-dowel-app my-app` asks what you are
+  building and which theme, writes a Next.js app, and fetches the components.
+  Three templates: `starter`, `saas` and `ai`.
+
+  The templates carry application files and a list of registry names, not the
+  components. The scaffolder runs the same CLI a user would, so a project created
+  today is built from today's registry rather than from whatever was current when
+  the template was written — and a template stays a dozen files instead of a
+  hundred. The whole package publishes at 19 kB.
+
+### New components
+
+- **textarea** — twenty-two form components and no multi-line field; the only
+  textarea in the library was buried inside `ai-prompt-input`. Sizes, optional
+  auto-resize, and vertical-only resizing by default, because the browser default
+  is `both` and a field dragged wider than its container is a layout broken by a
+  control meant only to be made taller.
+
+  The character count is the part worth explaining. Wired as a live region it
+  announces on every keystroke, so a screen reader reads "one hundred and
+  forty-one characters remaining" between every letter. Here it is silent while
+  there is room and goes live only once the limit is close, which is the point at
+  which it is information rather than chatter. It states the remainder in words
+  rather than as `141/200`, which is read aloud as two unlabelled numbers, and
+  says how far *over* rather than showing a negative.
+
+- **sidebar** — the application's own navigation, and the reason it exists is
+  that `create-dowel-app`'s app shell had been hand-rolling one. Two states, not
+  one: on a wide screen it collapses to a rail and stays in the page; on a narrow
+  one it is an overlay, which needs a focus trap and an Escape key and is
+  therefore a Sheet rather than a div with a transform. Build one behaviour and
+  hide it at a breakpoint and the page behind stays reachable by Tab while the
+  menu covers it.
+
+  The collapsed rail is where these usually fail. Hiding the label leaves a
+  control whose only content is an icon, and an icon has no accessible name, so a
+  collapsed sidebar becomes a column of links all announced as "link". Labels are
+  visually hidden, not removed.
+
+- **breadcrumb** — the current page is a span carrying `aria-current="page"`, not
+  a link: a link to the page you are already on does nothing, and in a screen
+  reader's list of links it is indistinguishable from the ones that go somewhere.
+  Separators are hidden, because "Home slash Projects slash Settings" is the
+  design's punctuation leaking into the content. The ellipsis is the exception
+  and is named — unlike a separator it is content, saying levels have been left
+  out.
+
+- **collapsible** — one region, one trigger, no set semantics. An Accordion of a
+  single item gives that item a heading role and a position in a list of one,
+  neither of which is true.
+
+- **direction** — tells the primitives which way the writing runs. See
+  *Right to left* below.
+
+### New blocks
+
+Eight to thirteen.
+
+- **billing** — plan, metered usage, payment method and invoice history. Every
+  usage meter states where it stands in words — "8 of 10 seats used, 2 left", or
+  how far over — and the bar is hidden from the accessibility tree so the same
+  fact is not announced twice. Each invoice download is named after its invoice
+  rather than being one of ten identical "Download" links, which is all a links
+  list would show. A card's last four digits are spoken as digits, not as a
+  four-figure number.
+
+- **analytics** — the bars are declared as one image with a one-sentence summary
+  of the shape, rather than forty separately labelled elements, which reads as
+  noise instead of a shape. The exact numbers are a real table, collapsed for
+  everyone and revealed for everyone from a control on the page, rather than a
+  visually hidden copy only screen readers can reach — the hidden copy is the one
+  that goes stale. The range selector is a select, not a tab set: tabs promise
+  panels, and a range selector has none.
+
+- **onboarding** — every step states its state in a word, because a green tick
+  announces nothing and means nothing to a reader who cannot tell the colours
+  apart. Blocked is a distinct state from not-started and says why.
+
+- **ai-dashboard** — what the AI features cost and whether they worked. Spend and
+  failure rate are declared lower-is-better, so a rising bill is not painted
+  green, which is the mistake most usage dashboards make. The totals row is a
+  real table footer rather than a last body row that looks like one.
+
+- **agent-console** — one run, watched: the plan it is working from, the approval
+  it is blocked on, and the ledger of what it has already done. Whatever is
+  blocking the run renders first, because it is the only part of the page waiting
+  on a person.
+
+### Coding agents
+
+`dowel agents` writes documentation for the agents working in a project — a
+`.dowel/` reference set, a marked block in `AGENTS.md`, a Claude Code skill and a
+Cursor rule — generated from the registry the project installs from and marking
+what is already installed. `--check` reports staleness and exits non-zero for CI,
+because a catalogue a release behind is worse than none: the agent trusts it.
+
+The site serves `/llms.txt` and `/llms-full.txt`, generated at build time. One
+generator feeds the CLI, the MCP server and the site, so they cannot disagree.
+
+### Playground, Theme Studio, Quality and Generate
+
+Four new surfaces on the site, each generated from something rather than written
+alongside it.
+
+- **Playground** — every control is derived: variant axes are read from each
+  component's own `cva()` call through the TypeScript AST, the rest from the
+  `argTypes` its stories already declare. A control cannot offer a value the
+  component does not implement.
+
+- **Theme Studio** — build a preset from one colour and see whether it passes
+  WCAG AA before shipping it. The check is not a second implementation: `oklch`
+  to sRGB and the WCAG ratio now live in `@dowel-ui/themes` and are re-exported
+  to the audit that gates CI, so a colour the studio passes is one the build
+  passes. The export is the same file format as `presets/*.css`.
+
+- **Quality** — every component and block measured against the rules `audit:api`
+  and `audit:tokens` already enforce, read from its own source and test file.
+  Checks that do not apply are recorded as such and left out of the score, so the
+  denominator means something. Currently 99% across 88 items, with 78 perfect and
+  ten carrying one gap each — every one an interactive component tested by click
+  but never by keyboard. The page exists to show that rather than round it away.
+
+- **Generate** — describe a screen and get the components that build it, the
+  install command, and a brief to paste into a coding agent. Resolved against the
+  registry first, so it cannot name a component that is not installable — which is
+  what asking a model directly gets you, complete with a `variant` nobody
+  implemented. It does not guess at props: the registry publishes what a component
+  is, not the shape of its arguments, and a plausible invented prop is worse than
+  an obvious gap.
+
+### Licensing
+
+Entitlement metadata, CLI authentication and a gated registry path.
+
+**No existing component is licensed, and none becomes licensed by this release.**
+`access` defaults to `free`, a registry written before this parses as `free`, and
+free is a promise: an item that has ever been installable without a licence must
+not quietly stop being one.
+
+The index lists everything including licensed items — that is the catalogue, and
+an item nobody can see is an item nobody buys. What the public directory does not
+contain is a licensed item's *body*: those never reach the directory a CDN serves,
+because a paywall that can be stepped around by fetching the JSON is not a
+paywall.
+
+`login`, `logout` and `whoami`. The key is verified against the registry before it
+is stored, so a bad key fails when it is pasted rather than days later during an
+install. It is stored in the user's config directory at mode 0600 — never in the
+project, because a key in `components.json` is a key in git — and `DOWEL_TOKEN`
+overrides it for CI.
+
+`POST /r/license` and `GET /r/pro/<name>` on the site. The licence is checked
+*before* the name is looked up, so the paid catalogue cannot be enumerated by
+probing 404s, and every response is `no-store, private`.
+
+**It fails closed.** With no provider configured the registry refuses everything
+and says why. Allowing by default would give the product away the first time a
+deployment was misconfigured, silently, and for as long as nobody noticed. See
+`RELEASING.md` for the environment it reads; there are no credentials in this
+repository.
+
+### Your own registry
+
+`@dowel-ui/registry` can now build one, not only be read from. `extends` layers
+your components on top of another registry, so one URL serves both and `add`
+resolves across them. A local item replaces an upstream one of the same name and
+the build reports which — overriding upstream's Button is a legitimate thing to
+want and a catastrophic thing to do by accident.
+
+Three things are refused at build time rather than left to fail in a consumer's
+repository: a file an item names but that does not exist; an import written
+against the *installed* path (`@/components/ui/badge`) instead of the authored one
+(`@/components/badge`), which rewrites to a doubled segment resolving nowhere; and
+a component importing a registry item it never declared.
+
+### Right to left
+
+The component set inverted wrongly in Arabic, Hebrew, Persian and Urdu — the icon
+on the wrong side of the label, the indent running the wrong way — across 96
+physical properties in 32 files. Nothing about it looked broken in English, which
+is why it survived review, and the library audits 322 contrast pairs across every
+preset while shipping a set that could not be read right-to-left.
+
+All of them are logical now, and `pnpm audit:rtl` fails the build on any physical
+property that has a logical form, and on any icon that points along the reading
+direction without being mirrored. Logical CSS mirrors the box an icon sits in and
+not the glyph inside it, so a page could invert perfectly and still have a "next"
+chevron pointing back the way you came.
+
+An RTL application needs two things: `dir` on the document, which the styling
+follows, and the new **`DirectionProvider`** around the tree. The primitives read
+direction from React context and assume left-to-right without it, which mirrors a
+page everywhere except its menus, selects and sliders — worse than not mirroring
+at all, because it looks deliberate.
+
+Two things stay physical on purpose. `Sheet`'s `side="left"` and a toast's
+`position="bottom-right"` are named after a side, and a control asked for on the
+left that appears on the right is an API telling a lie. The logical versions are
+`start`/`end` props, which would be a rename rather than a restyle.
+
+This is not a claim that the components have been reviewed by a reader of a
+right-to-left language. The audit checks that nothing is styled or drawn against
+the direction, which is necessary and not sufficient.
+
+### Fixed
+
+- **Avatar, Badge and Card were absent from the documentation site**, from the
+  components index and the sidebar both, with nothing reporting it.
+  `CATEGORY_ORDER` did not name the `display` category and the grouping filtered
+  to that list. Categories the curated order does not name are appended now
+  rather than dropped.
+
+- **Stories were ordered alphabetically rather than as written.** A module
+  namespace object sorts its own keys, so `Object.keys` never returned source
+  order and Button's page opened on "As Link". The order is recorded at build
+  time, because it cannot be recovered at runtime.
+
+- **34 stories were invisible**, including the `Default` example on 25 component
+  pages. `asStory` required a `render` or `args`, which the canonical
+  `export const Default: Story = {}` has neither of.
+
+- **`add` did not install missing npm packages when the component files were
+  already current.** They were computed after the "already up to date" early
+  return, so anything added with `--skip-install` had its source in place and its
+  dependencies absent, and the components could not resolve.
+
+- **`audit:package` read a hardcoded list of packages**, so a new one was never
+  audited and nothing said so. It discovers the workspace now.
+
+### Requires
+
+Node ≥ 20 and pnpm 11 for development, unchanged. `@dowel-ui/mcp` and
+`create-dowel-app` both require Node ≥ 20 at runtime.
+
 ## 0.5.1
 
 `@dowel-ui/cli` only. The other packages are unaffected and stay at 0.5.0, and
