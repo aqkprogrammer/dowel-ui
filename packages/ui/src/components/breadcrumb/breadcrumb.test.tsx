@@ -129,6 +129,16 @@ describe("Breadcrumb", () => {
     expect(link).toHaveAttribute("href", "/custom");
   });
 
+  it("mirrors the separator, because the glyph points along the reading direction", () => {
+    const { container } = render(<Trail />);
+
+    // Logical CSS mirrors the box an icon sits in and not the glyph inside it,
+    // so without this a fully mirrored page still has chevrons pointing the
+    // way they did in English.
+    const svg = container.querySelector('[data-slot="breadcrumb-separator"] svg');
+    expect(svg).toHaveClass("rtl:-scale-x-100");
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(<Trail />);
     await expectNoA11yViolations(container);

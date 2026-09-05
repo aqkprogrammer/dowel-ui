@@ -2,6 +2,7 @@ import { Slot } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
 
 import { buttonVariants } from "@/components/button";
+import { mirrorForDirection } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 /**
@@ -80,7 +81,12 @@ export function PaginationPrevious({ className, ...props }: PaginationLinkProps)
       className={cn("gap-1 px-2.5", className)}
       {...props}
     >
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-4">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+        className={cn("size-4", mirrorForDirection)}
+      >
         <path
           d="m15 18-6-6 6-6"
           stroke="currentColor"
@@ -103,7 +109,12 @@ export function PaginationNext({ className, ...props }: PaginationLinkProps) {
       {...props}
     >
       <span className="hidden sm:inline">Next</span>
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-4">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+        className={cn("size-4", mirrorForDirection)}
+      >
         <path
           d="m9 18 6-6-6-6"
           stroke="currentColor"
