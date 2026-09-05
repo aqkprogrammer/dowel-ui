@@ -144,13 +144,21 @@ export function ToastClose({
 export type ToastPosition =
   "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
 
+/*
+  rtl-ok: the positions are *named* left and right, so they stay physical. A
+  toast asked for at `bottom-right` that appears bottom-left in Arabic is the
+  same lie as a Sheet asked for on the left that opens on the right — and it is
+  worse here, because the slide-in comes from the right edge and the toast would
+  fly across the screen to reach the other one. The logical version of this is a
+  `bottom-end` position, which is a rename rather than a restyle.
+*/
 const viewportPositions: Record<ToastPosition, string> = {
-  "top-left": "top-0 start-0 sm:flex-col-reverse",
+  "top-left": "top-0 left-0 sm:flex-col-reverse", // rtl-ok: named position
   "top-center": "top-0 left-1/2 -translate-x-1/2 sm:flex-col-reverse",
-  "top-right": "top-0 end-0 sm:flex-col-reverse",
-  "bottom-left": "bottom-0 start-0",
+  "top-right": "top-0 right-0 sm:flex-col-reverse", // rtl-ok: named position
+  "bottom-left": "bottom-0 left-0", // rtl-ok: named position
   "bottom-center": "bottom-0 left-1/2 -translate-x-1/2",
-  "bottom-right": "bottom-0 end-0",
+  "bottom-right": "bottom-0 right-0", // rtl-ok: named position
 };
 
 export interface ToasterProps {

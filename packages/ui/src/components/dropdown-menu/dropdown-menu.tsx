@@ -3,6 +3,7 @@
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
 
+import { mirrorForDirection } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 /**
@@ -213,7 +214,12 @@ export function DropdownMenuSubTrigger({
       {...props}
     >
       {children}
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="ms-auto size-3.5">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+        className={cn("ms-auto size-3.5", mirrorForDirection)}
+      >
         <path
           d="m9 18 6-6-6-6"
           stroke="currentColor"

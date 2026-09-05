@@ -17,6 +17,11 @@
  * step with that, and unlike contrast it is not something a test environment
  * has to paint to detect.
  *
+ * The second half is icons. Logical CSS mirrors the box an icon sits in and not
+ * the glyph inside it, so a page can invert perfectly and still have a "next"
+ * chevron pointing back the way you came. Any icon whose meaning is directional
+ * has to be flipped explicitly, and this knows which paths those are.
+ *
  *   pnpm audit:rtl
  */
 import { readFileSync, readdirSync } from "node:fs";
@@ -122,6 +127,33 @@ function optedOutAbove(lines: string[], index: number): boolean {
   return false;
 }
 
+/**
+ * Icon paths that point along the reading direction.
+ *
+ * Listed by their exact path data rather than detected, because "is this glyph
+ * directional?" is not a question a regular expression can answer, and a
+ * heuristic that guesses would either flip the tick in a checkbox or miss a
+ * chevron drawn a pixel differently. These are this library's own icons; a new
+ * one that points sideways gets added here, and adding it is the moment to
+ * think about whether it should mirror.
+ *
+ * A chevron pointing *down* to open a select means down in every language and
+ * is deliberately absent.
+ */
+const DIRECTIONAL_PATHS = new Set([
+  "m9 18 6-6-6-6", // chevron right
+  "m15 18-6-6 6-6", // chevron left
+  "m9 6 6 6-6 6", // chevron right, alternate
+  "m15 6-6 6 6 6", // chevron left, alternate
+  "m12 5 7 7-7 7", // arrow right
+  "m12 19-7-7 7-7", // arrow left
+  "M5 12h14", // arrow shaft, right
+  "M19 12H5", // arrow shaft, left
+]);
+
+/** The class that flips a glyph, from `@/lib/styles`. */
+const MIRROR_CLASS = "mirrorForDirection";
+
 interface Finding {
   file: string;
   line: number;
@@ -143,11 +175,37 @@ function walk(directory: string): string[] {
   return found;
 }
 
+interface IconFinding {
+  file: string;
+  line: number;
+  path: string;
+}
+
 const findings: Finding[] = [];
+const iconFindings: IconFinding[] = [];
 const files = [...walk(join(uiSrc, "components")), ...walk(join(uiSrc, "blocks"))].sort();
 
 for (const file of files) {
   const lines = readFileSync(file, "utf8").split("\n");
+
+  // An icon's path and the class that flips it sit on different lines, so the
+  // check is per-<svg> rather than per-line.
+  const source = lines.join("\n");
+  for (const match of source.matchAll(/<svg\b[\s\S]*?<\/svg>/g)) {
+    const svg = match[0];
+    const drawn = [...svg.matchAll(/\bd="([^"]+)"/g)].map((path) => path[1] ?? "");
+    const directional = drawn.filter((path) => DIRECTIONAL_PATHS.has(path));
+
+    if (directional.length === 0) continue;
+    if (svg.includes(MIRROR_CLASS)) continue;
+    if (OPT_OUT.test(svg)) continue;
+
+    iconFindings.push({
+      file: relative(repoRoot, file),
+      line: source.slice(0, match.index).split("\n").length,
+      path: directional[0] ?? "",
+    });
+  }
 
   lines.forEach((line, index) => {
     if (OPT_OUT.test(line)) return;
@@ -186,6 +244,28 @@ console.log(
   `  logical-properties       ${findings.length === 0 ? "pass" : "FAIL"}`.padEnd(40) +
     `${String(files.length)} source files scanned`,
 );
+console.log(
+  `  icon-direction           ${iconFindings.length === 0 ? "pass" : "FAIL"}`.padEnd(40) +
+    `${String(DIRECTIONAL_PATHS.size)} directional glyphs known`,
+);
+
+if (iconFindings.length > 0) {
+  console.error(
+    `\n${String(iconFindings.length)} icon(s) point along the reading direction and are ` +
+      "not mirrored:\n",
+  );
+
+  for (const finding of iconFindings) {
+    console.error(`  ${finding.file}:${String(finding.line)}\n    d="${finding.path}"`);
+  }
+
+  console.error(
+    "\nAdd `mirrorForDirection` from @/lib/styles to the svg. Logical CSS mirrors the\n" +
+      'box, not the glyph, so without it a fully mirrored page still has a "next"\n' +
+      "chevron pointing back the way you came. If the glyph is not really directional,\n" +
+      "say so in a comment containing `rtl-ok:`.",
+  );
+}
 
 if (findings.length > 0) {
   console.error(
@@ -208,4 +288,8 @@ if (findings.length > 0) {
   process.exit(1);
 }
 
-console.log("\nEvery direction-dependent style is written logically.");
+if (iconFindings.length > 0) process.exit(1);
+
+console.log(
+  "\nEvery direction-dependent style is written logically, and every\ndirectional icon mirrors.",
+);
