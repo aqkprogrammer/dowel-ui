@@ -215,7 +215,7 @@ export const Default: Story = {
         stats={STATS}
         accounts={ACCOUNTS}
         onOpenAccount={() => undefined}
-        user={{ name: "Dana Whitfield", role: "Owner" }}
+        user={{ name: "Dana Whitfield", subtitle: "Owner" }}
         onSignOut={() => undefined}
         onOpenProfile={() => undefined}
         headerActions={
@@ -239,7 +239,7 @@ export const AllQuiet: Story = {
       stat.id === "churn" ? { ...stat, value: 0.012, previous: 0.017 } : stat,
     ),
     accounts: ACCOUNTS.filter((account) => account.status === "trial"),
-    user: { name: "Dana Whitfield", role: "Owner" },
+    user: { name: "Dana Whitfield", subtitle: "Owner" },
     onSignOut: () => undefined,
   },
 };
@@ -251,7 +251,7 @@ export const WithChildren: Story = {
     navigation: NAVIGATION,
     activeHref: "/admin/audit",
     breadcrumbs: [{ label: "Admin", href: "#" }, { label: "Audit log" }],
-    user: { name: "Dana Whitfield", role: "Owner" },
+    user: { name: "Dana Whitfield", subtitle: "Owner" },
     onSignOut: () => undefined,
     children: (
       <div>

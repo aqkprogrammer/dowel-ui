@@ -205,7 +205,7 @@ describe("AdminDashboardBlock", () => {
     render(
       <AdminDashboardBlock
         {...BASE}
-        user={{ name: "Dana Whitfield", role: "Owner" }}
+        user={{ name: "Dana Whitfield", subtitle: "Owner" }}
         onSignOut={onSignOut}
       />,
     );
@@ -239,7 +239,7 @@ describe("AdminDashboardBlock", () => {
         stats={STATS}
         accounts={ACCOUNTS}
         onOpenAccount={() => undefined}
-        user={{ name: "Dana Whitfield", role: "Owner" }}
+        user={{ name: "Dana Whitfield", subtitle: "Owner" }}
         onSignOut={() => undefined}
         onOpenProfile={() => undefined}
       />,

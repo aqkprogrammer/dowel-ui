@@ -126,8 +126,8 @@ export interface AdminNotice {
 
 export interface AdminUser {
   name: string;
-  /** Shown under the name. */
-  role?: string;
+  /** Shown under the name: a role, a team, an email. */
+  subtitle?: string;
 }
 
 export interface AdminDashboardBlockProps {
@@ -270,9 +270,9 @@ export function AdminDashboardBlock({
                     </Avatar>
                     <SidebarMenuLabel className="flex min-w-0 flex-col items-start">
                       <span className="truncate text-sm font-medium">{user.name}</span>
-                      {user.role ? (
+                      {user.subtitle ? (
                         <span className="truncate text-xs text-muted-foreground">
-                          {user.role}
+                          {user.subtitle}
                         </span>
                       ) : null}
                     </SidebarMenuLabel>
