@@ -20,13 +20,16 @@ describe("resolveProvider", () => {
   });
 
   it("uses Polar when it is configured", () => {
-    expect(resolveProvider({ POLAR_ACCESS_TOKEN: "polar_xxx" }).name).toBe("polar");
+    expect(
+      resolveProvider({ POLAR_ACCESS_TOKEN: "polar_xxx", POLAR_ORGANIZATION_ID: "org_1" }).name,
+    ).toBe("polar");
   });
 
   it("prefers Polar over the development keys", () => {
     expect(
       resolveProvider({
         POLAR_ACCESS_TOKEN: "polar_xxx",
+        POLAR_ORGANIZATION_ID: "org_1",
         DOWEL_DEV_LICENSE_KEYS: "dev",
         NODE_ENV: "development",
       }).name,
@@ -137,17 +140,92 @@ describe("checkLicense", () => {
 describe("polar", () => {
   it("is not configured without an access token", () => {
     expect(polarConfigFromEnv({})).toBeUndefined();
-    expect(polarConfigFromEnv({ POLAR_ACCESS_TOKEN: "" })).toBeUndefined();
+    expect(
+      polarConfigFromEnv({ POLAR_ACCESS_TOKEN: "", POLAR_ORGANIZATION_ID: "o" }),
+    ).toBeUndefined();
+  });
+
+  it("is not configured without an organisation id either", () => {
+    // The endpoint requires it. A token on its own would fail every check at
+    // runtime with a malformed-request error, reported to a customer as a
+    // problem with their key.
+    expect(polarConfigFromEnv({ POLAR_ACCESS_TOKEN: "x" })).toBeUndefined();
+    expect(
+      polarConfigFromEnv({ POLAR_ACCESS_TOKEN: "x", POLAR_ORGANIZATION_ID: "" }),
+    ).toBeUndefined();
   });
 
   it("takes its endpoint from the environment, with a default", () => {
-    expect(polarConfigFromEnv({ POLAR_ACCESS_TOKEN: "x" })?.apiUrl).toBe(
-      "https://api.polar.sh",
+    const both = { POLAR_ACCESS_TOKEN: "x", POLAR_ORGANIZATION_ID: "org_1" };
+    expect(polarConfigFromEnv(both)?.apiUrl).toBe("https://api.polar.sh");
+    expect(polarConfigFromEnv({ ...both, POLAR_API_URL: "https://mock.test" })?.apiUrl).toBe(
+      "https://mock.test",
     );
-    expect(
-      polarConfigFromEnv({ POLAR_ACCESS_TOKEN: "x", POLAR_API_URL: "https://mock.test" })
-        ?.apiUrl,
-    ).toBe("https://mock.test");
+  });
+
+  it("validates against the authenticated endpoint, sending the organisation", async () => {
+    // Not /v1/customer-portal/license-keys/validate: that one takes no
+    // authentication because it is meant for a desktop or mobile client, and
+    // is rate-limited to a few requests a second for exactly that reason.
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(Response.json({ status: "granted" }));
+
+    const provider = createPolarProvider({
+      accessToken: "polar_secret",
+      apiUrl: "https://mock.test",
+      organizationId: "org_1",
+    });
+    await provider.check("k");
+
+    const [url, init] = fetchSpy.mock.calls[0] ?? [];
+    expect(url).toBe("https://mock.test/v1/license-keys/validate");
+    expect(JSON.parse(typeof init?.body === "string" ? init.body : "")).toEqual({
+      key: "k",
+      organization_id: "org_1",
+    });
+    expect(new Headers(init?.headers).get("authorization")).toBe("Bearer polar_secret");
+  });
+
+  it("blames itself, not the customer, when its own credentials are rejected", async () => {
+    for (const status of [401, 403]) {
+      vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status }));
+
+      const provider = createPolarProvider({
+        accessToken: "stale",
+        apiUrl: "https://mock.test",
+        organizationId: "org_1",
+      });
+
+      // Telling a paying customer their key is not recognised because our
+      // token lost its scope is a support ticket about the wrong thing.
+      await expect(provider.check("k"), String(status)).rejects.toThrow(/credentials/i);
+    }
+  });
+
+  it("accepts the response shape the endpoint actually returns", async () => {
+    // The documented ValidatedLicenseKey is flat: status and expires_at at the
+    // top level, no license_key wrapper.
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({
+        id: "lk_1",
+        status: "granted",
+        expires_at: null,
+        customer: { name: "Ada Lovelace" },
+      }),
+    );
+
+    const provider = createPolarProvider({
+      accessToken: "x",
+      apiUrl: "https://mock.test",
+      organizationId: "org_1",
+    });
+
+    await expect(provider.check("k")).resolves.toMatchObject({
+      valid: true,
+      plan: "Pro",
+      holder: "Ada Lovelace",
+    });
   });
 
   it("rejects a revoked key with a reason, rather than throwing", async () => {
@@ -158,7 +236,7 @@ describe("polar", () => {
     const provider = createPolarProvider({
       accessToken: "x",
       apiUrl: "https://mock.test",
-      organizationId: undefined,
+      organizationId: "org_1",
     });
 
     await expect(provider.check("k")).resolves.toMatchObject({
@@ -177,7 +255,7 @@ describe("polar", () => {
     const provider = createPolarProvider({
       accessToken: "x",
       apiUrl: "https://mock.test",
-      organizationId: undefined,
+      organizationId: "org_1",
     });
 
     await expect(provider.check("k")).resolves.toMatchObject({
@@ -197,7 +275,7 @@ describe("polar", () => {
     const provider = createPolarProvider({
       accessToken: "x",
       apiUrl: "https://mock.test",
-      organizationId: undefined,
+      organizationId: "org_1",
     });
 
     await expect(provider.check("k")).resolves.toMatchObject({
@@ -212,7 +290,7 @@ describe("polar", () => {
     const provider = createPolarProvider({
       accessToken: "x",
       apiUrl: "https://mock.test",
-      organizationId: undefined,
+      organizationId: "org_1",
     });
 
     await expect(provider.check("k")).resolves.toMatchObject({ valid: false });
@@ -224,7 +302,7 @@ describe("polar", () => {
     const provider = createPolarProvider({
       accessToken: "x",
       apiUrl: "https://mock.test",
-      organizationId: undefined,
+      organizationId: "org_1",
     });
 
     await expect(provider.check("k")).rejects.toThrow(/licence provider/i);
@@ -238,7 +316,7 @@ describe("polar", () => {
     const provider = createPolarProvider({
       accessToken: "x",
       apiUrl: "https://mock.test",
-      organizationId: undefined,
+      organizationId: "org_1",
     });
     await provider.check("k");
 

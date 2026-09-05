@@ -3,6 +3,37 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Licensing: the right endpoint, and a way to check it
+
+Setting Polar up for real found two bugs in the adapter that shipped in 0.7.0,
+both of which would only have surfaced as a customer's failed install.
+
+- **It called the wrong endpoint.** `/v1/customer-portal/license-keys/validate`
+  takes no authentication, because it exists for desktop and mobile clients
+  that cannot hold a secret, and it is rate-limited to a few requests a second
+  for that reason. Validation from a server belongs at
+  `/v1/license-keys/validate`, authenticated with an organisation token, which
+  is what it now uses.
+- **`organization_id` is required** by that endpoint, and the config treated it
+  as optional. A deployment with a token and no organisation id would have
+  failed every check with a malformed-request error, reported to the customer
+  as a problem with their key. Both variables are now required together, and a
+  half-configured deployment reads as unconfigured — which is at least true.
+
+A third change is about who gets blamed. A 401 or 403 from Polar is about
+*our* credentials — a token missing the `license_keys` scopes, or rotated —
+and the adapter previously answered "that licence key was not recognised",
+sending a paying customer to support over our misconfiguration. Those now fail
+as a provider error, so the CLI reports a service problem. Only a 404 is
+treated as a bad key.
+
+`GET /r/license/health` reports which provider is active and whether keys can
+be validated, naming the licensed items and never a credential — not even a
+masked one, since confirming which token is in use is what an attacker wants.
+Configuring a paywall otherwise has no feedback short of buying a licence.
+
 ## 0.7.0
 
 The release that puts something up for sale, and fixes the bug that finding
