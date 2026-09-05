@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/themes",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "description": "Two-tier OKLCH design tokens in plain CSS for Dowel, with seven presets that all pass WCAG AA contrast in light and dark.",
   "keywords": [
