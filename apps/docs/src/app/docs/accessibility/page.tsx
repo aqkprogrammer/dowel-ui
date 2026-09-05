@@ -80,6 +80,41 @@ export default function AccessibilityPage() {
       </div>
 
       <Prose>
+        <h2>Right to left</h2>
+        <p>
+          Every direction-dependent style is written logically — <code>ps-</code>,{" "}
+          <code>me-</code>, <code>text-end</code> — so the layout follows <code>dir</code> on
+          its own. <code>pnpm audit:rtl</code> fails the build on any physical property that has
+          a logical equivalent, and on any icon that points along the reading direction without
+          being mirrored, because logical CSS mirrors the box an icon sits in and not the glyph
+          inside it.
+        </p>
+        <p>An application in Arabic, Hebrew, Persian or Urdu needs two things:</p>
+        <ul>
+          <li>
+            <code>dir=&quot;rtl&quot;</code> on the document, which the styling follows.
+          </li>
+          <li>
+            <code>DirectionProvider</code> around the tree. The primitives read direction from
+            React context rather than from the document and assume left-to-right without it,
+            which mirrors a page everywhere except its menus, selects and sliders — worse than
+            not mirroring at all, because it looks deliberate.
+          </li>
+        </ul>
+        <p>
+          Two things stay physical on purpose. A <code>Sheet</code> with{" "}
+          <code>side=&quot;left&quot;</code> and a toast at{" "}
+          <code>position=&quot;bottom-right&quot;</code> are named after a side, and a control
+          asked for on the left that appears on the right is an API telling a lie. The logical
+          versions of those are <code>start</code>/<code>end</code> props, which would be a
+          rename rather than a restyle.
+        </p>
+        <p>
+          What this does not claim: the components have not been reviewed by a reader of a
+          right-to-left language. The audit checks that nothing is styled or drawn against the
+          direction, which is necessary and not sufficient.
+        </p>
+
         <h2>What automated testing does not cover</h2>
         <p>
           Automated checks catch a minority of accessibility problems. They cannot tell whether

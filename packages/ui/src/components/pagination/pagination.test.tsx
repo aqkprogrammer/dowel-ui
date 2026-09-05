@@ -112,6 +112,18 @@ describe("Pagination", () => {
     expect(screen.getByRole("link", { name: "3" })).toHaveAttribute("data-active", "true");
   });
 
+  it("mirrors both arrows, which point along the reading direction", () => {
+    const { container } = render(<Example />);
+
+    const arrows = [...container.querySelectorAll("svg")].filter((svg) => {
+      const drawn = svg.querySelector("path")?.getAttribute("d") ?? "";
+      return drawn.includes("18 6-6-6-6") || drawn.includes("18-6-6 6-6");
+    });
+
+    expect(arrows.length).toBe(2);
+    for (const arrow of arrows) expect(arrow).toHaveClass("rtl:-scale-x-100");
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(<Example />);
     await expectNoA11yViolations(container);

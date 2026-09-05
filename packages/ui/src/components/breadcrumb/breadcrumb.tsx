@@ -1,7 +1,7 @@
 import { Slot } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
 
-import { focusRing } from "@/lib/styles";
+import { focusRing, mirrorForDirection } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 /**
@@ -118,7 +118,7 @@ export function BreadcrumbSeparator({
       {...props}
     >
       {children ?? (
-        <svg viewBox="0 0 24 24" fill="none">
+        <svg viewBox="0 0 24 24" fill="none" className={mirrorForDirection}>
           <path
             d="m9 18 6-6-6-6"
             stroke="currentColor"
