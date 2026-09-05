@@ -3,6 +3,98 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+The release that puts something up for sale, and fixes the bug that finding
+out how to sell it uncovered.
+
+Nothing that was free has stopped being free. The registry build now has a
+test that names every block which shipped without a licence and fails the
+release if any of them changes access; the components and the two `init`
+items are covered by the same test.
+
+### The Pro catalogue
+
+Four blocks, all new, all `access: "pro"`. They are whole application surfaces
+rather than page sections, and each one found something:
+
+- **crm** — a pipeline with its deals. Open value by stage as one bar with the
+  figures listed beside it, a filterable, sortable deal table, the win rate and
+  the sales cycle — the last declared lower-is-better, so a slowing pipeline is
+  not painted green.
+- **command-center** — service health worst-first, incidents by severity with
+  the resolved ones after, capacity meters, a filterable log stream, and a ⌘K
+  palette of operator actions. The overall status is one sentence computed from
+  the worst service, and it is not a live region: a page refreshed by polling
+  that re-announces itself on every poll is a page nobody can work beside.
+- **ai-workspace** — conversations down one side, the transcript in the middle
+  with reasoning, tool calls and sources, and the model's context on the other:
+  window usage, attachments, a structured result filling in. Three named
+  landmarks, so each can be jumped to and skipped.
+- **admin-dashboard** — the shell an admin area shares (navigation, breadcrumb,
+  account menu) with `children` for your own pages, and an overview that puts
+  what needs attention first and keeps it the only loud part of the page.
+
+What makes them Pro is where the source lives. The registry lists them —
+title, description, what they are built from, file count — and serves their
+bodies only to a licence holder; the docs site renders their previews from the
+same stories the tests run and withholds the code; the MCP server describes
+them from the index and says how to get the rest instead of reporting a 404.
+`packages/ui` no longer ships `src/blocks` in its npm tarball, for every block:
+blocks were never importable from the package (ADR 0011), and a licensed
+block's source in a public tarball would have been the paywall gone.
+
+The quality page measures Pro blocks against the same rules as free ones, and
+the counts audit reads the index rather than the directory, since a licensed
+item is listed but not written.
+
+### Sidebar: the overlay is mounted only on a narrow screen
+
+Composing the AI workspace found it. The mobile sheet was mounted whenever the
+rail was open and hidden with `md:hidden`, and a modal dialog that CSS hides is
+still modal: on every desktop, whenever the sidebar was open — its default —
+the rest of the page was `aria-hidden`, focus was trapped in an element nothing
+could reach, and `pointer-events` was off on the body. The live docs had it.
+
+The sheet now mounts only below the breakpoint, watched with `matchMedia`, and
+has its own open state, closed to begin with: "expanded by default" is a fact
+about the rail, and an overlay that covers the page on first load is a menu
+nobody asked for. Labels inside the overlay are always visible, whatever the
+rail's collapsed state. The trigger says "Open navigation" or "Close
+navigation" there, and drops its `aria-controls`, which pointed at an element
+CSS had hidden.
+
+### The site
+
+- **Pricing.** Free, Pro and Teams & Enterprise, with the free tier's promise
+  stated before anything else. The Pro button goes to the checkout when
+  `PRO_CHECKOUT_URL` is set and says "opening soon" with the repository to watch
+  when it is not — a pricing page with a dead Buy button is a page that tells
+  everyone the product is not real. Teams is described as it is: a self-hosted
+  private registry today, free, with the hosted version and SSO named as
+  planned rather than sold.
+- **Private registries** — a guide to building and hosting one with
+  `@dowel-ui/registry`, which the README had and the site did not.
+- **By the numbers** on the front page: components, blocks, AI components and
+  the average quality score from the registry and the audits, plus npm
+  downloads and GitHub stars fetched at build and refreshed hourly. A figure
+  that cannot be fetched is left out, never shown as zero. The version badge on
+  the front page, which had said 0.1.0 since there was a front page, now reads
+  the package version.
+- Blocks and Pricing in the header; the two guides in the docs navigation; a
+  footer with somewhere to go.
+
+### Design tokens for Figma
+
+`@dowel-ui/themes` gains `parseTokenCss`, `resolveReferences`, `toDesignTokens`
+and friends: they read the same `tokens.css`, `base.css` and preset files the
+components use, resolve every `var()` the way the cascade would, and write a
+W3C design-tokens document — `core`, `light` and `dark` sets, colours as sRGB
+hex converted with the same maths the contrast audit uses. The docs site
+serves one file per shipped preset at `/figma/<preset>.tokens.json`, and the
+Theme Studio downloads the same file for a preset built there, with the
+radius ladder evaluated at the scale set on the page.
+
 ## 0.6.0
 
 The largest release so far, and the one that turns a component library into
