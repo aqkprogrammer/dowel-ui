@@ -3,7 +3,7 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
-## Unreleased
+## 0.7.0
 
 The release that puts something up for sale, and fixes the bug that finding
 out how to sell it uncovered.
