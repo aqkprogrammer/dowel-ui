@@ -4,11 +4,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { InstallCommand } from "~/components/install-command";
+import { LicensedNotice } from "~/components/licensed-notice";
 import { Preview } from "~/components/preview";
 import { Prose } from "~/components/prose";
 import { QualityChecks } from "~/components/quality-checks";
 import { branding } from "~/lib/branding";
-import { getComponents, getRegistryItem } from "~/lib/registry";
+import { getComponents, getRegistryItem, isLicensed } from "~/lib/registry";
 
 /**
  * A component's documentation page.
@@ -39,7 +40,8 @@ export default async function ComponentPage({ params }: PageProps) {
   if (!getComponents().some((component) => component.name === name)) notFound();
 
   const item = getRegistryItem(name);
-  const source = item.files.map((file) => file.content).join("\n\n");
+  const licensed = isLicensed(item);
+  const source = licensed ? undefined : item.files.map((file) => file.content).join("\n\n");
 
   return (
     <article className="max-w-3xl">
@@ -51,6 +53,11 @@ export default async function ComponentPage({ params }: PageProps) {
               {item.status}
             </Badge>
           )}
+          {licensed ? (
+            <Badge size="sm" variant="default">
+              Pro
+            </Badge>
+          ) : null}
         </div>
         <p className="mt-2 text-pretty text-muted-foreground">{item.description}</p>
       </header>
@@ -104,19 +111,23 @@ export default async function ComponentPage({ params }: PageProps) {
         </p>
       </Prose>
 
-      <div className="not-prose mt-4">
-        {item.files.map((file) => (
-          <CodeBlock
-            key={file.path}
-            language="tsx"
-            title={file.path}
-            code={file.content}
-            className="mb-4 max-h-[36rem] overflow-auto"
-          >
-            {file.content}
-          </CodeBlock>
-        ))}
-      </div>
+      {licensed ? (
+        <LicensedNotice name={item.name} />
+      ) : (
+        <div className="not-prose mt-4">
+          {item.files.map((file) => (
+            <CodeBlock
+              key={file.path}
+              language="tsx"
+              title={file.path}
+              code={file.content}
+              className="mb-4 max-h-[36rem] overflow-auto"
+            >
+              {file.content}
+            </CodeBlock>
+          ))}
+        </div>
+      )}
     </article>
   );
 }

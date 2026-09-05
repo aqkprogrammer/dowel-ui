@@ -249,6 +249,29 @@ export function createServer(options: ServerOptions): McpServer {
         );
       }
 
+      // A licensed item has no public body to fetch. Everything the index knows
+      // is still worth saying — what it is, what it is built from — followed by
+      // how to get the rest, rather than a 404 that reads as the item not
+      // existing when the point is that it does.
+      if (entry.access === "pro") {
+        return text(
+          [
+            `# ${entry.title} \`${entry.name}\``,
+            "",
+            entry.description,
+            "",
+            `Type: ${entry.type === "registry:block" ? "block" : "component"} · Category: ${entry.category} · Status: ${entry.status} · **Pro**`,
+            "",
+            `Install: \`npx ${options.cliPackage} add ${entry.name}\` — requires a licence. Sign in once with \`npx ${options.cliPackage} login\`, or set DOWEL_TOKEN in CI.`,
+            "",
+            entry.registryDependencies.length > 0
+              ? `Also installs: ${entry.registryDependencies.join(", ")}\n`
+              : "",
+            `${String(entry.fileCount)} file(s). The source is served only to a licence holder, so this server cannot read it; once installed, read it from the project like any other file.`,
+          ].join("\n"),
+        );
+      }
+
       const item = await registry.item(name);
       const lines = [
         `# ${item.title} \`${item.name}\``,

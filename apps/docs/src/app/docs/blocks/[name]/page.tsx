@@ -5,10 +5,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { InstallCommand } from "~/components/install-command";
+import { LicensedNotice } from "~/components/licensed-notice";
 import { Preview } from "~/components/preview";
 import { Prose } from "~/components/prose";
 import { branding } from "~/lib/branding";
-import { getBlocks, getRegistryItem } from "~/lib/registry";
+import { getBlocks, getRegistryItem, isLicensed } from "~/lib/registry";
 
 /**
  * A block's page, generated from the registry like a component's.
@@ -39,7 +40,10 @@ export default async function BlockPage({ params }: PageProps) {
   if (!getBlocks().some((block) => block.name === name)) notFound();
 
   const item = getRegistryItem(name);
-  const source = item.files.map((file) => file.content).join("\n\n");
+  const licensed = isLicensed(item);
+  // A licensed item's files arrive with no content, and an empty Code tab
+  // would look like a bug rather than a decision.
+  const source = licensed ? undefined : item.files.map((file) => file.content).join("\n\n");
 
   return (
     <article className="max-w-3xl">
@@ -49,6 +53,11 @@ export default async function BlockPage({ params }: PageProps) {
           <Badge size="sm" variant="secondary">
             Block
           </Badge>
+          {licensed ? (
+            <Badge size="sm" variant="default">
+              Pro
+            </Badge>
+          ) : null}
         </div>
         <p className="mt-2 text-pretty text-muted-foreground">{item.description}</p>
       </header>
@@ -60,6 +69,9 @@ export default async function BlockPage({ params }: PageProps) {
         <p>
           The block is written to your blocks directory, and everything it is built from is
           installed alongside it.
+          {licensed
+            ? " This one needs a licence: sign in once with the CLI and the install is the same command."
+            : ""}
         </p>
       </Prose>
 
@@ -95,29 +107,44 @@ export default async function BlockPage({ params }: PageProps) {
 
       <Prose>
         <h2 id="source">Source</h2>
-        <p>
-          This is exactly what{" "}
-          <code>
-            {branding.cliName} add {item.name}
-          </code>{" "}
-          writes, with imports rewritten to your own path alias. It is a starting point — edit
-          it.
-        </p>
+        {licensed ? (
+          <p>
+            {item.files.length === 1 ? "One file" : `${String(item.files.length)} files`},
+            written by{" "}
+            <code>
+              {branding.cliName} add {item.name}
+            </code>{" "}
+            with imports rewritten to your own path alias, and yours to edit from then on.
+          </p>
+        ) : (
+          <p>
+            This is exactly what{" "}
+            <code>
+              {branding.cliName} add {item.name}
+            </code>{" "}
+            writes, with imports rewritten to your own path alias. It is a starting point — edit
+            it.
+          </p>
+        )}
       </Prose>
 
-      <div className="not-prose mt-4">
-        {item.files.map((file) => (
-          <CodeBlock
-            key={file.path}
-            language="tsx"
-            title={file.path}
-            code={file.content}
-            className="mb-4 max-h-[36rem] overflow-auto"
-          >
-            {file.content}
-          </CodeBlock>
-        ))}
-      </div>
+      {licensed ? (
+        <LicensedNotice name={item.name} />
+      ) : (
+        <div className="not-prose mt-4">
+          {item.files.map((file) => (
+            <CodeBlock
+              key={file.path}
+              language="tsx"
+              title={file.path}
+              code={file.content}
+              className="mb-4 max-h-[36rem] overflow-auto"
+            >
+              {file.content}
+            </CodeBlock>
+          ))}
+        </div>
+      )}
     </article>
   );
 }
