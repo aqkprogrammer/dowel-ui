@@ -23,13 +23,17 @@ import {
   formatPreset,
   hexToOklch,
   oklchToHex,
+  presetDeclarations,
   slugify,
+  toDesignTokens,
   type DerivedPreset,
   type Oklch,
   type PresetMode,
 } from "@dowel-ui/themes";
 import { Check, X } from "lucide-react";
 import { useEffect, useId, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+
+import { tokenDeclarations } from "~/lib/design-tokens.generated";
 
 /** The default preset's primary, so the studio opens on something that works. */
 const STARTING_COLOUR: Oklch = { l: 0.545, c: 0.196, h: 275 };
@@ -57,6 +61,19 @@ export function ThemeStudio() {
 
   const slug = slugify(name);
   const css = useMemo(() => formatPreset(slug, preset), [slug, preset]);
+
+  // The same preset, in the shape Figma reads: the shipped scale and semantic
+  // tokens with this primary layered over them, radius evaluated at the scale
+  // set here. A data URL rather than a blob, so there is nothing to revoke.
+  const figmaHref = useMemo(() => {
+    const tokens = toDesignTokens({
+      name: slug,
+      ...tokenDeclarations,
+      preset: presetDeclarations(preset),
+      radiusScale: radius,
+    });
+    return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(tokens, null, 2))}`;
+  }, [slug, preset, radius]);
 
   // Radius is a root-level property by construction; see the note in the
   // playground. Cleared on unmount so it does not follow the reader away.
@@ -243,6 +260,24 @@ export function ThemeStudio() {
           <CodeBlock language="css" title={`${slug}.css`} code={css}>
             {css}
           </CodeBlock>
+        </div>
+
+        <div className="grid gap-2">
+          <h2 className="text-sm font-medium">For Figma</h2>
+          <p className="text-sm text-muted-foreground">
+            The same theme as W3C design tokens — every colour in both modes as sRGB hex, the
+            radius ladder at the scale above, the type scale — which Tokens Studio for Figma
+            imports as three sets: <code className="font-mono">core</code>,{" "}
+            <code className="font-mono">light</code> and <code className="font-mono">dark</code>
+            . Generated from the CSS, so it cannot disagree with it.
+          </p>
+          <div>
+            <Button asChild variant="outline" size="sm">
+              <a href={figmaHref} download={`${slug}.tokens.json`}>
+                Download {slug}.tokens.json
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

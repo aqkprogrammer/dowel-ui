@@ -12,6 +12,19 @@ export {
 } from "./preset";
 
 export {
+  cssColourToHex,
+  cssLengthToPx,
+  parseTokenCss,
+  presetDeclarations,
+  resolveReferences,
+  toDesignTokens,
+  type Declarations,
+  type DesignToken,
+  type DesignTokenGroup,
+  type DesignTokensInput,
+} from "./figma";
+
+export {
   composite,
   contrastRatio,
   decodeSrgb,

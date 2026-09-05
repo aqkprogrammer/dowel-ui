@@ -179,7 +179,31 @@ export default function ThemesPage() {
           preset exists partly as a standing test: if a component becomes unusable without
           colour, colour was carrying meaning it should not have been.
         </p>
+
+        <h2>In Figma</h2>
+        <p>
+          Every preset is available as a W3C design-tokens file, generated at build time from
+          the same CSS the components use. Import one with Tokens Studio for Figma and you get
+          three sets — <code>core</code> for the raw scale, <code>light</code> and{" "}
+          <code>dark</code> for the semantic colours, resolved to sRGB hex — that mirror exactly
+          how the CSS composes. A preset built in the <a href="/theme-studio">Theme Studio</a>{" "}
+          downloads the same file.
+        </p>
       </Prose>
+
+      <ul className="not-prose mt-4 flex flex-wrap gap-2">
+        {THEME_PRESETS.map((preset) => (
+          <li key={preset}>
+            <a
+              href={`/figma/${preset}.tokens.json`}
+              download
+              className="inline-flex rounded-md border border-border px-2 py-1 font-mono text-xs transition-colors outline-none hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring/55"
+            >
+              {preset}.tokens.json
+            </a>
+          </li>
+        ))}
+      </ul>
     </article>
   );
 }
