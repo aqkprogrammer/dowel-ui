@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/mcp",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "type": "module",
   "description": "Model Context Protocol server for Dowel. Lets a coding agent search the component registry, read a component's source and conventions, and get the exact install command — instead of guessing what exists.",
   "keywords": [
