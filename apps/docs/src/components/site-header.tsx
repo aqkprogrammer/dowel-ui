@@ -26,10 +26,11 @@ export function SiteHeader({ searchEntries }: { searchEntries: SearchEntry[] }) 
           {[
             { href: "/docs", label: "Docs" },
             { href: "/docs/components", label: "Components" },
+            { href: "/docs/blocks", label: "Blocks" },
             { href: "/playground", label: "Playground" },
             { href: "/generate", label: "Generate" },
-            { href: "/docs/cli", label: "CLI" },
             { href: "/docs/themes", label: "Themes" },
+            { href: "/pricing", label: "Pricing" },
           ].map((link) => (
             <Button key={link.href} asChild variant="ghost" size="sm">
               <Link href={link.href}>{link.label}</Link>
