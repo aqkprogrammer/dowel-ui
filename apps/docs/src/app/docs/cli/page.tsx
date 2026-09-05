@@ -139,7 +139,7 @@ export default function CliPage() {
       </div>
 
       <Prose>
-        <h2>Licensed components</h2>
+        <h2 id="licensed-components">Licensed components</h2>
         <p>
           Components that require a licence are listed in the registry like any other — with
           their description, what they depend on and how many files they are — but their source
@@ -155,7 +155,7 @@ export default function CliPage() {
           set.
         </p>
 
-        <h2>Private registries</h2>
+        <h2 id="private-registries">Private registries</h2>
         <p>
           <code>--registry</code> takes an HTTPS URL or a path on disk, so a fork or an internal
           mirror works without forking the CLI. It can also be set once in{" "}

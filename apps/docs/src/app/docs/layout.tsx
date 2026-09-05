@@ -18,6 +18,8 @@ const GUIDE_GROUP: NavGroup = {
     { title: "Accessibility", href: "/docs/accessibility" },
     { title: "Quality", href: "/quality" },
     { title: "AI agents", href: "/docs/ai-agents" },
+    { title: "Private registries", href: "/docs/private-registry" },
+    { title: "Pricing", href: "/pricing" },
     { title: "All components", href: "/docs/components" },
     { title: "Blocks", href: "/docs/blocks" },
   ],
