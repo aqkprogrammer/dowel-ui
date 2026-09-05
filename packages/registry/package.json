@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/registry",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "description": "Builds the static component registry that the Dowel CLI installs from. For hosting your own registry or a fork.",
   "keywords": [

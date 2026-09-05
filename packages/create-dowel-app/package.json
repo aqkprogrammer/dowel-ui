@@ -1,6 +1,6 @@
 {
   "name": "create-dowel-app",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "description": "Creates a Next.js application wired to Dowel: design tokens, path aliases and the blocks for the kind of product you are building, installed as source you own.",
   "keywords": [
