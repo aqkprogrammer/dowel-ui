@@ -10,7 +10,7 @@
  *
  *   pnpm audit:counts
  */
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -22,12 +22,15 @@ if (!existsSync(join(registryDir, "index.json"))) {
   process.exit(1);
 }
 
+// Counted from the index rather than from the item files: a licensed item is
+// listed in the index but its body is deliberately absent from the directory,
+// and counting files would undercount by exactly the paid catalogue.
+const index = JSON.parse(readFileSync(join(registryDir, "index.json"), "utf8")) as {
+  items: { type: string }[];
+};
+
 const counts = { component: 0, block: 0 };
-for (const file of readdirSync(registryDir)) {
-  if (!file.endsWith(".json") || file === "index.json") continue;
-  const { type } = JSON.parse(readFileSync(join(registryDir, file), "utf8")) as {
-    type: string;
-  };
+for (const { type } of index.items) {
   if (type === "registry:ui") counts.component += 1;
   if (type === "registry:block") counts.block += 1;
 }

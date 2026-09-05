@@ -3,6 +3,8 @@ import { join } from "node:path";
 
 import type { RegistryIndex, RegistryItem } from "@dowel-ui/registry";
 
+import { licensedItems } from "./licensed-registry.generated";
+
 /**
  * Reads the registry the site itself serves.
  *
@@ -21,8 +23,30 @@ export function getRegistryIndex(): RegistryIndex {
   return read<RegistryIndex>("index.json");
 }
 
+/**
+ * One item, as the site is allowed to show it.
+ *
+ * A licensed item has no public file, on purpose. Its metadata — title,
+ * description, what it is built from, the accessibility notes — comes from the
+ * module the gated route serves, with every file's content removed before it
+ * leaves this function. The page can then describe the item in full without
+ * the source ever reaching a bundle anyone can read, and nothing downstream has
+ * to remember which items it may not print.
+ */
 export function getRegistryItem(name: string): RegistryItem {
+  const licensed = licensedItems[name];
+  if (licensed) {
+    return {
+      ...licensed,
+      files: licensed.files.map((file) => ({ ...file, content: "" })),
+    };
+  }
   return read<RegistryItem>(`${name}.json`);
+}
+
+/** Whether an item's source is served only to a licence holder. */
+export function isLicensed(item: Pick<RegistryItem, "access">): boolean {
+  return item.access === "pro";
 }
 
 /**

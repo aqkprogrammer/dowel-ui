@@ -44,7 +44,7 @@ as you pick, and [per-component quality](https://dowel-eight.vercel.app/quality)
 
 ## What is in it
 
-**75 components** and **13 blocks**, every one keyboard-operable and audited for
+**75 components** and **17 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
@@ -100,12 +100,22 @@ Admin users · Settings · Pricing
 
 **AI** — AI Chat · **AI Dashboard** · **Agent Console**
 
+**Pro** — **CRM** · **Command Center** · **AI Workspace** · **Admin Dashboard**
+
 `billing` states every usage meter in words rather than as a bar that turns red.
 `analytics` treats its chart as a picture — one summarising label, and the exact
 numbers as a real table anyone can open. `ai-dashboard` marks spend and failure
 rate as lower-is-better, because a dashboard that paints a rising bill green is
 congratulating you on it. `agent-console` puts whatever the run is blocked on
 above the plan and the history, since it is the only part waiting on a person.
+
+The four Pro blocks are whole application surfaces rather than page sections:
+`crm` is a pipeline with its deals, `command-center` is service health,
+incidents, capacity, logs and a ⌘K palette, `ai-workspace` is a three-column
+AI application with the model's context beside the conversation, and
+`admin-dashboard` is the shell an admin area shares plus its front page. They
+install with the same command once the CLI is signed in — see
+[Pro](#pro) — and their previews on the site are the real thing.
 
 ```tsx
 import {
@@ -242,6 +252,31 @@ depends on, not the shape of its arguments, so the output stops at the
 composition and links to the page where the props are documented. A plausible
 invented prop is worse than an obvious gap — one is a TODO, the other is a bug
 wearing the costume of working code.
+
+## Pro
+
+Everything above is MIT and stays that way: an item that has ever been
+installable without a licence never stops being one. Pro is the catalogue of
+whole application surfaces built on top — currently the four blocks above,
+with more added to the same licence rather than sold separately.
+
+A licence is a key. Sign in once and the install is the same command:
+
+```bash
+npx @dowel-ui/cli login
+npx @dowel-ui/cli add crm
+```
+
+The key is checked against the registry the moment it is pasted, so a bad key
+fails then rather than during an install a week later. It is stored in your own
+config directory, never in the project; CI sets `DOWEL_TOKEN` from its secrets
+store instead. The registry lists every Pro item — title, description, what it
+is built from — and serves the source only to a licence holder, so a Pro block
+still shows up in `list`, in the agent docs and in the MCP server, with what it
+is and how to get it.
+
+Pricing, and what a licence covers, is on the site:
+[dowel-eight.vercel.app/pricing](https://dowel-eight.vercel.app/pricing).
 
 ## Your own registry
 

@@ -28,6 +28,11 @@ export default function BlocksIndexPage() {
           other file, and it is meant to be edited: the layout, the copy and the fields are all
           yours.
         </p>
+        <p>
+          Blocks marked <strong>Pro</strong> install the same way once the CLI is signed in with
+          a licence key. Their previews are real; only the source is withheld. See{" "}
+          <Link href="/pricing">pricing</Link>.
+        </p>
       </Prose>
 
       <ul className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -42,6 +47,11 @@ export default function BlocksIndexPage() {
                 <Badge size="sm" variant="secondary">
                   {block.registryDependencies.length} components
                 </Badge>
+                {block.access === "pro" ? (
+                  <Badge size="sm" variant="default">
+                    Pro
+                  </Badge>
+                ) : null}
               </span>
               <span className="mt-1 block text-xs text-muted-foreground">
                 {block.description}

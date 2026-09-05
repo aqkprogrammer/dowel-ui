@@ -1,6 +1,7 @@
-import { mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { buildIndex, buildRegistry, freeItems, proItems, writeRegistry } from "./build";
@@ -134,9 +135,36 @@ describe("buildIndex", () => {
 });
 
 describe("access", () => {
-  it("defaults every item to free, since free is a promise", () => {
+  it("keeps everything that has ever shipped free, free", () => {
+    // Free is a promise. Every component, the two init items, and the blocks
+    // that were in the public registry before there was a paid catalogue must
+    // stay installable without a licence; moving one behind the paywall would
+    // break every project's next `update`.
+    const shippedFreeBlocks = [
+      "admin-users",
+      "agent-console",
+      "ai-chat",
+      "ai-dashboard",
+      "analytics",
+      "billing",
+      "dashboard",
+      "forgot-password",
+      "login",
+      "onboarding",
+      "pricing",
+      "settings",
+      "signup",
+    ];
     for (const item of items) {
-      expect(item.access, item.name).toBe("free");
+      if (item.type !== "registry:block" || shippedFreeBlocks.includes(item.name)) {
+        expect(item.access, item.name).toBe("free");
+      }
+    }
+  });
+
+  it("licenses only blocks that were introduced as licensed", () => {
+    for (const item of proItems(items)) {
+      expect(item.type, item.name).toBe("registry:block");
     }
   });
 
@@ -156,20 +184,52 @@ describe("access", () => {
 
     // The goods are not in the public set.
     expect(freeItems(all).map((item) => item.name)).not.toContain("pro-thing");
-    expect(proItems(all).map((item) => item.name)).toEqual(["pro-thing"]);
+    expect(proItems(all).map((item) => item.name)).toContain("pro-thing");
+    expect(proItems(all)).toHaveLength(proItems(items).length + 1);
   });
 
   it("writes no licensed body into the public directory", () => {
     const outDir = mkdtempSync(join(tmpdir(), "registry-access-"));
     try {
       const result = writeRegistry(outDir);
+      const all = buildRegistry();
 
-      expect(result.licensed).toBe(0);
-      // Every listed free item has a file; the count is the contract.
+      expect(result.licensed).toBe(proItems(all).length);
+      // Every listed free item has a file and no licensed one does; the count
+      // is the contract.
       const written = readdirSync(outDir).filter((file) => file !== "index.json");
-      expect(written).toHaveLength(freeItems(buildRegistry()).length);
+      expect(written).toHaveLength(freeItems(all).length);
+      for (const item of proItems(all)) {
+        expect(written).not.toContain(`${item.name}.json`);
+      }
     } finally {
       rmSync(outDir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("the paywall", () => {
+  it("keeps every block out of the component package's npm tarball", () => {
+    // The registry withholds a licensed block's body, but the same source sits
+    // in packages/ui, and that package publishes its `src`. If blocks were in
+    // the tarball, the paid catalogue would ship free with every install of
+    // @dowel-ui/react. Blocks are registry-only by design (ADR 0011), so the
+    // whole directory is excluded rather than one negation per licensed item
+    // that somebody has to remember.
+    const here = dirname(fileURLToPath(import.meta.url));
+    const pkg = JSON.parse(
+      readFileSync(join(here, "..", "..", "ui", "package.json"), "utf8"),
+    ) as { files: string[] };
+    expect(pkg.files).toContain("!src/blocks");
+  });
+
+  it("lists licensed items in the index with their access, and nothing else about their source", () => {
+    const index = buildIndex(items);
+    for (const item of proItems(items)) {
+      const entry = index.items.find((candidate) => candidate.name === item.name);
+      expect(entry?.access).toBe("pro");
+      expect(entry?.fileCount).toBe(item.files.length);
+      expect(entry).not.toHaveProperty("files");
     }
   });
 });
