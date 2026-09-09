@@ -8,6 +8,7 @@ import { InstallCommand } from "~/components/install-command";
 import { JsonLd } from "~/components/json-ld";
 import { LicensedNotice } from "~/components/licensed-notice";
 import { Preview } from "~/components/preview";
+import { PropsTable } from "~/components/props-table";
 import { Prose } from "~/components/prose";
 import { QualityChecks } from "~/components/quality-checks";
 import { branding } from "~/lib/branding";
@@ -145,6 +146,8 @@ export default async function ComponentPage({ params }: PageProps) {
           </>
         ) : null}
       </Prose>
+
+      <PropsTable name={item.name} />
 
       <QualityChecks name={item.name} />
 
