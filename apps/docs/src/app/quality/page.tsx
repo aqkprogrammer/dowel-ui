@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AstraHeaderShell, AstraHero } from "~/components/astra";
+import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
 import { averageQuality, componentQuality } from "~/lib/quality.generated";
@@ -158,6 +159,8 @@ export default function QualityPage() {
           . Generated from {branding.libraryName} {index.generatedFrom.split("@").pop()}.
         </p>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

@@ -17,14 +17,15 @@ Licensed registry items are served by the site, so the site is where the
 licensing is configured. Nothing here is in the repository, and nothing here
 should be.
 
-| Variable                 | Required         | What it does                                                                      |
-| ------------------------ | ---------------- | --------------------------------------------------------------------------------- |
-| `POLAR_ACCESS_TOKEN`     | to sell anything | Organisation access token with the `license_keys` scopes.                         |
-| `POLAR_ORGANIZATION_ID`  | to sell anything | Whose keys are accepted. The validation endpoint requires it.                     |
-| `POLAR_API_URL`          | no               | Defaults to `https://api.polar.sh`. For a sandbox.                                |
-| `DOWEL_DEV_LICENSE_KEYS` | no               | Comma-separated keys accepted **only outside production**, for local work.        |
-| `PRO_CHECKOUT_URL`       | to sell anything | Where the Pro button on `/pricing` goes. Unset, the page says "opening soon".     |
-| `SALES_CONTACT_URL`      | no               | Where Teams & Enterprise conversations start. Defaults to the GitHub discussions. |
+| Variable                 | Required         | What it does                                                                    |
+| ------------------------ | ---------------- | ------------------------------------------------------------------------------- |
+| `POLAR_ACCESS_TOKEN`     | to sell anything | Organisation access token with the `license_keys` scopes.                       |
+| `POLAR_ORGANIZATION_ID`  | to sell anything | Whose keys are accepted. The validation endpoint requires it.                   |
+| `POLAR_API_URL`          | no               | Defaults to `https://api.polar.sh`. For a sandbox.                              |
+| `DOWEL_DEV_LICENSE_KEYS` | no               | Comma-separated keys accepted **only outside production**, for local work.      |
+| `PRO_CHECKOUT_URL`       | to sell anything | Where the Pro button on `/pricing` goes. Unset, the page says "opening soon".   |
+| `SALES_CONTACT_EMAIL`    | no               | The address published on `/pricing` and in the footer. Has a default.           |
+| `SALES_CONTACT_URL`      | no               | Where Teams & Enterprise conversations start. Defaults to mailing that address. |
 
 **Both Polar variables are required, together.** The endpoint takes
 `organization_id` in the body, so a token without one would fail every check

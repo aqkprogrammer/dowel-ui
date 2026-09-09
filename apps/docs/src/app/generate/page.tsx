@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Generator } from "~/components/generator";
 import { AstraHeaderShell, AstraHero } from "~/components/astra";
+import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
 import { getRegistryIndex } from "~/lib/registry";
@@ -37,6 +38,8 @@ export default function GeneratePage() {
 
         <Generator index={getRegistryIndex()} docsUrl={SITE_URL} />
       </main>
+
+      <SiteFooter />
     </div>
   );
 }
