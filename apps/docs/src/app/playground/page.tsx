@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { Playground, type PlaygroundEntry } from "~/components/playground";
+import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteHeader } from "~/components/site-header";
 import { CATEGORY_LABELS, getComponents } from "~/lib/registry";
 
@@ -22,7 +23,10 @@ export default function PlaygroundPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader searchEntries={[]} />
+      <AstraHeaderShell>
+        <SiteHeader searchEntries={[]} />
+      </AstraHeaderShell>
+      <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Playground" />
 
       <main id="content" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
         <div className="mb-6 max-w-2xl">

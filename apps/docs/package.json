@@ -14,13 +14,15 @@
     "clean": "rm -rf .next .turbo public/r src/lib/previews.generated.ts src/lib/pro-previews.generated.ts src/lib/variants.generated.ts src/lib/quality.generated.ts src/lib/licensed-registry.generated.ts src/lib/version.generated.ts src/lib/design-tokens.generated.ts public/figma"
   },
   "dependencies": {
-    "@dowel-ui/themes": "workspace:*",
     "@dowel-ui/react": "workspace:*",
+    "@dowel-ui/registry": "workspace:*",
+    "@dowel-ui/themes": "workspace:*",
     "lucide-react": "1.38.0",
     "next": "16.3.3",
+    "postprocessing": "6.39.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "@dowel-ui/registry": "workspace:*"
+    "three": "0.185.1"
   },
   "devDependencies": {
     "@dowel-ui/config": "workspace:*",
@@ -28,6 +30,7 @@
     "@types/node": "26.4.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
+    "@types/three": "0.185.4",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.13",
     "typescript": "6.0.3",

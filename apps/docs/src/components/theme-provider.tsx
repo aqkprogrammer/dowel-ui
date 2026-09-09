@@ -94,10 +94,13 @@ function subscribeToColorScheme(callback: () => void): () => void {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   // The generic is explicit so the server snapshot's literal is contextually
   // typed, rather than widened to string and then asserted back.
+  // Dark is the default rather than "system": the site opens on a star field,
+  // and it is built to be read on black. Someone who prefers light still gets
+  // it the moment they ask — the choice is stored and wins from then on.
   const mode = useSyncExternalStore<ColorMode>(
     subscribeToStorage,
-    () => readStored(MODE_KEY, COLOR_MODES, "system"),
-    () => "system",
+    () => readStored(MODE_KEY, COLOR_MODES, "dark"),
+    () => "dark",
   );
 
   const preset = useSyncExternalStore<ThemePreset>(

@@ -3,6 +3,8 @@ import { Button } from "@dowel-ui/react/button";
 import Link from "next/link";
 
 import { branding } from "~/lib/branding";
+
+import { BrandMark } from "./brand-mark";
 import { version } from "~/lib/version.generated";
 
 import { Search, type SearchEntry } from "./search";
@@ -16,13 +18,19 @@ export function SiteHeader({ searchEntries }: { searchEntries: SearchEntry[] }) 
           href="/"
           className="flex items-center gap-2 rounded-md font-semibold tracking-tight outline-none focus-visible:ring-2 focus-visible:ring-ring/55"
         >
+          <BrandMark />
           {branding.libraryName}
-          <Badge size="sm" variant="secondary">
+          {/* The version is the first thing to go when the bar is tight: the
+              navigation and the search are what people came for. */}
+          <Badge size="sm" variant="secondary" className="hidden xl:inline-flex">
             {version}
           </Badge>
         </Link>
 
-        <nav aria-label="Main" className="hidden items-center gap-1 text-sm md:flex">
+        <nav
+          aria-label="Main"
+          className="hidden shrink-0 items-center gap-0.5 text-sm lg:flex xl:gap-1"
+        >
           {[
             { href: "/docs", label: "Docs" },
             { href: "/docs/components", label: "Components" },

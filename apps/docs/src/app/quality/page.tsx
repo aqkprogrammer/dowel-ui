@@ -5,6 +5,7 @@ import { Check, Minus, X } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
 import { averageQuality, componentQuality } from "~/lib/quality.generated";
@@ -50,7 +51,10 @@ export default function QualityPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader searchEntries={[]} />
+      <AstraHeaderShell>
+        <SiteHeader searchEntries={[]} />
+      </AstraHeaderShell>
+      <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Quality" />
 
       <main id="content" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
         <div className="max-w-2xl">
