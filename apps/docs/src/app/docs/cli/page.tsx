@@ -11,11 +11,16 @@ import type { Metadata } from "next";
 
 import { Prose } from "~/components/prose";
 import { branding } from "~/lib/branding";
+import { pageMetadata } from "~/lib/site";
 
-export const metadata: Metadata = {
-  title: "CLI",
-  description: "Every command and flag.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "CLI reference — every command and flag",
+  description:
+    "Complete reference for the CLI that installs React components as source: init, add, update, diff and list, with every flag and what it writes to your project.",
+  path: "/docs/cli",
+  keywords: ["react component cli", "shadcn cli alternative", "install react components cli"],
+  type: "article",
+});
 
 const COMMANDS = [
   {

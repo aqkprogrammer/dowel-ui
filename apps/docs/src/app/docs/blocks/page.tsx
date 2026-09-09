@@ -2,20 +2,54 @@ import { Badge } from "@dowel-ui/react/badge";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { JsonLd } from "~/components/json-ld";
 import { Prose } from "~/components/prose";
 import { getBlocks } from "~/lib/registry";
+import { breadcrumbSchema, collectionSchema, graph } from "~/lib/structured-data";
+
+const COUNT = getBlocks().length;
 
 export const metadata: Metadata = {
-  title: "Blocks",
-  description: "Whole page sections, assembled from the components.",
+  title: "React page templates and UI blocks",
+  description: `${String(COUNT)} ready-made React page templates — dashboards, login and signup, billing, settings, CRM and AI chat — assembled from accessible Tailwind CSS components and installed as source you own.`,
+  keywords: [
+    "react page templates",
+    "react dashboard template",
+    "react login page template",
+    "tailwind react templates",
+    "react admin template",
+    "react ui blocks",
+    "shadcn blocks",
+  ],
+  alternates: { canonical: "/docs/blocks" },
+  openGraph: { type: "website", url: "/docs/blocks" },
 };
 
 export default function BlocksIndexPage() {
   const blocks = getBlocks();
 
+  const structuredData = graph(
+    collectionSchema({
+      name: "React page templates and UI blocks",
+      description: "Whole page sections, assembled from the components.",
+      path: "/docs/blocks",
+      items: blocks.map((block) => ({
+        name: block.name,
+        title: block.title,
+        description: block.description,
+        path: `/docs/blocks/${block.name}`,
+      })),
+    }),
+    breadcrumbSchema([
+      { name: "Docs", path: "/docs" },
+      { name: "Blocks", path: "/docs/blocks" },
+    ]),
+  );
+
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Blocks</h1>
+      <JsonLd json={structuredData} />
+      <h1 className="text-2xl font-semibold tracking-tight">React page templates and blocks</h1>
 
       <Prose>
         <p>

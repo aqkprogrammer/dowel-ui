@@ -8,14 +8,23 @@ import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
+import { pageMetadata } from "~/lib/site";
 import { commerceLinks, supportMailto } from "~/lib/commerce";
 import { getBlocks, getComponents } from "~/lib/registry";
 
-export const metadata: Metadata = {
-  title: "Pricing",
+export const metadata: Metadata = pageMetadata({
+  title: "Pricing — free React components, Pro application surfaces",
   description:
-    "The components are free and stay free. Pro is the catalogue of whole application surfaces on top, and Teams is for organisations that want a registry of their own.",
-};
+    "Every core React component is free and MIT-licensed, forever. Pro adds whole application surfaces — CRM, command center, AI workspace, admin console — and Teams adds a private registry of your own.",
+  path: "/pricing",
+  keywords: [
+    "react ui library pricing",
+    "free react component library",
+    "premium react components",
+    "react admin template price",
+    "tailwind ui alternative",
+  ],
+});
 
 /**
  * What costs what, and — more importantly here — what does not.

@@ -5,13 +5,21 @@ import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
+import { pageMetadata } from "~/lib/site";
 import { getRegistryIndex } from "~/lib/registry";
 
-export const metadata: Metadata = {
-  title: "Generate",
+export const metadata: Metadata = pageMetadata({
+  title: "Generate a React UI from a description",
   description:
-    "Describe a screen and get the components that build it, resolved against the registry so nothing is invented.",
-};
+    "Describe the screen you want and get the exact components that build it, resolved against the registry so nothing is invented and every name is one you can actually install.",
+  path: "/generate",
+  keywords: [
+    "ai react ui generator",
+    "generate react components",
+    "ai ui builder react",
+    "text to react ui",
+  ],
+});
 
 const SITE_URL = branding.registryUrl.replace(/\/r$/, "");
 

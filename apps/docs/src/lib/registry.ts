@@ -128,3 +128,18 @@ export function getComponentGroups(): ComponentGroup[] {
     }))
     .filter((group) => group.items.length > 0);
 }
+
+/**
+ * The blocks that install a given component.
+ *
+ * The inverse of a block's `registryDependencies`, and the missing half of the
+ * site's link graph: every block page links down to the components it is built
+ * from, so without this the component pages — the ones that answer the actual
+ * searches — are reachable only from the index and are the shallowest thing on
+ * the site. It is also the more useful direction to read: someone looking at a
+ * component wants to know what it is good for, and a whole screen already built
+ * from it is the best available answer.
+ */
+export function getBlocksUsing(name: string) {
+  return getBlocks().filter((block) => block.registryDependencies.includes(name));
+}
