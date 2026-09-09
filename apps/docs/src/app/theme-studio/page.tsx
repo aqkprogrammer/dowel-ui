@@ -4,12 +4,21 @@ import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { ThemeStudio } from "~/components/theme-studio";
+import { pageMetadata } from "~/lib/site";
 
-export const metadata: Metadata = {
-  title: "Theme Studio",
+export const metadata: Metadata = pageMetadata({
+  title: "React theme generator with WCAG contrast checking",
   description:
-    "Build a theme preset from one colour, and see whether it passes WCAG AA before you ship it.",
-};
+    "Build a complete OKLCH theme for your React app from a single colour, and see whether every token pair passes WCAG AA contrast before you ship it.",
+  path: "/theme-studio",
+  keywords: [
+    "react theme generator",
+    "tailwind theme generator",
+    "oklch color palette generator",
+    "wcag contrast checker",
+    "shadcn theme generator",
+  ],
+});
 
 export default function ThemeStudioPage() {
   return (

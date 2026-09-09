@@ -9,14 +9,22 @@ import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
+import { pageMetadata } from "~/lib/site";
 import { averageQuality, componentQuality } from "~/lib/quality.generated";
 import { getBlocks, getComponents, getRegistryIndex } from "~/lib/registry";
 
-export const metadata: Metadata = {
-  title: "Quality",
+export const metadata: Metadata = pageMetadata({
+  title: "Component quality and accessibility scores",
   description:
-    "Every component measured against the rules the audits enforce, with the checks that produced each number.",
-};
+    "Every React component measured against the accessibility, contrast, bundle size, motion and RTL rules the audits enforce, with the checks that produced each number.",
+  path: "/quality",
+  keywords: [
+    "accessible react components",
+    "react accessibility audit",
+    "wcag react components",
+    "react component bundle size",
+  ],
+});
 
 const ICON = { pass: Check, fail: X, "not-applicable": Minus } as const;
 const TONE = {
