@@ -8,6 +8,7 @@ import { InstallCommand } from "~/components/install-command";
 import { JsonLd } from "~/components/json-ld";
 import { LicensedNotice } from "~/components/licensed-notice";
 import { Preview } from "~/components/preview";
+import { PropsTable } from "~/components/props-table";
 import { Prose } from "~/components/prose";
 import { branding } from "~/lib/branding";
 import { proPreviews } from "~/lib/pro-previews.generated";
@@ -146,6 +147,8 @@ export default async function BlockPage({ params }: PageProps) {
           </li>
         ))}
       </ul>
+
+      <PropsTable name={item.name} />
 
       {item.a11y ? (
         <Prose>
