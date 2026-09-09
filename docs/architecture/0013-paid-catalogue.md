@@ -42,9 +42,25 @@ trial, and the pricing page says in its first sentence that it is not.
 - The **body** is served only by the gated route, to a valid licence.
 - The **docs site** reads a licensed item's metadata from the same module the
   gated route imports, with every file's `content` blanked before it leaves the
-  registry lib, and renders the preview from the block's stories. The preview
-  is the compiled component in a client bundle; the source file is what is
-  sold, and the two are different things to different people.
+  registry lib, and previews the block from markup rendered at build time by
+  `scripts/prerender.ts`.
+
+  This is a reversal. The first version of this decision said the preview could
+  be the compiled component in a client bundle — the source file is what is
+  sold, and the two are different things to different people. What that
+  reasoning missed is that the previews are one generated module of static
+  imports, read by a client component, so the bundler had no way to serve one
+  block's page without the other three. All four Pro blocks shipped in a single
+  chunk, and that chunk loaded on the pages of free components, which have
+  nothing to do with them. A visitor reading about `button` downloaded the CRM.
+
+  Prerendering makes the preview a picture: the same story the tests run,
+  rendered by the build, delivered as inert markup with its ids namespaced. The
+  block's page still shows every story and the switcher still works; what it
+  cannot do is respond to a click, and the page says so. `prepare.ts` fails the
+  build if a licensed name reappears in the client map, because the failure is
+  otherwise invisible — the site looks right and the catalogue is simply gone.
+
 - The **npm tarball** of `@dowel-ui/react` excludes `src/blocks` entirely.
   Blocks were never importable from the package (ADR 0011), so nothing changes
   for a consumer; the exclusion exists because `files` included `src`, and a

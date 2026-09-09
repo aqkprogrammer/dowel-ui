@@ -11,6 +11,7 @@ apps/docs/public/r/
 apps/docs/public/figma/
 apps/docs/src/lib/design-tokens.generated.ts
 apps/docs/src/lib/previews.generated.ts
+apps/docs/src/lib/pro-previews.generated.ts
 apps/docs/src/lib/variants.generated.ts
 apps/docs/src/lib/quality.generated.ts
 apps/docs/src/lib/licensed-registry.generated.ts
