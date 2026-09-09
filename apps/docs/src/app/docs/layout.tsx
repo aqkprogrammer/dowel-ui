@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { SidebarNav, type NavGroup } from "~/components/sidebar-nav";
 import { AstraHeaderShell, AstraHero } from "~/components/astra";
+import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import type { SearchEntry } from "~/components/search";
 import { getBlocks, getComponentGroups } from "~/lib/registry";
@@ -93,6 +94,8 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+
+      <SiteFooter />
     </div>
   );
 }

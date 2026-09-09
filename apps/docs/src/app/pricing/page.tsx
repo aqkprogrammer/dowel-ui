@@ -5,9 +5,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AstraHeaderShell, AstraHero } from "~/components/astra";
+import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
-import { commerceLinks } from "~/lib/commerce";
+import { commerceLinks, supportMailto } from "~/lib/commerce";
 import { getBlocks, getComponents } from "~/lib/registry";
 
 export const metadata: Metadata = {
@@ -65,9 +66,23 @@ export default function PricingPage() {
               "Per-component quality scores and the accessibility notes behind them",
             ]}
             action={
-              <Button asChild size="lg" className="w-full">
-                <Link href="/docs/installation">Get started</Link>
-              </Button>
+              <div className="grid gap-2">
+                <Button asChild size="lg" className="w-full">
+                  <Link href="/docs/installation">Get started</Link>
+                </Button>
+                {/* The free tier is the one with nobody to escalate to, which
+                    is exactly why it gets an address. A question about the
+                    part that costs nothing is still a question. */}
+                <p className="text-center text-xs text-muted-foreground">
+                  Questions?{" "}
+                  <a
+                    href={supportMailto(links)}
+                    className="underline underline-offset-4 hover:text-foreground"
+                  >
+                    {links.contactEmail}
+                  </a>
+                </p>
+              </div>
             }
           />
 
@@ -118,11 +133,21 @@ export default function PricingPage() {
             ]}
             action={
               <div className="grid gap-2">
+                {/* Straight to the address rather than to a form. At this size
+                    the conversation is with a person, and saying so — by
+                    showing where the mail goes — is worth more than a button
+                    that hides its destination. */}
                 <Button asChild size="lg" variant="outline" className="w-full">
                   <a href={links.contactUrl}>Start a conversation</a>
                 </Button>
                 <p className="text-center text-xs text-muted-foreground">
-                  Or read how a{" "}
+                  <a
+                    href={links.contactUrl}
+                    className="underline underline-offset-4 hover:text-foreground"
+                  >
+                    {links.contactEmail}
+                  </a>
+                  , or read how a{" "}
                   <Link href="/docs/private-registry" className="underline underline-offset-4">
                     private registry
                   </Link>{" "}
@@ -170,11 +195,7 @@ export default function PricingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-border py-8">
-        <div className="mx-auto max-w-5xl px-4 text-xs text-muted-foreground">
-          MIT licensed. Built with {branding.libraryName}.
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { Playground, type PlaygroundEntry } from "~/components/playground";
 import { AstraHeaderShell, AstraHero } from "~/components/astra";
+import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { CATEGORY_LABELS, getComponents } from "~/lib/registry";
 
@@ -44,6 +45,8 @@ export default function PlaygroundPage() {
           <Playground entries={entries} />
         </Suspense>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AstraHeaderShell, AstraHero } from "~/components/astra";
+import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { ThemeStudio } from "~/components/theme-studio";
 
@@ -32,6 +33,8 @@ export default function ThemeStudioPage() {
 
         <ThemeStudio />
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

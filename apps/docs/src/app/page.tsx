@@ -3,8 +3,8 @@ import { Button } from "@dowel-ui/react/button";
 import Link from "next/link";
 
 import { AstraHeaderShell, AstraHero, AstraScrollCue } from "~/components/astra";
-import { CreatedBy } from "~/components/created-by";
 import { InstallCommand } from "~/components/install-command";
+import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
 import { averageQuality } from "~/lib/quality.generated";
@@ -233,37 +233,7 @@ export default async function HomePage() {
         </div>
       </main>
 
-      <footer className="border-t border-border py-8">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 text-xs text-muted-foreground">
-          <span>MIT licensed. Built with {branding.libraryName}.</span>
-          <nav aria-label="Footer" className="flex flex-wrap gap-4">
-            <Link href="/pricing" className="hover:text-foreground">
-              Pricing
-            </Link>
-            <Link href="/docs/private-registry" className="hover:text-foreground">
-              Private registries
-            </Link>
-            <a
-              href={`https://github.com/${branding.repository}`}
-              className="hover:text-foreground"
-            >
-              GitHub
-            </a>
-            <a
-              href={`https://www.npmjs.com/package/${branding.packageScope}/react`}
-              className="hover:text-foreground"
-            >
-              npm
-            </a>
-            <Link href="/llms.txt" className="hover:text-foreground">
-              llms.txt
-            </Link>
-          </nav>
-        </div>
-        <div className="mx-auto mt-4 flex max-w-5xl justify-end px-4">
-          <CreatedBy />
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
