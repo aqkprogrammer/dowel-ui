@@ -1,5 +1,6 @@
 import { Badge } from "@dowel-ui/react/badge";
 import { Button } from "@dowel-ui/react/button";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AstraHeaderShell, AstraHero, AstraScrollCue } from "~/components/astra";
@@ -9,8 +10,23 @@ import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
 import { averageQuality } from "~/lib/quality.generated";
 import { getBlocks, getComponentGroups, getComponents } from "~/lib/registry";
+import { SITE_KEYWORDS, SITE_NAME, pageMetadata } from "~/lib/site";
 import { getEcosystemStats } from "~/lib/stats";
 import { version } from "~/lib/version.generated";
+
+/**
+ * The home page's own canonical.
+ *
+ * The root layout deliberately declares none, so this is the only place "/" is
+ * claimed — and it has to be claimed somewhere, or the page ships without one.
+ */
+export const metadata: Metadata = pageMetadata({
+  title: `${SITE_NAME} — source-first React component library`,
+  description:
+    "A source-first React UI library for SaaS and AI products. Install accessible, themeable components as TypeScript source you own — no runtime dependency, no wrapper to fight, built on Tailwind CSS 4 and Radix UI.",
+  path: "/",
+  keywords: [...SITE_KEYWORDS],
+});
 
 const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
 

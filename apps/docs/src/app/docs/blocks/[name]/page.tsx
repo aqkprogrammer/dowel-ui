@@ -5,12 +5,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { InstallCommand } from "~/components/install-command";
+import { JsonLd } from "~/components/json-ld";
 import { LicensedNotice } from "~/components/licensed-notice";
 import { Preview } from "~/components/preview";
+import { PropsTable } from "~/components/props-table";
 import { Prose } from "~/components/prose";
 import { branding } from "~/lib/branding";
 import { proPreviews } from "~/lib/pro-previews.generated";
 import { getBlocks, getRegistryItem, isLicensed } from "~/lib/registry";
+import { componentKeywords } from "~/lib/site";
+import { breadcrumbSchema, componentSchema, graph } from "~/lib/structured-data";
 
 /**
  * A block's page, generated from the registry like a component's.
@@ -33,7 +37,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const block = getBlocks().find((entry) => entry.name === name);
   if (!block) return {};
 
-  return { title: block.title, description: block.description };
+  // A block is a whole screen, and that is how it is searched for — "react
+  // dashboard template", not "dashboard". The title says which of the two it is.
+  const title = `React ${block.title.toLowerCase()} template`;
+  const description = `${block.description} A ready-made React ${block.title.toLowerCase()} UI built from accessible ${branding.libraryName} components with Tailwind CSS — installed as source you own with "${branding.cliName} add ${block.name}".`;
+  const path = `/docs/blocks/${block.name}`;
+
+  return {
+    title,
+    description,
+    keywords: [
+      `react ${block.title.toLowerCase()} template`,
+      `react ${block.title.toLowerCase()} page`,
+      `${block.title.toLowerCase()} ui react`,
+      `tailwind ${block.title.toLowerCase()} template`,
+      ...componentKeywords(block.title),
+    ],
+    alternates: { canonical: path },
+    openGraph: { type: "article", url: path, title, description },
+    twitter: { card: "summary_large_image", title, description },
+  };
 }
 
 export default async function BlockPage({ params }: PageProps) {
@@ -46,8 +69,25 @@ export default async function BlockPage({ params }: PageProps) {
   // would look like a bug rather than a decision.
   const source = licensed ? undefined : item.files.map((file) => file.content).join("\n\n");
 
+  const structuredData = graph(
+    ...componentSchema({
+      name: item.name,
+      title: item.title,
+      description: item.description,
+      kind: "block",
+      dependencies: item.registryDependencies,
+      free: !licensed,
+    }),
+    breadcrumbSchema([
+      { name: "Docs", path: "/docs" },
+      { name: "Blocks", path: "/docs/blocks" },
+      { name: item.title, path: `/docs/blocks/${item.name}` },
+    ]),
+  );
+
   return (
     <article className="max-w-3xl">
+      <JsonLd json={structuredData} />
       <header>
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">{item.title}</h1>
@@ -107,6 +147,8 @@ export default async function BlockPage({ params }: PageProps) {
           </li>
         ))}
       </ul>
+
+      <PropsTable name={item.name} />
 
       {item.a11y ? (
         <Prose>

@@ -4,12 +4,21 @@ import Link from "next/link";
 
 import { InstallCommand } from "~/components/install-command";
 import { Prose } from "~/components/prose";
-import { branding } from "~/lib/branding";
+import { pageMetadata } from "~/lib/site";
 
-export const metadata: Metadata = {
-  title: "Installation",
-  description: `Set a project up to use ${branding.libraryName}.`,
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Installation — add React components to your project",
+  description:
+    "Set up a Next.js, Vite or React project in one command, then install accessible components as source with the CLI. Works with Tailwind CSS 4 and React 19.",
+  path: "/docs/installation",
+  keywords: [
+    "install react ui library",
+    "react component library setup",
+    "next.js ui components install",
+    "tailwind css 4 components",
+  ],
+  type: "article",
+});
 
 const CREATE = `npx create-dowel-app my-app`;
 

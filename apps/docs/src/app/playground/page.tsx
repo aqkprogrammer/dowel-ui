@@ -6,11 +6,20 @@ import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { CATEGORY_LABELS, getComponents } from "~/lib/registry";
+import { pageMetadata } from "~/lib/site";
 
-export const metadata: Metadata = {
-  title: "Playground",
-  description: "Try every component, in every theme, and take the code with you.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "React component playground",
+  description:
+    "Try every React component live, in every theme, with every variant — then copy the exact code into your project. No sign-up and nothing to install.",
+  path: "/playground",
+  keywords: [
+    "react component playground",
+    "react ui playground",
+    "try react components",
+    "tailwind component preview",
+  ],
+});
 
 export default function PlaygroundPage() {
   const entries: PlaygroundEntry[] = getComponents()
