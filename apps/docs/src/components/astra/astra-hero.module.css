@@ -1,0 +1,247 @@
+/*
+ * The Astra hero's chrome: everything that is not the canvas.
+ *
+ * The scene is a fixed backdrop; these rules place the labels over it, give
+ * the drag surface its cursor, and hold the cue outlines the stars form. All
+ * of it is driven by custom properties the orchestration hook writes, so the
+ * hook never touches a class list mid-scroll.
+ */
+
+.layout {
+  position: relative;
+  width: 100%;
+  min-height: inherit;
+  color: var(--astra-ink);
+}
+
+/*
+ * The page's own colour, laid over the field below the hero.
+ *
+ * It sits outside the backdrop, because the backdrop is inverted wholesale for
+ * a light theme and this must not be. The mask keeps it clear of the hero: the
+ * orchestration writes where the hero ends on screen, and the veil fades in
+ * over the next few rems, so content is read on the background rather than on
+ * a star field.
+ */
+.veil {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-color: var(--background);
+  opacity: var(--astra-veil-alpha, 0);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent var(--astra-veil-top, 100%),
+    #000 calc(var(--astra-veil-top, 100%) + 6rem)
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent var(--astra-veil-top, 100%),
+    #000 calc(var(--astra-veil-top, 100%) + 6rem)
+  );
+}
+
+.fixedChrome {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+}
+
+.ambientBackdrop {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  mix-blend-mode: plus-lighter;
+  background: radial-gradient(
+    ellipse farthest-corner at center,
+    transparent 0%,
+    color-mix(in srgb, var(--astra-ambient-color, #23435f) 6.25%, transparent) 25%,
+    color-mix(in srgb, var(--astra-ambient-color, #23435f) 25%, transparent) 50%,
+    color-mix(in srgb, var(--astra-ambient-color, #23435f) 56.25%, transparent) 75%,
+    var(--astra-ambient-color, #23435f) 100%
+  );
+  animation: astra-ambient-fade-in var(--astra-ambient-fade-duration, 3.4s) ease-out both;
+}
+
+@keyframes astra-ambient-fade-in {
+  to {
+    opacity: var(--astra-ambient-opacity, 0.55);
+  }
+}
+
+.vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle,
+    transparent 47%,
+    rgb(0 0 0 / 0.18) 72%,
+    rgb(0 0 0 / 0.78) 100%
+  );
+}
+
+.titleParallax {
+  translate: 0 var(--astra-title-parallax-y, 0px);
+}
+
+.label {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  margin: 0;
+  transform: translateY(-50%);
+  color: var(--astra-ink);
+  font-size: clamp(2.75rem, 6.5vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-shadow: var(--astra-ink-shadow);
+  user-select: none;
+  opacity: var(--astra-copy-opacity, 1);
+}
+
+.labelLeft {
+  left: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.labelRight {
+  right: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.labelLetter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(var(--astra-label-shift));
+  animation: astra-label-reveal var(--astra-label-duration) cubic-bezier(0.22, 1, 0.36, 1)
+    var(--astra-label-delay) forwards;
+}
+
+@keyframes astra-label-reveal {
+  to {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+.scrollLabel {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
+  color: color-mix(in srgb, var(--astra-ink) 62%, transparent);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: var(--astra-copy-opacity, 1);
+}
+
+.dragSurface {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  touch-action: pan-y pinch-zoom;
+}
+
+.dragSurface[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+.dragSurface:focus-visible {
+  outline: 0.125rem solid color-mix(in srgb, var(--astra-ink) 70%, transparent);
+  outline-offset: -0.25rem;
+}
+
+.replay {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 3;
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  place-items: center;
+  background: color-mix(in srgb, var(--astra-ink) 15%, transparent);
+  color: color-mix(in srgb, var(--astra-ink) 80%, transparent);
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.replay:hover {
+  background: color-mix(in srgb, var(--astra-ink) 25%, transparent);
+  color: color-mix(in srgb, var(--astra-ink) 92%, transparent);
+}
+
+.replay:focus-visible {
+  outline: 0.125rem solid color-mix(in srgb, var(--astra-ink) 70%, transparent);
+  outline-offset: 0.125rem;
+}
+
+.shapeCue {
+  position: relative;
+  width: 100%;
+  max-width: var(--astra-shape-max-width, 36rem);
+  height: var(--astra-shape-height, 80vh);
+  margin-inline: auto;
+  touch-action: pan-y pinch-zoom;
+}
+
+.shapeTarget {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+/* Without motion the stars never form the outline, so the outline itself shows. */
+@media (prefers-reduced-motion: reduce) {
+  .ambientBackdrop {
+    opacity: var(--astra-ambient-opacity, 0.55);
+    animation: none;
+  }
+
+  .titleParallax {
+    translate: none;
+  }
+
+  .labelLetter {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .shapeTarget {
+    color: color-mix(in srgb, var(--astra-ink) 30%, transparent);
+    opacity: 1;
+  }
+
+  .dragSurface {
+    cursor: auto;
+    pointer-events: none;
+  }
+}
+
+@media not (min-width: 768px) {
+  .labelLeft {
+    left: 1rem;
+  }
+
+  .labelRight {
+    right: 1rem;
+  }
+}

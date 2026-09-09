@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Generator } from "~/components/generator";
+import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
 import { getRegistryIndex } from "~/lib/registry";
@@ -16,7 +17,10 @@ const SITE_URL = branding.registryUrl.replace(/\/r$/, "");
 export default function GeneratePage() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader searchEntries={[]} />
+      <AstraHeaderShell>
+        <SiteHeader searchEntries={[]} />
+      </AstraHeaderShell>
+      <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Generate" />
 
       <main id="content" className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
         <div className="mb-8">

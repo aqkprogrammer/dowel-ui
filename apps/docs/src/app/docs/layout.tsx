@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { SidebarNav, type NavGroup } from "~/components/sidebar-nav";
+import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteHeader } from "~/components/site-header";
 import type { SearchEntry } from "~/components/search";
 import { getBlocks, getComponentGroups } from "~/lib/registry";
@@ -76,7 +77,10 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader searchEntries={searchEntries} />
+      <AstraHeaderShell>
+        <SiteHeader searchEntries={searchEntries} />
+      </AstraHeaderShell>
+      <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Docs" />
 
       <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4">
         {/* Its own scroll container, so the nav does not scroll away with the

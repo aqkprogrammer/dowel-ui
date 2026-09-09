@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AstraHeaderShell, AstraHero } from "~/components/astra";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
 import { commerceLinks } from "~/lib/commerce";
@@ -33,7 +34,10 @@ export default function PricingPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader searchEntries={[]} />
+      <AstraHeaderShell>
+        <SiteHeader searchEntries={[]} />
+      </AstraHeaderShell>
+      <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Pricing" />
 
       <main id="content" className="mx-auto w-full max-w-5xl flex-1 px-4 py-16">
         <div className="max-w-2xl">

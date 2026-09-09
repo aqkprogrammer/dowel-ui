@@ -2,6 +2,8 @@ import { Badge } from "@dowel-ui/react/badge";
 import { Button } from "@dowel-ui/react/button";
 import Link from "next/link";
 
+import { AstraHeaderShell, AstraHero, AstraScrollCue } from "~/components/astra";
+import { CreatedBy } from "~/components/created-by";
 import { InstallCommand } from "~/components/install-command";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
@@ -12,6 +14,16 @@ import { version } from "~/lib/version.generated";
 
 const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
 
+/**
+ * The front page opens on the star field.
+ *
+ * The first viewport is the galaxy alone. Scrolling disperses it into a sky
+ * the introduction sits in, gathers it twice into an outline — the prompt the
+ * CLI is driven from, then the dowel itself — and lets the black go, so the
+ * rest of the page is read in the visitor's own theme. Everything the scene
+ * needs from the page is marked: the intro block the stars part around, the
+ * heading that drifts, and the cues that say where each picture forms.
+ */
 export default async function HomePage() {
   const components = getComponents();
   const blocks = getBlocks();
@@ -60,116 +72,169 @@ export default async function HomePage() {
     })),
   );
 
+  const principles = [
+    {
+      title: "Accessible by construction",
+      body: "Every component has an axe assertion and keyboard tests. Where the accessible choice differs from the common one — a streaming transcript that is not a live region, a loading button that keeps focus — the reason is written down.",
+    },
+    {
+      title: "You own the source",
+      body: "The CLI copies real files into your project and records a hash of what it wrote, so updates can tell your edits apart from upstream changes and never overwrite them silently.",
+    },
+    {
+      title: "One design system",
+      body: "Two-tier OKLCH tokens with seven presets. Components reference semantic tokens only, so re-skinning the system touches no component file.",
+    },
+  ];
+
+  const surfaces = [
+    {
+      title: "Built for AI products",
+      body: "Conversation, streaming responses, tool calls, reasoning, citations and token budgets — the parts every AI interface needs and most rebuild badly.",
+    },
+    {
+      title: "Whole applications, not just parts",
+      body: "Blocks assemble the components into sign-in, dashboards, billing and an agent console. Pro adds whole surfaces — a CRM, a command center, an AI workspace, an admin console — installed with the same command.",
+    },
+    {
+      title: "Your coding agent already knows it",
+      body: "One command writes the catalogue and conventions into your repository for Claude, Cursor and anything that reads AGENTS.md; an MCP server answers live. The agent stops writing a second Button.",
+    },
+  ];
+
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader searchEntries={searchEntries} />
+      <AstraHeaderShell>
+        <SiteHeader searchEntries={searchEntries} />
+      </AstraHeaderShell>
 
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-20">
-        <Badge variant="secondary" size="sm">
-          {components.length} components · {blocks.length} blocks · v{version}
-        </Badge>
+      <AstraHero leftLabel={branding.libraryName} rightLabel="UI" veil={0.4} />
 
-        <h1 className="mt-5 text-4xl font-semibold tracking-tight text-balance">
-          Source-first React components for SaaS and AI products.
-        </h1>
+      <main className="flex-1">
+        {/* The field is behind this stretch, so the copy is spaced for it and
+            the veil over it is kept light. */}
+        <div>
+          <section
+            data-astra-intro="true"
+            className="mx-auto w-full max-w-3xl px-4 pt-28 pb-20 text-center sm:pt-36"
+          >
+            <Badge variant="secondary" size="sm">
+              {components.length} components · {blocks.length} blocks · v{version}
+            </Badge>
 
-        <p className="mt-4 max-w-2xl text-lg text-pretty text-muted-foreground">
-          {branding.description} Components install into your repository as code you own — read
-          it, change it, keep it.
-        </p>
+            <h1
+              data-astra-title="true"
+              className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl"
+            >
+              Source-first React components for SaaS and AI products.
+            </h1>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button asChild size="lg">
-            <Link href="/docs/installation">Get started</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/docs/components">Browse components</Link>
-          </Button>
-        </div>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-pretty text-muted-foreground">
+              {branding.description} Components install into your repository as code you own —
+              read it, change it, keep it.
+            </p>
 
-        <div className="mt-10 max-w-xl">
-          <InstallCommand args="add button dialog data-table" />
-        </div>
-
-        <section className="mt-20 grid gap-6 sm:grid-cols-2">
-          {[
-            {
-              title: "Accessible by construction",
-              body: "Every component has an axe assertion and keyboard tests. Where the accessible choice differs from the common one — a streaming transcript that is not a live region, a loading button that keeps focus — the reason is written down.",
-            },
-            {
-              title: "You own the source",
-              body: "The CLI copies real files into your project and records a hash of what it wrote, so updates can tell your edits apart from upstream changes and never overwrite them silently.",
-            },
-            {
-              title: "One design system",
-              body: "Two-tier OKLCH tokens with seven presets. Components reference semantic tokens only, so re-skinning the system touches no component file.",
-            },
-            {
-              title: "Built for AI products",
-              body: "Conversation, streaming responses, tool calls, reasoning, citations and token budgets — the parts every AI interface needs and most rebuild badly.",
-            },
-            {
-              title: "Whole applications, not just parts",
-              body: "Blocks assemble the components into sign-in, dashboards, billing and an agent console. Pro adds whole surfaces — a CRM, a command center, an AI workspace, an admin console — installed with the same command.",
-            },
-            {
-              title: "Your coding agent already knows it",
-              body: "One command writes the catalogue and conventions into your repository for Claude, Cursor and anything that reads AGENTS.md; an MCP server answers live. The agent stops writing a second Button.",
-            },
-          ].map((feature) => (
-            <div key={feature.title} className="rounded-xl border border-border p-5">
-              <h2 className="text-sm font-medium">{feature.title}</h2>
-              <p className="mt-2 text-sm text-muted-foreground">{feature.body}</p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg">
+                <Link href="/docs/installation">Get started</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/docs/components">Browse components</Link>
+              </Button>
             </div>
-          ))}
-        </section>
 
-        <section aria-labelledby="by-the-numbers" className="mt-20">
-          <h2 id="by-the-numbers" className="text-sm font-medium">
-            By the numbers
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Counted from the registry and measured by the audits, with the outside figures
-            refreshed hourly. Nothing here is typed in.
-          </p>
-          <dl className="mt-6 grid gap-3 sm:grid-cols-3">
-            {figures.map((figure) => (
-              <div key={figure.label} className="rounded-xl border border-border p-4">
-                <dt className="text-xs text-muted-foreground">{figure.label}</dt>
-                <dd className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">
-                  <Link
-                    href={figure.href}
-                    className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/55"
-                  >
-                    {figure.value}
-                  </Link>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+            <div className="mx-auto mt-10 max-w-xl text-left">
+              <InstallCommand args="add button dialog data-table" />
+            </div>
+          </section>
 
-        <section className="mt-20 rounded-2xl border border-border p-6 sm:p-8">
-          <h2 className="text-lg font-semibold tracking-tight">Free, and then Pro.</h2>
-          <p className="mt-2 max-w-2xl text-sm text-pretty text-muted-foreground">
-            Every component and every block above is MIT and stays that way. Pro is the
-            catalogue of whole application surfaces on top — previewed live, installed with a
-            licence key, yours once installed.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button asChild>
-              <Link href="/pricing">See pricing</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/docs/blocks">Browse blocks</Link>
-            </Button>
-          </div>
-        </section>
+          <AstraScrollCue shape="prompt" />
+
+          <section aria-labelledby="principles" className="mx-auto w-full max-w-5xl px-4 pb-28">
+            <h2 id="principles" className="text-sm font-medium text-muted-foreground">
+              Three things it will not compromise on
+            </h2>
+            <div className="mt-6 grid gap-6 sm:grid-cols-3">
+              {principles.map((feature) => (
+                <div
+                  key={feature.title}
+                  className="rounded-xl border border-border bg-card/60 p-5 backdrop-blur-sm"
+                >
+                  <h3 className="text-sm font-medium">{feature.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{feature.body}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <AstraScrollCue shape="dowel" />
+        </div>
+
+        {/* The last cue: where the dowel lets go of its outline and the field
+            returns to being a background. */}
+        <AstraScrollCue />
+
+        <div className="mx-auto w-full max-w-5xl px-4 pt-12 pb-20">
+          <section aria-labelledby="surfaces">
+            <h2 id="surfaces" className="text-sm font-medium text-muted-foreground">
+              And what it is for
+            </h2>
+            <div className="mt-6 grid gap-6 sm:grid-cols-3">
+              {surfaces.map((feature) => (
+                <div key={feature.title} className="rounded-xl border border-border p-5">
+                  <h3 className="text-sm font-medium">{feature.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{feature.body}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section aria-labelledby="by-the-numbers" className="mt-20">
+            <h2 id="by-the-numbers" className="text-sm font-medium">
+              By the numbers
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Counted from the registry and measured by the audits, with the outside figures
+              refreshed hourly. Nothing here is typed in.
+            </p>
+            <dl className="mt-6 grid gap-3 sm:grid-cols-3">
+              {figures.map((figure) => (
+                <div key={figure.label} className="rounded-xl border border-border p-4">
+                  <dt className="text-xs text-muted-foreground">{figure.label}</dt>
+                  <dd className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">
+                    <Link
+                      href={figure.href}
+                      className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/55"
+                    >
+                      {figure.value}
+                    </Link>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          <section className="mt-20 rounded-2xl border border-border p-6 sm:p-8">
+            <h2 className="text-lg font-semibold tracking-tight">Free, and then Pro.</h2>
+            <p className="mt-2 max-w-2xl text-sm text-pretty text-muted-foreground">
+              Every component and every block above is MIT and stays that way. Pro is the
+              catalogue of whole application surfaces on top — previewed live, installed with a
+              licence key, yours once installed.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href="/pricing">See pricing</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/docs/blocks">Browse blocks</Link>
+              </Button>
+            </div>
+          </section>
+        </div>
       </main>
 
       <footer className="border-t border-border py-8">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 text-xs text-muted-foreground">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 text-xs text-muted-foreground">
           <span>MIT licensed. Built with {branding.libraryName}.</span>
           <nav aria-label="Footer" className="flex flex-wrap gap-4">
             <Link href="/pricing" className="hover:text-foreground">
@@ -194,6 +259,9 @@ export default async function HomePage() {
               llms.txt
             </Link>
           </nav>
+        </div>
+        <div className="mx-auto mt-4 flex max-w-5xl justify-end px-4">
+          <CreatedBy />
         </div>
       </footer>
     </div>

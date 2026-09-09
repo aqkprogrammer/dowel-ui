@@ -58,7 +58,7 @@ export function Search({ entries }: { entries: SearchEntry[] }) {
       <Button
         variant="outline"
         size="sm"
-        className="min-w-0 flex-1 justify-start gap-2 text-muted-foreground sm:w-56 sm:flex-none"
+        className="min-w-0 flex-1 justify-start gap-2 text-muted-foreground sm:w-44 sm:flex-none xl:w-56"
         onClick={() => {
           setOpen(true);
         }}

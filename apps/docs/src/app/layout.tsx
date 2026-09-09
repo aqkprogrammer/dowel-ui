@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { AnimatedFavicon } from "~/components/animated-favicon";
+import { AstraExperience } from "~/components/astra";
 import { ThemeProvider } from "~/components/theme-provider";
 import { branding } from "~/lib/branding";
 
@@ -24,22 +26,28 @@ export const metadata: Metadata = {
  */
 const THEME_SCRIPT = `
 try {
-  var mode = localStorage.getItem("docs-color-mode") || "system";
+  var mode = localStorage.getItem("docs-color-mode") || "dark";
   var preset = localStorage.getItem("docs-theme-preset");
   var dark = mode === "dark" || (mode === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-  if (dark) document.documentElement.classList.add("dark");
+  document.documentElement.classList.toggle("dark", dark);
+  document.documentElement.dataset.astraTheme = dark ? "dark" : "light";
   if (preset && preset !== "default") document.documentElement.setAttribute("data-theme", preset);
 } catch (error) {}
 `.trim();
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    // Dark is the default, so the server renders it: the script below only has
+    // to correct the markup for a reader who has chosen otherwise.
+    <html lang="en" className="dark" data-astra-theme="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="min-h-dvh bg-background text-foreground antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AnimatedFavicon />
+          <AstraExperience>{children}</AstraExperience>
+        </ThemeProvider>
       </body>
     </html>
   );
