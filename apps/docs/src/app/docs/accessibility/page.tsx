@@ -2,12 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Prose } from "~/components/prose";
-import { branding } from "~/lib/branding";
+import { pageMetadata } from "~/lib/site";
 
-export const metadata: Metadata = {
-  title: "Accessibility",
-  description: `How ${branding.libraryName} approaches accessibility, and where it differs from the common approach.`,
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Accessibility — how these React components are built",
+  description:
+    "Every component ships with axe assertions and keyboard tests. Where the accessible choice differs from the common one — a streaming transcript that is not a live region, a loading button that keeps focus — the reasoning is written down.",
+  path: "/docs/accessibility",
+  keywords: [
+    "accessible react components",
+    "wcag react ui library",
+    "aria react components",
+    "screen reader react components",
+    "keyboard navigation react",
+  ],
+  type: "article",
+});
 
 const DECISIONS = [
   {

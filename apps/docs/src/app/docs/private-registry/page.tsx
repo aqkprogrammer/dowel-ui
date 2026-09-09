@@ -4,12 +4,21 @@ import Link from "next/link";
 
 import { Prose } from "~/components/prose";
 import { branding } from "~/lib/branding";
+import { pageMetadata } from "~/lib/site";
 
-export const metadata: Metadata = {
-  title: "Private registries",
+export const metadata: Metadata = pageMetadata({
+  title: "Build a private React component registry",
   description:
-    "Publish your organisation's own components and have them installed exactly the way these are — from a registry you build and host yourself.",
-};
+    "Publish your organisation's own React components and have them installed exactly the way these are — from a registry you build, host and control yourself.",
+  path: "/docs/private-registry",
+  keywords: [
+    "private component registry",
+    "internal design system react",
+    "custom shadcn registry",
+    "company react component library",
+  ],
+  type: "article",
+});
 
 const BUILD = `import { buildCustomRegistry, defineRegistryConfig } from "${branding.packageScope}/registry";
 

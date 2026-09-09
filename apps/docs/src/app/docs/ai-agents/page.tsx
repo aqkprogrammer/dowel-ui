@@ -12,13 +12,24 @@ import type { Metadata } from "next";
 import { InstallCommand } from "~/components/install-command";
 import { Prose } from "~/components/prose";
 import { branding } from "~/lib/branding";
+import { pageMetadata } from "~/lib/site";
 import { getBlocks, getComponents } from "~/lib/registry";
 
-export const metadata: Metadata = {
-  title: "AI agents",
+export const metadata: Metadata = pageMetadata({
+  title: "Use this React UI library with Claude, Cursor and coding agents",
   description:
-    "Teach Claude, Cursor and every other coding agent what this library has, so they stop writing a second Button.",
-};
+    "One command writes the component catalogue and conventions into your repository for Claude Code, Cursor and anything reading AGENTS.md, and an MCP server answers live — so your agent stops writing a second Button.",
+  path: "/docs/ai-agents",
+  keywords: [
+    "mcp server react components",
+    "claude code ui library",
+    "cursor react components",
+    "ai coding agent ui library",
+    "llms.txt react components",
+    "agents.md",
+  ],
+  type: "article",
+});
 
 const SITE_URL = branding.registryUrl.replace(/\/r$/, "");
 

@@ -6,8 +6,16 @@ import { branding } from "~/lib/branding";
 import { getComponents } from "~/lib/registry";
 
 export const metadata: Metadata = {
-  title: "Introduction",
-  description: branding.description,
+  title: "Introduction to the React component library",
+  description: `${branding.description} The CLI copies real files into your repository — read them, change them, keep them. No runtime package sits between you and the markup.`,
+  keywords: [
+    "react ui library docs",
+    "react component library documentation",
+    "source-first react components",
+    "shadcn alternative",
+  ],
+  alternates: { canonical: "/docs" },
+  openGraph: { type: "article", url: "/docs" },
 };
 
 export default function DocsPage() {
