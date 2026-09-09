@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import {
   cpSync,
   existsSync,
@@ -32,7 +33,9 @@ import { fileURLToPath } from "node:url";
  *    asserted.
  * 6. Emits the licensed item bodies as a module, so the route that gates them
  *    can import them and the platform's tracing includes them in the deploy.
- * 7. Writes the design tokens in the shape Figma reads — one file per shipped
+ * 7. Renders each licensed block's stories to markup, because a live preview
+ *    of a paid block is that block's source in a chunk anyone can download.
+ * 8. Writes the design tokens in the shape Figma reads — one file per shipped
  *    preset, and the parsed declarations the Theme Studio needs to write one
  *    for a preset of your own — from the same CSS the components use.
  */
@@ -120,13 +123,19 @@ function storiesIn(directory: string, group: string): PreviewSource[] {
     .map((name) => ({ name, group }));
 }
 
-function generatePreviews(): number {
+function generatePreviews(licensedNames: ReadonlySet<string>): number {
   // Registry names are unique across components and blocks, so one flat map
   // serves both — the integrity test enforces that uniqueness.
+  //
+  // Licensed blocks are the exception, and they are excluded rather than
+  // imported-and-hidden. This module is imported by a client component, so
+  // every name in it is compiled into a chunk the browser downloads: listing a
+  // Pro block here publishes it, whatever the page then chooses to render.
+  // Their previews are rendered to markup instead, by scripts/prerender.ts.
   const sources = [
     ...storiesIn(componentsDir, "components"),
     ...storiesIn(blocksDir, "blocks"),
-  ];
+  ].filter((source) => !licensedNames.has(source.name));
 
   const imports = sources
     .map(
@@ -365,9 +374,70 @@ export const tokenDeclarations: { scale: Declarations; light: Declarations; dark
   return THEME_PRESETS.length;
 }
 
+/**
+ * Renders the licensed previews, in a process of its own.
+ *
+ * `packages/ui` is the working directory on purpose: tsx reads its JSX setting
+ * from the tsconfig it finds there, and this app's says `preserve` for Next,
+ * under which the block sources fail to compile. The reason is written out in
+ * full at the top of prerender.ts.
+ */
+function generateProPreviews(licensedNames: ReadonlySet<string>): number {
+  const names = [...licensedNames].sort();
+  if (names.length === 0) return 0;
+
+  const result = spawnSync(
+    process.execPath,
+    ["--import", "tsx", join(here, "prerender.ts"), ...names],
+    { cwd: join(repoRoot, "packages", "ui"), stdio: "inherit" },
+  );
+
+  if (result.status !== 0) {
+    throw new Error(
+      "Could not prerender the licensed previews.\n" +
+        "Their pages would be blank, and rendering them live would put the " +
+        "paid source in a public chunk.",
+    );
+  }
+
+  return names.length;
+}
+
+/**
+ * Fails the build if a licensed block reached the client preview map.
+ *
+ * The filter that keeps them out is one line, and one line is exactly the kind
+ * of thing a later change removes without noticing. What it protects is the
+ * whole paid catalogue, and the failure is silent — the site looks right, the
+ * previews work, and the source is simply in a chunk. So it is asserted rather
+ * than trusted, on every build and every `dev`.
+ */
+function assertNoLicensedPreviews(licensedNames: ReadonlySet<string>): void {
+  const generated = readFileSync(join(docsRoot, "src", "lib", "previews.generated.ts"), "utf8");
+
+  for (const name of licensedNames) {
+    if (generated.includes(`/${name}/${name}.stories`)) {
+      throw new Error(
+        `The licensed block "${name}" is imported by previews.generated.ts, ` +
+          "which a client component imports. That ships its source to every " +
+          "visitor. Prerender it instead — see scripts/prerender.ts.",
+      );
+    }
+  }
+}
+
 const files = publishRegistry();
 const licensed = writeLicensedModule(licensedModule);
-const previews = generatePreviews();
+
+// From the registry build, which is the one place that decides what is
+// licensed. A second list here would be a second answer.
+const licensedNames: ReadonlySet<string> = new Set(
+  proItems(buildRegistry()).map((item) => item.name),
+);
+
+const previews = generatePreviews(licensedNames);
+assertNoLicensedPreviews(licensedNames);
+const proPreviews = generateProPreviews(licensedNames);
 const variants = generateVariants();
 const quality = generateQuality();
 const version = generateVersion();
@@ -376,6 +446,7 @@ const figma = generateDesignTokens();
 console.log(
   `Prepared docs: ${String(files)} registry files published, ${String(licensed)} licensed, ` +
     `${String(previews)} preview modules generated, ` +
+    `${String(proPreviews)} licensed blocks prerendered, ` +
     `${String(variants)} components with variant axes, ${String(quality.count)} assessed ` +
     `(${String(quality.average)}% average), ${String(figma)} Figma token files, version ${version}.`,
 );

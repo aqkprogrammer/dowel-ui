@@ -5,7 +5,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@dowel-ui/react/tabs";
 import { cn } from "@dowel-ui/react";
 import { useState, type ReactNode } from "react";
 
+import type { ProPreviewStory } from "~/lib/pro-previews.generated";
+
 import { StoryPreview, getStoryNames } from "./story-preview";
+
+/**
+ * Prerendered markup, presented as what it is: a picture.
+ *
+ * `inert` because everything in here looks operable and none of it is — a
+ * sidebar that does not open is a worse answer than one that is plainly not
+ * offering to. It also takes the whole subtree out of the tab order and out of
+ * the accessibility tree, which is what makes the `role="img"` above it honest
+ * rather than a label sitting on top of a hundred unreachable controls.
+ */
+function Still({ html, label }: { html: string; label: string }) {
+  return (
+    <div role="img" aria-label={label}>
+      <div inert dangerouslySetInnerHTML={{ __html: html }} />
+    </div>
+  );
+}
 
 /**
  * A component example: what it looks like, and the code behind it.
@@ -18,15 +37,37 @@ export interface PreviewProps {
   component: string;
   /** Source shown in the Code tab. */
   source?: string;
+  /**
+   * Markup rendered at build time, shown instead of a live example.
+   *
+   * How a licensed block is previewed. Rendering one live would mean importing
+   * it into a client component, and a client component's imports are a chunk
+   * the browser downloads — which published the whole paid catalogue from
+   * pages that merely happened to show a preview.
+   */
+  prerendered?: ProPreviewStory[];
+  /** What that markup shows, for anyone who cannot see it. */
+  prerenderedLabel?: string;
   className?: string;
   children?: ReactNode;
 }
 
-export function Preview({ component, source, className, children }: PreviewProps) {
-  const stories = getStoryNames(component);
+export function Preview({
+  component,
+  source,
+  prerendered,
+  prerenderedLabel,
+  className,
+  children,
+}: PreviewProps) {
+  const stories = prerendered
+    ? prerendered.map((entry) => entry.name)
+    : getStoryNames(component);
   const [story, setStory] = useState(stories[0] ?? "");
 
   if (stories.length === 0 && !children) return null;
+
+  const still = prerendered?.find((entry) => entry.name === story) ?? prerendered?.[0];
 
   return (
     <div className={cn("not-prose my-6 grid gap-3", className)}>
@@ -78,9 +119,21 @@ export function Preview({ component, source, className, children }: PreviewProps
               filling — and centring within — the column when content is small. */}
           <div className="overflow-x-auto rounded-xl border border-border">
             <div className="grid min-h-40 min-w-min place-items-center p-8">
-              {children ?? <StoryPreview component={component} story={story} />}
+              {children ??
+                (still ? (
+                  <Still html={still.html} label={prerenderedLabel ?? component} />
+                ) : (
+                  <StoryPreview component={component} story={story} />
+                ))}
             </div>
           </div>
+
+          {still ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              A still, rendered at build time from the same story the tests run. The block
+              itself is interactive; the copy that runs is the one the CLI installs.
+            </p>
+          ) : null}
         </TabsContent>
 
         <TabsContent value="code">

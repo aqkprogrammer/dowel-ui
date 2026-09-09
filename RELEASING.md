@@ -85,7 +85,12 @@ shipped free and fails the release if one of those changes access.
 
 Set `access: "pro"` in the component's `meta.ts`. The build then lists it in the
 public index — title, description, dependencies, file count — and withholds its
-body from `public/r`, emitting it into the module the gated route imports.
+body from `public/r`, emitting it into the module the gated route imports. The
+docs build follows on its own: `scripts/prepare.ts` drops the item from the
+client preview map and renders its stories to markup instead, because a live
+preview of a paid block is that block compiled into a chunk anyone can
+download. It fails the build if the item is still in the map, so there is
+nothing to remember here.
 
 **Do not do this to an item that has already shipped free.** `access` defaults to
 `free` and a registry written before the field existed parses as `free`, both on

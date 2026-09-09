@@ -5,6 +5,27 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ## Unreleased
 
+### The paid blocks were readable from the documentation site
+
+Every Pro block's compiled source was downloadable from the docs site, without
+a licence and without a request to the gated route. The previews are one
+generated module of static imports read by a client component, so the bundler
+put all four licensed blocks in a single chunk — and that chunk loaded on the
+pages of free components too. Reading about `button` downloaded the CRM.
+
+ADR 0013 had accepted a version of this: the compiled component in a bundle is
+not the source file that is sold. What it did not account for is that the
+bundle was not scoped to the block being viewed, and that "not the source file"
+is thin comfort when the whole implementation is one `curl` away.
+
+Licensed blocks are now excluded from the client preview map entirely and
+rendered to markup at build time by `apps/docs/scripts/prerender.ts` — the same
+stories the tests run, delivered as a still: `inert`, labelled, ids namespaced
+so they cannot collide with the page's. The block's page still shows every
+story and the switcher still works. `prepare.ts` fails the build if a licensed
+name reappears in the client map, because nothing else would notice: the site
+looks correct either way.
+
 ### Licensing: the right endpoint, and a way to check it
 
 Setting Polar up for real found two bugs in the adapter that shipped in 0.7.0,

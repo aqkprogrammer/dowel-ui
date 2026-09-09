@@ -9,6 +9,7 @@ import { LicensedNotice } from "~/components/licensed-notice";
 import { Preview } from "~/components/preview";
 import { Prose } from "~/components/prose";
 import { branding } from "~/lib/branding";
+import { proPreviews } from "~/lib/pro-previews.generated";
 import { getBlocks, getRegistryItem, isLicensed } from "~/lib/registry";
 
 /**
@@ -62,7 +63,16 @@ export default async function BlockPage({ params }: PageProps) {
         <p className="mt-2 text-pretty text-muted-foreground">{item.description}</p>
       </header>
 
-      <Preview component={item.name} source={source} />
+      {/* A licensed block is previewed from markup rendered at build time. A
+          live preview would mean a client component importing the block, and
+          that import is a chunk any visitor can read — the source the registry
+          is careful never to serve. */}
+      <Preview
+        component={item.name}
+        source={source}
+        prerendered={licensed ? proPreviews[item.name] : undefined}
+        prerenderedLabel={`${item.title}: ${item.description}`}
+      />
 
       <Prose>
         <h2 id="installation">Installation</h2>
