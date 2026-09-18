@@ -64,7 +64,7 @@ async function renderStories(name: string): Promise<RenderedStory[]> {
     const story = asStory(storyModule[storyName]);
     if (!story) continue;
 
-    const Render = story.render ?? meta.component;
+    const Render = story.render ?? meta.render ?? meta.component;
     if (!Render) continue;
 
     const args: StoryArgs = { ...meta.args, ...story.args };
