@@ -185,8 +185,8 @@ Search synonyms, counts, changeset (minor), full `audit:all`, docs build.
 | 0 Foundation                 | done   | 218b1ac                       |
 | 1 Loaders                    | done   | a31d8c8, e6837d8              |
 | 2 Buttons                    | done   | 711963d, 95ab872 (motion dep) |
-| 3 Text effects               | done   | this commit                   |
-| 4 Cards & carousels          | —      |                               |
+| 3 Text effects               | done   | 1853932                       |
+| 4 Cards & carousels          | done   | this commit                   |
 | 5 Dither charts              | —      |                               |
 | 6 Interaction blocks         | —      |                               |
 | 7 SmoothUI extras            | —      |                               |

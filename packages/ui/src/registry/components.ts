@@ -94,6 +94,21 @@ import { meta as scrambleTextMeta } from "@/components/scramble-text/meta";
 import { meta as typewriterTextMeta } from "@/components/typewriter-text/meta";
 import { meta as scrollRevealTextMeta } from "@/components/scroll-reveal-text/meta";
 import { meta as numberFlowMeta } from "@/components/number-flow/meta";
+import { meta as cardSpreadMeta } from "@/components/card-spread/meta";
+import { meta as carousel3dMeta } from "@/components/carousel-3d/meta";
+import { meta as timeStackMeta } from "@/components/time-stack/meta";
+import { meta as expandableCardsMeta } from "@/components/expandable-cards/meta";
+import { meta as glowCardMeta } from "@/components/glow-card/meta";
+import { meta as photoStackMeta } from "@/components/photo-stack/meta";
+import { meta as cardStackMeta } from "@/components/card-stack/meta";
+import { meta as bookMeta } from "@/components/book/meta";
+import { meta as productCardMeta } from "@/components/product-card/meta";
+import { meta as marqueeMeta } from "@/components/marquee/meta";
+import { meta as reviewsCarouselMeta } from "@/components/reviews-carousel/meta";
+import { meta as inviteCarouselMeta } from "@/components/invite-carousel/meta";
+import { meta as swipeCarouselMeta } from "@/components/swipe-carousel/meta";
+import { meta as imageAccordionMeta } from "@/components/image-accordion/meta";
+import { meta as tiltCardMeta } from "@/components/tilt-card/meta";
 
 /**
  * Every component in the registry.
@@ -201,6 +216,21 @@ export const componentMetas: ComponentMeta[] = [
   typewriterTextMeta,
   scrollRevealTextMeta,
   numberFlowMeta,
+  cardSpreadMeta,
+  carousel3dMeta,
+  timeStackMeta,
+  expandableCardsMeta,
+  glowCardMeta,
+  photoStackMeta,
+  cardStackMeta,
+  bookMeta,
+  productCardMeta,
+  marqueeMeta,
+  reviewsCarouselMeta,
+  inviteCarouselMeta,
+  swipeCarouselMeta,
+  imageAccordionMeta,
+  tiltCardMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is
