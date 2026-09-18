@@ -79,6 +79,12 @@ export * from "./components/bar-loader";
 export * from "./components/shape-loader";
 export * from "./components/text-loader";
 export * from "./components/grid-loader";
+export * from "./components/morph-button";
+export * from "./components/effect-button";
+export * from "./components/magnetic-button";
+export * from "./components/dot-morph-button";
+export * from "./components/focus-blur-links";
+export * from "./components/copy-button";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";

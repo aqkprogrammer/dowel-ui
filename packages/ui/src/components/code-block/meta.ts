@@ -7,7 +7,7 @@ export const meta = defineMeta({
   category: "data",
   status: "stable",
   dependencies: [],
-  registryDependencies: [],
+  registryDependencies: ["copy-button"],
   files: ["code-block.tsx"],
   a11y:
     "The pre is a focusable named region, since code overflows horizontally and an unfocusable " +
