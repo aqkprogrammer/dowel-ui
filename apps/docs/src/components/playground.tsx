@@ -159,7 +159,7 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
   }, [name]);
 
   const args: StoryArgs = { ...baseArgs, ...values };
-  const Render = story?.render ?? meta?.component;
+  const Render = story?.render ?? meta?.render ?? meta?.component;
 
   const modified = Object.keys(current).length > 0;
 
@@ -320,7 +320,7 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
           controls={controls}
           values={values}
           args={baseArgs}
-          composed={story?.render !== undefined}
+          composed={(story?.render ?? meta?.render) !== undefined}
         />
       </div>
     </div>
