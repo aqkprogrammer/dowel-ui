@@ -76,6 +76,11 @@ import { meta as textareaMeta } from "@/components/textarea/meta";
 import { meta as toastMeta } from "@/components/toast/meta";
 import { meta as tooltipMeta } from "@/components/tooltip/meta";
 import { meta as dotsLoaderMeta } from "@/components/dots-loader/meta";
+import { meta as ringLoaderMeta } from "@/components/ring-loader/meta";
+import { meta as barLoaderMeta } from "@/components/bar-loader/meta";
+import { meta as shapeLoaderMeta } from "@/components/shape-loader/meta";
+import { meta as textLoaderMeta } from "@/components/text-loader/meta";
+import { meta as gridLoaderMeta } from "@/components/grid-loader/meta";
 
 /**
  * Every component in the registry.
@@ -165,6 +170,11 @@ export const componentMetas: ComponentMeta[] = [
   toastMeta,
   tooltipMeta,
   dotsLoaderMeta,
+  ringLoaderMeta,
+  barLoaderMeta,
+  shapeLoaderMeta,
+  textLoaderMeta,
+  gridLoaderMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is

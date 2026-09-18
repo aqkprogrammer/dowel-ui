@@ -74,6 +74,11 @@ export * from "./components/textarea";
 export * from "./components/toast";
 export * from "./components/tooltip";
 export * from "./components/dots-loader";
+export * from "./components/ring-loader";
+export * from "./components/bar-loader";
+export * from "./components/shape-loader";
+export * from "./components/text-loader";
+export * from "./components/grid-loader";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";
