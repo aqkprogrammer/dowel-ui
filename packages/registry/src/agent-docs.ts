@@ -53,6 +53,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   feedback: "Feedback",
   layout: "Layout",
   ai: "AI",
+  effects: "Effects",
 };
 
 const CATEGORY_ORDER = [
@@ -65,6 +66,7 @@ const CATEGORY_ORDER = [
   "feedback",
   "layout",
   "ai",
+  "effects",
 ];
 
 function label(category: string): string {

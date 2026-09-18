@@ -81,6 +81,7 @@ export const CATEGORY_ORDER = [
   "feedback",
   "layout",
   "ai",
+  "effects",
 ] as const;
 
 export const CATEGORY_LABELS: Record<string, string> = {
@@ -93,6 +94,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   feedback: "Feedback",
   layout: "Layout",
   ai: "AI",
+  effects: "Effects",
 };
 
 export interface ComponentGroup {
