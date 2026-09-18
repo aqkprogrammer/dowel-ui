@@ -85,20 +85,24 @@ to `ALLOWED_INDICATORS`.
 
 ### Phase 2 — Buttons (amicro 35 + SmoothUI 5)
 
-| Component          | Covers                                                                                                   |
-| ------------------ | -------------------------------------------------------------------------------------------------------- |
-| `morph-button`     | the 20 icon/label morphs, 3 colour morphs, 2 rotate                                                      |
-| `effect-button`    | glare, shine, pulse, shake, ring, expand-ring, sparkle, arrow-slide, text-reveal, clip-corners, gradient |
-| `copy-button`      | Button Copy, Copy Hash                                                                                   |
-| `magnetic-button`  | Magnetic Button, Magnetic Field                                                                          |
-| `dot-morph-button` | Dot Morph Button                                                                                         |
-| `focus-blur-links` | Focus Blur Links                                                                                         |
+| Component          | Covers                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `morph-button`     | 20 morphs, 3 colour morphs, sparkle, ring — driven by state (toggle, transient, hover)                       |
+| `effect-button`    | slide-arrow, pulse, rotate, shake, glare, text-reveal, expand-ring, clip-corners (SmoothUI)                  |
+| `copy-button`      | Button Copy, Copy Hash; also replaces code-block's private CopyButton (old props kept as deprecated aliases) |
+| `magnetic-button`  | Magnetic Button, Magnetic Field                                                                              |
+| `dot-morph-button` | Dot Morph Button                                                                                             |
+| `focus-blur-links` | Focus Blur Links                                                                                             |
 
 ### Phase 3 — Text effects (SmoothUI 29 + text components)
 
-`text-effect` (29 entrance/exit presets as `preset`), `shimmer-text`,
-`scramble-text`, `typewriter-text`, `scroll-reveal-text`, `number-flow`
-(Number Flow and Price Flow).
+`text-effect` (19 entrance/exit presets as `preset`), `text-swap` (fade
+through, per-word crossfade, shared axis X/Y/Z), `shimmer-text` (sweep,
+shine), `scramble-text`, `typewriter-text`, `scroll-reveal-text`,
+`number-flow` (Number Flow and Price Flow).
+
+Smooth Button (SmoothUI) moved to Phase 8: it is new variants on the
+existing Button (soft, gradient, pill, press feedback), not a second button.
 
 ### Phase 4 — Cards & carousels (amicro 15 + SmoothUI + bencho)
 
@@ -176,17 +180,17 @@ Search synonyms, counts, changeset (minor), full `audit:all`, docs build.
 
 ## Progress
 
-| Phase                        | Status | Commit      |
-| ---------------------------- | ------ | ----------- |
-| 0 Foundation                 | done   | this commit |
-| 1 Loaders                    | —      |             |
-| 2 Buttons                    | —      |             |
-| 3 Text effects               | —      |             |
-| 4 Cards & carousels          | —      |             |
-| 5 Dither charts              | —      |             |
-| 6 Interaction blocks         | —      |             |
-| 7 SmoothUI extras            | —      |             |
-| 8 Existing-component motion  | —      |             |
-| 9 Transitions                | —      |             |
-| 10 Marketing blocks & themes | —      |             |
-| 11 Release                   | —      |             |
+| Phase                        | Status | Commit           |
+| ---------------------------- | ------ | ---------------- |
+| 0 Foundation                 | done   | 218b1ac          |
+| 1 Loaders                    | done   | a31d8c8, e6837d8 |
+| 2 Buttons                    | done   | this commit      |
+| 3 Text effects               | —      |                  |
+| 4 Cards & carousels          | —      |                  |
+| 5 Dither charts              | —      |                  |
+| 6 Interaction blocks         | —      |                  |
+| 7 SmoothUI extras            | —      |                  |
+| 8 Existing-component motion  | —      |                  |
+| 9 Transitions                | —      |                  |
+| 10 Marketing blocks & themes | —      |                  |
+| 11 Release                   | —      |                  |

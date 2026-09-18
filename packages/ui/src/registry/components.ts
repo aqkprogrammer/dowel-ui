@@ -81,6 +81,12 @@ import { meta as barLoaderMeta } from "@/components/bar-loader/meta";
 import { meta as shapeLoaderMeta } from "@/components/shape-loader/meta";
 import { meta as textLoaderMeta } from "@/components/text-loader/meta";
 import { meta as gridLoaderMeta } from "@/components/grid-loader/meta";
+import { meta as morphButtonMeta } from "@/components/morph-button/meta";
+import { meta as effectButtonMeta } from "@/components/effect-button/meta";
+import { meta as magneticButtonMeta } from "@/components/magnetic-button/meta";
+import { meta as dotMorphButtonMeta } from "@/components/dot-morph-button/meta";
+import { meta as focusBlurLinksMeta } from "@/components/focus-blur-links/meta";
+import { meta as copyButtonMeta } from "@/components/copy-button/meta";
 
 /**
  * Every component in the registry.
@@ -175,6 +181,12 @@ export const componentMetas: ComponentMeta[] = [
   shapeLoaderMeta,
   textLoaderMeta,
   gridLoaderMeta,
+  morphButtonMeta,
+  effectButtonMeta,
+  magneticButtonMeta,
+  dotMorphButtonMeta,
+  focusBlurLinksMeta,
+  copyButtonMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is

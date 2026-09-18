@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ComponentPropsWithRef } from "react";
+import { useRef, type ComponentPropsWithRef } from "react";
 
+import { CopyButton } from "@/components/copy-button";
 import { focusRing } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -56,7 +57,15 @@ export function CodeBlock({
             {title ?? language}
           </span>
           {hideCopy ? null : (
-            <CopyButton getText={() => code ?? preRef.current?.textContent ?? ""} />
+            <CopyButton
+              value={() => code ?? preRef.current?.textContent ?? ""}
+              variant="ghost"
+              aria-label="Copy code"
+              className={cn(
+                "ms-auto size-6 rounded text-muted-foreground hover:text-foreground",
+                "[&_svg:not([class*='size-'])]:size-3.5",
+              )}
+            />
           )}
         </div>
       ) : null}
@@ -76,113 +85,5 @@ export function CodeBlock({
         <code>{children}</code>
       </pre>
     </div>
-  );
-}
-
-export interface CopyButtonProps extends Omit<ComponentPropsWithRef<"button">, "onClick"> {
-  getText: () => string;
-  label?: string;
-  copiedLabel?: string;
-  /** How long the confirmation stays, in milliseconds. */
-  resetAfter?: number;
-}
-
-/**
- * Copies text and confirms it.
- *
- * The confirmation is announced politely as well as shown — a checkmark that
- * only appears visually leaves a screen reader user with no idea whether the
- * button did anything. Failure is surfaced too, rather than silently looking
- * like success, since the clipboard API can be refused outright.
- */
-export function CopyButton({
-  className,
-  getText,
-  label = "Copy code",
-  copiedLabel = "Copied",
-  resetAfter = 2000,
-  ...props
-}: CopyButtonProps) {
-  const [state, setState] = useState<"idle" | "copied" | "error">("idle");
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (timer.current) clearTimeout(timer.current);
-    },
-    [],
-  );
-
-  const copy = useCallback(() => {
-    const reset = () => {
-      if (timer.current) clearTimeout(timer.current);
-      timer.current = setTimeout(() => {
-        setState("idle");
-      }, resetAfter);
-    };
-
-    navigator.clipboard.writeText(getText()).then(
-      () => {
-        setState("copied");
-        reset();
-      },
-      () => {
-        // Refused by the browser or unavailable outside a secure context.
-        // Saying so beats pretending it worked.
-        setState("error");
-        reset();
-      },
-    );
-  }, [getText, resetAfter]);
-
-  return (
-    <button
-      type="button"
-      data-slot="copy-button"
-      data-state={state}
-      onClick={copy}
-      aria-label={label}
-      className={cn(
-        "ms-auto grid size-6 shrink-0 place-items-center rounded text-muted-foreground",
-        "transition-colors duration-[var(--duration-fast)] hover:bg-accent hover:text-foreground",
-        focusRing,
-        className,
-      )}
-      {...props}
-    >
-      {state === "copied" ? (
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-3.5">
-          <path
-            d="m5 13 4 4L19 7"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ) : (
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-3.5">
-          <rect
-            x="9"
-            y="9"
-            width="12"
-            height="12"
-            rx="2"
-            stroke="currentColor"
-            strokeWidth="2"
-          />
-          <path
-            d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      )}
-      {/* Announced, not just drawn. */}
-      <span role="status" aria-live="polite" className="sr-only">
-        {state === "copied" ? copiedLabel : state === "error" ? "Copy failed" : ""}
-      </span>
-    </button>
   );
 }
