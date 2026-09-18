@@ -85,6 +85,13 @@ export * from "./components/magnetic-button";
 export * from "./components/dot-morph-button";
 export * from "./components/focus-blur-links";
 export * from "./components/copy-button";
+export * from "./components/text-effect";
+export * from "./components/text-swap";
+export * from "./components/shimmer-text";
+export * from "./components/scramble-text";
+export * from "./components/typewriter-text";
+export * from "./components/scroll-reveal-text";
+export * from "./components/number-flow";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";

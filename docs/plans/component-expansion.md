@@ -180,17 +180,17 @@ Search synonyms, counts, changeset (minor), full `audit:all`, docs build.
 
 ## Progress
 
-| Phase                        | Status | Commit           |
-| ---------------------------- | ------ | ---------------- |
-| 0 Foundation                 | done   | 218b1ac          |
-| 1 Loaders                    | done   | a31d8c8, e6837d8 |
-| 2 Buttons                    | done   | this commit      |
-| 3 Text effects               | —      |                  |
-| 4 Cards & carousels          | —      |                  |
-| 5 Dither charts              | —      |                  |
-| 6 Interaction blocks         | —      |                  |
-| 7 SmoothUI extras            | —      |                  |
-| 8 Existing-component motion  | —      |                  |
-| 9 Transitions                | —      |                  |
-| 10 Marketing blocks & themes | —      |                  |
-| 11 Release                   | —      |                  |
+| Phase                        | Status | Commit                        |
+| ---------------------------- | ------ | ----------------------------- |
+| 0 Foundation                 | done   | 218b1ac                       |
+| 1 Loaders                    | done   | a31d8c8, e6837d8              |
+| 2 Buttons                    | done   | 711963d, 95ab872 (motion dep) |
+| 3 Text effects               | done   | this commit                   |
+| 4 Cards & carousels          | —      |                               |
+| 5 Dither charts              | —      |                               |
+| 6 Interaction blocks         | —      |                               |
+| 7 SmoothUI extras            | —      |                               |
+| 8 Existing-component motion  | —      |                               |
+| 9 Transitions                | —      |                               |
+| 10 Marketing blocks & themes | —      |                               |
+| 11 Release                   | —      |                               |
