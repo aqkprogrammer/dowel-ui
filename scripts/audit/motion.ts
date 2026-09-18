@@ -35,6 +35,11 @@ const ALLOWED_INDICATORS = new Set([
   // The loader families (ADR 0014): each exists only to say "still working",
   // and freezing one says the opposite.
   "dots-loader/dots-loader.tsx",
+  "ring-loader/ring-loader.tsx",
+  "bar-loader/bar-loader.tsx",
+  "shape-loader/shape-loader.tsx",
+  "text-loader/text-loader.tsx",
+  "grid-loader/grid-loader.tsx",
 ]);
 
 function walk(directory: string, extensions: string[]): string[] {
