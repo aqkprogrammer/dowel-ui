@@ -32,6 +32,9 @@ const ALLOWED_INDICATORS = new Set([
   "spinner/spinner.tsx",
   "ai-response/ai-response.tsx",
   "progress/progress.tsx",
+  // The loader families (ADR 0014): each exists only to say "still working",
+  // and freezing one says the opposite.
+  "dots-loader/dots-loader.tsx",
 ]);
 
 function walk(directory: string, extensions: string[]): string[] {
