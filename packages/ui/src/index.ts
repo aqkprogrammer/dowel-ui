@@ -73,6 +73,7 @@ export * from "./components/time-range-picker";
 export * from "./components/textarea";
 export * from "./components/toast";
 export * from "./components/tooltip";
+export * from "./components/dots-loader";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";

@@ -75,6 +75,7 @@ import { meta as timeRangePickerMeta } from "@/components/time-range-picker/meta
 import { meta as textareaMeta } from "@/components/textarea/meta";
 import { meta as toastMeta } from "@/components/toast/meta";
 import { meta as tooltipMeta } from "@/components/tooltip/meta";
+import { meta as dotsLoaderMeta } from "@/components/dots-loader/meta";
 
 /**
  * Every component in the registry.
@@ -163,6 +164,7 @@ export const componentMetas: ComponentMeta[] = [
   textareaMeta,
   toastMeta,
   tooltipMeta,
+  dotsLoaderMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is

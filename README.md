@@ -44,7 +44,7 @@ as you pick, and [per-component quality](https://dowel-eight.vercel.app/quality)
 
 ## What is in it
 
-**75 components** and **17 blocks**, every one keyboard-operable and audited for
+**76 components** and **17 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
