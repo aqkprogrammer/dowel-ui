@@ -1,3 +1,4 @@
+// Motion from SmoothUI Breadcrumb (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { Slot } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
 
@@ -35,16 +36,56 @@ export function Breadcrumb({ className, ...props }: ComponentPropsWithRef<"nav">
   );
 }
 
-export function BreadcrumbList({ className, ...props }: ComponentPropsWithRef<"ol">) {
+const PREFIX = "dowel-breadcrumb";
+
+/** Each entry — item or separator — arrives 40ms after the one before it. */
+const STAGGER_STEP_MS = 40;
+const STAGGERED = 12;
+
+const ANIMATED_ENTRY = "[data-slot=breadcrumb-list][data-animated]>li";
+
+/* Entries slide in from the inline start, so the trail reads in along the
+ * direction it is read in. `[dir=rtl]` covers browsers without :dir(). */
+const STYLES = `
+@keyframes ${PREFIX}-in{from{opacity:0;transform:translateX(calc(-4px * var(--${PREFIX}-inline,1)))}}
+[dir=rtl] [data-slot=breadcrumb-list],[data-slot=breadcrumb-list][dir=rtl]{--${PREFIX}-inline:-1}
+[data-slot=breadcrumb-list]:dir(rtl){--${PREFIX}-inline:-1}
+${ANIMATED_ENTRY}{animation:${PREFIX}-in calc(250ms * var(--motion-scale)) var(--ease-out-quint) both}
+${Array.from(
+  { length: STAGGERED - 1 },
+  (_, i) =>
+    `${ANIMATED_ENTRY}:nth-child(${String(i + 2)}){animation-delay:calc(${String((i + 1) * STAGGER_STEP_MS)}ms * var(--motion-scale))}`,
+).join("\n")}
+${ANIMATED_ENTRY}:nth-child(n+${String(STAGGERED + 1)}){animation-delay:calc(${String(STAGGERED * STAGGER_STEP_MS)}ms * var(--motion-scale))}
+`;
+
+export interface BreadcrumbListProps extends ComponentPropsWithRef<"ol"> {
+  /**
+   * Brings the trail in one entry after another when it mounts, sliding from
+   * the inline start. Off by default: a breadcrumb is read on every page, and
+   * motion there gets old fast. Stops under reduced motion.
+   */
+  animated?: boolean;
+}
+
+export function BreadcrumbList({ className, animated = false, ...props }: BreadcrumbListProps) {
   return (
-    <ol
-      data-slot="breadcrumb-list"
-      className={cn(
-        "flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground",
-        className,
-      )}
-      {...props}
-    />
+    <>
+      {animated ? (
+        <style href={PREFIX} precedence="dowel">
+          {STYLES}
+        </style>
+      ) : null}
+      <ol
+        data-slot="breadcrumb-list"
+        data-animated={animated || undefined}
+        className={cn(
+          "flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground",
+          className,
+        )}
+        {...props}
+      />
+    </>
   );
 }
 

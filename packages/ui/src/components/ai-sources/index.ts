@@ -4,6 +4,7 @@ export {
   Sources,
   SourcesContent,
   SourcesTrigger,
+  sourceHost,
   type InlineCitationProps,
   type SourceProps,
   type SourcesProps,

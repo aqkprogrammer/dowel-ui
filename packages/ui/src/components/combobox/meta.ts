@@ -13,5 +13,6 @@ export const meta = defineMeta({
     'The input owns role="combobox" with aria-expanded, aria-controls and aria-autocomplete; ' +
     'the list owns role="listbox" and each option role="option" with aria-selected. Focus stays ' +
     "in the input while arrow keys move aria-activedescendant, so typing is never interrupted. " +
-    "Arrow navigation wraps, Home/End jump, Enter selects the active option and Escape closes.",
+    "Arrow navigation wraps, Home/End jump, Enter selects the active option and Escape closes." +
+    " With loading set, the listbox is aria-busy, ComboboxLoading is a status and the empty state waits for the answer. The optional clear button is a named button that returns focus to the input.",
 });

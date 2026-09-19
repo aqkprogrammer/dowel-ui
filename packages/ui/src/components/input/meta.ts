@@ -8,8 +8,9 @@ export const meta = defineMeta({
   status: "stable",
   dependencies: ["class-variance-authority"],
   registryDependencies: [],
-  files: ["input.tsx"],
+  files: ["input.tsx", "floating-label-input.tsx"],
   a11y:
     "Always pair with a Label via htmlFor/id. Error state is driven by aria-invalid so " +
-    "assistive technology and styling stay in sync; describe the error with aria-describedby.",
+    "assistive technology and styling stay in sync; describe the error with aria-describedby. FloatingLabelInput keeps a real <label for> " +
+    "as the accessible name whether resting or floated, and floats it with CSS alone.",
 });

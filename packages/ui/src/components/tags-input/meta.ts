@@ -19,5 +19,6 @@ export const meta = defineMeta({
     "refusals all reach a polite live region, because a refusal that looks like nothing happening " +
     "is the failure this component exists to prevent. Remove buttons sit in the natural tab order " +
     "rather than behind a roving tabindex: it costs a tab stop per token, and buys a pattern every " +
-    "assistive technology already understands.",
+    "assistive technology already understands." +
+    " With animateExit, a removed token lingers only as an aria-hidden, inert copy while it animates out.",
 });

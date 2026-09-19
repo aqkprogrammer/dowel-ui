@@ -97,3 +97,32 @@ export const SingleLevel: Story = {
     </Breadcrumb>
   ),
 };
+
+/**
+ * SmoothUI Breadcrumb: with `animated` on the list, the trail comes in one
+ * entry at a time, 40ms apart, sliding from the inline start (from the right
+ * in RTL). Off by default. Stops under reduced motion.
+ */
+export const Animated: Story = {
+  render: () => (
+    <Breadcrumb>
+      <BreadcrumbList animated>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="#">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink href="#">Components</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink href="#">Navigation</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Breadcrumb</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  ),
+};

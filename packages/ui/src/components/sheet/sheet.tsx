@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI Drawer (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { cva, type VariantProps } from "class-variance-authority";
 import { Dialog as SheetPrimitive } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
@@ -63,11 +64,41 @@ const sheetVariants = cva(
   },
 );
 
+const PREFIX = "dowel-sheet";
+
+/** Sections start once the panel is mostly in, then follow 50ms apart. */
+const STAGGER_BASE_MS = 120;
+const STAGGER_STEP_MS = 50;
+const STAGGERED = 6;
+
+const SPRING_CHILD = `[data-slot=sheet-content][data-animation=spring][data-state=open]>:not([data-slot=sheet-close])`;
+
+const delay = (index: number) =>
+  `calc(${String(STAGGER_BASE_MS + index * STAGGER_STEP_MS)}ms * var(--motion-scale))`;
+
+const STYLES = `
+@keyframes ${PREFIX}-section-in{from{opacity:0;transform:translateY(6px)}}
+${SPRING_CHILD}{animation:${PREFIX}-section-in calc(250ms * var(--motion-scale)) var(--ease-out-quint) both;animation-delay:${delay(0)}}
+${Array.from(
+  { length: STAGGERED - 1 },
+  (_, i) => `${SPRING_CHILD}:nth-child(${String(i + 2)}){animation-delay:${delay(i + 1)}}`,
+).join("\n")}
+${SPRING_CHILD}:nth-child(n+${String(STAGGERED + 1)}){animation-delay:${delay(STAGGERED)}}
+`;
+
 export interface SheetContentProps
   extends
     ComponentPropsWithRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {
   showCloseButton?: boolean;
+  /**
+   * How the content arrives. `default` slides in as one piece. `spring` slides
+   * the panel the same way, then brings its sections — header, body, footer —
+   * in one after another. The panel itself never overshoots: a sheet that
+   * bounced past its edge would lift off the side it is attached to. Stops
+   * under reduced motion.
+   */
+  animation?: "default" | "spring";
 }
 
 export function SheetContent({
@@ -75,40 +106,51 @@ export function SheetContent({
   children,
   side,
   showCloseButton = true,
+  animation = "default",
   ...props
 }: SheetContentProps) {
+  const spring = animation === "spring";
+
   return (
-    <SheetPortal>
-      <SheetOverlay />
-      <SheetPrimitive.Content
-        data-slot="sheet-content"
-        className={cn(sheetVariants({ side }), className)}
-        {...props}
-      >
-        {children}
-        {showCloseButton ? (
-          <SheetPrimitive.Close
-            data-slot="sheet-close"
-            aria-label="Close"
-            className={cn(
-              "absolute end-4 top-4 grid size-7 place-items-center rounded-md text-muted-foreground",
-              "transition-colors duration-[var(--duration-fast)] hover:bg-accent hover:text-foreground",
-              "[&_svg]:size-4",
-              focusRing,
-            )}
-          >
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="m6 6 12 12M18 6 6 18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </SheetPrimitive.Close>
-        ) : null}
-      </SheetPrimitive.Content>
-    </SheetPortal>
+    <>
+      {spring ? (
+        <style href={PREFIX} precedence="dowel">
+          {STYLES}
+        </style>
+      ) : null}
+      <SheetPortal>
+        <SheetOverlay />
+        <SheetPrimitive.Content
+          data-slot="sheet-content"
+          data-animation={spring ? "spring" : undefined}
+          className={cn(sheetVariants({ side }), className)}
+          {...props}
+        >
+          {children}
+          {showCloseButton ? (
+            <SheetPrimitive.Close
+              data-slot="sheet-close"
+              aria-label="Close"
+              className={cn(
+                "absolute end-4 top-4 grid size-7 place-items-center rounded-md text-muted-foreground",
+                "transition-colors duration-[var(--duration-fast)] hover:bg-accent hover:text-foreground",
+                "[&_svg]:size-4",
+                focusRing,
+              )}
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="m6 6 12 12M18 6 6 18"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </SheetPrimitive.Close>
+          ) : null}
+        </SheetPrimitive.Content>
+      </SheetPortal>
+    </>
   );
 }
 

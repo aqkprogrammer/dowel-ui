@@ -2,6 +2,7 @@ import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect, useState } from "react";
 
 import { Response, ThinkingIndicator } from "./ai-response";
+import { ResponseText } from "./response-text";
 
 const FULL =
   "Streaming works one token at a time. The caret marks where the text stops, and nothing is announced as it arrives — a live region firing on every token is unusable with a screen reader.";
@@ -72,4 +73,41 @@ export const WithRenderedMarkdown: Story = {
       </ul>
     </Response>
   ),
+};
+
+const STREAMED =
+  "Each word blurs in as it arrives [1], and words already on screen never replay — token arrival is the stagger [2].";
+
+/**
+ * `ResponseText` blurs in only the words that arrive, and turns `[n]` markers
+ * into InlineCitations that pop in. The caret stays on `Response`. Motion from
+ * SmoothUI AI Response.
+ */
+export const StreamingText: Story = {
+  parameters: { controls: { disable: true } },
+  render: function StreamingText() {
+    const [length, setLength] = useState(0);
+
+    useEffect(() => {
+      if (length >= STREAMED.length) return;
+      const timer = setTimeout(() => {
+        setLength((current) => Math.min(STREAMED.length, current + 3));
+      }, 40);
+      return () => {
+        clearTimeout(timer);
+      };
+    }, [length]);
+
+    return (
+      <Response streaming={length < STREAMED.length}>
+        <ResponseText
+          text={STREAMED.slice(0, length)}
+          citations={[
+            { index: 1, title: "Streaming UI patterns", href: "https://example.org/streaming" },
+            { index: 2, title: "Internal design note" },
+          ]}
+        />
+      </Response>
+    );
+  },
 };

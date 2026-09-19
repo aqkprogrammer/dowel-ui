@@ -14,9 +14,20 @@ const meta = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["primary", "secondary", "outline", "ghost", "destructive", "link"],
+      options: [
+        "primary",
+        "secondary",
+        "outline",
+        "ghost",
+        "destructive",
+        "link",
+        "soft",
+        "gradient",
+      ],
     },
     size: { control: "select", options: ["sm", "md", "lg", "icon", "icon-sm"] },
+    shape: { control: "select", options: ["default", "pill", "square"] },
+    press: { control: "inline-radio", options: ["scale", "none"] },
     loading: { control: "boolean" },
     disabled: { control: "boolean" },
     asChild: { table: { disable: true } },
@@ -123,6 +134,41 @@ export const IconOnly: Story = {
       <Button size="icon" variant="outline" aria-label="Delete item">
         <Trash2 />
       </Button>
+    </div>
+  ),
+};
+
+/**
+ * SmoothUI's SmoothButton, reproduced with Dowel tokens: the `soft` and
+ * `gradient` ("candy") variants, the `shape` axis, and press feedback — which
+ * every button except `link` has by default. Hold one down to see it.
+ */
+export const SmoothButton: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="grid gap-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <Button variant="soft">Soft</Button>
+        <Button variant="gradient">Candy</Button>
+        <Button variant="gradient" shape="pill">
+          Candy pill <ArrowRight />
+        </Button>
+        <Button variant="outline" shape="pill">
+          Outline pill
+        </Button>
+        <Button variant="secondary" shape="square">
+          Square
+        </Button>
+        <Button size="icon" variant="soft" shape="pill" aria-label="Add item">
+          <Plus />
+        </Button>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button press="none">No press feedback</Button>
+        <Button variant="gradient" loading>
+          Saving
+        </Button>
+      </div>
     </div>
   ),
 };

@@ -2,6 +2,7 @@ import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 
 import { Label } from "@/components/label";
 
+import { FloatingLabelInput } from "./floating-label-input";
 import { Input } from "./input";
 
 /** Named so its type is nameable in declaration output (TS2883). */
@@ -79,6 +80,32 @@ export const Types: Story = {
       <Input type="password" placeholder="••••••••" aria-label="Password" />
       <Input type="number" placeholder="42" aria-label="Quantity" />
       <Input type="search" placeholder="Search…" aria-label="Search" />
+    </div>
+  ),
+};
+
+/** Opt-in: SmoothUI's AnimatedInput. The label floats onto the border on focus or value. */
+export const FloatingLabel: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="grid gap-5 pt-2">
+      <FloatingLabelInput label="Full name" />
+      <FloatingLabelInput label="Email" type="email" placeholder="you@example.com" />
+      <FloatingLabelInput label="Company" defaultValue="Acme Inc." />
+    </div>
+  ),
+};
+
+/** Every size, the invalid state and the disabled state of the floating label. */
+export const FloatingLabelStates: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="grid gap-5 pt-2">
+      <FloatingLabelInput label="Small" inputSize="sm" />
+      <FloatingLabelInput label="Medium" inputSize="md" />
+      <FloatingLabelInput label="Large" inputSize="lg" />
+      <FloatingLabelInput label="Invalid" defaultValue="not-an-email" aria-invalid />
+      <FloatingLabelInput label="Disabled" disabled defaultValue="Read only" />
     </div>
   ),
 };

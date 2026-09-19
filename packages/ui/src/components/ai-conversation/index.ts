@@ -5,5 +5,6 @@ export {
   ConversationStatus,
   type ConversationProps,
   type ConversationScrollButtonProps,
+  type ConversationState,
   type ConversationStatusProps,
 } from "./ai-conversation";

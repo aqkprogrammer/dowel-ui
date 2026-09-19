@@ -44,3 +44,21 @@ export const LoadingCard: Story = {
     </Card>
   ),
 };
+
+/**
+ * `variant="shimmer"`: a band of light sweeps across instead of the pulse
+ * (from the right in RTL). SmoothUI SkeletonLoader pulses — its look is the
+ * default here; the shimmer is Dowel's opt-in alternative. Stops under reduced
+ * motion.
+ */
+export const Shimmer: Story = {
+  render: () => (
+    <div className="flex w-80 items-center gap-4" aria-busy="true" aria-label="Loading">
+      <Skeleton variant="shimmer" className="size-10 shrink-0 rounded-full" />
+      <div className="w-full space-y-2">
+        <Skeleton variant="shimmer" className="h-4 w-full" />
+        <Skeleton variant="shimmer" className="h-4 w-3/5" />
+      </div>
+    </div>
+  ),
+};

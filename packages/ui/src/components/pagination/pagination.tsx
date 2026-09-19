@@ -1,9 +1,12 @@
+// Motion from SmoothUI Pagination (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { Slot } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
 
 import { buttonVariants } from "@/components/button";
 import { mirrorForDirection } from "@/lib/styles";
 import { cn } from "@/lib/utils";
+
+import { PaginationIndicator } from "./pagination-indicator";
 
 /**
  * Navigation between pages of a list.
@@ -26,13 +29,44 @@ export function Pagination({ className, ...props }: ComponentPropsWithRef<"nav">
   );
 }
 
-export function PaginationContent({ className, ...props }: ComponentPropsWithRef<"ul">) {
+export interface PaginationContentProps extends ComponentPropsWithRef<"ul"> {
+  /**
+   * `slide` moves one active-page pill between pages instead of restyling
+   * each link. Worth it when paging changes client state; a link that loads
+   * a new document never sees the slide. Default `none`.
+   */
+  indicator?: "none" | "slide";
+}
+
+export function PaginationContent({
+  className,
+  indicator = "none",
+  children,
+  ...props
+}: PaginationContentProps) {
+  const slide = indicator === "slide";
   return (
     <ul
       data-slot="pagination-content"
-      className={cn("flex flex-row items-center gap-1", className)}
+      data-indicator={slide ? "slide" : undefined}
+      className={cn(
+        "flex flex-row items-center gap-1",
+        slide && [
+          "relative",
+          // Once the pill has measured, the active link hands its border and
+          // background to it. Before that it keeps its own, so first paint and
+          // a server render look exactly as they always have.
+          "has-[>[data-slot=pagination-indicator][data-ready]]:[&_[data-slot=pagination-link]]:relative",
+          "has-[>[data-slot=pagination-indicator][data-ready]]:[&_[data-slot=pagination-link][aria-current=page]]:border-transparent",
+          "has-[>[data-slot=pagination-indicator][data-ready]]:[&_[data-slot=pagination-link][aria-current=page]]:bg-transparent",
+        ],
+        className,
+      )}
       {...props}
-    />
+    >
+      {slide ? <PaginationIndicator /> : null}
+      {children}
+    </ul>
   );
 }
 

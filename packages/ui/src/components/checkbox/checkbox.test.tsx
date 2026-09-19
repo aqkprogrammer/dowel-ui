@@ -119,3 +119,52 @@ describe("Checkbox", () => {
     await expectNoA11yViolations(container);
   });
 });
+
+describe("Checkbox drawn marks (SmoothUI Checkbox)", () => {
+  it("draws the check along its length when it is checked from the keyboard", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Checkbox aria-label="Accept" />);
+    expect(container.querySelector("[data-slot='checkbox-check']")).toBeNull();
+
+    await user.tab();
+    await user.keyboard(" ");
+
+    const check = container.querySelector("[data-slot='checkbox-check']");
+    expect(check).toHaveAttribute("pathLength", "1");
+    expect(check).toHaveClass("[stroke-dasharray:1]", "starting:[stroke-dashoffset:1]");
+  });
+
+  it("draws the indeterminate dash the same way", () => {
+    const { container } = render(<Checkbox aria-label="Select all" checked="indeterminate" />);
+    const dash = container.querySelector("[data-slot='checkbox-dash']");
+    expect(dash).toHaveAttribute("pathLength", "1");
+    expect(dash).toHaveClass("starting:[stroke-dashoffset:1]");
+    expect(screen.getByRole("checkbox")).toHaveAttribute("aria-checked", "mixed");
+  });
+
+  it("rests fully drawn, so reduced motion or no @starting-style still shows the mark", () => {
+    const { container } = render(<Checkbox aria-label="Accept" defaultChecked />);
+    const check = container.querySelector("[data-slot='checkbox-check']");
+    // The resting offset is zero; only the first frame is offset, and only
+    // through a transition the reduced-motion rule collapses.
+    expect(check).toHaveClass("[stroke-dashoffset:0]");
+    expect(check?.getAttribute("class")).toContain("transition-[stroke-dashoffset]");
+  });
+
+  it("keeps both marks decorative", () => {
+    const { container } = render(<Checkbox aria-label="Accept" defaultChecked />);
+    for (const svg of container.querySelectorAll("svg")) {
+      expect(svg).toHaveAttribute("aria-hidden", "true");
+    }
+  });
+
+  it("has no accessibility violations while checked and indeterminate", async () => {
+    const { container } = render(
+      <>
+        <Checkbox aria-label="One" defaultChecked />
+        <Checkbox aria-label="All" checked="indeterminate" />
+      </>,
+    );
+    await expectNoA11yViolations(container);
+  });
+});

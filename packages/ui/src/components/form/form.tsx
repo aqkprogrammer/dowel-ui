@@ -1,5 +1,7 @@
 "use client";
 
+// Motion from SmoothUI Form (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
+
 import { Label as LabelPrimitive, Slot } from "radix-ui";
 import {
   createContext,
@@ -190,7 +192,33 @@ export function FormDescription({ className, ...props }: ComponentPropsWithRef<"
   );
 }
 
-export type FormMessageProps = ComponentPropsWithRef<"p">;
+export interface FormMessageProps extends ComponentPropsWithRef<"p"> {
+  /**
+   * Keeps a cleared message on screen long enough to fade and collapse, rather
+   * than removing it at once. The departing copy is `aria-hidden`, carries no
+   * id and is no longer named by the control, so it is never announced or
+   * described. Off by default: with it on, the old text is briefly still in
+   * the DOM, which tests asserting its absence immediately would notice.
+   */
+  animateExit?: boolean;
+}
+
+/*
+ * The message grows open and fades in from just above (SmoothUI's Form). The
+ * keyframes ship with the component (ADR 0014); height animates to `auto`
+ * where the browser supports interpolate-size and simply appears elsewhere.
+ * Durations are tokens, so reduced motion collapses them.
+ */
+const MESSAGE_KEYFRAMES = `
+@keyframes dowel-form-message-in{from{opacity:0;transform:translateY(-0.25rem);height:0;overflow:clip}to{overflow:clip}}
+@keyframes dowel-form-message-out{from{overflow:clip}to{opacity:0;transform:translateY(-0.25rem);height:0;overflow:clip}}
+[data-slot="form-message"][data-state]{interpolate-size:allow-keywords}
+[data-slot="form-message"][data-state="open"]{animation:dowel-form-message-in var(--duration-normal) var(--ease-out-quint)}
+[data-slot="form-message"][data-state="closed"]{animation:dowel-form-message-out var(--duration-fast) var(--ease-in-quint) forwards}
+`;
+
+/** Removes a departing message if its animation never runs (hidden, unstyled). */
+const EXIT_FALLBACK_MS = 1000;
 
 /**
  * Renders the field's error.
@@ -200,22 +228,86 @@ export type FormMessageProps = ComponentPropsWithRef<"p">;
  * region: a validation message that arrives after the user has moved on should
  * be announced, but should not interrupt what is being read.
  */
-export function FormMessage({ className, children, ...props }: FormMessageProps) {
+export function FormMessage({
+  className,
+  children,
+  animateExit = false,
+  ...props
+}: FormMessageProps) {
   const { messageId, error } = useFormField("FormMessage");
   const content = children ?? error;
 
-  if (!content) return null;
+  // Derived from the previous render rather than an effect, so the departing
+  // copy is in place on the same commit the live one leaves — no blank frame.
+  const [shown, setShown] = useState<ReactNode>(content);
+  const [leaving, setLeaving] = useState<ReactNode>(null);
+  if (content !== shown) {
+    setShown(content);
+    setLeaving(!content && animateExit ? shown : null);
+  }
+
+  useEffect(() => {
+    if (!leaving) return;
+    const timer = setTimeout(() => {
+      setLeaving(null);
+    }, EXIT_FALLBACK_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [leaving]);
+
+  // A native listener rather than onAnimationEnd: React resolves that prop to a
+  // vendor-prefixed event name wherever AnimationEvent is missing. React 19
+  // runs the returned cleanup when the element leaves.
+  const listenForExitEnd = useCallback((element: HTMLParagraphElement | null) => {
+    if (!element) return;
+    const onEnd = (event: Event) => {
+      if (event.target === element) setLeaving(null);
+    };
+    element.addEventListener("animationend", onEnd);
+    return () => {
+      element.removeEventListener("animationend", onEnd);
+    };
+  }, []);
+
+  const styles = (
+    <style href="dowel-form-message" precedence="dowel">
+      {MESSAGE_KEYFRAMES}
+    </style>
+  );
+
+  if (!content) {
+    if (!leaving) return null;
+    return (
+      <>
+        {styles}
+        <p
+          data-slot="form-message"
+          data-state="closed"
+          aria-hidden="true"
+          ref={listenForExitEnd}
+          className={cn("text-xs font-medium text-destructive", className)}
+        >
+          {leaving}
+        </p>
+      </>
+    );
+  }
 
   return (
-    <p
-      data-slot="form-message"
-      id={messageId}
-      role="status"
-      aria-live="polite"
-      className={cn("text-xs font-medium text-destructive", className)}
-      {...props}
-    >
-      {content}
-    </p>
+    <>
+      {styles}
+      <p
+        data-slot="form-message"
+        data-state="open"
+        id={messageId}
+        role="status"
+        aria-live="polite"
+        className={cn("text-xs font-medium text-destructive", className)}
+        {...props}
+      >
+        {content}
+      </p>
+    </>
   );
 }

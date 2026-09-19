@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { useState } from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
 import {
@@ -126,6 +127,150 @@ describe("Pagination", () => {
 
   it("has no accessibility violations", async () => {
     const { container } = render(<Example />);
+    await expectNoA11yViolations(container);
+  });
+});
+
+function Sliding() {
+  const [page, setPage] = useState(1);
+  return (
+    <Pagination>
+      <PaginationContent indicator="slide">
+        {[1, 2, 3].map((value) => (
+          <PaginationItem key={value}>
+            <PaginationLink asChild isActive={value === page}>
+              <button
+                type="button"
+                onClick={() => {
+                  setPage(value);
+                }}
+              >
+                {value}
+              </button>
+            </PaginationLink>
+          </PaginationItem>
+        ))}
+      </PaginationContent>
+    </Pagination>
+  );
+}
+
+function stubGeometry() {
+  return vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    const page = Number(this.textContent);
+    const left = this.tagName === "BUTTON" ? page * 40 : 0;
+    return DOMRect.fromRect({ x: left, y: 0, width: 36, height: 36 });
+  });
+}
+
+describe("Pagination sliding pill (SmoothUI Pagination)", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("renders no pill by default", () => {
+    const { container } = render(<Example />);
+    expect(container.querySelector("[data-slot='pagination-indicator']")).toBeNull();
+  });
+
+  it("places an aria-hidden pill under the current page when opted in", () => {
+    stubGeometry();
+    const { container } = render(<Sliding />);
+    const pill = container.querySelector<HTMLElement>("[data-slot='pagination-indicator']");
+
+    expect(pill?.tagName).toBe("LI");
+    expect(pill).toHaveAttribute("aria-hidden", "true");
+    expect(pill).toHaveAttribute("data-ready");
+    expect(pill?.style.transform).toBe("translate(40px, 0px)");
+    expect(pill?.style.width).toBe("36px");
+  });
+
+  it("slides to the page chosen by pointer or keyboard", async () => {
+    stubGeometry();
+    const user = userEvent.setup();
+    const { container } = render(<Sliding />);
+    const pill = () =>
+      container.querySelector<HTMLElement>("[data-slot='pagination-indicator']")?.style
+        .transform;
+
+    await user.click(screen.getByRole("button", { name: "3" }));
+    expect(pill()).toBe("translate(120px, 0px)");
+
+    screen.getByRole("button", { name: "2" }).focus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: "2" })).toHaveAttribute("aria-current", "page");
+    expect(pill()).toBe("translate(80px, 0px)");
+  });
+
+  it("uses offsets when the list is the link's offset parent", () => {
+    vi.spyOn(HTMLElement.prototype, "offsetParent", "get").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.closest("ul");
+    });
+    vi.spyOn(HTMLElement.prototype, "offsetLeft", "get").mockReturnValue(44);
+    vi.spyOn(HTMLElement.prototype, "offsetTop", "get").mockReturnValue(0);
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(36);
+    vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(36);
+
+    const { container } = render(<Sliding />);
+    const pill = container.querySelector<HTMLElement>("[data-slot='pagination-indicator']");
+    expect(pill?.style.transform).toBe("translate(44px, 0px)");
+  });
+
+  it("stays unmeasured and hidden when no page is current", () => {
+    const { container } = render(
+      <Pagination>
+        <PaginationContent indicator="slide">
+          <PaginationItem>
+            <PaginationLink href="#1">1</PaginationLink>
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>,
+    );
+    const pill = container.querySelector("[data-slot='pagination-indicator']");
+    expect(pill).not.toHaveAttribute("data-ready");
+    expect(pill).toHaveClass("hidden");
+  });
+
+  it("keeps the current page's own styling on the link for first paint", () => {
+    render(<Sliding />);
+    expect(screen.getByRole("button", { name: "1" })).toHaveClass("border-border-strong");
+  });
+
+  it("stops the slide under reduced motion", () => {
+    const { container } = render(<Sliding />);
+    expect(container.querySelector("[data-slot='pagination-indicator']")).toHaveClass(
+      "motion-reduce:transition-none",
+    );
+  });
+
+  it("does not count the pill as a list item for assistive technology", () => {
+    render(<Sliding />);
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
+  });
+
+  it("lets a consumer className on the content win", () => {
+    render(
+      <Pagination>
+        <PaginationContent indicator="slide" className="gap-4">
+          <PaginationItem>
+            <PaginationLink href="#1" isActive>
+              1
+            </PaginationLink>
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>,
+    );
+    const list = screen.getByRole("list");
+    expect(list).toHaveClass("gap-4", "relative");
+    expect(list).not.toHaveClass("gap-1");
+  });
+
+  it("has no accessibility violations with the pill", async () => {
+    const { container } = render(<Sliding />);
     await expectNoA11yViolations(container);
   });
 });

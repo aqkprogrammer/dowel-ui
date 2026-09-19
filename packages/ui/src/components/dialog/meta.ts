@@ -12,5 +12,6 @@ export const meta = defineMeta({
   a11y:
     "Focus is trapped while open and restored to the trigger on close; Escape and an overlay " +
     "click dismiss. Always render a DialogTitle — it names the dialog for screen readers. " +
-    "Use DialogDescription, or aria-describedby, to explain consequential actions.",
+    "Use DialogDescription, or aria-describedby, to explain consequential actions. The " +
+    "optional spring entrance and section stagger stop under reduced motion.",
 });

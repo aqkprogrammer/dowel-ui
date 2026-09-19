@@ -16,5 +16,8 @@ export const meta = defineMeta({
     "aloud without it is just the same file twice. Line numbers are aria-hidden: they orient a " +
     "sighted reader, and announcing two numbers before every line makes the diff unlistenable. " +
     "Changed words are marked with mark elements so they survive as structure, and the empty half " +
-    "of a split pair is hidden rather than read as a blank line of code.",
+    "of a split pair is hidden rather than read as a blank line of code. The optional wipe entrance " +
+    "is visual only — every row is in the DOM and its kind text is never clipped from assistive " +
+    "technology. With collapseRejected, a rejected hunk's lines are inert and hidden, its header " +
+    "says so in words, and Accept stays available so the decision can be reversed.",
 });

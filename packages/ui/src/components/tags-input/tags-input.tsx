@@ -1,6 +1,10 @@
 "use client";
 
+// Motion from SmoothUI AnimatedTags (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
+
 import {
+  useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -57,6 +61,48 @@ export interface TagsInputProps extends Omit<
   placeholder?: string;
   disabled?: boolean;
   inputProps?: Omit<ComponentPropsWithRef<"input">, "value" | "onChange" | "disabled">;
+  /**
+   * Lets a removed tag blur and drop away before it leaves the DOM. The
+   * departing copy is `aria-hidden` and inert. Off by default, because the old
+   * token briefly remains in the markup. Tags added after mount always blur in.
+   */
+  animateExit?: boolean;
+}
+
+/*
+ * SmoothUI's AnimatedTags: a new token rises in out of a blur, a removed one
+ * sinks back into it. Keyframes ship with the component (ADR 0014) and run on
+ * duration tokens, so reduced motion collapses them. Tags present on first
+ * render do not animate — a page load is not an addition.
+ */
+const TAG_KEYFRAMES = `
+@keyframes dowel-tags-input-in{from{opacity:0;filter:blur(4px);transform:translateY(0.5rem) scale(0.9)}}
+@keyframes dowel-tags-input-out{to{opacity:0;filter:blur(4px);transform:translateY(0.5rem) scale(0.9)}}
+[data-slot="tags-input-tag"][data-enter]{animation:dowel-tags-input-in var(--duration-normal) var(--ease-out-quint)}
+[data-slot="tags-input-tag"][data-state="closed"]{animation:dowel-tags-input-out var(--duration-fast) var(--ease-in-quint) forwards}
+`;
+
+/** Clears departing tags whose animation never runs (hidden, unstyled). */
+const EXIT_FALLBACK_MS = 1000;
+
+/**
+ * Keys that survive removals: the tag plus how many times it has appeared so
+ * far. An index key would shift every later tag on a removal, remounting them
+ * (and replaying their entrance) and mistaking the last one for the removed.
+ */
+function occurrenceKeys(tags: string[]): string[] {
+  const seen = new Map<string, number>();
+  return tags.map((tag) => {
+    const count = seen.get(tag) ?? 0;
+    seen.set(tag, count + 1);
+    return `${String(count)}:${tag}`;
+  });
+}
+
+interface LeavingTag {
+  key: string;
+  tag: string;
+  index: number;
 }
 
 /** Splits pasted or typed text on any delimiter, dropping empty fragments. */
@@ -81,6 +127,7 @@ export function TagsInput({
   placeholder,
   disabled = false,
   inputProps,
+  animateExit = false,
   ...props
 }: TagsInputProps) {
   const [draft, setDraft] = useState("");
@@ -91,6 +138,68 @@ export function TagsInput({
   const hintId = useId();
 
   const atLimit = max !== undefined && value.length >= max;
+
+  const keys = occurrenceKeys(value);
+  // Keys already on screen, which do not play an entrance. Derived from the
+  // previous render rather than in an effect, so a departing tag is in place on
+  // the same commit its live copy leaves.
+  const [settled, setSettled] = useState(() => new Set(keys));
+  const [previous, setPrevious] = useState(value);
+  const [leaving, setLeaving] = useState<LeavingTag[]>([]);
+  if (previous !== value) {
+    setPrevious(value);
+    const present = new Set(keys);
+    const gone = animateExit
+      ? occurrenceKeys(previous).flatMap((key, index) =>
+          present.has(key) ? [] : [{ key, tag: previous[index] ?? "", index }],
+        )
+      : [];
+    setSettled((current) => new Set([...current].filter((key) => present.has(key))));
+    setLeaving((current) => [
+      ...current.filter(
+        (entry) => !present.has(entry.key) && !gone.some((g) => g.key === entry.key),
+      ),
+      ...gone,
+    ]);
+  }
+
+  useEffect(() => {
+    if (leaving.length === 0) return;
+    const timer = setTimeout(() => {
+      setLeaving([]);
+    }, EXIT_FALLBACK_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [leaving]);
+
+  // A native listener: React maps onAnimationEnd to a vendor-prefixed name
+  // wherever AnimationEvent is missing. React 19 runs the returned cleanup.
+  const listenForExitEnd = useCallback(
+    (key: string) => (element: HTMLLIElement | null) => {
+      if (!element) return;
+      const onEnd = (event: Event) => {
+        if (event.target !== element) return;
+        setLeaving((current) => current.filter((entry) => entry.key !== key));
+      };
+      element.addEventListener("animationend", onEnd);
+      return () => {
+        element.removeEventListener("animationend", onEnd);
+      };
+    },
+    [],
+  );
+
+  // Live tags in order, with departing ones slotted back where they stood.
+  const rendered: (LeavingTag & { gone: boolean })[] = value.map((tag, index) => ({
+    key: keys[index] ?? tag,
+    tag,
+    index,
+    gone: false,
+  }));
+  for (const entry of [...leaving].sort((a, b) => a.index - b.index)) {
+    rendered.splice(Math.min(entry.index, rendered.length), 0, { ...entry, gone: true });
+  }
 
   function reasonFor(tag: string): string | null {
     if (!validate) return null;
@@ -184,6 +293,9 @@ export function TagsInput({
 
   return (
     <div data-slot="tags-input" className={cn("flex flex-col gap-1.5", className)} {...props}>
+      <style href="dowel-tags-input" precedence="dowel">
+        {TAG_KEYFRAMES}
+      </style>
       <label id={labelId} htmlFor={inputId} className="w-fit text-sm font-medium">
         {label}
       </label>
@@ -201,15 +313,20 @@ export function TagsInput({
           disabled && "pointer-events-none opacity-55",
         )}
       >
-        {value.length > 0 ? (
+        {rendered.length > 0 ? (
           <ul className="contents">
-            {value.map((tag, index) => {
+            {rendered.map(({ key, tag, index, gone }) => {
               const reason = reasonFor(tag);
               return (
                 <li
-                  key={`${tag}-${String(index)}`}
+                  key={gone ? `gone:${key}` : key}
+                  ref={gone ? listenForExitEnd(key) : undefined}
                   data-slot="tags-input-tag"
                   data-invalid={reason !== null || undefined}
+                  data-enter={(!gone && !settled.has(key)) || undefined}
+                  data-state={gone ? "closed" : undefined}
+                  aria-hidden={gone || undefined}
+                  inert={gone || undefined}
                   className={cn(
                     "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium",
                     reason === null
@@ -233,7 +350,8 @@ export function TagsInput({
                     }}
                     className={cn(
                       "-me-0.5 grid size-4 place-items-center rounded-full",
-                      "transition-colors hover:bg-foreground/10",
+                      "transition-[background-color,scale] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
+                      "hover:bg-foreground/10 active:scale-90",
                       focusRing,
                       disabledStyles,
                     )}

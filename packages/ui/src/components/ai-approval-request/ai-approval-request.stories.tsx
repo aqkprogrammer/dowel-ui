@@ -142,7 +142,11 @@ export const Irreversible: Story = {
   },
 };
 
-/** Denial asks why, because the reason goes back to the model. */
+/**
+ * Denial asks why, because the reason goes back to the model. Deny… moves focus
+ * into the reason field and Back returns it; deciding lands focus on the
+ * outcome, which resolves in (motion from SmoothUI AI Approval).
+ */
 export const Denying: Story = {
   parameters: { controls: { disable: true } },
   render: function Denying() {
@@ -160,7 +164,9 @@ export const Denying: Story = {
           decision={decision}
           onDecision={setDecision}
         />
-        <p className="text-xs text-muted-foreground">Press Deny to see the reason prompt.</p>
+        <p className="text-xs text-muted-foreground">
+          Press Deny to see the reason prompt — focus follows each step.
+        </p>
       </div>
     );
   },
@@ -175,5 +181,33 @@ export const Decided: Story = {
       arguments: { ...EMAIL_ARGS, to: "finance@acme.test" },
       edited: ["to"],
     },
+  },
+};
+
+/**
+ * Keyboard walk-through: Tab to a decision and press Enter. Focus lands on the
+ * outcome sentence instead of falling to the page, so it is read out once, for
+ * the person who acted. Reset to try again.
+ */
+export const FocusOnDecide: Story = {
+  parameters: { controls: { disable: true } },
+  render: function FocusOnDecide(args) {
+    const [decision, setDecision] = useState<ApprovalDecision | undefined>();
+    const [round, setRound] = useState(0);
+    return (
+      <div className="flex flex-col gap-3">
+        <ApprovalRequest key={round} {...args} decision={decision} onDecision={setDecision} />
+        <button
+          type="button"
+          className="self-start text-xs text-muted-foreground underline"
+          onClick={() => {
+            setDecision(undefined);
+            setRound((current) => current + 1);
+          }}
+        >
+          Reset
+        </button>
+      </div>
+    );
   },
 };

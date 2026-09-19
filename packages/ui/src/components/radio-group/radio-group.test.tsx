@@ -150,3 +150,31 @@ describe("RadioGroup", () => {
     await expectNoA11yViolations(container);
   });
 });
+
+describe("RadioGroup spring dot (SmoothUI RadioGroup)", () => {
+  it("springs the dot in on the item selected with arrow keys", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Example />);
+
+    await user.tab();
+    await user.keyboard("{ArrowDown}");
+
+    const dots = container.querySelectorAll("[data-slot='radio-group-dot']");
+    expect(dots).toHaveLength(1);
+    const checked = screen.getAllByRole("radio").find((radio) => radio.ariaChecked === "true");
+    expect(checked).toContainElement(dots[0] as HTMLElement);
+    expect(dots[0]).toHaveClass("starting:scale-0", "ease-[var(--ease-overshoot)]");
+  });
+
+  it("rests at full size, so reduced motion or no @starting-style still shows it", () => {
+    const { container } = render(<Example />);
+    const dot = container.querySelector("[data-slot='radio-group-dot']");
+    expect(dot?.className).not.toMatch(/(^|\s)scale-0/);
+    expect(dot).toHaveClass("transition-[scale]");
+  });
+
+  it("has no accessibility violations with the dot", async () => {
+    const { container } = render(<Example />);
+    await expectNoA11yViolations(container);
+  });
+});

@@ -137,3 +137,56 @@ export const ManualActivation: Story = {
     </Tabs>
   ),
 };
+
+/**
+ * SmoothUI's AnimatedTabs: the active pill (or underline) slides between tabs
+ * instead of jumping. Opt in with `indicator="slide"` on the list. SmoothUI's
+ * `pill` and `segment` variants are the solid list with a rounded-full or
+ * stretched track; `underline` is the underline list.
+ */
+export const SmoothTabs: Story = {
+  render: () => (
+    <div className="grid gap-8">
+      <Tabs defaultValue="overview">
+        <p className="mb-2 text-xs text-muted-foreground">Segment (solid)</p>
+        <TabsList indicator="slide">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <Tabs defaultValue="overview">
+        <p className="mb-2 text-xs text-muted-foreground">Pill</p>
+        <TabsList
+          indicator="slide"
+          className="rounded-full [&>[data-slot=tabs-indicator]]:rounded-full"
+        >
+          <TabsTrigger value="overview" className="rounded-full">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="rounded-full">
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="reports" className="rounded-full">
+            Reports
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <Tabs defaultValue="overview">
+        <p className="mb-2 text-xs text-muted-foreground">Underline</p>
+        <TabsList variant="underline" indicator="slide">
+          <TabsTrigger value="overview" variant="underline">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="analytics" variant="underline">
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="reports" variant="underline">
+            Reports
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </div>
+  ),
+};
