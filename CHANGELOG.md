@@ -3,7 +3,7 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
-## Unreleased
+## 0.8.0
 
 ### The motion catalogue: 109 components, 34 blocks, and motion for 32 more
 
