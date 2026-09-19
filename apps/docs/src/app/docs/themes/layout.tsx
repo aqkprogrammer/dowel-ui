@@ -12,7 +12,7 @@ import { pageMetadata } from "~/lib/site";
 export const metadata: Metadata = pageMetadata({
   title: "Theming — OKLCH design tokens for React",
   description:
-    "A two-tier OKLCH token system with seven presets. Components reference semantic tokens only, so re-skinning the whole system touches no component file.",
+    "A two-tier OKLCH token system with thirteen presets. Components reference semantic tokens only, so re-skinning the whole system touches no component file.",
   path: "/docs/themes",
   keywords: [
     "react theming",

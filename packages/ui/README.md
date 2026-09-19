@@ -142,8 +142,8 @@ object.
 }
 ```
 
-Seven presets ship with it, and every one passes **WCAG AA contrast in both
-light and dark** — verified by an audit that checks 322 colour pairs across 14
+Thirteen presets ship with it, and every one passes **WCAG AA contrast in both
+light and dark** — verified by an audit that checks 598 colour pairs across 26
 schemes on every commit, not by eye.
 
 ---
