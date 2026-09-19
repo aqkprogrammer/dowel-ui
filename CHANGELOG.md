@@ -5,6 +5,51 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ## Unreleased
 
+### The motion catalogue: 109 components, 34 blocks, and motion for 32 more
+
+Everything on SmoothUI, bencho and amicro's buttons, cards, carousels, loaders
+and dither-charts pages, brought into Dowel — 75 components became 184, and 17
+blocks became 51. The plan and every decision are in
+`docs/plans/component-expansion.md` and ADR 0014.
+
+Four hundred source items did not become four hundred components. Where a
+source ships the same mechanism with different parameters, Dowel ships it once
+with a variant axis: amicro's 128 loaders are six loader families, its 25 icon
+morphs are one `morph-button`, SmoothUI's 19 text entrances are one
+`text-effect`. Where a source item duplicates something Dowel already had —
+tabs, checkbox, pagination, dialog, menus, the AI set — its motion went into
+the existing component without changing its API; every existing test passes
+unchanged.
+
+- **Loaders** — dots, ring, bar, shape, text and grid, every amicro variant and
+  SmoothUI's grid and AI loaders. They slow under reduced motion rather than
+  freezing, like the spinner.
+- **Buttons and text** — morph, effect, copy, magnetic and dot-morph buttons;
+  text effects, swaps, shimmer, scramble, typewriter, scroll reveal and
+  rolling numbers.
+- **Cards and carousels** — card spreads, 3D, swipe, review and invite
+  carousels, stacks, marquee, glow and tilt cards.
+- **Charts** — a dither canvas engine and ten charts on it, each a labelled
+  image with a data table and keyboard twins for every hover.
+- **Interactions** — every bencho block, parked ones included, as components: reorder lists with
+  grab-move-drop keyboard support, sliders, dials, docks, menus, toggles.
+- **The rest of SmoothUI** — overlays including Dowel's first `context-menu`,
+  OTP input, stepper, orbs, AI suggestions, branches and artifacts, WebGL
+  shader transitions, and every marketing section as a block.
+
+Keyframes ship with each component through a hoisted stylesheet instead of the
+theme, so installing one never needs a theme migration. `motion` is a new
+per-component dependency, used only for gesture springs, shared layout and
+pointer physics; most of the catalogue is CSS.
+
+Two existing bugs were fixed along the way: `ai-conversation` scrolled smoothly
+under reduced motion, and `ai-approval-request` dropped focus after a decision.
+Button press feedback is now on by default (`press="none"` turns it off).
+
+All three sources are MIT; `THIRD_PARTY_NOTICES.md` carries their notices.
+bencho's four paid blocks and thirteen Codrops-derived SmoothUI shaders were not
+ported: those are original designs, written without reading the source.
+
 ### Six theme presets from SmoothUI
 
 `candy`, `indigo`, `blue`, `red`, `orange` and `green` join the theme layer,
