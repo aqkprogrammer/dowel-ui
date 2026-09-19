@@ -9,7 +9,7 @@ Bring every component shown on these seven pages into Dowel:
 
 | Source                                                               | Items                                | Licence                                                             |
 | -------------------------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------- |
-| [smoothui.dev/docs/components](https://smoothui.dev/docs/components) | ~150 components, 29 blocks, 6 themes | MIT © 2024 Eduardo Calvo                                            |
+| [smoothui.dev/docs/components](https://smoothui.dev/docs/components) | ~150 components, 34 blocks, 6 themes | MIT © 2024 Eduardo Calvo                                            |
 | [bencho.dev](https://bencho.dev/)                                    | 30 interaction blocks + 6 parked     | MIT © 2026 Lorenzo Cabra (blocks only; photos, logo, font excluded) |
 | [amicro /buttons](https://amicro.vercel.app/buttons)                 | 35                                   | MIT © 2026 Syed Subhan Uddin                                        |
 | [amicro /cards](https://amicro.vercel.app/cards)                     | 12                                   | 〃                                                                  |
@@ -170,7 +170,7 @@ reading the source shader code.
 
 ### Phase 10 — Marketing blocks and themes
 
-29 blocks (CTA 1–3, FAQ 1–4, Features 1–3, Footer 1–4, Hero 1–6, Logo Cloud
+34 blocks (CTA 1–3, FAQ 1–4, Features 1–3, Footer 1–4, Hero 1–6, Logo Cloud
 1–4, Pricing 1–3, Stats 1–2, Team 1–2, Testimonials 1–3) as blocks, and the six
 SmoothUI themes (candy, indigo, blue, red, orange, green) as presets, each
 through `audit:contrast`.
@@ -190,17 +190,17 @@ Search synonyms, counts, changeset (minor), full `audit:all`, docs build.
 
 ## Progress
 
-| Phase                        | Status | Commit                                 |
-| ---------------------------- | ------ | -------------------------------------- |
-| 0 Foundation                 | done   | 218b1ac                                |
-| 1 Loaders                    | done   | a31d8c8, e6837d8                       |
-| 2 Buttons                    | done   | 711963d, 95ab872 (motion dep)          |
-| 3 Text effects               | done   | 1853932                                |
-| 4 Cards & carousels          | done   | c26f15f (docs fix), 25c0cb4            |
-| 5 Dither charts              | done   | 742a707                                |
-| 6 Interaction blocks         | done   | e013642                                |
-| 7 SmoothUI extras            | done   | 3e58cba                                |
-| 8 Existing-component motion  | done   | 0cf0aa0                                |
-| 9 Transitions                | done   | eb80442                                |
-| 10 Marketing blocks & themes | done   | 3c12af8 (themes), this commit (blocks) |
-| 11 Release                   | —      |                                        |
+| Phase                        | Status | Commit                             |
+| ---------------------------- | ------ | ---------------------------------- |
+| 0 Foundation                 | done   | 218b1ac                            |
+| 1 Loaders                    | done   | a31d8c8, e6837d8                   |
+| 2 Buttons                    | done   | 711963d, 95ab872 (motion dep)      |
+| 3 Text effects               | done   | 1853932                            |
+| 4 Cards & carousels          | done   | c26f15f (docs fix), 25c0cb4        |
+| 5 Dither charts              | done   | 742a707                            |
+| 6 Interaction blocks         | done   | e013642                            |
+| 7 SmoothUI extras            | done   | 3e58cba                            |
+| 8 Existing-component motion  | done   | 0cf0aa0                            |
+| 9 Transitions                | done   | eb80442                            |
+| 10 Marketing blocks & themes | done   | 3c12af8 (themes), 92deac5 (blocks) |
+| 11 Release                   | done   | this commit                        |
