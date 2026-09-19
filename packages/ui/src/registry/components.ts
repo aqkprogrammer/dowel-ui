@@ -152,6 +152,38 @@ import { meta as aiSuggestionsMeta } from "@/components/ai-suggestions/meta";
 import { meta as aiBranchMeta } from "@/components/ai-branch/meta";
 import { meta as aiArtifactMeta } from "@/components/ai-artifact/meta";
 import { meta as shaderTransitionMeta } from "@/components/shader-transition/meta";
+import { meta as magneticSelectMeta } from "@/components/magnetic-select/meta";
+import { meta as aspectMorphMeta } from "@/components/aspect-morph/meta";
+import { meta as createMenuMeta } from "@/components/create-menu/meta";
+import { meta as radialMenuMeta } from "@/components/radial-menu/meta";
+import { meta as canvasToolbarMeta } from "@/components/canvas-toolbar/meta";
+import { meta as gooTabsMeta } from "@/components/goo-tabs/meta";
+import { meta as assigneePickerMeta } from "@/components/assignee-picker/meta";
+import { meta as selectionListMeta } from "@/components/selection-list/meta";
+import { meta as browserTabsMeta } from "@/components/browser-tabs/meta";
+import { meta as actionNodeMeta } from "@/components/action-node/meta";
+import { meta as gooBallMeta } from "@/components/goo-ball/meta";
+import { meta as glassBubbleMeta } from "@/components/glass-bubble/meta";
+import { meta as dragStepperMeta } from "@/components/drag-stepper/meta";
+import { meta as sloshSliderMeta } from "@/components/slosh-slider/meta";
+import { meta as reorderListMeta } from "@/components/reorder-list/meta";
+import { meta as magnifyDockMeta } from "@/components/magnify-dock/meta";
+import { meta as rangeDialMeta } from "@/components/range-dial/meta";
+import { meta as foldingFrameMeta } from "@/components/folding-frame/meta";
+import { meta as slideToConfirmMeta } from "@/components/slide-to-confirm/meta";
+import { meta as pullToRefreshMeta } from "@/components/pull-to-refresh/meta";
+import { meta as todoTowerMeta } from "@/components/todo-tower/meta";
+import { meta as paletteGeneratorMeta } from "@/components/palette-generator/meta";
+import { meta as inlineConfirmMeta } from "@/components/inline-confirm/meta";
+import { meta as liquidToggleMeta } from "@/components/liquid-toggle/meta";
+import { meta as animatedChecklistMeta } from "@/components/animated-checklist/meta";
+import { meta as nowPlayingMeta } from "@/components/now-playing/meta";
+import { meta as notifyButtonMeta } from "@/components/notify-button/meta";
+import { meta as tickProgressMeta } from "@/components/tick-progress/meta";
+import { meta as escapeButtonMeta } from "@/components/escape-button/meta";
+import { meta as expandingSearchMeta } from "@/components/expanding-search/meta";
+import { meta as dialMeta } from "@/components/dial/meta";
+import { meta as commandBarMeta } from "@/components/command-bar/meta";
 
 /**
  * Every component in the registry.
@@ -317,6 +349,38 @@ export const componentMetas: ComponentMeta[] = [
   aiBranchMeta,
   aiArtifactMeta,
   shaderTransitionMeta,
+  magneticSelectMeta,
+  aspectMorphMeta,
+  createMenuMeta,
+  radialMenuMeta,
+  canvasToolbarMeta,
+  gooTabsMeta,
+  assigneePickerMeta,
+  selectionListMeta,
+  browserTabsMeta,
+  actionNodeMeta,
+  gooBallMeta,
+  glassBubbleMeta,
+  dragStepperMeta,
+  sloshSliderMeta,
+  reorderListMeta,
+  magnifyDockMeta,
+  rangeDialMeta,
+  foldingFrameMeta,
+  slideToConfirmMeta,
+  pullToRefreshMeta,
+  todoTowerMeta,
+  paletteGeneratorMeta,
+  inlineConfirmMeta,
+  liquidToggleMeta,
+  animatedChecklistMeta,
+  nowPlayingMeta,
+  notifyButtonMeta,
+  tickProgressMeta,
+  escapeButtonMeta,
+  expandingSearchMeta,
+  dialMeta,
+  commandBarMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is
