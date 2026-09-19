@@ -100,3 +100,27 @@ export const WithDisabledOption: Story = {
     </fieldset>
   ),
 };
+
+/**
+ * SmoothUI's RadioGroup: the selection dot springs in from nothing, slightly
+ * past full size and back. This is the default; pick an option to see it.
+ */
+export const SpringDot: Story = {
+  render: () => (
+    <fieldset>
+      <legend className="mb-3 text-sm font-medium">Plan</legend>
+      <RadioGroup defaultValue="pro">
+        {[
+          { value: "free", label: "Free" },
+          { value: "pro", label: "Pro" },
+          { value: "team", label: "Team" },
+        ].map((option) => (
+          <div key={option.value} className="flex items-center gap-2">
+            <RadioGroupItem value={option.value} id={`spring-${option.value}`} />
+            <Label htmlFor={`spring-${option.value}`}>{option.label}</Label>
+          </div>
+        ))}
+      </RadioGroup>
+    </fieldset>
+  ),
+};

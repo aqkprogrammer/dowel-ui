@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI SmoothButton (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
 import type { ComponentPropsWithRef, MouseEvent } from "react";
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils";
 const buttonVariants = cva(
   cn(
     "inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap select-none",
-    "transition-[background-color,border-color,color,box-shadow] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
+    "transition-[background-color,border-color,color,box-shadow,scale] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
     focusRing,
     disabledStyles,
     iconSlot,
@@ -29,6 +30,23 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80",
         link: "text-primary underline-offset-4 hover:underline",
+        /** A tint of the primary colour. Quieter than primary, warmer than ghost. */
+        soft: cn(
+          "bg-[color-mix(in_oklab,var(--color-primary)_12%,transparent)] text-primary",
+          "hover:bg-[color-mix(in_oklab,var(--color-primary)_18%,transparent)]",
+          "active:bg-[color-mix(in_oklab,var(--color-primary)_24%,transparent)]",
+        ),
+        /**
+         * SmoothUI's "candy": primary running into its hover shade, with a
+         * hairline highlight along the top edge. Every stop is a token, so it
+         * follows the theme and the monochrome preset.
+         */
+        gradient: cn(
+          "bg-linear-to-b from-primary to-primary-hover text-primary-foreground",
+          "shadow-[inset_0_1px_0_color-mix(in_oklab,var(--color-primary-foreground)_25%,transparent),0_1px_2px_color-mix(in_oklab,var(--color-foreground)_20%,transparent)]",
+          "hover:from-primary-hover hover:to-primary-hover",
+          "active:from-primary-active active:to-primary-active",
+        ),
       },
       size: {
         sm: "h-8 gap-1.5 rounded-md px-3 text-sm",
@@ -37,16 +55,51 @@ const buttonVariants = cva(
         icon: "size-9 rounded-md",
         "icon-sm": "size-8 rounded-md",
       },
+      /**
+       * Corner treatment, independent of size. Declared after `size` so its
+       * radius wins the merge. `default` keeps each size's own radius.
+       */
+      shape: {
+        default: "",
+        pill: "rounded-full",
+        square: "rounded-none",
+      },
+      /**
+       * Press feedback. `scale` shrinks the button to 97% while it is held —
+       * a transform, so nothing around it moves, and it only exists when the
+       * reader has not asked for reduced motion. `none` opts out.
+       */
+      press: {
+        scale: "",
+        none: "",
+      },
     },
     compoundVariants: [
       // A link has no box, so box padding and height would only misalign it.
       { variant: "link", size: "sm", className: "h-auto px-0" },
       { variant: "link", size: "md", className: "h-auto px-0" },
       { variant: "link", size: "lg", className: "h-auto px-0" },
+      // Text does not press; a link that shrinks under the finger reads as a
+      // rendering glitch rather than feedback.
+      {
+        press: "scale",
+        variant: [
+          "primary",
+          "secondary",
+          "outline",
+          "ghost",
+          "destructive",
+          "soft",
+          "gradient",
+        ],
+        className: "motion-safe:active:scale-[0.97]",
+      },
     ],
     defaultVariants: {
       variant: "primary",
       size: "md",
+      shape: "default",
+      press: "scale",
     },
   },
 );
@@ -74,6 +127,8 @@ export function Button({
   className,
   variant,
   size,
+  shape,
+  press,
   asChild = false,
   loading = false,
   disabled,
@@ -94,7 +149,7 @@ export function Button({
 
   return (
     <Comp
-      className={cn(buttonVariants({ variant, size }), className)}
+      className={cn(buttonVariants({ variant, size, shape, press }), className)}
       disabled={disabled}
       aria-disabled={loading || undefined}
       aria-busy={loading || undefined}

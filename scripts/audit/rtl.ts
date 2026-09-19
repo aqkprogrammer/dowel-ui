@@ -12,7 +12,7 @@
  * same length to type and the same cost to render; the only thing physical
  * properties buy is a bug nobody who speaks the language will file.
  *
- * The library claims WCAG 2.2 AA and audits 322 contrast pairs across every
+ * The library claims WCAG 2.2 AA and audits 598 contrast pairs across every
  * preset. Shipping a component set that cannot be read right-to-left is out of
  * step with that, and unlike contrast it is not something a test environment
  * has to paint to detect.

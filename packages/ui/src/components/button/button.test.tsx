@@ -222,3 +222,92 @@ describe("Button", () => {
     await expectNoA11yViolations(container);
   });
 });
+
+describe("Button motion and extra axes (SmoothUI)", () => {
+  it.each([
+    ["soft", "text-primary"],
+    ["gradient", "bg-linear-to-b"],
+  ] as const)("applies the opt-in %s variant", (variant, expectedClass) => {
+    render(<Button variant={variant}>Action</Button>);
+    expect(screen.getByRole("button")).toHaveClass(expectedClass);
+  });
+
+  it("builds the gradient from theme tokens only", () => {
+    render(<Button variant="gradient">Action</Button>);
+    const button = screen.getByRole("button");
+    expect(button).toHaveClass("from-primary", "to-primary-hover", "text-primary-foreground");
+    expect(button.className).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(/i);
+  });
+
+  it.each([
+    ["pill", "rounded-full"],
+    ["square", "rounded-none"],
+  ] as const)("the %s shape replaces the size's radius", (shape, expectedClass) => {
+    render(<Button shape={shape}>Action</Button>);
+    const button = screen.getByRole("button");
+    expect(button).toHaveClass(expectedClass);
+    expect(button).not.toHaveClass("rounded-md");
+  });
+
+  it("keeps each size's own radius with the default shape", () => {
+    render(<Button size="lg">Action</Button>);
+    expect(screen.getByRole("button")).toHaveClass("rounded-lg");
+  });
+
+  it("presses by default, as a transform that reduced motion removes", () => {
+    render(<Button>Action</Button>);
+    const button = screen.getByRole("button");
+    expect(button).toHaveClass("motion-safe:active:scale-[0.97]");
+    expect(button.className).not.toMatch(/(^|\s)active:scale/);
+  });
+
+  it("does not press when press is none", () => {
+    render(<Button press="none">Action</Button>);
+    expect(screen.getByRole("button")).not.toHaveClass("motion-safe:active:scale-[0.97]");
+  });
+
+  it("never presses the link variant", () => {
+    render(<Button variant="link">Read more</Button>);
+    expect(screen.getByRole("button")).not.toHaveClass("motion-safe:active:scale-[0.97]");
+  });
+
+  it("keeps activation working for the new variants from the keyboard", async () => {
+    const onClick = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <Button variant="gradient" shape="pill" onClick={onClick}>
+        Save
+      </Button>,
+    );
+
+    await user.tab();
+    await user.keyboard("{Enter}");
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("lets a consumer className override the shape", () => {
+    render(
+      <Button shape="pill" className="rounded-sm">
+        Action
+      </Button>,
+    );
+    const button = screen.getByRole("button");
+    expect(button).toHaveClass("rounded-sm");
+    expect(button).not.toHaveClass("rounded-full");
+  });
+
+  it("has no accessibility violations in the new variants", async () => {
+    const { container } = render(
+      <>
+        <Button variant="soft">Soft</Button>
+        <Button variant="gradient" shape="pill">
+          Candy
+        </Button>
+        <Button size="icon" shape="square" aria-label="Close">
+          x
+        </Button>
+      </>,
+    );
+    await expectNoA11yViolations(container);
+  });
+});

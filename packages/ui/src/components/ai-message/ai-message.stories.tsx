@@ -1,8 +1,10 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { Copy, RefreshCw, ThumbsDown, ThumbsUp } from "lucide-react";
+import { useState } from "react";
 
 import { Response } from "@/components/ai-response";
 import { Button } from "@/components/button";
+import { CopyButton } from "@/components/copy-button";
 
 import {
   Message,
@@ -10,6 +12,7 @@ import {
   MessageAvatar,
   MessageBody,
   MessageFooter,
+  MessageTimestamp,
 } from "./ai-message";
 
 /** Named so its type is nameable in declaration output (TS2883). */
@@ -103,4 +106,64 @@ export const WithFooter: Story = {
       </MessageBody>
     </Message>
   ),
+};
+
+const ANSWER =
+  "A Sheet slides in from an edge; a Drawer is bottom-anchored and can be dragged away.";
+
+/**
+ * Actions slide out of the bubble's own edge — from the inline start for the
+ * assistant, the inline end for the user — with a timestamp pinned before
+ * them. Copy uses CopyButton, which announces success and failure; votes are
+ * assistant-only toggles with `aria-pressed`. Motion from SmoothUI AI Message.
+ */
+export const ActionsReveal: Story = {
+  parameters: { controls: { disable: true } },
+  render: function ActionsReveal() {
+    const [vote, setVote] = useState<"up" | "down" | null>(null);
+
+    return (
+      <>
+        <Message from="user">
+          <MessageBody from="user">When would I use a Drawer?</MessageBody>
+          <MessageActions className="flex-row-reverse">
+            <MessageTimestamp dateTime="2026-09-19T09:30:00Z">09:30</MessageTimestamp>
+            <CopyButton value="When would I use a Drawer?" size="icon-sm" variant="ghost" />
+          </MessageActions>
+        </Message>
+        <Message from="assistant">
+          <MessageAvatar>AI</MessageAvatar>
+          <MessageBody from="assistant">
+            <Response>{ANSWER}</Response>
+            <MessageActions>
+              <MessageTimestamp dateTime="2026-09-19T09:30:04Z">09:30</MessageTimestamp>
+              <CopyButton value={ANSWER} size="icon-sm" variant="ghost" />
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Good response"
+                aria-pressed={vote === "up"}
+                onClick={() => {
+                  setVote((current) => (current === "up" ? null : "up"));
+                }}
+              >
+                <ThumbsUp />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Bad response"
+                aria-pressed={vote === "down"}
+                onClick={() => {
+                  setVote((current) => (current === "down" ? null : "down"));
+                }}
+              >
+                <ThumbsDown />
+              </Button>
+            </MessageActions>
+          </MessageBody>
+        </Message>
+      </>
+    );
+  },
 };

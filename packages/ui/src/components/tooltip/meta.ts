@@ -13,5 +13,5 @@ export const meta = defineMeta({
     "Opens on focus as well as hover, and Escape dismisses it. Never put essential or " +
     "interactive content in a tooltip: it is unreachable on touch and vanishes on blur. For an " +
     "icon-only button, prefer aria-label for the name and use the tooltip only to repeat it " +
-    "visually.",
+    "visually. The opening pop is decoration and stops under reduced motion.",
 });

@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI RadioGroup (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
 
@@ -46,7 +47,17 @@ export function RadioGroupItem({ className, ...props }: RadioGroupItemProps) {
         data-slot="radio-group-indicator"
         className="grid size-full place-items-center"
       >
-        <span className="size-2 rounded-full bg-primary" />
+        {/* The dot springs in from nothing: `starting:` gives its first frame
+            a zero scale and the overshoot curve carries it slightly past full
+            size. A transition rather than a keyframe, so without
+            @starting-style, or under reduced motion, it is simply there. */}
+        <span
+          data-slot="radio-group-dot"
+          className={cn(
+            "size-2 rounded-full bg-primary",
+            "transition-[scale] duration-[var(--duration-normal)] ease-[var(--ease-overshoot)] starting:scale-0",
+          )}
+        />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   );

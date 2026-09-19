@@ -5,6 +5,7 @@ export {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  ComboboxLoading,
   ComboboxTrigger,
   defaultComboboxFilter,
   type ComboboxContentProps,

@@ -39,6 +39,12 @@ export interface StoryArgType {
 
 export interface StoryMeta {
   component?: ComponentType<StoryArgs>;
+  /**
+   * A render shared by every story in the file. Storybook uses it for any story
+   * that does not declare its own, so ignoring it rendered the bare component —
+   * a carousel with no slides — as the canonical preview.
+   */
+  render?: ComponentType<StoryArgs>;
   args?: StoryArgs;
   argTypes: Record<string, StoryArgType>;
   /** The author disabled controls for the whole component. */
@@ -92,6 +98,10 @@ export function asStoryMeta(value: unknown): StoryMeta | undefined {
     component:
       typeof value.component === "function"
         ? (value.component as ComponentType<StoryArgs>)
+        : undefined,
+    render:
+      typeof value.render === "function"
+        ? (value.render as ComponentType<StoryArgs>)
         : undefined,
     args: isRecord(value.args) ? value.args : undefined,
     argTypes: toArgTypes(value.argTypes),

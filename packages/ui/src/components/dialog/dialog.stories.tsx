@@ -138,3 +138,34 @@ export const ScrollingContent: Story = {
     </Dialog>
   ),
 };
+
+/**
+ * SmoothUI Dialog / BasicModal: `animation="spring"` pops the panel in with a
+ * slight overshoot, then brings the header, body and footer in 60ms apart.
+ * Exit is the same quick fade as the default. Stops under reduced motion.
+ */
+export const Spring: Story = {
+  render: () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button>Invite teammate</Button>
+      </DialogTrigger>
+      <DialogContent animation="spring">
+        <DialogHeader>
+          <DialogTitle>Invite a teammate</DialogTitle>
+          <DialogDescription>They will get an email with a link to join.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-2">
+          <Label htmlFor="invite-email">Email</Label>
+          <Input id="invite-email" type="email" placeholder="ada@example.com" />
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button>Send invite</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  ),
+};

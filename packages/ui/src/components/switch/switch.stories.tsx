@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Moon, Sun } from "lucide-react";
 
 import { Label } from "@/components/label";
 
@@ -65,6 +66,39 @@ export const SettingsRow: Story = {
           <Switch id={row.id} defaultChecked={row.id === "row-1"} />
         </div>
       ))}
+    </div>
+  ),
+};
+
+/**
+ * SmoothUI's AnimatedToggle: `default` slides, `squash` stretches the thumb
+ * while it is held, `morph` also rests as a rounded square when off, and
+ * `icons` puts a turning icon in the thumb. Hold a switch down to see the squash.
+ */
+export const AnimatedToggle: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="grid gap-3">
+      {(
+        [
+          { id: "toggle-default", label: "Default", variant: "default" },
+          { id: "toggle-squash", label: "Squash", variant: "squash" },
+          { id: "toggle-morph", label: "Morph", variant: "morph" },
+        ] as const
+      ).map((item) => (
+        <div key={item.id} className="flex items-center gap-2">
+          <Switch id={item.id} variant={item.variant} />
+          <Label htmlFor={item.id}>{item.label}</Label>
+        </div>
+      ))}
+      <div className="flex items-center gap-2">
+        <Switch
+          id="toggle-icon"
+          variant="squash"
+          icons={{ checked: <Sun />, unchecked: <Moon /> }}
+        />
+        <Label htmlFor="toggle-icon">Icon</Label>
+      </div>
     </div>
   ),
 };

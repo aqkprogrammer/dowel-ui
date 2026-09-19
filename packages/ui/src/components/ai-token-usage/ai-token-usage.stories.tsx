@@ -57,3 +57,58 @@ export const InlineCount: Story = {
     </div>
   ),
 };
+
+const BREAKDOWN = [
+  { label: "System prompt", tokens: 2400 },
+  { label: "Conversation", tokens: 61000 },
+  { label: "Attached files", tokens: 56600 },
+];
+
+/**
+ * `variant="ring"`: a compact gauge for toolbars. It changes hue as it fills,
+ * never size; the visible figures are compact and a hidden sentence carries
+ * the full ones. From SmoothUI AI Context Meter.
+ */
+export const Ring: Story = {
+  args: { variant: "ring", used: 120000 },
+};
+
+/**
+ * With a breakdown the gauge is a button: click, Enter or Space opens it, a
+ * mouse hover previews it without taking focus, and a click pins a preview.
+ */
+export const RingWithBreakdown: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="pt-24">
+      <TokenUsage variant="ring" used={120000} limit={200000} breakdown={BREAKDOWN} />
+    </div>
+  ),
+};
+
+/** `notation="compact"`: locale-aware "48K" in the bar variant too, with a breakdown. */
+export const Compact: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="grid gap-4">
+      <TokenUsage used={120000} limit={200000} notation="compact" breakdown={BREAKDOWN} />
+      <TokenCount value={1800} notation="compact" />
+    </div>
+  ),
+};
+
+/** `dangerAt` adds a second threshold: critical before the limit, not only past it. */
+export const DangerThreshold: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="grid gap-5">
+      <TokenUsage used={175000} limit={200000} dangerAt={0.95} />
+      <TokenUsage used={194000} limit={200000} dangerAt={0.95} />
+      <div className="flex gap-4">
+        {[40000, 175000, 194000, 212000].map((used) => (
+          <TokenUsage key={used} variant="ring" used={used} limit={200000} dangerAt={0.95} />
+        ))}
+      </div>
+    </div>
+  ),
+};

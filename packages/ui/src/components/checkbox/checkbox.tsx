@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI Checkbox (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { Checkbox as CheckboxPrimitive } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
 
@@ -14,6 +15,22 @@ import { cn } from "@/lib/utils";
  * *application* sets, never a third value the user cycles into.
  */
 export type CheckboxProps = ComponentPropsWithRef<typeof CheckboxPrimitive.Root>;
+
+/**
+ * Draws a mark along its own length when it appears.
+ *
+ * `pathLength={1}` normalises the stroke so one dash covers the whole path;
+ * `@starting-style` (the `starting:` variant) gives the first frame an offset
+ * of a full length, and the transition runs it to zero. It is a transition,
+ * not a keyframe, so there is no stylesheet to ship, it re-runs whenever the
+ * mark is shown again (checked ↔ indeterminate toggles `display`), and a
+ * browser without `@starting-style` simply shows the mark drawn. Reduced
+ * motion collapses the transition, which also leaves it drawn.
+ */
+const drawn = cn(
+  "[stroke-dasharray:1] [stroke-dashoffset:0] starting:[stroke-dashoffset:1]",
+  "transition-[stroke-dashoffset] duration-[var(--duration-normal)] ease-[var(--ease-out-quint)]",
+);
 
 export function Checkbox({ className, ...props }: CheckboxProps) {
   return (
@@ -45,7 +62,10 @@ export function Checkbox({ className, ...props }: CheckboxProps) {
           className="size-3.5 group-data-[state=indeterminate]:hidden"
         >
           <path
+            data-slot="checkbox-check"
             d="m5 13 4 4L19 7"
+            pathLength={1}
+            className={drawn}
             stroke="currentColor"
             strokeWidth="3"
             strokeLinecap="round"
@@ -58,7 +78,15 @@ export function Checkbox({ className, ...props }: CheckboxProps) {
           aria-hidden="true"
           className="hidden size-3.5 group-data-[state=indeterminate]:block"
         >
-          <path d="M6 12h12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <path
+            data-slot="checkbox-dash"
+            d="M6 12h12"
+            pathLength={1}
+            className={drawn}
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
         </svg>
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>

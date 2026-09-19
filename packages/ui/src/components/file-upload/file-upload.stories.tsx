@@ -1,4 +1,5 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
+import { Upload as UploadIcon } from "lucide-react";
 
 import { FileUpload, FileUploadList, FileUploadStatus } from "./file-upload";
 import { useUploadQueue, type UploadFn } from "./upload-queue";
@@ -146,4 +147,32 @@ export const SingleFile: Story = {
 
 export const Disabled: Story = {
   args: { disabled: true, hint: "Uploading is unavailable while the workspace is read-only" },
+};
+
+/**
+ * SmoothUI's AnimatedFileUpload: drag over the zone to see it swell and the icon
+ * lift; rows slide in, and with `animateExit` slide out when removed.
+ */
+export const Animated: Story = {
+  parameters: { controls: { disable: true } },
+  render: function Animated() {
+    const queue = useUploadQueue({ upload: fakeUpload({ ms: 1600 }), concurrency: 3 });
+
+    return (
+      <FileUpload
+        label="Attach files"
+        onFiles={queue.add}
+        hint="Any file, up to 10 MB"
+        icon={<UploadIcon />}
+      >
+        <FileUploadList
+          files={queue.files}
+          onCancel={queue.cancel}
+          onRetry={queue.retry}
+          onRemove={queue.remove}
+          animateExit
+        />
+      </FileUpload>
+    );
+  },
 };

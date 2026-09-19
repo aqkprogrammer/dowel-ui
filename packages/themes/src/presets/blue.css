@@ -1,0 +1,30 @@
+/* Theme preset: blue.
+ * Apply with data-theme="blue" on the <html> element. Only the brand-carrying
+ * tokens are reassigned; every neutral, radius and motion token is inherited.
+ *
+ * From SmoothUI's Blue theme (MIT © 2024 Eduardo Calvo): brand
+ * oklch(0.67 0.17 257.78), brand-secondary oklch(0.59 0.21 258.02). As in every
+ * SmoothUI-derived preset, the brand is --primary and the secondary — the deep
+ * end of SmoothUI's gradients — is --primary-active.
+ *
+ * Hue 258 sits between `ocean` (232, a cyan-leaning blue) and the default
+ * (275, an indigo): this is the plain blue neither of them is. */
+
+[data-theme="blue"] {
+  /* The brand is 2.90:1 under white text and 3.03:1 as text on white. 0.555 is
+     the lightest value that clears 4.5:1 for both; hue and chroma are kept.
+     The secondary's chroma is capped at 0.175, the most sRGB holds at 0.472. */
+  --primary: oklch(0.555 0.17 257.78);
+  --primary-hover: oklch(0.51 0.17 257.78);
+  --primary-active: oklch(0.472 0.175 258.02);
+  --primary-foreground: oklch(0.985 0.002 265);
+}
+
+.dark[data-theme="blue"] {
+  /* SmoothUI's exact values: 6.5:1 under dark text on the brand, 4.6:1 on the
+     secondary. Hover is capped at the chroma sRGB holds at 0.715. */
+  --primary: oklch(0.67 0.17 257.78);
+  --primary-hover: oklch(0.715 0.145 257.78);
+  --primary-active: oklch(0.59 0.21 258.02);
+  --primary-foreground: oklch(0.155 0.03 257.78);
+}

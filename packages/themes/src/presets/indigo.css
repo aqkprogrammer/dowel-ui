@@ -1,0 +1,36 @@
+/* Theme preset: indigo.
+ * Apply with data-theme="indigo" on the <html> element. Only the brand-carrying
+ * tokens are reassigned; every neutral, radius and motion token is inherited.
+ *
+ * From SmoothUI's Indigo theme (MIT © 2024 Eduardo Calvo): brand
+ * oklch(0.65 0.22 300.21), brand-secondary oklch(0.54 0.23 286.53). As in every
+ * SmoothUI-derived preset, the brand is --primary and the secondary — the deep
+ * end of SmoothUI's gradients — is --primary-active.
+ *
+ * Next to `violet` (hue 302), the brand hue is almost the same: SmoothUI's
+ * "indigo" is a violet in OKLCH terms, and the indigo is its secondary, 14°
+ * bluer. What separates the two presets is that pressing indigo turns to that
+ * true indigo, and that its dark mode keeps the full 0.22 chroma where violet
+ * drops to 0.175. */
+
+[data-theme="indigo"] {
+  /* The brand is 3.41:1 under white text and 3.56:1 as text on white. 0.58 is
+     the lightest value that clears 4.5:1 for both; hue and chroma are kept. */
+  --primary: oklch(0.58 0.22 300.21);
+  --primary-hover: oklch(0.535 0.22 300.21);
+  --primary-active: oklch(0.497 0.23 286.53);
+  --primary-foreground: oklch(0.985 0.002 265);
+}
+
+.dark[data-theme="indigo"] {
+  /* The brand is SmoothUI's exact value: 5.5:1 under dark text. The secondary
+     is not. One foreground serves every state, so the pressed fill has to
+     carry the same dark text, and at 0.54 it reaches only 3.49:1. It is raised
+     to 0.605, the first lightness that clears 4.5:1, keeping its hue; its
+     chroma is capped at 0.225 and hover's at 0.185, the most sRGB holds at
+     those lightnesses. */
+  --primary: oklch(0.65 0.22 300.21);
+  --primary-hover: oklch(0.695 0.185 300.21);
+  --primary-active: oklch(0.605 0.225 286.53);
+  --primary-foreground: oklch(0.155 0.03 300.21);
+}

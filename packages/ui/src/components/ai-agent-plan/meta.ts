@@ -15,5 +15,7 @@ export const meta = defineMeta({
     "place without moving focus and fighting anyone reading ahead. Every status is stated in text " +
     "as well as drawn, and the markers are aria-hidden so the status is not heard twice per step. " +
     "The live region reports structural revisions only — announcing every status transition would " +
-    "talk over the reader continuously on a plan of any length.",
+    "talk over the reader continuously on a plan of any length. Drawn checks and crosses live " +
+    "inside the hidden markers; quietCompleted dims finished steps with a contrast-audited token, " +
+    "and the optional sweep is decoration that stops under reduced motion.",
 });

@@ -65,7 +65,10 @@ export function StoryPreview({ component, story, fallback }: StoryPreviewProps) 
 
   // Rendered as a component, not called as a function: stories use hooks, and
   // invoking them directly would break the rules of hooks.
-  const Render: ComponentType<StoryArgs> | undefined = resolved.render ?? meta.component;
+  // Storybook's precedence: the story's render, then the file's, then the bare
+  // component.
+  const Render: ComponentType<StoryArgs> | undefined =
+    resolved.render ?? meta.render ?? meta.component;
   if (!Render) return <>{fallback}</>;
 
   const context: StoryDecoratorContext = { args, globals: {}, parameters: {} };

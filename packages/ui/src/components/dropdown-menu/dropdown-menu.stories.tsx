@@ -126,3 +126,32 @@ export const Selectable: Story = {
     );
   },
 };
+
+/**
+ * SmoothUI DropdownMenu: the surface pops from its anchor with a slight
+ * overshoot and each item drops in 20ms after the one above — the same motion
+ * as Context Menu. Both stop under reduced motion.
+ */
+export const SpringStagger: Story = {
+  render: () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">Open menu</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="start">
+        {[
+          "New file",
+          "New window",
+          "Open…",
+          "Open recent",
+          "Save",
+          "Save as…",
+          "Share",
+          "Print",
+        ].map((label) => (
+          <DropdownMenuItem key={label}>{label}</DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ),
+};

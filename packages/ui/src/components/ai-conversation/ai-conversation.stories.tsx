@@ -10,6 +10,7 @@ import {
   ConversationMessages,
   ConversationScrollButton,
   ConversationStatus,
+  type ConversationState,
 } from "./ai-conversation";
 
 const meta: Meta<typeof Conversation> = {
@@ -100,7 +101,11 @@ export const Streaming: Story = {
   },
 };
 
-/** Scroll up: following stops, and an explicit way back appears. */
+/**
+ * Scroll up: following stops, and an explicit way back appears. The pill rises
+ * in and sinks out (motion from SmoothUI AI Conversation); with reduced motion
+ * both it and the jump back are instant.
+ */
 export const LongTranscript: Story = {
   render: () => (
     <div className="flex h-96 w-[34rem] flex-col rounded-xl border border-border">
@@ -123,4 +128,51 @@ export const LongTranscript: Story = {
       </Conversation>
     </div>
   ),
+};
+
+const STATES: ConversationState[] = [
+  "idle",
+  "listening",
+  "thinking",
+  "streaming",
+  "done",
+  "error",
+];
+
+/**
+ * `state` words the status region from SmoothUI's AIState vocabulary. `idle`
+ * is empty, so nothing is announced on first paint; `children` still win.
+ */
+export const StateVocabulary: Story = {
+  render: function StateVocabulary() {
+    const [state, setState] = useState<ConversationState>("idle");
+
+    return (
+      <div className="flex h-72 w-[34rem] flex-col rounded-xl border border-border">
+        <Conversation>
+          <ConversationMessages>
+            <Message from="user">
+              <MessageBody from="user">Summarise the release notes.</MessageBody>
+            </Message>
+          </ConversationMessages>
+          <ConversationStatus state={state} />
+        </Conversation>
+        <div className="flex flex-wrap gap-2 border-t border-border p-3">
+          {STATES.map((value) => (
+            <Button
+              key={value}
+              size="sm"
+              variant={value === state ? "primary" : "outline"}
+              aria-pressed={value === state}
+              onClick={() => {
+                setState(value);
+              }}
+            >
+              {value}
+            </Button>
+          ))}
+        </div>
+      </div>
+    );
+  },
 };

@@ -11,6 +11,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { THEME_PRESETS } from "../../packages/themes/src/index";
 import { contrastRatio, resolveColour } from "./colour";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -277,7 +278,9 @@ const findings: Finding[] = [
   ...auditScheme("default", "dark", scales, dark),
 ];
 
-const presets = ["ocean", "emerald", "violet", "rose", "amber", "monochrome"];
+// Read from the typed list the theme switchers use, so a preset that ships is a
+// preset that is audited. `default` is the base tokens, already covered above.
+const presets = THEME_PRESETS.filter((preset) => preset !== "default");
 for (const preset of presets) {
   const css = readFileSync(join(themesSrc, "presets", `${preset}.css`), "utf8");
   findings.push(

@@ -136,3 +136,49 @@ export const Complete: Story = {
     ],
   },
 };
+
+const TASKS: PlanStep[] = [
+  { id: "t1", title: "Read the open issues", status: "done", note: "12/12" },
+  { id: "t2", title: "Group them by component", status: "done", note: "5 groups" },
+  { id: "t3", title: "Draft a fix for each group", status: "running", note: "2/5" },
+  { id: "t4", title: "Open pull requests", status: "pending" },
+];
+
+/** `note` puts a short, end-aligned figure on a step. From SmoothUI AI Task List. */
+export const WithNotes: Story = {
+  args: { label: "Triage plan", steps: TASKS },
+};
+
+/** Finished steps recede (a muted token and a 1px settle), so the running one leads. */
+export const QuietCompleted: Story = {
+  args: { label: "Triage plan", steps: TASKS, quietCompleted: true },
+};
+
+/**
+ * A light travels under the running row instead of the marker pulsing; the
+ * check draws in as each step finishes. Motion from SmoothUI AI Task List.
+ */
+export const Sweep: Story = {
+  render: function Sweep(args) {
+    const [done, setDone] = useState(0);
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setDone((current) => (current >= TASKS.length ? 0 : current + 1));
+      }, 1600);
+      return () => {
+        clearInterval(timer);
+      };
+    }, []);
+    const steps = TASKS.map((step, index) => ({
+      ...step,
+      status:
+        index < done
+          ? ("done" as const)
+          : index === done
+            ? ("running" as const)
+            : ("pending" as const),
+    }));
+    return <AgentPlan {...args} steps={steps} quietCompleted runningIndicator="sweep" />;
+  },
+  args: { label: "Triage plan", steps: TASKS },
+};

@@ -6,5 +6,6 @@ export {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  type PaginationContentProps,
   type PaginationLinkProps,
 } from "./pagination";
