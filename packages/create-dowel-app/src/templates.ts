@@ -70,6 +70,12 @@ export const THEMES = [
   "rose",
   "amber",
   "monochrome",
+  "candy",
+  "indigo",
+  "blue",
+  "red",
+  "orange",
+  "green",
 ] as const;
 
 export type Theme = (typeof THEMES)[number];

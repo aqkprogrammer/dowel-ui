@@ -2,19 +2,21 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { create, validateProjectName, projectNameFrom } from "./create";
 import { CreateError } from "./lib/errors";
 import { substitute } from "./lib/files";
 import { detectPackageManager, dlx, isPackageManager } from "./lib/pm";
-import { findTemplate, isTheme, TEMPLATES } from "./templates";
+import { findTemplate, isTheme, TEMPLATES, THEMES } from "./templates";
 
 const roots: string[] = [];
 
@@ -95,7 +97,20 @@ describe("templates", () => {
 
   it("recognises the themes the theme layer ships", () => {
     expect(isTheme("ocean")).toBe(true);
+    expect(isTheme("candy")).toBe(true);
     expect(isTheme("chartreuse")).toBe(false);
+  });
+
+  it("offers every preset the theme layer ships, and nothing it does not", () => {
+    // The scaffolder keeps its own list so it has no runtime dependency on the
+    // theme package; this is what stops the two drifting apart.
+    const presets = readdirSync(
+      join(dirname(fileURLToPath(import.meta.url)), "..", "..", "themes", "src", "presets"),
+    )
+      .filter((file) => file.endsWith(".css") && file !== "index.css")
+      .map((file) => file.replace(/\.css$/, ""));
+
+    expect([...THEMES].sort()).toEqual(["default", ...presets].sort());
   });
 });
 

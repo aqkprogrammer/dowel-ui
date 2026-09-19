@@ -401,10 +401,11 @@ radius ladder, a 15px-base type scale, elevation, motion. Tier 2 is semantic
 aliases (`--primary`, `--border`, `--ring`) that components consume exclusively.
 Re-skinning the system means reassigning Tier 2; no component file changes.
 
-Seven presets ship: `default`, `ocean`, `emerald`, `violet`, `rose`, `amber`,
-`monochrome`. Apply one with `data-theme` on `<html>`; dark mode is the `dark`
-class. A single `--radius-scale` custom property re-proportions every corner in
-the system at once.
+Thirteen presets ship: `default`, `ocean`, `emerald`, `violet`, `rose`, `amber`,
+`monochrome`, and six derived from SmoothUI's themes — `candy`, `indigo`,
+`blue`, `red`, `orange`, `green`. Apply one with `data-theme` on `<html>`; dark
+mode is the `dark` class. A single `--radius-scale` custom property
+re-proportions every corner in the system at once.
 
 `monochrome` is not only a style — it is a standing check that no component uses
 colour as its only signal.
@@ -424,7 +425,7 @@ warn. Keyboard interaction is tested, not assumed.
 
 Contrast is checked separately, because a test environment that never paints
 cannot check it: `audit:contrast` converts the OKLCH tokens to sRGB and verifies
-all 322 semantic pairs across both modes and all seven presets. It runs in CI.
+all 598 semantic pairs across both modes and all thirteen presets. It runs in CI.
 
 A few choices worth knowing about, because they differ from what similar
 libraries do:

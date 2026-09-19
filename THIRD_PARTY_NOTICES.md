@@ -16,6 +16,8 @@ their source was not available for redistribution; no code was taken from them.
   Circle, Warped Circle, SDF Blob, Organic Merge and the Shader Reveal
   family). Dowel's `shader-transition` presets for those effects are original
   shaders; none of that code was read or copied.
+- Theme presets candy, indigo, blue, red, orange and green derive from
+  SmoothUI's themes.
 
 ## Bencho
 

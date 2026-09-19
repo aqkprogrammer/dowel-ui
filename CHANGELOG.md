@@ -5,6 +5,18 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ## Unreleased
 
+### Six theme presets from SmoothUI
+
+`candy`, `indigo`, `blue`, `red`, `orange` and `green` join the theme layer,
+derived from SmoothUI's six themes. Each maps SmoothUI's brand to `--primary`
+and its deeper brand-secondary — the far end of its gradients — to
+`--primary-active`. Dark mode uses SmoothUI's colours as they are; light mode
+cannot, because none of the six carries white text or reads as text on white at
+4.5:1, so each is darkened to the lightest value that does, keeping its hue.
+Each file says what changed and by how much. The contrast audit now reads its
+preset list from `THEME_PRESETS` instead of its own copy: 598 pairs across 26
+schemes, all passing.
+
 ### The paid blocks were readable from the documentation site
 
 Every Pro block's compiled source was downloadable from the docs site, without

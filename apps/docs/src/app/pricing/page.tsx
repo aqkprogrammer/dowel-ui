@@ -70,7 +70,7 @@ export default function PricingPage() {
             features={[
               `${String(components.length)} components, installed as source you own`,
               `${String(free.length)} blocks: auth, dashboard, analytics, billing, settings, AI chat, agent console and more`,
-              "The CLI, seven themes and the Theme Studio",
+              "The CLI, thirteen themes and the Theme Studio",
               "Agent docs, an MCP server, llms.txt and create-dowel-app",
               "Per-component quality scores and the accessibility notes behind them",
             ]}

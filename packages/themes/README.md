@@ -20,7 +20,7 @@ no JavaScript theme object — just CSS custom properties you can read and edit.
 /* Brings Tailwind, the raw scales and the semantic layer. */
 @import "@dowel-ui/themes/styles.css";
 
-/* Optional — adds the seven presets. */
+/* Optional — adds the thirteen presets. */
 @import "@dowel-ui/themes/presets.css";
 ```
 
@@ -43,12 +43,17 @@ file.
 }
 ```
 
-## Seven presets, all contrast-audited
+## Thirteen presets, all contrast-audited
 
-Default · Ocean · Emerald · Violet · Rose · Amber · Monochrome
+Default · Ocean · Emerald · Violet · Rose · Amber · Monochrome · Candy · Indigo ·
+Blue · Red · Orange · Green
+
+The last six derive from [SmoothUI](https://smoothui.dev)'s themes, adjusted
+where SmoothUI's exact colour misses a contrast floor — each file says where and
+by how much.
 
 Every preset passes **WCAG AA contrast in light and dark**, checked by an audit
-that evaluates 322 colour pairs across 14 schemes on every commit. When the
+that evaluates 598 colour pairs across 26 schemes on every commit. When the
 audit first ran it found 88 failures — including that the amber preset could not
 carry dark text on its fill at any usable lightness, so amber became an ochre.
 That is a real trade, made knowingly, rather than a swatch that looks nice and
