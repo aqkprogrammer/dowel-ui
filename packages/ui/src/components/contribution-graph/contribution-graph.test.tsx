@@ -198,8 +198,11 @@ describe("ContributionGraph", () => {
     expect(ref.current).not.toHaveClass("gap-3");
   });
 
+  // A year is 371 cells, and grid rules like aria-required-children judge the
+  // grid as a whole, so axe must see all of it. That takes ~7s alone and far
+  // longer while the full suite competes for the CPU — 30s timed out there.
   it("has no accessibility violations", async () => {
     const { container } = renderGraph();
     await expectNoA11yViolations(container);
-  }, 30_000);
+  }, 120_000);
 });
