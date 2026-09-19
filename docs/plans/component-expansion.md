@@ -118,7 +118,7 @@ existing Button (soft, gradient, pill, press feedback), not a second button.
 DPR cap, rAF paused off-screen, colours resolved from tokens at runtime) and
 `dither-donut`, `dither-bar`, `dither-area`, `dither-line`, `dither-heatmap`,
 `dither-gauge`, `dither-scatter`, `dither-funnel`, `dither-meter`,
-`uptime-matrix`. Device Usage Donut is a `dither-donut` story.
+`uptime-matrix`. Device Usage Donut is `dither-donut variant="flat"`.
 
 ### Phase 6 — Interaction blocks (bencho 30 + 6 parked)
 
@@ -186,8 +186,8 @@ Search synonyms, counts, changeset (minor), full `audit:all`, docs build.
 | 1 Loaders                    | done   | a31d8c8, e6837d8              |
 | 2 Buttons                    | done   | 711963d, 95ab872 (motion dep) |
 | 3 Text effects               | done   | 1853932                       |
-| 4 Cards & carousels          | done   | this commit                   |
-| 5 Dither charts              | —      |                               |
+| 4 Cards & carousels          | done   | c26f15f (docs fix), 25c0cb4   |
+| 5 Dither charts              | done   | this commit                   |
 | 6 Interaction blocks         | —      |                               |
 | 7 SmoothUI extras            | —      |                               |
 | 8 Existing-component motion  | —      |                               |

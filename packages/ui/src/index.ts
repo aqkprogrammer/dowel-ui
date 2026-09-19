@@ -107,6 +107,17 @@ export * from "./components/invite-carousel";
 export * from "./components/swipe-carousel";
 export * from "./components/image-accordion";
 export * from "./components/tilt-card";
+export * from "./components/dither-canvas";
+export * from "./components/dither-donut";
+export * from "./components/dither-bar";
+export * from "./components/dither-area";
+export * from "./components/dither-line";
+export * from "./components/dither-heatmap";
+export * from "./components/dither-gauge";
+export * from "./components/dither-scatter";
+export * from "./components/dither-funnel";
+export * from "./components/dither-meter";
+export * from "./components/uptime-matrix";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";
