@@ -165,3 +165,30 @@ export const Stacking: Story = {
     </>
   ),
 };
+
+/**
+ * SmoothUI BasicToast: `animation="spring"` hops each toast a short way in from
+ * the edge it is docked against, with a scale pop and a slight overshoot,
+ * instead of sliding the whole way from off-screen. Try the left and centre
+ * positions. Stops under reduced motion.
+ */
+export const Spring: Story = {
+  args: { animation: "spring" },
+  render: (args) => (
+    <>
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => toast.success("Changes saved")}>Success</Button>
+        <Button variant="outline" onClick={() => toast.info("New version available")}>
+          Info
+        </Button>
+        <Button variant="outline" onClick={() => toast.warning("Storage almost full")}>
+          Warning
+        </Button>
+        <Button variant="destructive" onClick={() => toast.error("Upload failed")}>
+          Error
+        </Button>
+      </div>
+      <Toaster {...args} />
+    </>
+  ),
+};

@@ -12,5 +12,5 @@ export const meta = defineMeta({
   a11y:
     "Drag is pointer-only and never the sole way out: Escape, the overlay and DrawerCancel all " +
     "dismiss. The grab handle is aria-hidden because it duplicates those affordances. Always " +
-    "render a DrawerTitle.",
+    "render a DrawerTitle. The optional section stagger stops under reduced motion.",
 });

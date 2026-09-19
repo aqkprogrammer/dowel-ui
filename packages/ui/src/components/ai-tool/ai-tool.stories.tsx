@@ -1,6 +1,16 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
+import { useEffect, useState } from "react";
 
-import { Tool, ToolContent, ToolHeader, ToolPayload, ToolSection } from "./ai-tool";
+import { Button } from "@/components/button";
+
+import {
+  type ToolStatus,
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolPayload,
+  ToolSection,
+} from "./ai-tool";
 
 /** Named so its type is nameable in declaration output (TS2883). */
 const withFixedWidth: Decorator = (Story) => (
@@ -92,5 +102,84 @@ export const Failed: Story = {
         </ToolSection>
       </ToolContent>
     </Tool>
+  ),
+};
+
+const LIFECYCLE: ToolStatus[] = ["pending", "running", "success"];
+
+/**
+ * `indicator="ring"`: one ring through the whole lifecycle — it breathes while
+ * queued, spins with a gap while running, then draws a check or a cross. The
+ * status word stays. Motion from SmoothUI AI Tool Call.
+ */
+export const RingIndicator: Story = {
+  render: function RingIndicator() {
+    const [step, setStep] = useState(0);
+    const [fail, setFail] = useState(false);
+    useEffect(() => {
+      if (step >= LIFECYCLE.length - 1) return;
+      const timer = setTimeout(() => {
+        setStep((current) => current + 1);
+      }, 1400);
+      return () => {
+        clearTimeout(timer);
+      };
+    }, [step]);
+    const status: ToolStatus =
+      step === LIFECYCLE.length - 1 && fail ? "error" : (LIFECYCLE[step] ?? "pending");
+
+    return (
+      <div className="grid gap-3">
+        <Tool status={status}>
+          <ToolHeader name="search_web" status={status} indicator="ring" />
+          <ToolContent>
+            <ToolPayload label="Arguments">
+              {JSON.stringify({ query: "rings" }, null, 2)}
+            </ToolPayload>
+          </ToolContent>
+        </Tool>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setFail(false);
+              setStep(0);
+            }}
+          >
+            Replay
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setFail(true);
+              setStep(0);
+            }}
+          >
+            Replay, failing
+          </Button>
+        </div>
+        {(["pending", "running", "success", "error"] as const).map((value) => (
+          <Tool key={value} status={value}>
+            <ToolHeader name={`status_${value}`} status={value} indicator="ring" />
+          </Tool>
+        ))}
+      </div>
+    );
+  },
+};
+
+/** `summary` puts a short note before the status: a count, a duration. */
+export const WithSummary: Story = {
+  render: () => (
+    <div className="grid gap-2">
+      <Tool status="success">
+        <ToolHeader name="search_web" status="success" summary="3 sources" indicator="ring" />
+      </Tool>
+      <Tool status="success">
+        <ToolHeader name="read_file" status="success" summary="1.2s" />
+      </Tool>
+    </div>
   ),
 };

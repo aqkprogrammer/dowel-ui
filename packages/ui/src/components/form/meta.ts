@@ -13,5 +13,6 @@ export const meta = defineMeta({
     "FormField generates the id, points the Label at the control, and assembles aria-describedby " +
     "from whichever of the description and error are actually present — a dangling reference " +
     "announces nothing and is flagged by axe. aria-invalid follows the error. FormMessage is a " +
-    "polite live region, so a late validation message is announced without interrupting.",
+    "polite live region, so a late validation message is announced without interrupting." +
+    " With animateExit, a cleared message lingers only as an aria-hidden copy with no id, which the control no longer references.",
 });

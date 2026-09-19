@@ -123,3 +123,34 @@ export const Disabled: Story = {
     return <TagsInput {...args} value={["ana@acme.test"]} disabled />;
   },
 };
+
+/**
+ * SmoothUI's AnimatedTags. New tags blur in; with `animateExit` removed ones
+ * blur out. The source's pool of suggested tags is composed outside the field
+ * with plain buttons — the field itself stays free of a suggestion list.
+ */
+export const AnimatedTags: Story = {
+  args: { label: "Selected tags", placeholder: "Add a tag" },
+  render: function AnimatedTags(args) {
+    const pool = ["react", "tailwindcss", "javascript", "typescript", "css"];
+    const [value, setValue] = useState(["react"]);
+    const available = pool.filter((tag) => !value.includes(tag));
+    return (
+      <div className="flex flex-col gap-3">
+        <TagsInput {...args} value={value} onValueChange={setValue} animateExit />
+        <div className="flex flex-wrap gap-1.5" aria-label="Suggested tags" role="group">
+          {available.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => setValue([...value, tag])}
+              className="rounded-full border border-border px-2 py-0.5 text-xs hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:outline-none"
+            >
+              + {tag}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  },
+};

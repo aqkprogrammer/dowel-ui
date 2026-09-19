@@ -105,3 +105,34 @@ export const Navigation: Story = {
     </Sheet>
   ),
 };
+
+/**
+ * SmoothUI Drawer: `animation="spring"` slides the panel in from any side,
+ * then brings its header, body and footer in 50ms apart once it has mostly
+ * arrived. Pick the side with the control. Stops under reduced motion.
+ */
+export const Spring: Story = {
+  args: { side: "right", animation: "spring" },
+  render: (args) => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline">Open filters</Button>
+      </SheetTrigger>
+      <SheetContent {...args}>
+        <SheetHeader>
+          <SheetTitle>Filters</SheetTitle>
+          <SheetDescription>Narrow the list down.</SheetDescription>
+        </SheetHeader>
+        <div className="grid gap-2">
+          <Label htmlFor="sheet-search">Search</Label>
+          <Input id="sheet-search" placeholder="Name or email" />
+        </div>
+        <SheetFooter>
+          <SheetClose asChild>
+            <Button>Apply</Button>
+          </SheetClose>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  ),
+};

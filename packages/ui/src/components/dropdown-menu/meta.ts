@@ -13,5 +13,6 @@ export const meta = defineMeta({
     "Full menu keyboard model: arrows move, Home/End jump, typeahead searches, Escape closes " +
     "and restores focus, Right/Left open and close submenus. Highlight is driven by " +
     "data-highlighted so pointer and keyboard focus never diverge. Use it for actions — links " +
-    "belong in a nav, and value selection belongs in Select.",
+    "belong in a nav, and value selection belongs in Select. The opening pop and item " +
+    "stagger are decoration and stop under reduced motion.",
 });

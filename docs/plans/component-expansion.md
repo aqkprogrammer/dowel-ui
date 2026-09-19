@@ -200,7 +200,7 @@ Search synonyms, counts, changeset (minor), full `audit:all`, docs build.
 | 5 Dither charts              | done   | 742a707                       |
 | 6 Interaction blocks         | —      |                               |
 | 7 SmoothUI extras            | done   | 3e58cba                       |
-| 8 Existing-component motion  | —      |                               |
-| 9 Transitions                | done   | this commit                   |
+| 8 Existing-component motion  | done   | this commit                   |
+| 9 Transitions                | done   | eb80442                       |
 | 10 Marketing blocks & themes | —      |                               |
 | 11 Release                   | —      |                               |

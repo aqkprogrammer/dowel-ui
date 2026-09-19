@@ -14,5 +14,6 @@ export const meta = defineMeta({
     "(foreground), the rest wait for a pause (background). Auto-dismiss timers pause on hover, " +
     "focus and window blur, and F8 moves focus into the toast list from anywhere. An action " +
     "must carry altText describing how to do the same thing without the toast, since it may " +
-    "be gone before a screen reader user reaches it.",
+    "be gone before a screen reader user reaches it. The optional spring entrance stops under " +
+    "reduced motion.",
 });

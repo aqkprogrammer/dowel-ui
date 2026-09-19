@@ -1,6 +1,10 @@
 "use client";
 
+// Motion from SmoothUI AnimatedFileUpload (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
+
 import {
+  useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -27,6 +31,24 @@ import { formatBytes, type QueuedFile, type UploadStatus } from "./upload-queue"
  * convenience, and every drop can also be done from the input.
  */
 
+/*
+ * Motion (SmoothUI's AnimatedFileUpload): the dropzone swells slightly while a
+ * drag is over it and an optional icon lifts; queued files slide in from the
+ * inline start, and with `animateExit` slide out toward the inline end.
+ * Keyframes ship with the component (ADR 0014) on duration tokens, so reduced
+ * motion collapses them; the travel direction follows :dir().
+ */
+const ITEM_KEYFRAMES = `
+@keyframes dowel-file-upload-in{from{opacity:0;transform:translateX(var(--dowel-file-upload-x)) scale(0.95)}}
+@keyframes dowel-file-upload-out{to{opacity:0;transform:translateX(calc(-1.5 * var(--dowel-file-upload-x))) scale(0.95)}}
+[data-slot="file-upload-item"]{--dowel-file-upload-x:-1rem;animation:dowel-file-upload-in var(--duration-normal) var(--ease-out-quint)}
+[data-slot="file-upload-item"]:dir(rtl){--dowel-file-upload-x:1rem}
+[data-slot="file-upload-item"][data-state="closed"]{animation:dowel-file-upload-out var(--duration-fast) var(--ease-in-quint) forwards}
+`;
+
+/** Clears departing rows whose animation never runs (hidden, unstyled). */
+const EXIT_FALLBACK_MS = 1000;
+
 const STATUS_LABEL: Record<UploadStatus, string> = {
   queued: "Waiting",
   uploading: "Uploading",
@@ -44,6 +66,11 @@ export interface FileUploadProps extends Omit<ComponentPropsWithRef<"div">, "onD
   disabled?: boolean;
   /** Shown under the prompt: accepted types, size limit. */
   hint?: ReactNode;
+  /**
+   * A decorative icon above the prompt, hidden from assistive technology. It
+   * lifts while a drag is over the dropzone.
+   */
+  icon?: ReactNode;
   children?: ReactNode;
 }
 
@@ -55,6 +82,7 @@ export function FileUpload({
   multiple = true,
   disabled = false,
   hint,
+  icon,
   children,
   ...props
 }: FileUploadProps) {
@@ -96,11 +124,25 @@ export function FileUpload({
         onDrop={handleDrop}
         className={cn(
           "rounded-lg border border-dashed border-border-strong bg-muted/30 px-4 py-6 text-center",
-          "transition-colors duration-[var(--duration-fast)]",
-          dragging && "border-primary bg-primary/5",
+          "transition-[color,background-color,border-color,scale] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
+          dragging && "scale-[1.02] border-primary bg-primary/5",
           disabled && "pointer-events-none opacity-55",
         )}
       >
+        {icon ? (
+          <div
+            aria-hidden="true"
+            data-slot="file-upload-icon"
+            className={cn(
+              "mx-auto mb-2 flex w-fit text-muted-foreground [&_svg:not([class*='size-'])]:size-8",
+              "transition-[color,translate,scale] duration-[var(--duration-normal)] ease-[var(--ease-overshoot)]",
+              dragging && "-translate-y-1 scale-115 text-foreground",
+            )}
+          >
+            {icon}
+          </div>
+        ) : null}
+
         {/* The label is the control. Clicking it opens the picker, Enter and
             Space activate it, and assistive technology already describes it. */}
         <label
@@ -145,9 +187,20 @@ export function FileUpload({
 
 export interface FileUploadListProps extends ComponentPropsWithRef<"ul"> {
   files: QueuedFile[];
+  /**
+   * Lets a removed file slide out before it leaves the DOM. The departing row
+   * is `aria-hidden`, inert and has no buttons. Off by default, because the old
+   * row briefly remains in the markup.
+   */
+  animateExit?: boolean;
   onCancel?: (id: string) => void;
   onRetry?: (id: string) => void;
   onRemove?: (id: string) => void;
+}
+
+interface LeavingEntry {
+  entry: QueuedFile;
+  index: number;
 }
 
 export function FileUploadList({
@@ -156,9 +209,64 @@ export function FileUploadList({
   onCancel,
   onRetry,
   onRemove,
+  animateExit = false,
   ...props
 }: FileUploadListProps) {
-  if (files.length === 0) return null;
+  // Derived from the previous render rather than in an effect, so a departing
+  // row is in place on the same commit its live one leaves.
+  const [previous, setPrevious] = useState(files);
+  const [leaving, setLeaving] = useState<LeavingEntry[]>([]);
+  if (previous !== files) {
+    setPrevious(files);
+    const present = new Set(files.map((entry) => entry.id));
+    const gone = animateExit
+      ? previous.flatMap((entry, index) => (present.has(entry.id) ? [] : [{ entry, index }]))
+      : [];
+    setLeaving((current) => [
+      ...current.filter(
+        (item) =>
+          !present.has(item.entry.id) && !gone.some((g) => g.entry.id === item.entry.id),
+      ),
+      ...gone,
+    ]);
+  }
+
+  useEffect(() => {
+    if (leaving.length === 0) return;
+    const timer = setTimeout(() => {
+      setLeaving([]);
+    }, EXIT_FALLBACK_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [leaving]);
+
+  // A native listener: React maps onAnimationEnd to a vendor-prefixed name
+  // wherever AnimationEvent is missing. React 19 runs the returned cleanup.
+  const listenForExitEnd = useCallback(
+    (id: string) => (element: HTMLLIElement | null) => {
+      if (!element) return;
+      const onEnd = (event: Event) => {
+        if (event.target !== element) return;
+        setLeaving((current) => current.filter((item) => item.entry.id !== id));
+      };
+      element.addEventListener("animationend", onEnd);
+      return () => {
+        element.removeEventListener("animationend", onEnd);
+      };
+    },
+    [],
+  );
+
+  const rows: { entry: QueuedFile; gone: boolean }[] = files.map((entry) => ({
+    entry,
+    gone: false,
+  }));
+  for (const item of [...leaving].sort((a, b) => a.index - b.index)) {
+    rows.splice(Math.min(item.index, rows.length), 0, { entry: item.entry, gone: true });
+  }
+
+  if (rows.length === 0) return null;
 
   return (
     <ul
@@ -166,15 +274,26 @@ export function FileUploadList({
       className={cn("flex list-none flex-col gap-2", className)}
       {...props}
     >
-      {files.map((entry) => (
-        <FileUploadItem
-          key={entry.id}
-          entry={entry}
-          onCancel={onCancel}
-          onRetry={onRetry}
-          onRemove={onRemove}
-        />
-      ))}
+      {rows.map(({ entry, gone }) =>
+        gone ? (
+          <FileUploadItem
+            key={`gone:${entry.id}`}
+            ref={listenForExitEnd(entry.id)}
+            entry={entry}
+            data-state="closed"
+            aria-hidden="true"
+            inert
+          />
+        ) : (
+          <FileUploadItem
+            key={entry.id}
+            entry={entry}
+            onCancel={onCancel}
+            onRetry={onRetry}
+            onRemove={onRemove}
+          />
+        ),
+      )}
     </ul>
   );
 }
@@ -210,6 +329,9 @@ export function FileUploadItem({
       )}
       {...props}
     >
+      <style href="dowel-file-upload" precedence="dowel">
+        {ITEM_KEYFRAMES}
+      </style>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate font-medium">{file.name}</span>

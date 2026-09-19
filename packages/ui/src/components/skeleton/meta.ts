@@ -11,5 +11,6 @@ export const meta = defineMeta({
   files: ["skeleton.tsx"],
   a11y:
     "Hidden from assistive technology. Put aria-busy on the container that owns the loading " +
-    "data so the state is announced once instead of once per placeholder.",
+    "data so the state is announced once instead of once per placeholder. Pulse and shimmer " +
+    "are decoration and stop under reduced motion.",
 });

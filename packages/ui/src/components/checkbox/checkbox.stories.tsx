@@ -122,3 +122,44 @@ export const Invalid: Story = {
     </div>
   ),
 };
+
+/**
+ * SmoothUI's Checkbox: the tick and the indeterminate dash draw themselves
+ * along their length as they appear. This is the default — toggle a box, or
+ * flip the parent between mixed and checked, to see it.
+ */
+export const DrawnCheck: Story = {
+  parameters: { controls: { disable: true } },
+  render: function DrawnCheck() {
+    const [items, setItems] = useState([true, false, false]);
+    const all = items.every(Boolean);
+    const some = items.some(Boolean);
+
+    return (
+      <div className="grid gap-3">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="drawn-all"
+            checked={all ? true : some ? "indeterminate" : false}
+            onCheckedChange={(value) => {
+              setItems(items.map(() => value === true));
+            }}
+          />
+          <Label htmlFor="drawn-all">Select all</Label>
+        </div>
+        {items.map((checked, index) => (
+          <div key={index} className="ms-6 flex items-center gap-2">
+            <Checkbox
+              id={`drawn-${String(index)}`}
+              checked={checked}
+              onCheckedChange={(value) => {
+                setItems(items.map((item, at) => (at === index ? value === true : item)));
+              }}
+            />
+            <Label htmlFor={`drawn-${String(index)}`}>Item {index + 1}</Label>
+          </div>
+        ))}
+      </div>
+    );
+  },
+};

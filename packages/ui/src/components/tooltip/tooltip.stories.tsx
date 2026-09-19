@@ -87,3 +87,25 @@ export const LongText: Story = {
     </Tooltip>
   ),
 };
+
+/**
+ * SmoothUI AnimatedTooltip: each tooltip pops toward the side it opens on —
+ * 4px of travel away from the trigger with a slight overshoot. Separate
+ * tooltips (no shared provider), so every one opens with the delayed pop
+ * rather than the instant hand-off. Stops under reduced motion.
+ */
+export const SpringPop: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-wrap gap-3">
+      {(["top", "right", "bottom", "left"] as const).map((side) => (
+        <Tooltip key={side} delayDuration={150}>
+          <TooltipTrigger asChild>
+            <Button variant="outline">{side}</Button>
+          </TooltipTrigger>
+          <TooltipContent side={side}>Pops from the {side}</TooltipContent>
+        </Tooltip>
+      ))}
+    </div>
+  ),
+};

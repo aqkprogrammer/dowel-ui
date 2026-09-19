@@ -1,8 +1,17 @@
 "use client";
 
+// Motion from SmoothUI AI Reasoning (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { Collapsible as CollapsiblePrimitive } from "radix-ui";
-import type { ComponentPropsWithRef } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentPropsWithRef,
+} from "react";
 
+import { ShimmerText } from "@/components/shimmer-text";
 import { focusRing } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -14,35 +23,194 @@ import { cn } from "@/lib/utils";
  * and most readers never want it. It stays one keystroke away for the people
  * who do.
  */
-export type ReasoningProps = ComponentPropsWithRef<typeof CollapsiblePrimitive.Root>;
 
-export function Reasoning({ className, ...props }: ReasoningProps) {
-  return (
-    <CollapsiblePrimitive.Root
-      data-slot="reasoning"
-      className={cn("text-sm", className)}
-      {...props}
-    />
+/** Delay before `autoCollapse={true}` closes the trace, in milliseconds. */
+const AUTO_COLLAPSE_DELAY = 600;
+
+interface ReasoningContextValue {
+  streaming: boolean | undefined;
+}
+
+const ReasoningContext = createContext<ReasoningContextValue>({ streaming: undefined });
+
+export interface ReasoningProps extends Omit<
+  ComponentPropsWithRef<typeof CollapsiblePrimitive.Root>,
+  "onOpenChange"
+> {
+  /** Called when the reader opens or closes the trace. */
+  onOpenChange?: (open: boolean) => void;
+  /**
+   * Reasoning is still arriving. Feeds the trigger's default label and the
+   * auto behaviours below.
+   */
+  streaming?: boolean;
+  /**
+   * Open when `streaming` turns true, until the reader toggles it themselves.
+   *
+   * Off by default (ADR 0009): an open trace gives reasoning the same weight
+   * as the answer while it streams. Ignored when `open` is controlled.
+   */
+  autoOpen?: boolean;
+  /**
+   * Close after streaming ends, unless the reader has toggled it; a number is
+   * the delay in milliseconds. Never closes while focus or the pointer is
+   * inside the trace. Ignored when `open` is controlled.
+   */
+  autoCollapse?: boolean | number;
+}
+
+export function Reasoning({
+  className,
+  streaming,
+  autoOpen = false,
+  autoCollapse = false,
+  open,
+  defaultOpen,
+  onOpenChange,
+  ref,
+  ...props
+}: ReasoningProps) {
+  const controlled = open !== undefined;
+  const automatic = !controlled && (autoOpen || autoCollapse !== false);
+  const collapseDelay =
+    typeof autoCollapse === "number" ? autoCollapse : autoCollapse ? AUTO_COLLAPSE_DELAY : null;
+
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  // A trace mounted mid-stream opens straight away under autoOpen.
+  const [internalOpen, setInternalOpen] = useState(
+    () => defaultOpen ?? (automatic && autoOpen && streaming === true),
   );
+  // Once the reader has toggled it, the component stops deciding for them.
+  const [userToggled, setUserToggled] = useState(false);
+  const [previousStreaming, setPreviousStreaming] = useState(streaming);
+  const [pendingCollapse, setPendingCollapse] = useState(false);
+
+  // Streaming edges, adjusted during render so there is no frame in between.
+  if (streaming !== previousStreaming) {
+    setPreviousStreaming(streaming);
+    if (automatic && !userToggled) {
+      if (streaming) {
+        setPendingCollapse(false);
+        if (autoOpen) setInternalOpen(true);
+      } else if (previousStreaming && collapseDelay !== null) {
+        setPendingCollapse(true);
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (!pendingCollapse || collapseDelay === null) return;
+    const timer = setTimeout(() => {
+      setPendingCollapse(false);
+      // Never yank the trace out from under someone reading or tabbing in it.
+      const content = rootRef.current?.querySelector("[data-slot='reasoning-content']");
+      if (content?.contains(document.activeElement) || content?.matches(":hover")) return;
+      setInternalOpen(false);
+    }, collapseDelay);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [pendingCollapse, collapseDelay]);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    if (!controlled || (!autoOpen && autoCollapse === false)) return;
+    console.warn(
+      "Reasoning: `autoOpen` and `autoCollapse` are ignored when `open` is controlled. " +
+        "Drive `open` from `streaming` yourself, or drop `open`.",
+    );
+  }, [controlled, autoOpen, autoCollapse]);
+
+  const openProps = automatic
+    ? {
+        open: internalOpen,
+        onOpenChange: (next: boolean) => {
+          setUserToggled(true);
+          setPendingCollapse(false);
+          setInternalOpen(next);
+          onOpenChange?.(next);
+        },
+      }
+    : { open, defaultOpen, onOpenChange };
+
+  return (
+    <ReasoningContext.Provider value={{ streaming }}>
+      <CollapsiblePrimitive.Root
+        ref={(node: HTMLDivElement | null) => {
+          rootRef.current = node;
+          if (typeof ref === "function") return ref(node);
+          if (ref) ref.current = node;
+        }}
+        data-slot="reasoning"
+        data-streaming={streaming || undefined}
+        className={cn("text-sm", className)}
+        {...openProps}
+        {...props}
+      />
+    </ReasoningContext.Provider>
+  );
+}
+
+/**
+ * Seconds between `active` turning true and turning false, for "Thought for
+ * 4.2s". `null` until the first run ends; a new run keeps the last value
+ * until it, too, ends.
+ */
+export function useElapsedSeconds(active: boolean): number | null {
+  const startedAt = useRef<number | null>(null);
+  const [elapsed, setElapsed] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (active) {
+      startedAt.current = performance.now();
+      return;
+    }
+    const start = startedAt.current;
+    if (start === null) return;
+    startedAt.current = null;
+    setElapsed((performance.now() - start) / 1000);
+  }, [active]);
+
+  return elapsed;
 }
 
 export interface ReasoningTriggerProps extends ComponentPropsWithRef<
   typeof CollapsiblePrimitive.Trigger
 > {
-  /** Shown while reasoning is still arriving. */
+  /** Shown while reasoning is still arriving. Defaults to the root's `streaming`. */
   streaming?: boolean;
   label?: string;
   streamingLabel?: string;
+  /**
+   * Seconds spent reasoning. When set and not streaming, the label becomes
+   * `durationLabel(duration)`. Pair it with `useElapsedSeconds`.
+   */
+  duration?: number;
+  /** Words for a duration. */
+  durationLabel?: (seconds: number) => string;
+  /** Shimmer the label while streaming. Decoration: it stops under reduced motion. */
+  shimmer?: boolean;
+}
+
+function defaultDurationLabel(seconds: number): string {
+  return `Thought for ${seconds.toFixed(1)}s`;
 }
 
 export function ReasoningTrigger({
   className,
-  streaming,
+  streaming: streamingProp,
   label = "Reasoning",
   streamingLabel = "Thinking…",
+  duration,
+  durationLabel = defaultDurationLabel,
+  shimmer = false,
   children,
   ...props
 }: ReasoningTriggerProps) {
+  const context = useContext(ReasoningContext);
+  const streaming = streamingProp ?? context.streaming;
+  const idleLabel = duration === undefined ? label : durationLabel(duration);
+
   return (
     <CollapsiblePrimitive.Trigger
       data-slot="reasoning-trigger"
@@ -64,12 +232,23 @@ export function ReasoningTrigger({
           strokeLinejoin="round"
         />
       </svg>
-      {children ?? (streaming ? streamingLabel : label)}
+      {children ??
+        (streaming ? (
+          shimmer ? (
+            <ShimmerText duration={1800} repeatDelay={0}>
+              {streamingLabel}
+            </ShimmerText>
+          ) : (
+            streamingLabel
+          )
+        ) : (
+          idleLabel
+        ))}
       <svg
         viewBox="0 0 24 24"
         fill="none"
         aria-hidden="true"
-        className="size-3.5 shrink-0 transition-transform duration-[var(--duration-normal)]"
+        className="size-3.5 shrink-0 transition-transform duration-[var(--duration-normal)] ease-[var(--ease-out-quint)]"
       >
         <path
           d="m6 9 6 6 6-6"

@@ -1,6 +1,15 @@
 "use client";
 
-import { useMemo, type ComponentPropsWithRef, type ReactNode } from "react";
+// Motion from SmoothUI AI Diff (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentPropsWithRef,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 
 import { disabledStyles, focusRing } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -44,6 +53,44 @@ export interface DiffViewerProps extends Omit<ComponentPropsWithRef<"div">, "chi
   decisions?: Record<string, HunkDecision>;
   onDecision?: (hunkId: string, decision: HunkDecision) => void;
   children?: ReactNode;
+  /**
+   * Entrance for added lines. `wipe` draws each one in along the reading
+   * direction, a line after the other; context and removed lines were already
+   * there and do not move.
+   */
+  entrance?: "none" | "wipe";
+  /**
+   * Collapse a rejected hunk's lines. Its header and controls stay, so the
+   * decision can still be reversed, and the header says the lines are hidden.
+   */
+  collapseRejected?: boolean;
+}
+
+const PREFIX = "dowel-diff-viewer";
+
+/* The wipe reveals an added line's code (never its line numbers) in reading
+ * order; its stagger is capped so a long diff does not take seconds to appear.
+ * The flash is a one-shot tint when a hunk's decision changes. */
+const STYLES = `
+@keyframes ${PREFIX}-wipe{from{clip-path:inset(0 100% 0 0)}}
+@keyframes ${PREFIX}-wipe-rtl{from{clip-path:inset(0 0 0 100%)}}
+@keyframes ${PREFIX}-flash-accepted{from{background-color:color-mix(in oklab,var(--color-success) 14%,transparent)}}
+@keyframes ${PREFIX}-flash-rejected{from{background-color:color-mix(in oklab,var(--color-destructive) 12%,transparent)}}
+.${PREFIX}-wipe{animation:${PREFIX}-wipe calc(280ms * var(--motion-scale,1)) var(--ease-out-quint) both;animation-delay:calc(var(--dowel-i,0) * 20ms * var(--motion-scale,1))}
+.${PREFIX}-wipe:dir(rtl){animation-name:${PREFIX}-wipe-rtl}
+[data-slot=diff-hunk][data-decision-changed=accepted]{animation:${PREFIX}-flash-accepted calc(350ms * var(--motion-scale,1)) var(--ease-out-quint)}
+[data-slot=diff-hunk][data-decision-changed=rejected]{animation:${PREFIX}-flash-rejected calc(350ms * var(--motion-scale,1)) var(--ease-out-quint)}
+`;
+
+/** Lines after this many in a hunk share the last one's delay. */
+const WIPE_STAGGER_CAP = 20;
+
+/** Props for the content cell of an added line under `entrance="wipe"`. */
+function wipe(index: number): { className: string; style: CSSProperties } {
+  return {
+    className: `${PREFIX}-wipe`,
+    style: { "--dowel-i": Math.min(index, WIPE_STAGGER_CAP) } as CSSProperties,
+  };
 }
 
 export function DiffViewer({
@@ -54,6 +101,8 @@ export function DiffViewer({
   decisions,
   onDecision,
   children,
+  entrance = "none",
+  collapseRejected = false,
   ...props
 }: DiffViewerProps) {
   const counts = useMemo(() => countChanges(hunks), [hunks]);
@@ -65,6 +114,9 @@ export function DiffViewer({
       className={cn("flex flex-col gap-2", className)}
       {...props}
     >
+      <style href={PREFIX} precedence="dowel">
+        {STYLES}
+      </style>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="font-mono text-sm font-medium">{label}</span>
         {/* Said in words as well as coloured, and before the diff rather than
@@ -95,6 +147,8 @@ export function DiffViewer({
               view={view}
               decision={decisions?.[hunk.id]}
               onDecision={onDecision}
+              entrance={entrance}
+              collapseRejected={collapseRejected}
             />
           ))}
         </div>
@@ -109,22 +163,81 @@ function DiffHunkView({
   view,
   decision,
   onDecision,
+  entrance,
+  collapseRejected,
 }: {
   hunk: DiffHunk;
   label: string;
   view: "unified" | "split";
   decision?: HunkDecision;
   onDecision?: (hunkId: string, decision: HunkDecision) => void;
+  entrance: "none" | "wipe";
+  collapseRejected: boolean;
 }) {
   const splitRows = useMemo(
     () => (view === "split" ? toSplitRows(hunk.rows) : []),
     [view, hunk.rows],
   );
 
+  // A decision that changes after mount flashes once. Tracked during render,
+  // so a decision present on first render (a replay) does not flash.
+  const [previous, setPrevious] = useState(decision);
+  const [flash, setFlash] = useState<HunkDecision | undefined>(undefined);
+  if (decision !== previous) {
+    setPrevious(decision);
+    setFlash(decision);
+  }
+
+  // A native listener rather than onAnimationEnd: React picks a vendor-prefixed
+  // event name wherever AnimationEvent is missing, and would never hear it.
+  const sectionRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || !flash) return;
+    const clear = (event: Event) => {
+      // Wiped lines end their own animations inside the hunk; only the
+      // hunk's flash clears the flag.
+      if (event.target === section) setFlash(undefined);
+    };
+    section.addEventListener("animationend", clear);
+    return () => {
+      section.removeEventListener("animationend", clear);
+    };
+  }, [flash]);
+
+  const wiping = entrance === "wipe";
+  const collapsed = collapseRejected && decision === "rejected";
+  const hiddenNote = collapsed ? <span className="sr-only"> — lines hidden</span> : null;
+
+  const table = (
+    <div className="overflow-x-auto">
+      <table data-slot="diff-table" className="w-full border-collapse font-mono text-xs">
+        <tbody>
+          {view === "split"
+            ? splitRows.map((pair, index) => (
+                <tr key={index} data-slot="diff-row">
+                  <SplitCell row={pair.left} side="before" />
+                  <SplitCell
+                    row={pair.right}
+                    side="after"
+                    wipeIndex={wiping ? index : undefined}
+                  />
+                </tr>
+              ))
+            : hunk.rows.map((row, index) => (
+                <UnifiedRow key={index} row={row} wipeIndex={wiping ? index : undefined} />
+              ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
     <section
       data-slot="diff-hunk"
       data-decision={decision}
+      ref={sectionRef}
+      data-decision-changed={flash}
       aria-label={`${label}, hunk ${hunk.id}`}
       className={cn(
         "border-b border-border last:border-b-0",
@@ -148,6 +261,7 @@ function DiffHunkView({
               : decision === "rejected"
                 ? "Rejected"
                 : "Not decided"}
+            {hiddenNote}
           </span>
           <HunkButton
             pressed={decision === "accepted"}
@@ -168,20 +282,26 @@ function DiffHunkView({
         </div>
       ) : null}
 
-      <div className="overflow-x-auto">
-        <table data-slot="diff-table" className="w-full border-collapse font-mono text-xs">
-          <tbody>
-            {view === "split"
-              ? splitRows.map((pair, index) => (
-                  <tr key={index} data-slot="diff-row">
-                    <SplitCell row={pair.left} side="before" />
-                    <SplitCell row={pair.right} side="after" />
-                  </tr>
-                ))
-              : hunk.rows.map((row, index) => <UnifiedRow key={index} row={row} />)}
-          </tbody>
-        </table>
-      </div>
+      {!onDecision ? hiddenNote : null}
+
+      {collapseRejected ? (
+        // Grid rows animate between 1fr and 0fr, which is a height transition
+        // CSS can do. Collapsed lines are inert: hidden, and out of reach.
+        <div
+          data-slot="diff-hunk-lines"
+          data-collapsed={collapsed || undefined}
+          className={cn(
+            "grid transition-[grid-template-rows,opacity] duration-[calc(250ms*var(--motion-scale))] ease-[var(--ease-out-quint)]",
+            collapsed ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr]",
+          )}
+        >
+          <div className="min-h-0 overflow-hidden" inert={collapsed || undefined}>
+            {table}
+          </div>
+        </div>
+      ) : (
+        table
+      )}
     </section>
   );
 }
@@ -192,7 +312,8 @@ const ROW_STYLES: Record<DiffRow["kind"], string> = {
   context: "",
 };
 
-function UnifiedRow({ row }: { row: DiffRow }) {
+function UnifiedRow({ row, wipeIndex }: { row: DiffRow; wipeIndex?: number }) {
+  const motion = wipeIndex !== undefined && row.kind === "added" ? wipe(wipeIndex) : undefined;
   return (
     <tr data-slot="diff-row" data-kind={row.kind} className={ROW_STYLES[row.kind]}>
       <LineNumber value={row.before} />
@@ -200,7 +321,10 @@ function UnifiedRow({ row }: { row: DiffRow }) {
       <td className="w-4 pe-1 text-center text-muted-foreground select-none" aria-hidden="true">
         {row.kind === "added" ? "+" : row.kind === "removed" ? "−" : ""}
       </td>
-      <td className="w-full py-0.5 pe-3 break-all whitespace-pre-wrap">
+      <td
+        className={cn("w-full py-0.5 pe-3 break-all whitespace-pre-wrap", motion?.className)}
+        style={motion?.style}
+      >
         {/* The kind, for anyone who cannot see the sign or the tint. Reading a
             diff aloud without it is reading the same file twice. */}
         <span className="sr-only">{KIND_LABEL[row.kind]}: </span>
@@ -210,7 +334,15 @@ function UnifiedRow({ row }: { row: DiffRow }) {
   );
 }
 
-function SplitCell({ row, side }: { row: DiffRow | null; side: "before" | "after" }) {
+function SplitCell({
+  row,
+  side,
+  wipeIndex,
+}: {
+  row: DiffRow | null;
+  side: "before" | "after";
+  wipeIndex?: number;
+}) {
   if (!row) {
     // An empty half of a pair, not a blank line of code. Hidden from assistive
     // technology so a reader is not read padding.
@@ -222,11 +354,18 @@ function SplitCell({ row, side }: { row: DiffRow | null; side: "before" | "after
     );
   }
 
+  const motion = wipeIndex !== undefined && row.kind === "added" ? wipe(wipeIndex) : undefined;
+
   return (
     <>
       <LineNumber value={side === "before" ? row.before : row.after} />
       <td
-        className={cn("w-1/2 py-0.5 pe-3 break-all whitespace-pre-wrap", ROW_STYLES[row.kind])}
+        className={cn(
+          "w-1/2 py-0.5 pe-3 break-all whitespace-pre-wrap",
+          ROW_STYLES[row.kind],
+          motion?.className,
+        )}
+        style={motion?.style}
       >
         <span className="sr-only">{KIND_LABEL[row.kind]}: </span>
         <RowContent row={row} />

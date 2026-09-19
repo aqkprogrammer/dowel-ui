@@ -13,5 +13,6 @@ export const meta = defineMeta({
     'Exposed as role="progressbar" with aria-valuenow, and give it a name with aria-label or ' +
     "aria-labelledby. Omitting `value` marks it indeterminate, which is announced differently " +
     "from zero. Show the percentage in text as well — the bar alone is not readable at a glance " +
-    "for everyone.",
+    "for everyone. The optional stripe and shine effects are decoration: they stop under " +
+    "reduced motion and never apply to an indeterminate bar.",
 });

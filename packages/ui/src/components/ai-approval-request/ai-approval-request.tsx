@@ -1,6 +1,15 @@
 "use client";
 
-import { useId, useMemo, useState, type ComponentPropsWithRef, type ReactNode } from "react";
+// Motion from SmoothUI AI Approval (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
+import {
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentPropsWithRef,
+  type ReactNode,
+} from "react";
 
 import { disabledStyles, focusRing } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -71,7 +80,27 @@ export interface ApprovalRequestProps extends Omit<
   /** Set once decided, to render the outcome instead of the controls. */
   decision?: ApprovalDecision;
   children?: ReactNode;
+  /**
+   * Keep focus in the request as its controls swap: onto the outcome when a
+   * decision lands, into the reason field when Deny… opens, and back to Deny…
+   * from Back. Only acts when focus was already inside the request, so a
+   * decision applied elsewhere (another tab, a replay) never steals focus.
+   */
+  manageFocus?: boolean;
 }
+
+const PREFIX = "dowel-ai-approval-request";
+
+/* The outcome resolves in when a decision lands live (a replayed one does not
+ * animate), and the deny panel rises in. */
+const STYLES = `
+@keyframes ${PREFIX}-resolve{from{opacity:0;scale:.97}}
+@keyframes ${PREFIX}-reveal{from{opacity:0;translate:0 4px}}
+[data-slot=approval-request][data-resolved=live] [data-slot=approval-outcome]{animation:${PREFIX}-resolve calc(250ms * var(--motion-scale,1)) var(--ease-out-quint) both}
+[data-slot=approval-deny]{animation:${PREFIX}-reveal calc(200ms * var(--motion-scale,1)) var(--ease-out-quint) both}
+`;
+
+type FocusTarget = "outcome" | "reason" | "deny";
 
 export function ApprovalRequest({
   className,
@@ -84,12 +113,62 @@ export function ApprovalRequest({
   irreversible,
   decision,
   children,
+  manageFocus = true,
+  ref,
   ...props
 }: ApprovalRequestProps) {
   const headingId = useId();
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [denying, setDenying] = useState(false);
   const [reason, setReason] = useState("");
+
+  // A decision present on first render is a replay: it neither animates nor
+  // takes focus.
+  const [initiallyDecided] = useState(decision !== undefined);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const outcomeRef = useRef<HTMLParagraphElement | null>(null);
+  const reasonRef = useRef<HTMLTextAreaElement | null>(null);
+  const denyRef = useRef<HTMLButtonElement | null>(null);
+  // Where focus should go after the next swap. Set only by the reader's own
+  // actions, and only while focus is inside the request.
+  const focusTarget = useRef<FocusTarget | null>(null);
+
+  function queueFocus(target: FocusTarget) {
+    if (!manageFocus) return;
+    const inside = sectionRef.current?.contains(document.activeElement) ?? false;
+    focusTarget.current = inside ? target : null;
+  }
+
+  const decided = decision !== undefined;
+  useLayoutEffect(() => {
+    const target = focusTarget.current;
+    if (!target) return;
+    const element =
+      target === "outcome"
+        ? outcomeRef.current
+        : target === "reason"
+          ? reasonRef.current
+          : denyRef.current;
+    if (!element) return;
+    focusTarget.current = null;
+    // If the reader moved on while an async decision was pending, leave them be.
+    const active = document.activeElement;
+    const stillHere =
+      !active || active === document.body || (sectionRef.current?.contains(active) ?? false);
+    if (stillHere) element.focus();
+  }, [decided, denying]);
+
+  const setSectionRef = (node: HTMLElement | null) => {
+    sectionRef.current = node;
+    if (typeof ref === "function") return ref(node);
+    if (ref) ref.current = node;
+  };
+
+  const sheet = (
+    <style href={PREFIX} precedence="dowel">
+      {STYLES}
+    </style>
+  );
 
   // The model's proposal with the human's corrections applied on top. Keeping
   // them apart is what lets the component say which is which.
@@ -106,8 +185,10 @@ export function ApprovalRequest({
   if (decision) {
     return (
       <section
+        ref={setSectionRef}
         data-slot="approval-request"
         data-state={decision.approved ? "approved" : "denied"}
+        data-resolved={initiallyDecided ? undefined : "live"}
         aria-labelledby={headingId}
         className={cn(
           "rounded-lg border p-4 text-sm",
@@ -116,10 +197,18 @@ export function ApprovalRequest({
         )}
         {...props}
       >
+        {sheet}
         <h3 id={headingId} className="text-sm font-medium">
           {summary}
         </h3>
-        <p data-slot="approval-outcome" className="mt-1 text-xs text-muted-foreground">
+        {/* tabIndex -1: a focus target for the person who just decided, so
+            they hear the outcome, but never a Tab stop. */}
+        <p
+          ref={outcomeRef}
+          tabIndex={-1}
+          data-slot="approval-outcome"
+          className="mt-1 text-xs text-muted-foreground outline-none"
+        >
           {decision.approved
             ? `Approved ${decision.scope === "always" ? "for every call to this tool" : "once"}` +
               (decision.edited.length > 0
@@ -133,6 +222,7 @@ export function ApprovalRequest({
 
   return (
     <section
+      ref={setSectionRef}
       data-slot="approval-request"
       data-state={settled ? "pending" : "forming"}
       aria-labelledby={headingId}
@@ -142,6 +232,7 @@ export function ApprovalRequest({
       className={cn("rounded-lg border border-border bg-card p-4", className)}
       {...props}
     >
+      {sheet}
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 id={headingId} className="text-sm font-medium">
           {summary}
@@ -180,11 +271,12 @@ export function ApprovalRequest({
       ) : null}
 
       {denying ? (
-        <div className="mt-3 flex flex-col gap-2">
+        <div data-slot="approval-deny" className="mt-3 flex flex-col gap-2">
           <label htmlFor={`${headingId}-reason`} className="text-xs text-muted-foreground">
             Why not? The model sees this.
           </label>
           <textarea
+            ref={reasonRef}
             id={`${headingId}-reason`}
             rows={2}
             value={reason}
@@ -200,6 +292,7 @@ export function ApprovalRequest({
             <Action
               variant="destructive"
               onClick={() => {
+                queueFocus("outcome");
                 onDecision({ approved: false, reason: reason.trim() || undefined });
               }}
             >
@@ -207,6 +300,7 @@ export function ApprovalRequest({
             </Action>
             <Action
               onClick={() => {
+                queueFocus("deny");
                 setDenying(false);
               }}
             >
@@ -220,6 +314,7 @@ export function ApprovalRequest({
             variant="primary"
             disabled={!settled}
             onClick={() => {
+              queueFocus("outcome");
               onDecision({ approved: true, scope: "once", arguments: values, edited });
             }}
           >
@@ -231,6 +326,7 @@ export function ApprovalRequest({
           <Action
             disabled={!settled}
             onClick={() => {
+              queueFocus("outcome");
               onDecision({ approved: true, scope: "always", arguments: values, edited });
             }}
           >
@@ -238,7 +334,9 @@ export function ApprovalRequest({
           </Action>
 
           <Action
+            ref={denyRef}
             onClick={() => {
+              queueFocus("reason");
               setDenying(true);
             }}
           >
@@ -351,7 +449,8 @@ function Action({
     <button
       type="button"
       className={cn(
-        "rounded-md border px-2.5 py-1 text-xs font-medium transition-colors",
+        "rounded-md border px-2.5 py-1 text-xs font-medium",
+        "transition-[color,background-color,border-color,scale] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)] active:scale-[0.99]",
         variant === "primary" &&
           "border-primary bg-primary text-primary-foreground hover:bg-primary-hover",
         variant === "destructive" &&

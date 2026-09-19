@@ -2,6 +2,7 @@ import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 
 import { Label } from "@/components/label";
+import { Spinner } from "@/components/spinner";
 
 import {
   Combobox,
@@ -10,6 +11,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  ComboboxLoading,
   ComboboxTrigger,
 } from "./combobox";
 
@@ -164,6 +166,88 @@ export const LongList: Story = {
             const label = `UTC${offset >= 0 ? "+" : "-"}${String(Math.abs(offset)).padStart(2, "0")}:00`;
             return <ComboboxItem key={index} value={`${label} · Zone ${String(index + 1)}`} />;
           })}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  ),
+};
+
+/**
+ * SmoothUI's Combobox with `onSearch`: results come from a (pretend) server,
+ * debounced, with a loading state that holds "No results" back until the answer
+ * arrives. Options rise in; the chevron turns while open.
+ */
+export const AsyncSearch: Story = {
+  render: function AsyncSearch() {
+    const [results, setResults] = useState(FRAMEWORKS);
+    const [loading, setLoading] = useState(false);
+
+    return (
+      <Combobox
+        shouldFilter={false}
+        loading={loading}
+        searchDebounce={300}
+        onSearchChange={(search) => {
+          setLoading(true);
+          setTimeout(() => {
+            const needle = search.trim().toLowerCase();
+            setResults(
+              FRAMEWORKS.filter((framework) =>
+                [framework.value, ...framework.keywords].some((term) =>
+                  term.toLowerCase().includes(needle),
+                ),
+              ),
+            );
+            setLoading(false);
+          }, 600);
+        }}
+      >
+        <ComboboxTrigger aria-label="Framework" placeholder="Search the server…" />
+        <ComboboxContent label="Search frameworks">
+          <ComboboxInput
+            placeholder="Search framework…"
+            aria-label="Search framework"
+            clearable
+          />
+          <ComboboxLoading>
+            <Spinner size="sm" />
+            Loading…
+          </ComboboxLoading>
+          <ComboboxEmpty>No framework found.</ComboboxEmpty>
+          <ComboboxList>
+            {results.map((framework) => (
+              <ComboboxItem key={framework.value} value={framework.value} />
+            ))}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    );
+  },
+};
+
+/**
+ * SmoothUI's SearchableDropdown: a clear button in the search field, and
+ * choosing the selected option again clears it (`allowDeselect`).
+ */
+export const ClearableAndDeselectable: Story = {
+  render: () => (
+    <Combobox allowDeselect defaultValue="Astro">
+      <ComboboxTrigger aria-label="Framework" placeholder="Select framework…" />
+      <ComboboxContent label="Search frameworks">
+        <ComboboxInput
+          placeholder="Search framework…"
+          aria-label="Search framework"
+          clearable
+        />
+        <ComboboxEmpty>No framework found.</ComboboxEmpty>
+        <ComboboxList>
+          {FRAMEWORKS.map((framework) => (
+            <ComboboxItem
+              key={framework.value}
+              value={framework.value}
+              keywords={framework.keywords}
+            />
+          ))}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>

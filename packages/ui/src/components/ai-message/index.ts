@@ -4,10 +4,12 @@ export {
   MessageAvatar,
   MessageBody,
   MessageFooter,
+  MessageTimestamp,
   messageBodyVariants,
   messageVariants,
   type MessageAvatarProps,
   type MessageBodyProps,
   type MessageProps,
   type MessageRole,
+  type MessageTimestampProps,
 } from "./ai-message";

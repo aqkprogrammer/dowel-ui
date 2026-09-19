@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI AI Response (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import type { ComponentPropsWithRef } from "react";
 
 import { cn } from "@/lib/utils";
@@ -66,6 +67,10 @@ export function ResponseCaret({ className, ...props }: ComponentPropsWithRef<"sp
  * A distinct state from streaming: nothing has arrived yet, so there is no text
  * to show a caret after. Labelled for assistive technology because, unlike the
  * caret, this is the only thing on screen.
+ *
+ * An indicator in the ADR 0012 sense: it is the only sign that anything is
+ * happening, and a frozen one says the app has hung. So under reduced motion
+ * the dots slow (via --motion-scale-indicator) rather than stop.
  */
 export interface ThinkingIndicatorProps extends ComponentPropsWithRef<"div"> {
   label?: string;
@@ -87,8 +92,12 @@ export function ThinkingIndicator({
         <span
           key={index}
           aria-hidden="true"
+          data-motion="indicator"
           className="size-1.5 animate-pulse-soft rounded-full bg-current"
-          style={{ animationDelay: `${String(index * 160)}ms` }}
+          style={{
+            animationDuration: "calc(1.8s * var(--motion-scale-indicator, 1))",
+            animationDelay: `calc(${String(index * 160)}ms * var(--motion-scale-indicator, 1))`,
+          }}
         />
       ))}
     </div>
