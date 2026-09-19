@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI Select (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { cva, type VariantProps } from "class-variance-authority";
 import { Select as SelectPrimitive } from "radix-ui";
 import type { ComponentPropsWithRef, ReactNode } from "react";
@@ -13,6 +14,11 @@ import { cn } from "@/lib/utils";
  * For a short, known list. Past roughly a dozen options people want to type
  * rather than scroll — reach for Combobox there. Unlike a native `<select>`,
  * the options are real elements, so they can carry icons and descriptions.
+ *
+ * The list opens with the same motion as DropdownMenu and ContextMenu — a pop
+ * from the trigger with a slight overshoot, options dropping in 20ms apart —
+ * and the selected option's tick pops in. All of it is decoration and stops
+ * under reduced motion.
  */
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
@@ -108,6 +114,31 @@ function ScrollButton({
   );
 }
 
+const PREFIX = "dowel-select";
+
+/** Stagger delays for the first dozen entries; later ones arrive with the twelfth. */
+const STAGGER = Array.from(
+  { length: 11 },
+  (_, i) =>
+    `[data-slot=select-viewport]>:nth-child(${String(i + 2)}){animation-delay:calc(${String((i + 1) * 20)}ms * var(--motion-scale))}`,
+).join("\n");
+
+const STYLES = `
+@keyframes ${PREFIX}-in{from{opacity:0;transform:translateY(-4px) scale(.95)}}
+@keyframes ${PREFIX}-item-in{from{opacity:0;transform:translateY(-4px)}}
+@keyframes ${PREFIX}-check-in{from{opacity:0;transform:scale(0)}}
+${STAGGER}
+[data-slot=select-viewport]>:nth-child(n+13){animation-delay:calc(240ms * var(--motion-scale))}
+`;
+
+function Styles() {
+  return (
+    <style href={PREFIX} precedence="dowel">
+      {STYLES}
+    </style>
+  );
+}
+
 export type SelectContentProps = ComponentPropsWithRef<typeof SelectPrimitive.Content>;
 
 export function SelectContent({
@@ -118,27 +149,37 @@ export function SelectContent({
   ...props
 }: SelectContentProps) {
   return (
-    <SelectPrimitive.Portal>
-      <SelectPrimitive.Content
-        data-slot="select-content"
-        position={position}
-        sideOffset={position === "popper" ? sideOffset : undefined}
-        className={cn(
-          "relative z-[var(--z-popover)] max-h-[var(--radix-select-content-available-height)]",
-          "min-w-32 overflow-x-hidden overflow-y-auto rounded-lg border border-border bg-popover",
-          "p-1 text-popover-foreground shadow-lg",
-          "origin-[var(--radix-select-content-transform-origin)]",
-          "data-[state=closed]:animate-float-out data-[state=open]:animate-float-in",
-          position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]",
-          className,
-        )}
-        {...props}
-      >
-        <ScrollButton direction="up" />
-        <SelectPrimitive.Viewport className="p-0">{children}</SelectPrimitive.Viewport>
-        <ScrollButton direction="down" />
-      </SelectPrimitive.Content>
-    </SelectPrimitive.Portal>
+    <>
+      <Styles />
+      <SelectPrimitive.Portal>
+        <SelectPrimitive.Content
+          data-slot="select-content"
+          position={position}
+          sideOffset={position === "popper" ? sideOffset : undefined}
+          className={cn(
+            "relative z-[var(--z-popover)] max-h-[var(--radix-select-content-available-height)]",
+            "min-w-32 overflow-x-hidden overflow-y-auto rounded-lg border border-border bg-popover",
+            "p-1 text-popover-foreground shadow-lg",
+            "origin-[var(--radix-select-content-transform-origin)]",
+            // Keyframe names spelled out because Tailwind reads class names from the source.
+            "data-[state=closed]:animate-float-out",
+            "data-[state=open]:animate-[dowel-select-in_calc(250ms*var(--motion-scale))_var(--ease-overshoot)]",
+            position === "popper" && "w-full min-w-[var(--radix-select-trigger-width)]",
+            className,
+          )}
+          {...props}
+        >
+          <ScrollButton direction="up" />
+          <SelectPrimitive.Viewport
+            data-slot="select-viewport"
+            className="p-0 [&>*]:animate-[dowel-select-item-in_calc(250ms*var(--motion-scale))_var(--ease-overshoot)_both]"
+          >
+            {children}
+          </SelectPrimitive.Viewport>
+          <ScrollButton direction="down" />
+        </SelectPrimitive.Content>
+      </SelectPrimitive.Portal>
+    </>
   );
 }
 
@@ -178,7 +219,13 @@ export function SelectItem({ className, label, children, ...props }: SelectItemP
       {/* Decorative: selection is already announced through aria-selected. */}
       <span className="absolute end-2 grid size-4 place-items-center">
         <SelectPrimitive.ItemIndicator>
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-3.5">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+            data-slot="select-item-check"
+            className="size-3.5 animate-[dowel-select-check-in_calc(200ms*var(--motion-scale))_var(--ease-overshoot)]"
+          >
             <path
               d="m5 13 4 4L19 7"
               stroke="currentColor"

@@ -135,3 +135,30 @@ export const Invalid: Story = {
     </div>
   ),
 };
+
+/**
+ * SmoothUI Select: the list pops from the trigger and its options drop in 20ms
+ * apart (the same motion as Dropdown Menu), and the chosen option's tick pops
+ * in. Open it with a value already chosen to see the tick. Stops under reduced
+ * motion.
+ */
+export const SpringStagger: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="grid gap-2">
+      <Label htmlFor="framework">Framework</Label>
+      <Select defaultValue="remix">
+        <SelectTrigger id="framework">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {["Next.js", "Remix", "Astro", "SvelteKit", "Nuxt", "Gatsby"].map((name) => (
+            <SelectItem key={name} value={name.toLowerCase()}>
+              {name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  ),
+};

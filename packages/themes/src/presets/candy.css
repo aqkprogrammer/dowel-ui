@@ -1,0 +1,37 @@
+/* Theme preset: candy.
+ * Apply with data-theme="candy" on the <html> element. Only the brand-carrying
+ * tokens are reassigned; every neutral, radius and motion token is inherited.
+ *
+ * From SmoothUI's Candy theme (MIT © 2024 Eduardo Calvo). Candy is two colours,
+ * not one: a pink brand, oklch(0.72 0.2 352.53), and a deeper brand-secondary,
+ * oklch(0.66 0.21 354.31), that SmoothUI uses as the far end of its gradients.
+ * Dowel has one brand colour and no gradient token, so the pair is mapped onto
+ * the states it already has: the brand is --primary, and the secondary is
+ * --primary-active — pressing moves further down the same gradient. Hover
+ * follows the brand hue. */
+
+[data-theme="candy"] {
+  /* SmoothUI's pink is 2.62:1 under white text and 2.74:1 as text on white —
+     short of 4.5:1 twice, and this token is the focus ring too. Lightness is
+     brought down to 0.58, the lightest value that clears 4.5:1 for both, with
+     hue and chroma untouched. The active state carries brand-secondary's hue
+     at the standard step down, its chroma capped at 0.2, the most sRGB holds
+     at 0.497. */
+  --primary: oklch(0.58 0.2 352.53);
+  --primary-hover: oklch(0.535 0.2 352.53);
+  --primary-active: oklch(0.497 0.2 354.31);
+  --primary-foreground: oklch(0.985 0.002 265);
+}
+
+.dark[data-theme="candy"] {
+  /* SmoothUI's exact values. Its brand does not change between modes, and on
+     near-black both of them already carry dark text: 7.2:1 on the brand, 5.7:1
+     on the secondary. Hover is capped at chroma 0.16, the most sRGB holds at
+     that lightness. Near `rose`, but not the same colour: rose is a red at hue
+     17 and a dark primary of 0.645; candy is a cooler pink, 25° away, and far
+     brighter in dark mode. */
+  --primary: oklch(0.72 0.2 352.53);
+  --primary-hover: oklch(0.765 0.16 352.53);
+  --primary-active: oklch(0.66 0.21 354.31);
+  --primary-foreground: oklch(0.155 0.03 352.53);
+}

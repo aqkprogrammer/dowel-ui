@@ -1,6 +1,8 @@
 import type { Decorator, Meta, StoryObj } from "@storybook/react-vite";
 import { useEffect, useState } from "react";
 
+import { Button } from "@/components/button";
+
 import { Progress } from "./progress";
 
 /** Named so its type is nameable in declaration output (TS2883). */
@@ -18,6 +20,9 @@ const meta = {
     value: { control: { type: "range", min: 0, max: 100 } },
     size: { control: "inline-radio", options: ["sm", "md", "lg"] },
     tone: { control: "select", options: ["primary", "success", "warning", "destructive"] },
+    easing: { control: "inline-radio", options: ["smooth", "spring"] },
+    effect: { control: "inline-radio", options: ["none", "striped", "shine"] },
+    fillOnMount: { control: "boolean" },
   },
   decorators: [withFixedWidth],
 } satisfies Meta<typeof Progress>;
@@ -87,4 +92,44 @@ export const Sizes: Story = {
       ))}
     </div>
   ),
+};
+
+/**
+ * SmoothUI's AnimatedProgressBar: a springy fill (`easing="spring"`) that runs
+ * up from empty when it appears (`fillOnMount`), plus two opt-in textures
+ * (`effect`). Press "Step" to watch the spring settle on each new value.
+ */
+export const AnimatedProgressBar: Story = {
+  parameters: { controls: { disable: true } },
+  render: function AnimatedProgressBar() {
+    const [value, setValue] = useState(30);
+    return (
+      <div className="grid gap-5">
+        <Button
+          variant="outline"
+          size="sm"
+          className="justify-self-start"
+          onClick={() => {
+            setValue((current) => (current >= 100 ? 10 : current + 30));
+          }}
+        >
+          Step
+        </Button>
+        <div className="grid gap-1.5">
+          <span className="text-sm text-muted-foreground">
+            Spring, fills on mount · {value}%
+          </span>
+          <Progress value={value} easing="spring" fillOnMount aria-label="Spring" />
+        </div>
+        <div className="grid gap-1.5">
+          <span className="text-sm text-muted-foreground">Striped · {value}%</span>
+          <Progress value={value} effect="striped" size="lg" aria-label="Striped" />
+        </div>
+        <div className="grid gap-1.5">
+          <span className="text-sm text-muted-foreground">Shine · {value}%</span>
+          <Progress value={value} effect="shine" tone="success" aria-label="Shine" />
+        </div>
+      </div>
+    );
+  },
 };

@@ -117,6 +117,14 @@ describe("CodeBlock", () => {
       });
     });
 
+    it("renders the shared Copy Button, sized for the header", () => {
+      render(<CodeBlock language="ts">{SAMPLE}</CodeBlock>);
+      const button = screen.getByRole("button", { name: "Copy code" });
+      expect(button).toHaveAttribute("data-slot", "copy-button");
+      expect(button).toHaveClass("ms-auto", "size-6", "text-muted-foreground");
+      expect(button).not.toHaveClass("size-9", "border-input");
+    });
+
     it("can be hidden", () => {
       render(
         <CodeBlock language="ts" hideCopy>

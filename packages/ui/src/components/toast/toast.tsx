@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI BasicToast (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { cva, type VariantProps } from "class-variance-authority";
 import { Toast as ToastPrimitive } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
@@ -54,18 +55,54 @@ const toastVariants = cva(
 
 export const ToastProvider = ToastPrimitive.Provider;
 
+const PREFIX = "dowel-toast";
+
+/* A short hop from the docked edge with a scale pop, instead of the full slide
+ * in from off-screen. The edge comes from --dowel-toast-from, which the Toaster
+ * sets from its position (3rem from the right, -3rem from the left, 0 when
+ * centred); a Toast used on its own comes from the right, like the default. */
+const STYLES = `
+@keyframes ${PREFIX}-spring-in{from{opacity:0;transform:translate3d(var(--${PREFIX}-from,3rem),0,0) scale(.8)}}
+`;
+
 export interface ToastProps
   extends
     ComponentPropsWithRef<typeof ToastPrimitive.Root>,
-    VariantProps<typeof toastVariants> {}
+    VariantProps<typeof toastVariants> {
+  /**
+   * How the toast enters. `default` slides in from off-screen. `spring` hops a
+   * short way in from the docked edge with a scale pop and a slight overshoot.
+   * Both leave, and swipe away, the same way. Stops under reduced motion.
+   */
+  animation?: "default" | "spring";
+}
 
-export function Toast({ className, variant, ...props }: ToastProps) {
+export function Toast({ className, variant, animation = "default", ...props }: ToastProps) {
+  const spring = animation === "spring";
+
   return (
-    <ToastPrimitive.Root
-      data-slot="toast"
-      className={cn(toastVariants({ variant }), className)}
-      {...props}
-    />
+    <>
+      {spring ? (
+        <style href={PREFIX} precedence="dowel">
+          {STYLES}
+        </style>
+      ) : null}
+      <ToastPrimitive.Root
+        data-slot="toast"
+        data-animation={spring ? "spring" : undefined}
+        className={cn(
+          toastVariants({ variant }),
+          // Keyed on data-animation as well as data-state so the selector is
+          // more specific than the base slide-in, which tailwind-merge cannot
+          // recognise as a conflict (it does not know the theme's animate-*
+          // names). Spelled out because Tailwind reads class names from source.
+          spring &&
+            "data-[animation=spring]:data-[state=open]:animate-[dowel-toast-spring-in_calc(250ms*var(--motion-scale))_var(--ease-overshoot)]",
+          className,
+        )}
+        {...props}
+      />
+    </>
   );
 }
 
@@ -161,6 +198,16 @@ const viewportPositions: Record<ToastPosition, string> = {
   "bottom-right": "bottom-0 right-0", // rtl-ok: named position
 };
 
+/** Where a spring toast hops in from: the edge it is docked against. */
+const springOrigins: Record<ToastPosition, string> = {
+  "top-left": "[--dowel-toast-from:-3rem]",
+  "top-center": "[--dowel-toast-from:0]",
+  "top-right": "[--dowel-toast-from:3rem]",
+  "bottom-left": "[--dowel-toast-from:-3rem]",
+  "bottom-center": "[--dowel-toast-from:0]",
+  "bottom-right": "[--dowel-toast-from:3rem]",
+};
+
 export interface ToasterProps {
   position?: ToastPosition;
   /** Default auto-dismiss in ms. Individual toasts may override it. */
@@ -168,6 +215,8 @@ export interface ToasterProps {
   className?: string;
   /** Names the toast region for assistive technology. */
   label?: string;
+  /** How toasts enter. See `Toast`'s `animation`. */
+  animation?: "default" | "spring";
 }
 
 /**
@@ -178,6 +227,7 @@ export function Toaster({
   duration = DEFAULT_TOAST_DURATION,
   className,
   label = "Notifications",
+  animation = "default",
 }: ToasterProps) {
   const toasts = useToasts();
   // Swiping should follow the edge the toasts are docked against.
@@ -186,13 +236,14 @@ export function Toaster({
   return (
     <ToastPrimitive.Provider swipeDirection={swipeDirection} duration={duration} label={label}>
       {toasts.map((record) => (
-        <ToastItem key={record.id} record={record} />
+        <ToastItem key={record.id} record={record} animation={animation} />
       ))}
       <ToastPrimitive.Viewport
         data-slot="toast-viewport"
         className={cn(
           "pointer-events-none fixed z-[var(--z-toast)] flex max-h-screen w-full flex-col gap-2 p-4 sm:max-w-sm",
           viewportPositions[position],
+          animation === "spring" && springOrigins[position],
           className,
         )}
       />
@@ -213,7 +264,13 @@ const FOREGROUND_VARIANTS = new Set<ToastVariant>(["destructive", "warning"]);
  */
 const MAX_TIMEOUT_MS = 2_147_483_647;
 
-function ToastItem({ record }: { record: ToastRecord }) {
+function ToastItem({
+  record,
+  animation,
+}: {
+  record: ToastRecord;
+  animation: "default" | "spring";
+}) {
   const { id, title, description, variant, action, duration } = record;
 
   const type = FOREGROUND_VARIANTS.has(variant) ? "foreground" : "background";
@@ -221,6 +278,7 @@ function ToastItem({ record }: { record: ToastRecord }) {
   return (
     <Toast
       variant={variant}
+      animation={animation}
       type={type}
       // Mirrored onto the element because the primitive expresses `type` only
       // through the transient live region it renders elsewhere. Having it here

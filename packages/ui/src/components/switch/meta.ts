@@ -11,5 +11,7 @@ export const meta = defineMeta({
   files: ["switch.tsx"],
   a11y:
     'Exposed as role="switch" and toggled with Space or Enter. Needs a visible label tied with ' +
-    "htmlFor/id. Do not rely on colour alone to show state — position and the label carry it too.",
+    "htmlFor/id. Do not rely on colour alone to show state — position and the label carry it too. " +
+    "Icons passed to `icons` are aria-hidden decoration; the press squash only runs without " +
+    "a reduced-motion preference.",
 });

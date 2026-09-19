@@ -21,7 +21,7 @@ it cannot produce a meaningful answer. That leaves the palette unchecked, which
 is where contrast problems actually live.
 
 `audit:contrast` converts the OKLCH tokens to sRGB and computes WCAG ratios for
-every semantic pair, in light and dark, across all seven presets: **322 pairs**.
+every semantic pair, in light and dark, across all thirteen presets: **598 pairs**.
 The conversion has its own tests, because an audit that quietly computes the
 wrong numbers is worse than none.
 

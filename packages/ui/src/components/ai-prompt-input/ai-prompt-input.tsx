@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI AI Prompt Input (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import {
   createContext,
   useContext,
@@ -214,40 +215,66 @@ export function PromptInputSubmit({
 }: PromptInputSubmitProps) {
   const { busy, disabled } = usePromptInput("PromptInputSubmit");
 
+  // Both glyphs stay mounted in one grid cell and cross-fade, so the swap is a
+  // scale-and-fade rather than a jump. The accessible name carries the state;
+  // the glyphs are decoration.
+  const glyph =
+    "col-start-1 row-start-1 transition-[opacity,scale] duration-[var(--duration-normal)] ease-[var(--ease-out-quint)]";
+
   return (
     <button
       type={busy ? "button" : "submit"}
       data-slot="prompt-input-submit"
+      data-state={busy ? "stop" : "send"}
       aria-label={busy ? stopLabel : label}
       disabled={disabled}
       onClick={busy ? onStop : undefined}
       className={cn(
         "ms-auto grid size-8 shrink-0 place-items-center rounded-lg",
-        "bg-primary text-primary-foreground transition-colors duration-[var(--duration-fast)]",
-        "hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-55",
+        "bg-primary text-primary-foreground",
+        "transition-[color,background-color,scale] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
+        "hover:scale-105 hover:bg-primary-hover active:scale-95",
+        "disabled:pointer-events-none disabled:scale-100 disabled:opacity-55",
         focusRing,
         className,
       )}
       {...props}
     >
-      {busy ? (
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-3.5">
-          <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" />
-        </svg>
-      ) : (
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-4">
-          <path
-            d="M12 19V5m0 0-6 6m6-6 6 6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+        data-glyph="send"
+        className={cn(glyph, "size-4", busy ? "scale-60 opacity-0" : "scale-100 opacity-100")}
+      >
+        <path
+          d="M12 19V5m0 0-6 6m6-6 6 6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+        data-glyph="stop"
+        className={cn(glyph, "size-3.5", busy ? "scale-100 opacity-100" : "scale-60 opacity-0")}
+      >
+        <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" />
+      </svg>
     </button>
   );
 }
+
+const PREFIX = "dowel-ai-prompt-input";
+
+/* The "value / max" reading rises in once, when the limit first matters. */
+const STYLES = `
+@keyframes ${PREFIX}-counter-in{from{opacity:0;translate:0 4px}}
+[data-slot=prompt-input-counter-value][data-warning]{display:inline-block;animation:${PREFIX}-counter-in calc(200ms * var(--motion-scale,1)) var(--ease-out-quint) both}
+`;
 
 export interface PromptInputCounterProps extends ComponentPropsWithRef<"div"> {
   value: number;
@@ -291,7 +318,18 @@ export function PromptInputCounter({
       )}
       {...props}
     >
-      <span aria-hidden="true">
+      <style href={PREFIX} precedence="dowel">
+        {STYLES}
+      </style>
+      {/* Keyed so crossing the threshold remounts the visible reading, which is
+          what plays its entrance. Never key the status span below: it has to
+          stay the same live region from first paint (ADR 0009). */}
+      <span
+        key={warning ? "limit" : "count"}
+        aria-hidden="true"
+        data-slot="prompt-input-counter-value"
+        data-warning={warning || undefined}
+      >
         {warning ? `${String(value)} / ${String(max)}` : String(value)}
       </span>
       <span role="status" aria-live="polite" className="sr-only">

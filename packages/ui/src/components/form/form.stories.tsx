@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/button";
 import { Checkbox } from "@/components/checkbox";
-import { Input } from "@/components/input";
+import { FloatingLabelInput, Input } from "@/components/input";
 import {
   Select,
   SelectContent,
@@ -141,4 +141,40 @@ export const MixedControls: Story = {
       <Button type="submit">Create project</Button>
     </Form>
   ),
+};
+
+/**
+ * SmoothUI's Form: messages grow open and fade in, and with `animateExit` they
+ * fade and collapse on the way out instead of vanishing. Type an "@" to clear
+ * the error; the field uses the opt-in floating label.
+ */
+export const AnimatedMessages: Story = {
+  render: function AnimatedMessages() {
+    const [email, setEmail] = useState("");
+    const [touched, setTouched] = useState(false);
+    const error = touched && !email.includes("@") ? "Enter a valid email address." : undefined;
+
+    return (
+      <Form
+        onSubmit={(event) => {
+          event.preventDefault();
+          setTouched(true);
+        }}
+      >
+        <FormField name="email" error={error}>
+          <FormControl>
+            <FloatingLabelInput
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              onBlur={() => setTouched(true)}
+            />
+          </FormControl>
+          <FormMessage animateExit />
+        </FormField>
+        <Button type="submit">Continue</Button>
+      </Form>
+    );
+  },
 };

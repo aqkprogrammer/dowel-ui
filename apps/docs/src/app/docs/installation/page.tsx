@@ -52,7 +52,7 @@ export default function InstallationPage() {
         <p>
           If there is no project yet, the scaffolder writes one and fetches the components for
           it. It asks what you are building — a starter, a SaaS application or an AI product —
-          and which of the seven themes to start on.
+          and which of the thirteen themes to start on.
         </p>
       </Prose>
 

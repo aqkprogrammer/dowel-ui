@@ -1,5 +1,7 @@
 "use client";
 
+// Motion from SmoothUI Combobox and SearchableDropdown (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
+
 import { Popover as PopoverPrimitive } from "radix-ui";
 import {
   createContext,
@@ -57,6 +59,7 @@ interface ComboboxContextValue {
   listRef: React.RefObject<HTMLDivElement | null>;
   registerVisible: (value: string, visible: boolean) => void;
   visibleCount: number;
+  loading: boolean;
 }
 
 const ComboboxContext = createContext<ComboboxContextValue | null>(null);
@@ -78,8 +81,41 @@ export interface ComboboxProps {
   onOpenChange?: (open: boolean) => void;
   /** Overrides how a search string is matched against an option. */
   filter?: (search: string, haystack: string[]) => boolean;
+  /**
+   * Set `false` when the options are already the results for the search — for
+   * example when `onSearchChange` fetches them — so they are not filtered twice.
+   */
+  shouldFilter?: boolean;
+  /** Called as the search text changes, including the reset when it closes. */
+  onSearchChange?: (search: string) => void;
+  /** Milliseconds of quiet typing before `onSearchChange` fires. */
+  searchDebounce?: number;
+  /**
+   * Results are on their way: the listbox is `aria-busy`, `ComboboxLoading`
+   * shows and `ComboboxEmpty` holds back, so "No results" never flashes first.
+   */
+  loading?: boolean;
+  /** Choosing the selected option again clears it, reporting `""`. */
+  allowDeselect?: boolean;
   children?: ReactNode;
 }
+
+/*
+ * Motion (SmoothUI's Combobox): options rise in, the first few a beat apart,
+ * and the trigger's chevron turns while open. Keyframes ship with the
+ * component (ADR 0014); every duration and delay runs on the motion scale.
+ */
+const ITEM_STAGGER = Array.from(
+  { length: 8 },
+  (_, index) =>
+    `[data-slot="combobox-item"]:nth-child(${String(index + 2)}){animation-delay:calc(${String((index + 1) * 20)}ms * var(--motion-scale, 1))}`,
+).join("");
+
+const ITEM_KEYFRAMES = `
+@keyframes dowel-combobox-item-in{from{opacity:0;transform:translateY(0.25rem)}}
+[data-slot="combobox-item"]{animation:dowel-combobox-item-in var(--duration-normal) var(--ease-out-quint) backwards}
+${ITEM_STAGGER}
+`;
 
 export function Combobox({
   value: valueProp,
@@ -88,10 +124,16 @@ export function Combobox({
   open: openProp,
   defaultOpen = false,
   onOpenChange,
-  filter = defaultComboboxFilter,
+  filter: filterProp = defaultComboboxFilter,
+  shouldFilter = true,
+  onSearchChange,
+  searchDebounce = 0,
+  loading = false,
+  allowDeselect = false,
   children,
 }: ComboboxProps) {
   const uid = useId();
+  const filter = shouldFilter ? filterProp : acceptAll;
 
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
   const value = valueProp === undefined ? uncontrolledValue : valueProp;
@@ -99,7 +141,37 @@ export function Combobox({
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const open = openProp === undefined ? uncontrolledOpen : openProp;
 
-  const [search, setSearch] = useState("");
+  const [search, setSearchState] = useState("");
+  const searchRef = useRef("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const onSearchChangeRef = useRef(onSearchChange);
+  useEffect(() => {
+    onSearchChangeRef.current = onSearchChange;
+  }, [onSearchChange]);
+
+  const setSearch = useCallback(
+    (next: string) => {
+      if (next === searchRef.current) return;
+      searchRef.current = next;
+      setSearchState(next);
+      clearTimeout(debounceRef.current);
+      if (searchDebounce <= 0) {
+        onSearchChangeRef.current?.(next);
+        return;
+      }
+      debounceRef.current = setTimeout(() => {
+        onSearchChangeRef.current?.(next);
+      }, searchDebounce);
+    },
+    [searchDebounce],
+  );
+
+  useEffect(
+    () => () => {
+      clearTimeout(debounceRef.current);
+    },
+    [],
+  );
   const [activeValue, setActiveValue] = useState<string | undefined>(undefined);
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -128,16 +200,17 @@ export function Combobox({
         setActiveValue(undefined);
       }
     },
-    [openProp, onOpenChange],
+    [openProp, onOpenChange, setSearch],
   );
 
   const select = useCallback(
-    (next: string) => {
-      if (valueProp === undefined) setUncontrolledValue(next);
+    (chosen: string) => {
+      const next = allowDeselect && chosen === value ? "" : chosen;
+      if (valueProp === undefined) setUncontrolledValue(next || undefined);
       onValueChange?.(next);
       setOpen(false);
     },
-    [valueProp, onValueChange, setOpen],
+    [valueProp, onValueChange, setOpen, allowDeselect, value],
   );
 
   const context = useMemo<ComboboxContextValue>(
@@ -158,11 +231,14 @@ export function Combobox({
       listRef,
       registerVisible,
       visibleCount,
+      loading,
     }),
     [
       open,
       setOpen,
       search,
+      setSearch,
+      loading,
       value,
       select,
       activeValue,
@@ -180,6 +256,10 @@ export function Combobox({
       </PopoverPrimitive.Root>
     </ComboboxContext.Provider>
   );
+}
+
+function acceptAll(): boolean {
+  return true;
 }
 
 export interface ComboboxTriggerProps extends ComponentPropsWithRef<"button"> {
@@ -219,7 +299,12 @@ export function ComboboxTrigger({
           viewBox="0 0 24 24"
           fill="none"
           aria-hidden="true"
-          className="size-4 shrink-0 opacity-60"
+          data-slot="combobox-chevron"
+          className={cn(
+            "size-4 shrink-0 opacity-60",
+            "transition-[rotate] duration-[var(--duration-normal)] ease-[var(--ease-out-quint)]",
+            open && "rotate-180",
+          )}
         >
           <path
             d="m7 10 5 5 5-5"
@@ -281,9 +366,15 @@ function visibleOptions(list: HTMLElement | null): HTMLElement[] {
   return Array.from(list.querySelectorAll<HTMLElement>('[role="option"]:not([data-disabled])'));
 }
 
-export type ComboboxInputProps = Omit<ComponentPropsWithRef<"input">, "value" | "onChange">;
+export interface ComboboxInputProps extends Omit<
+  ComponentPropsWithRef<"input">,
+  "value" | "onChange"
+> {
+  /** Shows a button that clears the search while there is text to clear. */
+  clearable?: boolean;
+}
 
-export function ComboboxInput({ className, ...props }: ComboboxInputProps) {
+export function ComboboxInput({ className, clearable = false, ...props }: ComboboxInputProps) {
   const {
     search,
     setSearch,
@@ -393,18 +484,49 @@ export function ComboboxInput({ className, ...props }: ComboboxInputProps) {
         )}
         {...props}
       />
+      {clearable && search ? (
+        <button
+          type="button"
+          data-slot="combobox-clear"
+          aria-label="Clear search"
+          // Keeps focus, and so aria-activedescendant, in the input.
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={() => {
+            setSearch("");
+            setActiveValue(undefined);
+            inputRef.current?.focus();
+          }}
+          className={cn(
+            "-me-1 grid size-6 shrink-0 place-items-center rounded-sm opacity-60 hover:opacity-100",
+            "transition-opacity duration-[var(--duration-fast)]",
+            focusRing,
+          )}
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-3.5">
+            <path
+              d="M6 6l12 12M18 6 6 18"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      ) : null}
     </div>
   );
 }
 
 export function ComboboxList({ className, ...props }: ComponentPropsWithRef<"div">) {
-  const { listId, listRef } = useCombobox("ComboboxList");
+  const { listId, listRef, loading } = useCombobox("ComboboxList");
 
   return (
     <div
       ref={listRef}
       id={listId}
       role="listbox"
+      aria-busy={loading || undefined}
       data-slot="combobox-list"
       className={cn("max-h-64 overflow-y-auto overscroll-contain p-1", className)}
       {...props}
@@ -508,6 +630,9 @@ export function ComboboxItem({
       )}
       {...props}
     >
+      <style href="dowel-combobox" precedence="dowel">
+        {ITEM_KEYFRAMES}
+      </style>
       {children ?? value}
       {selected ? (
         <span className="absolute end-2 grid size-4 place-items-center">
@@ -528,8 +653,8 @@ export function ComboboxItem({
 
 /** Shown only when the filter leaves nothing. */
 export function ComboboxEmpty({ className, children, ...props }: ComponentPropsWithRef<"div">) {
-  const { visibleCount } = useCombobox("ComboboxEmpty");
-  if (visibleCount > 0) return null;
+  const { visibleCount, loading } = useCombobox("ComboboxEmpty");
+  if (visibleCount > 0 || loading) return null;
 
   return (
     <div
@@ -539,6 +664,34 @@ export function ComboboxEmpty({ className, children, ...props }: ComponentPropsW
       {...props}
     >
       {children ?? "No results found."}
+    </div>
+  );
+}
+
+/**
+ * Shown only while `loading` is set on Combobox. Render it beside ComboboxList,
+ * as with ComboboxEmpty; pass a Spinner as a child if wanted.
+ */
+export function ComboboxLoading({
+  className,
+  children,
+  ...props
+}: ComponentPropsWithRef<"div">) {
+  const { loading } = useCombobox("ComboboxLoading");
+  if (!loading) return null;
+
+  return (
+    <div
+      data-slot="combobox-loading"
+      role="status"
+      className={cn(
+        "flex items-center justify-center gap-2 px-3 py-6 text-sm text-muted-foreground",
+        "animate-float-in",
+        className,
+      )}
+      {...props}
+    >
+      {children ?? "Loading…"}
     </div>
   );
 }

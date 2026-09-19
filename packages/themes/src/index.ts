@@ -55,6 +55,12 @@ export const THEME_PRESETS = [
   "rose",
   "amber",
   "monochrome",
+  "candy",
+  "indigo",
+  "blue",
+  "red",
+  "orange",
+  "green",
 ] as const;
 
 export type ThemePreset = (typeof THEME_PRESETS)[number];

@@ -53,6 +53,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   feedback: "Feedback",
   layout: "Layout",
   ai: "AI",
+  effects: "Effects",
 };
 
 const CATEGORY_ORDER = [
@@ -65,6 +66,7 @@ const CATEGORY_ORDER = [
   "feedback",
   "layout",
   "ai",
+  "effects",
 ];
 
 function label(category: string): string {
@@ -281,7 +283,8 @@ change belongs in the token layer instead.
 
 ## Presets
 
-\`default\`, \`ocean\`, \`emerald\`, \`violet\`, \`rose\`, \`amber\`, \`monochrome\`.
+\`default\`, \`ocean\`, \`emerald\`, \`violet\`, \`rose\`, \`amber\`, \`monochrome\`,
+\`candy\`, \`indigo\`, \`blue\`, \`red\`, \`orange\`, \`green\`.
 
 \`\`\`html
 <html data-theme="ocean" class="dark">

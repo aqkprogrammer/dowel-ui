@@ -131,3 +131,59 @@ export const WithoutWordDetail: Story = {
 export const NoChanges: Story = {
   args: { hunks: buildDiff(BEFORE, BEFORE) },
 };
+
+/**
+ * `entrance="wipe"`: added lines draw in along the reading direction, one after
+ * another (the stagger is capped at 20 lines). Context and removals were
+ * already there and stay still. Remount to replay. From SmoothUI AI Diff.
+ */
+export const WipeEntrance: Story = {
+  parameters: { controls: { disable: true } },
+  render: function WipeEntrance() {
+    const [round, setRound] = useState(0);
+    return (
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          className="self-start text-xs text-muted-foreground underline"
+          onClick={() => {
+            setRound((current) => current + 1);
+          }}
+        >
+          Replay
+        </button>
+        <DiffViewer
+          key={round}
+          hunks={buildDiff(BEFORE, AFTER)}
+          label="src/lib/workspace.ts"
+          entrance="wipe"
+        />
+      </div>
+    );
+  },
+};
+
+/**
+ * Deciding flashes the hunk once in the decision's tone. With
+ * `collapseRejected`, a rejected hunk folds its lines away but keeps its header,
+ * so Accept can bring them back.
+ */
+export const CollapseRejected: Story = {
+  parameters: { controls: { disable: true } },
+  render: function CollapseRejected() {
+    const [decisions, setDecisions] = useState<Record<string, HunkDecision>>({});
+    const hunks = useMemo(() => buildDiff(BEFORE, AFTER, { context: 1 }), []);
+
+    return (
+      <DiffViewer
+        hunks={hunks}
+        label="src/lib/workspace.ts"
+        decisions={decisions}
+        collapseRejected
+        onDecision={(id, decision) => {
+          setDecisions((current) => ({ ...current, [id]: decision }));
+        }}
+      />
+    );
+  },
+};

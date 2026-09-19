@@ -99,7 +99,7 @@ export default async function HomePage() {
     },
     {
       title: "One design system",
-      body: "Two-tier OKLCH tokens with seven presets. Components reference semantic tokens only, so re-skinning the system touches no component file.",
+      body: "Two-tier OKLCH tokens with thirteen presets. Components reference semantic tokens only, so re-skinning the system touches no component file.",
     },
   ];
 

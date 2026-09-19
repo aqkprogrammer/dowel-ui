@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI Drawer (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { Dialog as DrawerPrimitive } from "radix-ui";
 import {
   createContext,
@@ -116,19 +117,51 @@ const DISMISS_VELOCITY = 0.5;
  */
 const MIN_FLICK_DISTANCE = 24;
 
+const PREFIX = "dowel-drawer";
+
+/** Sections start once the panel is mostly up, then follow 50ms apart. */
+const STAGGER_BASE_MS = 120;
+const STAGGER_STEP_MS = 50;
+const STAGGERED = 6;
+
+const SPRING_CHILD = `[data-slot=drawer-content][data-animation=spring][data-state=open]>:not([data-slot=drawer-handle])`;
+
+const delay = (index: number) =>
+  `calc(${String(STAGGER_BASE_MS + index * STAGGER_STEP_MS)}ms * var(--motion-scale))`;
+
+const STYLES = `
+@keyframes ${PREFIX}-section-in{from{opacity:0;transform:translateY(6px)}}
+${SPRING_CHILD}{animation:${PREFIX}-section-in calc(250ms * var(--motion-scale)) var(--ease-out-quint) both;animation-delay:${delay(0)}}
+${Array.from(
+  { length: STAGGERED - 1 },
+  (_, i) => `${SPRING_CHILD}:nth-child(${String(i + 2)}){animation-delay:${delay(i + 1)}}`,
+).join("\n")}
+${SPRING_CHILD}:nth-child(n+${String(STAGGERED + 1)}){animation-delay:${delay(STAGGERED)}}
+`;
+
 export interface DrawerContentProps extends ComponentPropsWithRef<
   typeof DrawerPrimitive.Content
 > {
   /** Shows the grab handle. Turn off only if the drawer cannot be dragged. */
   showHandle?: boolean;
+  /**
+   * How the content arrives. `default` slides up as one piece. `spring` slides
+   * the panel the same way, then brings its sections — header, body, footer —
+   * in one after another. The panel itself never overshoots, because a bottom
+   * sheet that bounced would lift off the edge it is attached to. Stops under
+   * reduced motion.
+   */
+  animation?: "default" | "spring";
 }
 
 export function DrawerContent({
   className,
   children,
   showHandle = true,
+  animation = "default",
   ...props
 }: DrawerContentProps) {
+  const spring = animation === "spring";
   const { close } = useDrawerContext("DrawerContent");
   const contentRef = useRef<HTMLDivElement | null>(null);
   const gesture = useRef<{ startY: number; startTime: number } | null>(null);
@@ -180,40 +213,50 @@ export function DrawerContent({
   };
 
   return (
-    <DrawerPortal>
-      <DrawerOverlay />
-      <DrawerPrimitive.Content
-        ref={contentRef}
-        data-slot="drawer-content"
-        data-dragging={isDragging || undefined}
-        style={offset > 0 ? { transform: `translate3d(0, ${String(offset)}px, 0)` } : undefined}
-        className={cn(
-          "fixed inset-x-0 bottom-0 z-[var(--z-drawer)] flex max-h-[92svh] flex-col",
-          "rounded-t-2xl border-t border-border bg-card text-card-foreground shadow-xl",
-          "[--slide-y:100%]",
-          "data-[state=closed]:animate-slide-out data-[state=open]:animate-slide-in",
-          // While a finger is down the transform is driven directly; afterwards
-          // it springs back. Suppressing the entry animation mid-drag stops the
-          // two from fighting over the same property.
-          "data-[dragging]:animate-none data-[dragging]:transition-none",
-          "transition-transform duration-[var(--duration-normal)] ease-[var(--ease-out-quint)]",
-          className,
-        )}
-        {...props}
-      >
-        {showHandle ? (
-          <div
-            data-slot="drawer-handle"
-            aria-hidden="true"
-            className="flex shrink-0 cursor-grab touch-none justify-center pt-3 pb-1 active:cursor-grabbing"
-            {...dragHandlers}
-          >
-            <div className="h-1.5 w-10 rounded-full bg-border-strong" />
-          </div>
-        ) : null}
-        {children}
-      </DrawerPrimitive.Content>
-    </DrawerPortal>
+    <>
+      {spring ? (
+        <style href={PREFIX} precedence="dowel">
+          {STYLES}
+        </style>
+      ) : null}
+      <DrawerPortal>
+        <DrawerOverlay />
+        <DrawerPrimitive.Content
+          ref={contentRef}
+          data-slot="drawer-content"
+          data-dragging={isDragging || undefined}
+          data-animation={spring ? "spring" : undefined}
+          style={
+            offset > 0 ? { transform: `translate3d(0, ${String(offset)}px, 0)` } : undefined
+          }
+          className={cn(
+            "fixed inset-x-0 bottom-0 z-[var(--z-drawer)] flex max-h-[92svh] flex-col",
+            "rounded-t-2xl border-t border-border bg-card text-card-foreground shadow-xl",
+            "[--slide-y:100%]",
+            "data-[state=closed]:animate-slide-out data-[state=open]:animate-slide-in",
+            // While a finger is down the transform is driven directly; afterwards
+            // it springs back. Suppressing the entry animation mid-drag stops the
+            // two from fighting over the same property.
+            "data-[dragging]:animate-none data-[dragging]:transition-none",
+            "transition-transform duration-[var(--duration-normal)] ease-[var(--ease-out-quint)]",
+            className,
+          )}
+          {...props}
+        >
+          {showHandle ? (
+            <div
+              data-slot="drawer-handle"
+              aria-hidden="true"
+              className="flex shrink-0 cursor-grab touch-none justify-center pt-3 pb-1 active:cursor-grabbing"
+              {...dragHandlers}
+            >
+              <div className="h-1.5 w-10 rounded-full bg-border-strong" />
+            </div>
+          ) : null}
+          {children}
+        </DrawerPrimitive.Content>
+      </DrawerPortal>
+    </>
   );
 }
 

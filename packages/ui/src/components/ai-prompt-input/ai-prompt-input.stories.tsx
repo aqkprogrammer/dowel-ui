@@ -143,3 +143,59 @@ export const Disabled: Story = {
     </PromptInput>
   ),
 };
+
+/**
+ * Send and Stop cross-fade (scale 0.6 → 1) instead of swapping, and the button
+ * gives a little on press. Motion from SmoothUI AI Prompt Input.
+ */
+export const SendStopMorph: Story = {
+  render: function SendStopMorph() {
+    const [busy, setBusy] = useState(false);
+
+    return (
+      <PromptInput
+        busy={busy}
+        onSubmit={(event) => {
+          event.preventDefault();
+          setBusy(true);
+        }}
+      >
+        <PromptInputTextarea aria-label="Message" placeholder="Send, then stop…" />
+        <PromptInputToolbar>
+          <PromptInputSubmit
+            onStop={() => {
+              setBusy(false);
+            }}
+          />
+        </PromptInputToolbar>
+      </PromptInput>
+    );
+  },
+};
+
+/** Near the limit, "value / max" rises in once; the live region never remounts. */
+export const CounterReveal: Story = {
+  render: function CounterReveal() {
+    const [value, setValue] = useState("A message that is getting close to its limit");
+
+    return (
+      <PromptInput
+        onSubmit={(event) => {
+          event.preventDefault();
+        }}
+      >
+        <PromptInputTextarea
+          aria-label="Message"
+          value={value}
+          onChange={(event) => {
+            setValue(event.target.value);
+          }}
+        />
+        <PromptInputToolbar>
+          <PromptInputCounter value={value.length} max={50} warnAt={0.9} />
+          <PromptInputSubmit />
+        </PromptInputToolbar>
+      </PromptInput>
+    );
+  },
+};

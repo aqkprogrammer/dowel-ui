@@ -15,5 +15,6 @@ export const meta = defineMeta({
     "ones that go somewhere. Separators are hidden from assistive technology, because the list " +
     'already conveys the sequence and reading "slash" between every item is the design\'s ' +
     "punctuation leaking into the content. The ellipsis is the exception and is named, because " +
-    "it is content: it says levels have been left out.",
+    "it is content: it says levels have been left out. The optional entrance stagger stops " +
+    "under reduced motion.",
 });

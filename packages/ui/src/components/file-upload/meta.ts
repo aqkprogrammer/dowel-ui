@@ -17,5 +17,6 @@ export const meta = defineMeta({
     "convenience layered on top; every drop can also be done from the input. Each uploading file " +
     "gets a progressbar named after it, status is always stated in words as well as drawn, and " +
     "one polite live region summarises the whole queue rather than six per-file regions talking " +
-    "over each other.",
+    "over each other." +
+    " The optional dropzone icon is aria-hidden. With animateExit, a removed row lingers only as an aria-hidden, inert copy with no buttons while it animates out.",
 });

@@ -109,3 +109,32 @@ export const WithoutHandle: Story = {
     </Drawer>
   ),
 };
+
+/**
+ * SmoothUI Drawer: `animation="spring"` slides the drawer up as usual, then
+ * brings its header, body and footer in 50ms apart once it has mostly arrived.
+ * The drag, Escape and Cancel all still work. Stops under reduced motion. For
+ * the other three sides, see Sheet's Spring story.
+ */
+export const Spring: Story = {
+  render: () => (
+    <Drawer>
+      <DrawerTrigger asChild>
+        <Button variant="outline">Open drawer</Button>
+      </DrawerTrigger>
+      <DrawerContent animation="spring">
+        <DrawerHeader>
+          <DrawerTitle>Share</DrawerTitle>
+          <DrawerDescription>Anyone with the link can view.</DrawerDescription>
+        </DrawerHeader>
+        <DrawerBody className="text-sm text-muted-foreground">
+          <p>Copy the link, or invite people by email.</p>
+        </DrawerBody>
+        <DrawerFooter>
+          <Button>Copy link</Button>
+          <DrawerCancel>Cancel</DrawerCancel>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  ),
+};

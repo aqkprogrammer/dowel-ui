@@ -3,6 +3,7 @@ export {
   TabsContent,
   TabsList,
   TabsTrigger,
+  tabsIndicatorVariants,
   tabsListVariants,
   tabsTriggerVariants,
   type TabsContentProps,

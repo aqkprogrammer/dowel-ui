@@ -1,5 +1,6 @@
 "use client";
 
+// Motion from SmoothUI AI Message (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
 import type { ComponentPropsWithRef } from "react";
@@ -126,23 +127,67 @@ export function MessageAvatar({ className, asChild, ...props }: MessageAvatarPro
   );
 }
 
+const PREFIX = "dowel-ai-message";
+
+/*
+ * Only a private custom property lives here: which way the actions slide in.
+ * They come out of the bubble's own edge — the inline start for the assistant,
+ * the inline end for the user — and the sign flips in RTL. Everything visible
+ * is a layered utility on the container, so a consumer className still wins.
+ */
+const STYLES = `
+[data-slot=message-actions]{--dowel-message-slide:-6px}
+[data-from=user] [data-slot=message-actions]{--dowel-message-slide:6px}
+[data-slot=message-actions]:dir(rtl){--dowel-message-slide:6px}
+[data-from=user] [data-slot=message-actions]:dir(rtl){--dowel-message-slide:-6px}
+`;
+
 /**
  * Per-message controls: copy, regenerate, feedback.
  *
  * Revealed on hover for pointer users but always present in the DOM and in the
  * tab order — hiding controls behind hover makes them unreachable by keyboard
- * and invisible on touch.
+ * and invisible on touch. On devices that cannot hover they are always shown.
  */
 export function MessageActions({ className, ...props }: ComponentPropsWithRef<"div">) {
   return (
-    <div
-      data-slot="message-actions"
-      className={cn(
-        "mt-1.5 flex items-center gap-1",
-        "opacity-0 transition-opacity duration-[var(--duration-fast)]",
-        "group-focus-within/message:opacity-100 group-hover/message:opacity-100",
-        className,
-      )}
+    <>
+      <style href={PREFIX} precedence="dowel">
+        {STYLES}
+      </style>
+      <div
+        data-slot="message-actions"
+        className={cn(
+          "mt-1.5 flex items-center gap-1",
+          "translate-x-(--dowel-message-slide) scale-90 opacity-0",
+          "transition-[opacity,translate,scale] duration-[var(--duration-normal)] ease-[var(--ease-out-quint)]",
+          "group-focus-within/message:translate-x-0 group-focus-within/message:scale-100 group-focus-within/message:opacity-100",
+          "group-hover/message:translate-x-0 group-hover/message:scale-100 group-hover/message:opacity-100",
+          "[@media(hover:none)]:translate-x-0 [@media(hover:none)]:scale-100 [@media(hover:none)]:opacity-100",
+          className,
+        )}
+        {...props}
+      />
+    </>
+  );
+}
+
+export interface MessageTimestampProps extends ComponentPropsWithRef<"time"> {
+  /** Machine-readable value for `dateTime`. Children are the display text. */
+  dateTime?: string;
+}
+
+/**
+ * When the message was sent.
+ *
+ * A real `<time>`, so the display text can be relative ("2 min ago") while the
+ * machine-readable value stays exact.
+ */
+export function MessageTimestamp({ className, ...props }: MessageTimestampProps) {
+  return (
+    <time
+      data-slot="message-timestamp"
+      className={cn("text-xs text-muted-foreground tabular-nums", className)}
       {...props}
     />
   );

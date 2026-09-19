@@ -17,6 +17,7 @@ export const COMPONENT_CATEGORIES = [
   "feedback",
   "data",
   "ai",
+  "effects",
 ] as const;
 
 export type ComponentCategory = (typeof COMPONENT_CATEGORIES)[number];

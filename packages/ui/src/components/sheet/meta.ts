@@ -12,5 +12,5 @@ export const meta = defineMeta({
   a11y:
     "Modal, with the same focus trapping and restoration as Dialog. Always render a SheetTitle. " +
     "For a side navigation sheet, put a nav landmark inside rather than relying on placement " +
-    "to convey the role.",
+    "to convey the role. The optional section stagger stops under reduced motion.",
 });
