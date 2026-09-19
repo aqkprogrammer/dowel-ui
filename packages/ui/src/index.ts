@@ -149,6 +149,7 @@ export * from "./components/ai-loader";
 export * from "./components/ai-suggestions";
 export * from "./components/ai-branch";
 export * from "./components/ai-artifact";
+export * from "./components/shader-transition";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";

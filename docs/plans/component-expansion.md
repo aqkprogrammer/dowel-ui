@@ -158,8 +158,15 @@ map onto the existing AI components the same way.
 
 ### Phase 9 — Transitions (SmoothUI 17)
 
-`shader-transition`: one WebGL engine, 17 presets (3 of them original, see
-rule 3). Falls back to a cross-fade without WebGL and under reduced motion.
+`shader-transition`: one raw-WebGL engine, 16 presets plus the Shader Reveal
+engine. Falls back to a cross-fade without WebGL and swaps instantly under
+reduced motion.
+
+Only three sources were SmoothUI's own designs (Aperture Blur, Chroma Blur,
+Prism Sweep) and are ported. The other thirteen derive from Codrops demos —
+SmoothUI's docs and changelog say so for Organic Merge, the SDF stages and the
+"Akella" Shader Reveal family — so their shaders are original, written without
+reading the source shader code.
 
 ### Phase 10 — Marketing blocks and themes
 
@@ -192,8 +199,8 @@ Search synonyms, counts, changeset (minor), full `audit:all`, docs build.
 | 4 Cards & carousels          | done   | c26f15f (docs fix), 25c0cb4   |
 | 5 Dither charts              | done   | 742a707                       |
 | 6 Interaction blocks         | —      |                               |
-| 7 SmoothUI extras            | done   | this commit                   |
+| 7 SmoothUI extras            | done   | 3e58cba                       |
 | 8 Existing-component motion  | —      |                               |
-| 9 Transitions                | —      |                               |
+| 9 Transitions                | done   | this commit                   |
 | 10 Marketing blocks & themes | —      |                               |
 | 11 Release                   | —      |                               |

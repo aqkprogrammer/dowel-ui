@@ -151,6 +151,7 @@ import { meta as aiLoaderMeta } from "@/components/ai-loader/meta";
 import { meta as aiSuggestionsMeta } from "@/components/ai-suggestions/meta";
 import { meta as aiBranchMeta } from "@/components/ai-branch/meta";
 import { meta as aiArtifactMeta } from "@/components/ai-artifact/meta";
+import { meta as shaderTransitionMeta } from "@/components/shader-transition/meta";
 
 /**
  * Every component in the registry.
@@ -315,6 +316,7 @@ export const componentMetas: ComponentMeta[] = [
   aiSuggestionsMeta,
   aiBranchMeta,
   aiArtifactMeta,
+  shaderTransitionMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is
