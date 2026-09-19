@@ -190,17 +190,17 @@ Search synonyms, counts, changeset (minor), full `audit:all`, docs build.
 
 ## Progress
 
-| Phase                        | Status | Commit                        |
-| ---------------------------- | ------ | ----------------------------- |
-| 0 Foundation                 | done   | 218b1ac                       |
-| 1 Loaders                    | done   | a31d8c8, e6837d8              |
-| 2 Buttons                    | done   | 711963d, 95ab872 (motion dep) |
-| 3 Text effects               | done   | 1853932                       |
-| 4 Cards & carousels          | done   | c26f15f (docs fix), 25c0cb4   |
-| 5 Dither charts              | done   | 742a707                       |
-| 6 Interaction blocks         | done   | this commit                   |
-| 7 SmoothUI extras            | done   | 3e58cba                       |
-| 8 Existing-component motion  | done   | 0cf0aa0                       |
-| 9 Transitions                | done   | eb80442                       |
-| 10 Marketing blocks & themes | —      |                               |
-| 11 Release                   | —      |                               |
+| Phase                        | Status | Commit                                 |
+| ---------------------------- | ------ | -------------------------------------- |
+| 0 Foundation                 | done   | 218b1ac                                |
+| 1 Loaders                    | done   | a31d8c8, e6837d8                       |
+| 2 Buttons                    | done   | 711963d, 95ab872 (motion dep)          |
+| 3 Text effects               | done   | 1853932                                |
+| 4 Cards & carousels          | done   | c26f15f (docs fix), 25c0cb4            |
+| 5 Dither charts              | done   | 742a707                                |
+| 6 Interaction blocks         | done   | e013642                                |
+| 7 SmoothUI extras            | done   | 3e58cba                                |
+| 8 Existing-component motion  | done   | 0cf0aa0                                |
+| 9 Transitions                | done   | eb80442                                |
+| 10 Marketing blocks & themes | done   | 3c12af8 (themes), this commit (blocks) |
+| 11 Release                   | —      |                                        |
