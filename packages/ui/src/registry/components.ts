@@ -120,6 +120,37 @@ import { meta as ditherScatterMeta } from "@/components/dither-scatter/meta";
 import { meta as ditherFunnelMeta } from "@/components/dither-funnel/meta";
 import { meta as ditherMeterMeta } from "@/components/dither-meter/meta";
 import { meta as uptimeMatrixMeta } from "@/components/uptime-matrix/meta";
+import { meta as avatarGroupMeta } from "@/components/avatar-group/meta";
+import { meta as appStackMeta } from "@/components/app-stack/meta";
+import { meta as contributionGraphMeta } from "@/components/contribution-graph/meta";
+import { meta as starCountMeta } from "@/components/star-count/meta";
+import { meta as notificationBadgeMeta } from "@/components/notification-badge/meta";
+import { meta as switchboardCardMeta } from "@/components/switchboard-card/meta";
+import { meta as islandMeta } from "@/components/island/meta";
+import { meta as morphSurfaceMeta } from "@/components/morph-surface/meta";
+import { meta as gooeyPopoverMeta } from "@/components/gooey-popover/meta";
+import { meta as richPopoverMeta } from "@/components/rich-popover/meta";
+import { meta as commentBubbleMeta } from "@/components/comment-bubble/meta";
+import { meta as accountMenuMeta } from "@/components/account-menu/meta";
+import { meta as exposureSliderMeta } from "@/components/exposure-slider/meta";
+import { meta as scrubberMeta } from "@/components/scrubber/meta";
+import { meta as imageSelectorMeta } from "@/components/image-selector/meta";
+import { meta as imageMetadataMeta } from "@/components/image-metadata/meta";
+import { meta as photoTabsMeta } from "@/components/photo-tabs/meta";
+import { meta as socialSelectorMeta } from "@/components/social-selector/meta";
+import { meta as expandableListMeta } from "@/components/expandable-list/meta";
+import { meta as otpInputMeta } from "@/components/otp-input/meta";
+import { meta as stepperMeta } from "@/components/stepper/meta";
+import { meta as contextMenuMeta } from "@/components/context-menu/meta";
+import { meta as tweetCardMeta } from "@/components/tweet-card/meta";
+import { meta as cursorFollowMeta } from "@/components/cursor-follow/meta";
+import { meta as gradientOrbMeta } from "@/components/gradient-orb/meta";
+import { meta as orbFaceMeta } from "@/components/orb-face/meta";
+import { meta as pixelAvatarMeta } from "@/components/pixel-avatar/meta";
+import { meta as aiLoaderMeta } from "@/components/ai-loader/meta";
+import { meta as aiSuggestionsMeta } from "@/components/ai-suggestions/meta";
+import { meta as aiBranchMeta } from "@/components/ai-branch/meta";
+import { meta as aiArtifactMeta } from "@/components/ai-artifact/meta";
 
 /**
  * Every component in the registry.
@@ -253,6 +284,37 @@ export const componentMetas: ComponentMeta[] = [
   ditherFunnelMeta,
   ditherMeterMeta,
   uptimeMatrixMeta,
+  avatarGroupMeta,
+  appStackMeta,
+  contributionGraphMeta,
+  starCountMeta,
+  notificationBadgeMeta,
+  switchboardCardMeta,
+  islandMeta,
+  morphSurfaceMeta,
+  gooeyPopoverMeta,
+  richPopoverMeta,
+  commentBubbleMeta,
+  accountMenuMeta,
+  exposureSliderMeta,
+  scrubberMeta,
+  imageSelectorMeta,
+  imageMetadataMeta,
+  photoTabsMeta,
+  socialSelectorMeta,
+  expandableListMeta,
+  otpInputMeta,
+  stepperMeta,
+  contextMenuMeta,
+  tweetCardMeta,
+  cursorFollowMeta,
+  gradientOrbMeta,
+  orbFaceMeta,
+  pixelAvatarMeta,
+  aiLoaderMeta,
+  aiSuggestionsMeta,
+  aiBranchMeta,
+  aiArtifactMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is

@@ -140,8 +140,11 @@ DPR cap, rAF paused off-screen, colours resolved from tokens at runtime) and
 `photo-tabs`, `rich-popover`, `scrubber`, `social-selector`,
 `switchboard-card`, `account-menu`, `notification-badge`, `otp-input`,
 `stepper`, `context-menu`, `tweet-card`, `gradient-orb`, `orb-face`,
-`pixel-avatar`, `ai-suggestions`, `ai-branch`, `ai-citation`, `ai-artifact`,
-`ai-context-meter`.
+`pixel-avatar`, `ai-loader`, `ai-suggestions`, `ai-branch`, `ai-artifact`.
+
+SmoothUI's AI Citation and AI Context Meter turned out to be the existing
+`InlineCitation` and `ai-token-usage`; they, and the other SmoothUI AI items
+that match existing Dowel components, are Phase 8 enhancements.
 
 ### Phase 8 — SmoothUI basic UI → existing components
 
@@ -187,9 +190,9 @@ Search synonyms, counts, changeset (minor), full `audit:all`, docs build.
 | 2 Buttons                    | done   | 711963d, 95ab872 (motion dep) |
 | 3 Text effects               | done   | 1853932                       |
 | 4 Cards & carousels          | done   | c26f15f (docs fix), 25c0cb4   |
-| 5 Dither charts              | done   | this commit                   |
+| 5 Dither charts              | done   | 742a707                       |
 | 6 Interaction blocks         | —      |                               |
-| 7 SmoothUI extras            | —      |                               |
+| 7 SmoothUI extras            | done   | this commit                   |
 | 8 Existing-component motion  | —      |                               |
 | 9 Transitions                | —      |                               |
 | 10 Marketing blocks & themes | —      |                               |
