@@ -12,6 +12,10 @@ their source was not available for redistribution; no code was taken from them.
 - Source: https://github.com/educlopez/smoothui — https://smoothui.dev
 - Copyright (c) 2024 Eduardo Calvo
 - Licence: MIT
+- Not ported: SmoothUI's Codrops-derived transitions (Radial Circles, SDF
+  Circle, Warped Circle, SDF Blob, Organic Merge and the Shader Reveal
+  family). Dowel's `shader-transition` presets for those effects are original
+  shaders; none of that code was read or copied.
 
 ## Bencho
 
