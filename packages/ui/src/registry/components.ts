@@ -109,6 +109,17 @@ import { meta as inviteCarouselMeta } from "@/components/invite-carousel/meta";
 import { meta as swipeCarouselMeta } from "@/components/swipe-carousel/meta";
 import { meta as imageAccordionMeta } from "@/components/image-accordion/meta";
 import { meta as tiltCardMeta } from "@/components/tilt-card/meta";
+import { meta as ditherCanvasMeta } from "@/components/dither-canvas/meta";
+import { meta as ditherDonutMeta } from "@/components/dither-donut/meta";
+import { meta as ditherBarMeta } from "@/components/dither-bar/meta";
+import { meta as ditherAreaMeta } from "@/components/dither-area/meta";
+import { meta as ditherLineMeta } from "@/components/dither-line/meta";
+import { meta as ditherHeatmapMeta } from "@/components/dither-heatmap/meta";
+import { meta as ditherGaugeMeta } from "@/components/dither-gauge/meta";
+import { meta as ditherScatterMeta } from "@/components/dither-scatter/meta";
+import { meta as ditherFunnelMeta } from "@/components/dither-funnel/meta";
+import { meta as ditherMeterMeta } from "@/components/dither-meter/meta";
+import { meta as uptimeMatrixMeta } from "@/components/uptime-matrix/meta";
 
 /**
  * Every component in the registry.
@@ -231,6 +242,17 @@ export const componentMetas: ComponentMeta[] = [
   swipeCarouselMeta,
   imageAccordionMeta,
   tiltCardMeta,
+  ditherCanvasMeta,
+  ditherDonutMeta,
+  ditherBarMeta,
+  ditherAreaMeta,
+  ditherLineMeta,
+  ditherHeatmapMeta,
+  ditherGaugeMeta,
+  ditherScatterMeta,
+  ditherFunnelMeta,
+  ditherMeterMeta,
+  uptimeMatrixMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is
