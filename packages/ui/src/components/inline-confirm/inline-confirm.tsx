@@ -32,6 +32,19 @@ import { cn } from "@/lib/utils";
  * it resets), Escape cancels asking, and "Deleted" is announced politely. The
  * undo window pauses while keyboard focus is inside it, so nobody loses it
  * mid-reach (WCAG 2.2.1).
+ *
+ * `variant="icon"` is a Dowel addition, inspired by the Rare UI delete-button
+ * pattern (no code referenced): a compact round bin. Asking lifts the bin's lid
+ * about its hinge and slides a small panel out beside it, a check to confirm
+ * and a cross to back out; the cross, the bin again, or Escape backs out and
+ * the lid settles shut with a little overshoot. Confirming shrinks the bin away
+ * and draws a check in its place (a stroke-dashoffset transition), then offers
+ * the same timed Undo in the panel — or, with `undoWindow={0}`, rests on the
+ * check. The pill's width never changes, so there is nothing to measure: the
+ * panel is positioned beside the bin and moves by transform and opacity, and
+ * the default variant is untouched. Focus follows the same rules — the cross
+ * when asking, Undo once done (the bin itself when there is no undo), the bin
+ * when it resets — and the bin is a disclosure for the panel (aria-expanded).
  */
 
 const PREFIX = "dowel-inline-confirm";
@@ -66,8 +79,13 @@ const inlineConfirmVariants = cva(
         true: "shadow-[inset_0_0_0_1px_var(--color-border)]",
         false: "",
       },
+      /** `icon` is a round bin that asks from a panel beside it. */
+      variant: {
+        default: "",
+        icon: "w-11 overflow-visible",
+      },
     },
-    defaultVariants: { shape: "pill", stroke: true },
+    defaultVariants: { shape: "pill", stroke: true, variant: "default" },
   },
 );
 
@@ -85,18 +103,21 @@ export interface InlineConfirmProps
     VariantProps<typeof inlineConfirmVariants> {
   /** The trigger's text, e.g. "Delete file". Also names the group. */
   label?: ReactNode;
-  /** Leading icon on the trigger. Defaults to a bin; `null` removes it. */
+  /** Leading icon on the trigger. Defaults to a bin; `null` removes it. The icon variant draws its own bin. */
   icon?: ReactNode;
-  /** The safe answer, focused when asking. */
+  /** The safe answer, focused when asking. The icon variant's cross is named by it. */
   cancelLabel?: ReactNode;
-  /** The destructive answer. */
+  /** The destructive answer. The icon variant's check is named by it. */
   confirmLabel?: ReactNode;
   /** Shown once confirmed. */
   doneLabel?: ReactNode;
   undoLabel?: ReactNode;
   /** Announced when confirmed. Defaults to `doneLabel` when it is text. */
   announcement?: string;
-  /** Milliseconds the undo stays available. It pauses while keyboard focus is inside. */
+  /**
+   * Milliseconds the undo stays available. It pauses while keyboard focus is
+   * inside. With the icon variant, `0` skips the undo and rests on the check.
+   */
   undoWindow?: number;
   /** Called when the destructive answer is chosen. */
   onConfirm?: () => void;
@@ -126,13 +147,83 @@ function Glyph({ d }: { d: string }) {
 
 const BIN = "M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m5 5v6m4-6v6";
 const CHECK = "m5 13 4 4L19 7";
+const CROSS = "M18 6 6 18M6 6l12 12";
 const UNDO = "M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11";
+
+/*
+ * The icon variant's bin, in three parts keyed off the svg's data-phase. The
+ * lid turns about the hinge at its far end (fill-box origin), lifting on an ease-out
+ * and settling shut on an overshoot; done shrinks lid and body away while the
+ * check draws itself along its length.
+ */
+const lidClass = cn(
+  "origin-bottom-right [transform-box:fill-box]",
+  "transition-[rotate,translate,scale,opacity] duration-[var(--duration-slow)] ease-[var(--ease-overshoot)]",
+  "group-data-[phase=asking]/inline-confirm-bin:translate-y-[-1.5px] group-data-[phase=asking]/inline-confirm-bin:rotate-[22deg]",
+  "group-data-[phase=asking]/inline-confirm-bin:duration-[var(--duration-normal)] group-data-[phase=asking]/inline-confirm-bin:ease-[var(--ease-out-quint)]",
+  "group-data-[phase=done]/inline-confirm-bin:scale-50 group-data-[phase=done]/inline-confirm-bin:opacity-0",
+  "group-data-[phase=done]/inline-confirm-bin:duration-[var(--duration-fast)]",
+);
+
+const bodyClass = cn(
+  "origin-center [transform-box:fill-box]",
+  "transition-[scale,opacity] duration-[var(--duration-normal)] ease-[var(--ease-overshoot)]",
+  "group-data-[phase=done]/inline-confirm-bin:scale-50 group-data-[phase=done]/inline-confirm-bin:opacity-0",
+  "group-data-[phase=done]/inline-confirm-bin:duration-[var(--duration-fast)] group-data-[phase=done]/inline-confirm-bin:ease-[var(--ease-in-quint)]",
+);
+
+const checkClass = cn(
+  "text-success opacity-0 [stroke-dasharray:1] [stroke-dashoffset:1]",
+  "transition-[stroke-dashoffset,opacity] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
+  "group-data-[phase=done]/inline-confirm-bin:opacity-100 group-data-[phase=done]/inline-confirm-bin:[stroke-dashoffset:0]",
+  "group-data-[phase=done]/inline-confirm-bin:delay-[var(--duration-fast)] group-data-[phase=done]/inline-confirm-bin:duration-[var(--duration-slow)]",
+);
+
+/** The panel beside the bin: slides out from behind it, and back a little faster. */
+const panelClass = cn(
+  "absolute inset-y-0 start-full ms-2 flex items-center gap-0.5 rounded-[inherit] bg-card p-1.5 shadow-md ring-1 ring-border",
+  "invisible origin-left -translate-x-2 scale-90 opacity-0 rtl:origin-right rtl:translate-x-2",
+  "transition-[opacity,translate,scale,visibility] duration-[var(--duration-fast)] ease-[var(--ease-in-quint)]",
+  "data-[state=open]:visible data-[state=open]:translate-x-0 data-[state=open]:scale-100 data-[state=open]:opacity-100",
+  "data-[state=open]:duration-[var(--duration-normal)] data-[state=open]:ease-[var(--ease-overshoot)]",
+  // Visibility only waits on the way out. Opening, it must flip at once, or
+  // the cross is still hidden when focus is sent to it.
+  "data-[state=open]:transition-[opacity,translate,scale]",
+);
+
+function Bin({ phase }: { phase: InlineConfirmPhase }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      data-slot="inline-confirm-bin"
+      data-phase={phase}
+      className="group/inline-confirm-bin size-5 overflow-visible"
+    >
+      <path className={bodyClass} d="m19 6-1 14H6L5 6m5 5v6m4-6v6" />
+      <path data-slot="inline-confirm-lid" className={lidClass} d="M3 6h18M9 6V4h6v2" />
+      <path
+        data-slot="inline-confirm-check"
+        className={checkClass}
+        stroke="currentColor"
+        pathLength={1}
+        d={CHECK}
+      />
+    </svg>
+  );
+}
 
 /** A button that turns into Keep / Delete, then into Deleted / Undo. */
 export function InlineConfirm({
   className,
   shape,
   stroke,
+  variant,
   label = "Delete file",
   icon,
   cancelLabel = "Keep",
@@ -153,7 +244,13 @@ export function InlineConfirm({
   ...props
 }: InlineConfirmProps) {
   const labelId = useId();
+  const panelId = useId();
+  const iconic = variant === "icon";
+  const hasUndo = !iconic || undoWindow > 0;
   const [phase, setPhaseState] = useState<InlineConfirmPhase>("idle");
+  // What the icon variant's panel shows. It keeps showing it while it slides away.
+  const [held, setHeld] = useState<"asking" | "done">("asking");
+  const panelOpen = phase === "asking" || (phase === "done" && hasUndo);
   const [announced, setAnnounced] = useState("");
   const [paused, setPaused] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -172,18 +269,22 @@ export function InlineConfirm({
     (next: InlineConfirmPhase, focus: "face" | "keep" | "undo" | null) => {
       focusNext.current = focus;
       setPhaseState(next);
+      if (next === "asking") setHeld("asking");
+      else if (next === "done" && hasUndo) setHeld("done");
       onPhaseChange?.(next);
     },
-    [onPhaseChange],
+    [onPhaseChange, hasUndo],
   );
 
   // Width follows content. Written to the DOM rather than state: it is a
   // measurement of what just rendered, and a re-render would be one frame late.
+  // The icon variant's size is its class; the panel sits outside it.
   useLayoutEffect(() => {
     const root = rootRef.current;
+    if (iconic) return;
     const width = contentRef.current?.scrollWidth ?? 0;
     if (root && width > 0) root.style.width = `${String(width)}px`;
-  }, [phase, label, cancelLabel, confirmLabel, doneLabel, undoLabel]);
+  }, [phase, label, cancelLabel, confirmLabel, doneLabel, undoLabel, iconic]);
 
   // Focus follows the phase — but only when the user moved it there.
   useEffect(() => {
@@ -196,7 +297,7 @@ export function InlineConfirm({
 
   // The undo window: counts down, and pauses while keyboard focus is inside.
   useEffect(() => {
-    if (phase !== "done" || paused) return;
+    if (phase !== "done" || paused || !hasUndo) return;
     const started = Date.now();
     const timer = setTimeout(() => {
       const hadFocus = rootRef.current?.contains(document.activeElement) ?? false;
@@ -207,13 +308,13 @@ export function InlineConfirm({
       clearTimeout(timer);
       remaining.current = Math.max(0, remaining.current - (Date.now() - started));
     };
-  }, [phase, paused, setPhase]);
+  }, [phase, paused, hasUndo, setPhase]);
 
   function confirm() {
     remaining.current = undoWindow;
     onConfirm?.();
     setAnnounced(announcement ?? (typeof doneLabel === "string" ? doneLabel : "Done"));
-    setPhase("done", "undo");
+    setPhase("done", hasUndo ? "undo" : "face");
   }
 
   function undo() {
@@ -241,8 +342,9 @@ export function InlineConfirm({
       aria-labelledby={labelId}
       data-slot="inline-confirm"
       data-phase={phase}
+      data-variant={iconic ? "icon" : "default"}
       data-paused={paused || undefined}
-      className={cn(inlineConfirmVariants({ shape, stroke }), className)}
+      className={cn(inlineConfirmVariants({ shape, stroke, variant }), className)}
       style={
         { ...style, "--inline-confirm-window": `${String(undoWindow)}ms` } as CSSProperties
       }
@@ -268,91 +370,174 @@ export function InlineConfirm({
       <span id={labelId} hidden>
         {label}
       </span>
-      <div
-        ref={contentRef}
-        data-slot="inline-confirm-content"
-        className="flex h-full w-max min-w-full items-stretch"
-      >
-        {phase === "idle" ? (
+      {iconic ? (
+        <>
           <Button
             ref={faceRef}
             variant="ghost"
+            size="icon"
             data-slot="inline-confirm-trigger"
-            onKeyDown={handleKeyDown}
+            aria-expanded={phase === "done" ? undefined : phase === "asking"}
+            aria-controls={phase === "done" ? undefined : panelId}
+            aria-disabled={phase === "done" || undefined}
             disabled={disabled}
-            className={cn(segment, "w-full gap-2 hover:bg-foreground/6")}
+            onKeyDown={handleKeyDown}
+            className={cn(
+              "size-full rounded-[inherit] hover:bg-foreground/6",
+              "aria-disabled:pointer-events-auto aria-disabled:cursor-default aria-disabled:opacity-100 aria-disabled:hover:bg-transparent",
+              phase === "asking" && "text-destructive hover:text-destructive",
+            )}
             onClick={() => {
-              setPhase("asking", "keep");
+              if (phase === "idle") setPhase("asking", "keep");
+              else if (phase === "asking") setPhase("idle", "face");
             }}
           >
-            {icon === undefined ? <Glyph d={BIN} /> : icon}
-            {label}
+            <Bin phase={phase} />
+            <span className="sr-only">{phase === "done" ? doneLabel : label}</span>
           </Button>
-        ) : null}
-        {phase === "asking" ? (
-          <>
+          <div
+            id={panelId}
+            data-slot="inline-confirm-panel"
+            data-state={panelOpen ? "open" : "closed"}
+            inert={!panelOpen}
+            className={panelClass}
+          >
+            {held === "done" && phase !== "asking" ? (
+              <Button
+                ref={undoRef}
+                variant="ghost"
+                size="sm"
+                data-slot="inline-confirm-undo"
+                onKeyDown={handleKeyDown}
+                className="relative h-8 gap-1.5 rounded-[inherit] px-3 text-[0.8125rem] font-normal hover:bg-foreground/6"
+                onClick={undo}
+              >
+                <Glyph d={UNDO} />
+                {undoLabel}
+                <i
+                  aria-hidden="true"
+                  data-slot="inline-confirm-fuse"
+                  className="absolute inset-x-3 bottom-0.5 h-[1.5px] rounded-full bg-foreground/35"
+                />
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  data-slot="inline-confirm-confirm"
+                  onKeyDown={handleKeyDown}
+                  className="rounded-[inherit] text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={confirm}
+                >
+                  <Glyph d={CHECK} />
+                  <span className="sr-only">{confirmLabel}</span>
+                </Button>
+                <Button
+                  ref={keepRef}
+                  variant="ghost"
+                  size="icon-sm"
+                  data-slot="inline-confirm-cancel"
+                  onKeyDown={handleKeyDown}
+                  className="rounded-[inherit] text-muted-foreground hover:bg-foreground/6"
+                  onClick={() => {
+                    setPhase("idle", "face");
+                  }}
+                >
+                  <Glyph d={CROSS} />
+                  <span className="sr-only">{cancelLabel}</span>
+                </Button>
+              </>
+            )}
+          </div>
+        </>
+      ) : (
+        <div
+          ref={contentRef}
+          data-slot="inline-confirm-content"
+          className="flex h-full w-max min-w-full items-stretch"
+        >
+          {phase === "idle" ? (
             <Button
-              ref={keepRef}
+              ref={faceRef}
               variant="ghost"
-              data-slot="inline-confirm-cancel"
+              data-slot="inline-confirm-trigger"
               onKeyDown={handleKeyDown}
-              className={cn(segment, "flex-1 hover:bg-foreground/6")}
+              disabled={disabled}
+              className={cn(segment, "w-full gap-2 hover:bg-foreground/6")}
               onClick={() => {
-                setPhase("idle", "face");
+                setPhase("asking", "keep");
               }}
             >
-              {cancelLabel}
+              {icon === undefined ? <Glyph d={BIN} /> : icon}
+              {label}
             </Button>
-            <span
-              aria-hidden="true"
-              data-slot="inline-confirm-seam"
-              className="my-auto h-5 w-px shrink-0 bg-foreground/12"
-            />
-            <Button
-              variant="ghost"
-              data-slot="inline-confirm-confirm"
-              onKeyDown={handleKeyDown}
-              className={cn(
-                segment,
-                "flex-1 text-destructive hover:bg-destructive/10 hover:text-destructive",
-              )}
-              onClick={confirm}
-            >
-              {confirmLabel}
-            </Button>
-          </>
-        ) : null}
-        {phase === "done" ? (
-          <>
-            <span
-              data-slot="inline-confirm-done"
-              className="flex items-center gap-1.5 ps-3.5 pe-3 text-muted-foreground [&_svg]:size-4"
-            >
-              <Glyph d={CHECK} />
-              {doneLabel}
-            </span>
-            <Button
-              ref={undoRef}
-              variant="ghost"
-              data-slot="inline-confirm-undo"
-              onKeyDown={handleKeyDown}
-              className={cn(
-                segment,
-                "relative ms-auto gap-1.5 bg-foreground/5 text-[0.8125rem] hover:bg-foreground/10",
-              )}
-              onClick={undo}
-            >
-              <Glyph d={UNDO} />
-              {undoLabel}
-              <i
+          ) : null}
+          {phase === "asking" ? (
+            <>
+              <Button
+                ref={keepRef}
+                variant="ghost"
+                data-slot="inline-confirm-cancel"
+                onKeyDown={handleKeyDown}
+                className={cn(segment, "flex-1 hover:bg-foreground/6")}
+                onClick={() => {
+                  setPhase("idle", "face");
+                }}
+              >
+                {cancelLabel}
+              </Button>
+              <span
                 aria-hidden="true"
-                data-slot="inline-confirm-fuse"
-                className="absolute inset-x-0 bottom-0 h-[1.5px] bg-foreground/35"
+                data-slot="inline-confirm-seam"
+                className="my-auto h-5 w-px shrink-0 bg-foreground/12"
               />
-            </Button>
-          </>
-        ) : null}
-      </div>
+              <Button
+                variant="ghost"
+                data-slot="inline-confirm-confirm"
+                onKeyDown={handleKeyDown}
+                className={cn(
+                  segment,
+                  "flex-1 text-destructive hover:bg-destructive/10 hover:text-destructive",
+                )}
+                onClick={confirm}
+              >
+                {confirmLabel}
+              </Button>
+            </>
+          ) : null}
+          {phase === "done" ? (
+            <>
+              <span
+                data-slot="inline-confirm-done"
+                className="flex items-center gap-1.5 ps-3.5 pe-3 text-muted-foreground [&_svg]:size-4"
+              >
+                <Glyph d={CHECK} />
+                {doneLabel}
+              </span>
+              <Button
+                ref={undoRef}
+                variant="ghost"
+                data-slot="inline-confirm-undo"
+                onKeyDown={handleKeyDown}
+                className={cn(
+                  segment,
+                  "relative ms-auto gap-1.5 bg-foreground/5 text-[0.8125rem] hover:bg-foreground/10",
+                )}
+                onClick={undo}
+              >
+                <Glyph d={UNDO} />
+                {undoLabel}
+                <i
+                  aria-hidden="true"
+                  data-slot="inline-confirm-fuse"
+                  className="absolute inset-x-0 bottom-0 h-[1.5px] bg-foreground/35"
+                />
+              </Button>
+            </>
+          ) : null}
+        </div>
+      )}
       <span role="status" aria-live="polite" className="sr-only">
         {announced}
       </span>

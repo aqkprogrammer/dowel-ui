@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/form";
 
-import { OtpInput } from "./otp-input";
+import { OtpInput, type OtpInputStatus } from "./otp-input";
 
 const meta: Meta<typeof OtpInput> = {
   title: "Form/OTP Input",
@@ -21,11 +21,15 @@ const meta: Meta<typeof OtpInput> = {
     allow: "numeric",
     mask: false,
     slotSize: "md",
+    status: "idle",
+    entrance: "flip",
     "aria-label": "Verification code",
   },
   argTypes: {
     allow: { control: "select", options: ["numeric", "alphanumeric", "alpha"] },
-    slotSize: { control: "select", options: ["sm", "md", "lg"] },
+    slotSize: { control: "select", options: ["sm", "md", "lg", "xl"] },
+    status: { control: "inline-radio", options: ["idle", "success", "error"] },
+    entrance: { control: "inline-radio", options: ["flip", "roll"] },
   },
 };
 
@@ -132,7 +136,59 @@ export const Options: Story = {
       />
       <OtpInput aria-label="Small code" slotSize="sm" length={4} />
       <OtpInput aria-label="Large code" slotSize="lg" length={4} />
+      <OtpInput aria-label="Extra-large code" slotSize="xl" length={4} entrance="roll" />
       <OtpInput aria-label="Disabled code" disabled defaultValue="123456" />
+    </div>
+  ),
+};
+
+/**
+ * The verdict on a complete code. Type 424242 for success — a ring traces
+ * around each slot in turn — or anything else for an error, which rings the
+ * slots red, shakes the row once and marks the field invalid. Characters roll
+ * in, and one caret slides from slot to slot. Editing the code clears the
+ * verdict; `statusMessage` announces it.
+ */
+export const Status: Story = {
+  parameters: { controls: { disable: true } },
+  render: function Status() {
+    const [code, setCode] = useState("");
+    const [status, setStatus] = useState<OtpInputStatus>("idle");
+    const message =
+      status === "success" ? "Code verified" : status === "error" ? "That code is wrong" : "";
+    return (
+      <div className="grid justify-items-center gap-4">
+        <OtpInput
+          aria-label="Verification code"
+          slotSize="lg"
+          entrance="roll"
+          value={code}
+          status={status}
+          statusMessage={message}
+          onValueChange={(next) => {
+            setCode(next);
+            setStatus("idle");
+          }}
+          onComplete={(next) => {
+            setStatus(next === "424242" ? "success" : "error");
+          }}
+        />
+        <p aria-hidden="true" className="min-h-5 text-sm text-muted-foreground">
+          {message || "Try 424242"}
+        </p>
+      </div>
+    );
+  },
+};
+
+/** Every verdict, statically: idle, success and error. */
+export const StatusStates: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="grid gap-6">
+      <OtpInput aria-label="Idle code" length={4} defaultValue="4242" />
+      <OtpInput aria-label="Verified code" length={4} defaultValue="4242" status="success" />
+      <OtpInput aria-label="Rejected code" length={4} defaultValue="4243" status="error" />
     </div>
   ),
 };
