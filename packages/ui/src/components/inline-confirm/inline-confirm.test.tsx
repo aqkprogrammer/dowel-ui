@@ -217,3 +217,177 @@ describe("InlineConfirm", () => {
     await expectNoA11yViolations(container);
   });
 });
+
+describe("InlineConfirm icon variant", () => {
+  function bin() {
+    return screen.getByRole("button", { name: "Delete file" });
+  }
+  function glyph() {
+    return document.querySelector('[data-slot="inline-confirm-bin"]');
+  }
+  function panel() {
+    return document.querySelector('[data-slot="inline-confirm-panel"]');
+  }
+
+  it("renders a round bin that discloses a closed panel", () => {
+    render(<InlineConfirm variant="icon" />);
+    const group = screen.getByRole("group", { name: "Delete file" });
+    expect(group).toHaveAttribute("data-variant", "icon");
+    expect(group).toHaveClass("w-11", "overflow-visible", "rounded-full");
+    expect(group.style.width).toBe("");
+    expect(bin()).toHaveAttribute("aria-expanded", "false");
+    expect(bin()).toHaveAttribute("aria-controls", panel()?.id);
+    expect(panel()).toHaveAttribute("data-state", "closed");
+    expect(panel()).toHaveAttribute("inert");
+    expect(glyph()).toHaveAttribute("data-phase", "idle");
+  });
+
+  it("lifts the lid, slides the panel out and focuses the cross", async () => {
+    const user = userEvent.setup();
+    const onPhaseChange = vi.fn();
+    render(<InlineConfirm variant="icon" onPhaseChange={onPhaseChange} />);
+    await user.click(bin());
+    expect(onPhaseChange).toHaveBeenLastCalledWith("asking");
+    expect(bin()).toHaveAttribute("aria-expanded", "true");
+    expect(glyph()).toHaveAttribute("data-phase", "asking");
+    expect(panel()).toHaveAttribute("data-state", "open");
+    expect(panel()).not.toHaveAttribute("inert");
+    expect(screen.getByRole("button", { name: "Keep" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
+  });
+
+  it("backs out from the cross, the bin and Escape, refocusing the bin", async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn();
+    render(<InlineConfirm variant="icon" onConfirm={onConfirm} />);
+    await user.click(bin());
+    await user.click(screen.getByRole("button", { name: "Keep" }));
+    expect(glyph()).toHaveAttribute("data-phase", "idle");
+    expect(panel()).toHaveAttribute("inert");
+    expect(bin()).toHaveFocus();
+
+    await user.click(bin());
+    await user.click(bin());
+    expect(bin()).toHaveAttribute("aria-expanded", "false");
+    expect(bin()).toHaveFocus();
+
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("button", { name: "Keep" })).toHaveFocus();
+    await user.keyboard("{Escape}");
+    expect(bin()).toHaveFocus();
+    expect(bin()).toHaveAttribute("aria-expanded", "false");
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+
+  it("confirms into a drawn check, then offers Undo in the panel", async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn();
+    const onUndo = vi.fn();
+    render(<InlineConfirm variant="icon" onConfirm={onConfirm} onUndo={onUndo} />);
+    await user.click(bin());
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    expect(onConfirm).toHaveBeenCalledOnce();
+    expect(glyph()).toHaveAttribute("data-phase", "done");
+    const done = screen.getByRole("button", { name: "Deleted" });
+    expect(done).toHaveAttribute("aria-disabled", "true");
+    expect(done).not.toHaveAttribute("aria-expanded");
+    expect(screen.getByRole("status")).toHaveTextContent("Deleted");
+    expect(panel()).toHaveAttribute("data-state", "open");
+    const undo = screen.getByRole("button", { name: "Undo" });
+    expect(undo).toHaveFocus();
+    expect(undo.querySelector('[data-slot="inline-confirm-fuse"]')).toBeInTheDocument();
+
+    await user.click(undo);
+    expect(onUndo).toHaveBeenCalledOnce();
+    expect(glyph()).toHaveAttribute("data-phase", "idle");
+    expect(bin()).toHaveFocus();
+    // The panel keeps its content while it slides away.
+    expect(screen.getByRole("button", { name: "Undo" })).toBeInTheDocument();
+    await user.click(bin());
+    expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
+  });
+
+  it("returns to the bin when the undo window closes", () => {
+    vi.useFakeTimers();
+    render(<InlineConfirm variant="icon" undoWindow={1000} />);
+    fireEvent.pointerDown(screen.getByRole("group"));
+    fireEvent.click(bin());
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    expect(glyph()).toHaveAttribute("data-phase", "done");
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(glyph()).toHaveAttribute("data-phase", "idle");
+  });
+
+  it("rests on the check with no undo window, keeping focus on it", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime.bind(vi) });
+    const onPhaseChange = vi.fn();
+    render(<InlineConfirm variant="icon" undoWindow={0} onPhaseChange={onPhaseChange} />);
+    await user.click(bin());
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    const done = screen.getByRole("button", { name: "Deleted" });
+    expect(done).toHaveFocus();
+    expect(panel()).toHaveAttribute("data-state", "closed");
+    expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
+    act(() => {
+      vi.advanceTimersByTime(10_000);
+    });
+    await user.click(done);
+    expect(glyph()).toHaveAttribute("data-phase", "done");
+    expect(onPhaseChange).toHaveBeenLastCalledWith("done");
+  });
+
+  it("names the icon buttons from rich labels", async () => {
+    const user = userEvent.setup();
+    render(
+      <InlineConfirm
+        variant="icon"
+        label="Remove member"
+        cancelLabel={<b>Cancel</b>}
+        confirmLabel="Remove"
+        doneLabel="Removed"
+        icon={<svg data-testid="ignored" />}
+      />,
+    );
+    expect(screen.queryByTestId("ignored")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Remove member" }));
+    expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await user.click(screen.getByRole("button", { name: "Remove" }));
+    expect(screen.getByRole("button", { name: "Removed" })).toBeInTheDocument();
+  });
+
+  it("disables the bin", () => {
+    render(<InlineConfirm variant="icon" disabled />);
+    expect(bin()).toBeDisabled();
+  });
+
+  it("lets a consumer className win and forwards ref and props", () => {
+    const ref = createRef<HTMLDivElement>();
+    render(
+      <InlineConfirm
+        variant="icon"
+        ref={ref}
+        shape="rounded"
+        stroke={false}
+        className="w-12 bg-muted"
+        data-testid="confirm"
+      />,
+    );
+    const group = screen.getByTestId("confirm");
+    expect(ref.current).toBe(group);
+    expect(group).toHaveClass("w-12", "bg-muted", "rounded-xl");
+    expect(group).not.toHaveClass("w-11", "bg-card");
+  });
+
+  it("has no accessibility violations in any phase", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<InlineConfirm variant="icon" />);
+    await expectNoA11yViolations(container);
+    await user.click(bin());
+    await expectNoA11yViolations(container);
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    await expectNoA11yViolations(container);
+  });
+});
