@@ -33,6 +33,21 @@ their source was not available for redistribution; no code was taken from them.
 - Copyright (c) 2026 Syed Subhan Uddin
 - Licence: MIT
 
+## Rare UI (patterns only — no code)
+
+- Site: https://rareui.com
+- Licence: MIT with the Commons Clause and an attribution requirement, which
+  forbids redistributing its components, including as ported versions. A
+  registry is redistribution, so nothing from Rare UI is ported.
+- Every Dowel component inspired by a Rare UI pattern — `matrix-orb`,
+  `fluid-orb`, `grid-reveal`, `rail-nav`, `minimap-nav`, `scroll-progress`,
+  `gooey-nav`, `duration-picker`, `folder`, `gravity-field`, `step-player`,
+  `emoji-reaction`, `notification-bell`, and the additions to `code-block`,
+  `otp-input`, `number-flow`, `contribution-graph`, `animated-checklist` and
+  `inline-confirm` — is an _original_ implementation written from the
+  published behaviour descriptions alone. Rare UI's source was not read,
+  fetched or copied. No licence terms apply; the credit is given as courtesy.
+
 ---
 
 ## MIT License
