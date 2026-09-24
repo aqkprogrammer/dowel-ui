@@ -213,6 +213,171 @@ describe("NumberFlow", () => {
     expect(root(container).querySelector(".sr-only")).toHaveTextContent(/^9$/);
   });
 
+  it("keeps spinning one way through rapid updates, rendering cells wherever it heads", () => {
+    const { container, rerender } = render(<NumberFlow value={0} />);
+    // No transition gets to finish, so the reel never snaps home. It must not
+    // run out of reel and lurch back the other way.
+    for (let next = 1; next <= 25; next += 1) rerender(<NumberFlow value={next} />);
+    const [tens, ones] = reels(container);
+    expect(ones).toHaveAttribute("data-position", "35");
+    expect(tens).toHaveAttribute("data-position", "12");
+    const active = ones?.querySelector("[data-active]");
+    expect(active).toHaveTextContent("5");
+    expect(active).toHaveStyle({ top: "3500%" });
+
+    for (let next = 24; next >= 19; next -= 1) rerender(<NumberFlow value={next} />);
+    expect(ones).toHaveAttribute("data-position", "29");
+    expect(ones?.querySelector("[data-active]")).toHaveTextContent("9");
+  });
+
+  it("shows each reel through a window that bleeds past the line and fades at its edges", () => {
+    const { container, rerender } = render(<NumberFlow value={4} />);
+    const digit = digits(container)[0];
+    const window = digit?.querySelector('[data-slot="number-flow-window"]');
+    expect(window).toHaveClass(
+      "overflow-hidden",
+      "top-[calc(var(--dowel-number-flow-bleed)*-1)]",
+    );
+    expect(window?.querySelector('[data-slot="number-flow-reel"]')).toHaveClass(
+      "top-[var(--dowel-number-flow-bleed)]",
+    );
+    expect(digit).toHaveClass("[--dowel-number-flow-bleed:0.25em]");
+    expect(digit).not.toHaveClass("overflow-hidden");
+
+    // A tile clips to its own box, so its fade sits inside it instead.
+    rerender(<NumberFlow value={4} variant="tiles" />);
+    expect(digits(container)[0]).toHaveClass(
+      "overflow-hidden",
+      "[--dowel-number-flow-bleed:0em]",
+    );
+  });
+
+  describe("width", () => {
+    function exits(container: HTMLElement) {
+      return [...container.querySelectorAll<HTMLElement>('[data-slot="number-flow-exit"]')];
+    }
+
+    /** Every character on screen, current and leaving, in order. */
+    function row(container: HTMLElement) {
+      const display = container.querySelector('[data-slot="number-flow-display"]');
+      return [...(display?.children ?? [])].map(
+        (child) =>
+          (child.getAttribute("data-slot") === "number-flow-exit" ? "~" : "") +
+          ((child as HTMLElement).querySelector<HTMLElement>('[data-slot="number-flow-digit"]')
+            ?.dataset.digit ?? child.textContent),
+      );
+    }
+
+    it("gives every character a column that can open and close", () => {
+      const { container } = render(<NumberFlow value={12} />);
+      const token = container.querySelector('[data-slot="number-flow-token"]');
+      expect(token).toHaveClass("inline-grid", "grid-cols-[1fr]", "overflow-x-clip");
+    });
+
+    it("fades a lost place out where it stood, on its last glyph, then drops it", () => {
+      const { container, rerender } = render(
+        <NumberFlow
+          value={100}
+          locales="en-US"
+          format={{ style: "currency", currency: "USD" }}
+        />,
+      );
+      rerender(
+        <NumberFlow
+          value={99}
+          locales="en-US"
+          format={{ style: "currency", currency: "USD" }}
+        />,
+      );
+      expect(shown(container)).toBe("9900");
+      expect(row(container)).toEqual(["$", "~1", "9", "9", ".", "0", "0"]);
+      const [leaving] = exits(container);
+      expect(leaving?.closest('[aria-hidden="true"]')).not.toBeNull();
+      expect(leaving?.querySelector('[data-slot="number-flow-digit"]')).toBeNull();
+
+      if (!leaving) throw new Error("no exit");
+      // Only its own opacity transition ends it.
+      fireEvent.transitionEnd(leaving, { propertyName: "grid-template-columns" });
+      if (leaving.firstElementChild) {
+        fireEvent.transitionEnd(leaving.firstElementChild, { propertyName: "opacity" });
+      }
+      expect(exits(container)).toHaveLength(1);
+      fireEvent.transitionEnd(leaving, { propertyName: "opacity" });
+      expect(exits(container)).toHaveLength(0);
+      expect(row(container)).toEqual(["$", "9", "9", ".", "0", "0"]);
+    });
+
+    it("keeps leaving characters in order as they finish", () => {
+      const format = { maximumFractionDigits: 1 };
+      const { container, rerender } = render(
+        <NumberFlow value={1.5} locales="en-US" format={format} />,
+      );
+      rerender(<NumberFlow value={2} locales="en-US" format={format} />);
+      expect(row(container)).toEqual(["2", "~.", "~5"]);
+
+      // The point finishes first; the digit that followed it stays after the 2.
+      const [point] = exits(container);
+      if (!point) throw new Error("no exit");
+      fireEvent.transitionEnd(point, { propertyName: "opacity" });
+      expect(row(container)).toEqual(["2", "~5"]);
+    });
+
+    it("reclaims a place that comes back while it is leaving", () => {
+      const { container, rerender } = render(<NumberFlow value={100} />);
+      const hundreds = container.querySelector('[data-slot="number-flow-token"]');
+      rerender(<NumberFlow value={99} />);
+      expect(exits(container)).toHaveLength(1);
+
+      rerender(<NumberFlow value={101} />);
+      expect(exits(container)).toHaveLength(0);
+      expect(shown(container)).toBe("101");
+      // The same element, so it turns around from wherever its fade had got to.
+      expect(container.querySelector('[data-slot="number-flow-token"]')).toBe(hundreds);
+    });
+  });
+
+  it("renders a prefix and suffix outside the reels, as readable text", () => {
+    const { container } = render(
+      <NumberFlow as="h2" value={42} prefix={<span>≈</span>} suffix=" users" />,
+    );
+    const prefix = container.querySelector('[data-slot="number-flow-prefix"]');
+    const suffix = container.querySelector('[data-slot="number-flow-suffix"]');
+    expect(prefix).toHaveTextContent("≈");
+    expect(suffix).toHaveTextContent("users");
+    expect(prefix?.closest("[aria-hidden]")).toBeNull();
+    expect(prefix?.querySelector('[data-slot="number-flow-reel"]')).toBeNull();
+    expect(screen.getByRole("heading", { level: 2 })).toHaveAccessibleName(/^≈\s?42\s?users$/);
+    // Before and after the number, around the rolling display.
+    const display = container.querySelector('[data-slot="number-flow-display"]');
+    expect(display?.previousElementSibling?.previousElementSibling).toBe(prefix);
+    expect(display?.nextElementSibling).toBe(suffix);
+  });
+
+  it("renders no prefix or suffix slots by default", () => {
+    const { container } = render(<NumberFlow value={1} />);
+    expect(container.querySelector('[data-slot="number-flow-prefix"]')).toBeNull();
+    expect(container.querySelector('[data-slot="number-flow-suffix"]')).toBeNull();
+  });
+
+  it("takes a duration in milliseconds, scaled by the motion scale", () => {
+    const { container, rerender } = render(<NumberFlow value={1} />);
+    expect(root(container)).not.toHaveAttribute("data-duration");
+    expect(root(container).style.getPropertyValue("--dowel-number-flow-duration")).toBe("");
+
+    rerender(<NumberFlow value={1} duration={120} />);
+    expect(root(container)).toHaveAttribute("data-duration");
+    expect(root(container).style.getPropertyValue("--dowel-number-flow-duration")).toBe(
+      "calc(120ms * var(--motion-scale, 1))",
+    );
+  });
+
+  it("pads and groups through Intl, including Indian grouping", () => {
+    const { rerender } = render(<NumberFlow value={1234567} locales="en-IN" />);
+    expect(screen.getByText("12,34,567")).toBeInTheDocument();
+    rerender(<NumberFlow value={7} format={{ minimumIntegerDigits: 3 }} />);
+    expect(screen.getByText("007")).toBeInTheDocument();
+  });
+
   it("renders the tiles variant", () => {
     const { container } = render(<NumberFlow value={7} variant="tiles" />);
     expect(root(container)).toHaveAttribute("data-variant", "tiles");

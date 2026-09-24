@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Minus, Plus } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { Minus, Plus, TrendingUp } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/button";
 
@@ -163,7 +163,11 @@ export const Formats: Story = {
   },
 };
 
-/** 99 → 100 adds a hundreds reel that fades in; the existing reels roll. */
+/**
+ * 99 → 100 opens a column for the hundreds reel, which slides in from below
+ * while the existing reels roll; 100 → 99 fades it out as its column closes.
+ * The number's width follows, and the suffix glides along with it.
+ */
 export const GrowingDigits: Story = {
   parameters: { controls: { disable: true } },
   render: function Render() {
@@ -178,7 +182,11 @@ export const GrowingDigits: Story = {
         >
           <Minus />
         </Button>
-        <NumberFlow value={value} className="text-5xl font-semibold" />
+        <NumberFlow
+          value={value}
+          suffix={<span className="text-muted-foreground"> pts</span>}
+          className="text-5xl font-semibold"
+        />
         <Button
           variant="outline"
           size="icon"
@@ -202,6 +210,116 @@ export const Countdown: Story = {
         <NumberFlow {...args} value={value} className="text-2xl" />
         <Button variant="secondary" onClick={() => setValue((v) => (v <= 0 ? 60 : v - 1))}>
           Tick
+        </Button>
+      </div>
+    );
+  },
+};
+
+/**
+ * A value that changes faster than a roll can finish spins rather than
+ * stutters: each change retargets the reel from where it is on screen, always
+ * in the direction of travel. A shorter `duration` keeps the reels close to a
+ * value that never stops moving.
+ */
+export const RapidUpdates: Story = {
+  parameters: { controls: { disable: true } },
+  render: function Render() {
+    const [value, setValue] = useState(0);
+    const [running, setRunning] = useState(false);
+    useEffect(() => {
+      if (!running) return;
+      const timer = setInterval(() => {
+        setValue((current) => current + 7);
+      }, 60);
+      return () => {
+        clearInterval(timer);
+      };
+    }, [running]);
+    return (
+      <div className="flex flex-col items-start gap-4">
+        <NumberFlow
+          value={value}
+          duration={180}
+          locales="en-US"
+          className="text-5xl font-semibold"
+        />
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setRunning((current) => !current)}>
+            {running ? "Stop" : "Start counting"}
+          </Button>
+          <Button variant="outline" onClick={() => setValue(0)}>
+            Reset
+          </Button>
+        </div>
+      </div>
+    );
+  },
+};
+
+/** `prefix` and `suffix` sit outside the reels and never animate; they are read with the number. */
+export const PrefixAndSuffix: Story = {
+  parameters: { controls: { disable: true } },
+  render: function Render() {
+    const [value, setValue] = useState(1280);
+    return (
+      <div className="flex flex-col items-start gap-4">
+        <NumberFlow
+          value={value}
+          locales="en-US"
+          prefix={<TrendingUp aria-hidden="true" className="me-2 inline size-8 text-success" />}
+          suffix={<span className="ms-1 text-2xl text-muted-foreground">/mo</span>}
+          className="text-5xl font-semibold"
+        />
+        <Button variant="secondary" onClick={() => setValue((current) => randomValue(current))}>
+          Change value
+        </Button>
+      </div>
+    );
+  },
+};
+
+/**
+ * Padding, grouping and decimals are Intl.NumberFormat's job, so there are no
+ * bespoke props for them: `minimumIntegerDigits` holds the width steady across
+ * a power of ten, `en-IN` groups the last three digits then pairs, and
+ * `minimumFractionDigits` / `maximumFractionDigits` fix the decimals.
+ */
+export const PaddingAndGrouping: Story = {
+  parameters: { controls: { disable: true } },
+  render: function Render() {
+    const [value, setValue] = useState(98_765.4);
+    const examples: Example[] = [
+      { label: "Padded to 6", format: { minimumIntegerDigits: 6, useGrouping: false } },
+      { label: "Indian grouping", locales: "en-IN" },
+      {
+        label: "Two decimals",
+        locales: "en-US",
+        format: { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+      },
+      { label: "No grouping", format: { useGrouping: false, maximumFractionDigits: 0 } },
+    ];
+    return (
+      <div className="flex flex-col items-start gap-4">
+        <dl className="grid grid-cols-[auto_auto] items-baseline gap-x-6 gap-y-2">
+          {examples.map(({ label, ...example }) => (
+            <div key={label} className="contents">
+              <dt className="text-sm text-muted-foreground">{label}</dt>
+              <dd className="text-2xl font-medium">
+                <NumberFlow value={value} {...example} />
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <Button
+          variant="secondary"
+          onClick={() =>
+            setValue((current) =>
+              current > 1_000_000 ? 42.5 : Math.round(current * 13.7 * 10) / 10,
+            )
+          }
+        >
+          Change value
         </Button>
       </div>
     );
