@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRef, useState } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
 import { FormControl, FormDescription, FormField, FormLabel, FormMessage } from "../form";
@@ -11,8 +11,31 @@ function slots(container: HTMLElement) {
   return [...container.querySelectorAll<HTMLElement>('[data-slot="otp-input-slot"]')];
 }
 
+function caret(container: HTMLElement) {
+  return container.querySelector<HTMLElement>('[data-slot="otp-input-caret"]');
+}
+
 function painted(container: HTMLElement) {
   return slots(container).map((slot) => slot.textContent);
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
+
+/** Lays the slots out 50px apart, 40px square, as a browser would. */
+function layOutSlots() {
+  const index = (element: HTMLElement) =>
+    Number(element.style.getPropertyValue("--dowel-otp-input-index") || 0);
+  vi.spyOn(HTMLElement.prototype, "offsetLeft", "get").mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    return index(this) * 50;
+  });
+  vi.spyOn(HTMLElement.prototype, "offsetTop", "get").mockReturnValue(4);
+  vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(40);
+  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(40);
 }
 
 describe("OtpInput", () => {
@@ -49,7 +72,91 @@ describe("OtpInput", () => {
     await user.keyboard("7");
     const active = slots(container).findIndex((slot) => slot.hasAttribute("data-active"));
     expect(active).toBe(1);
-    expect(slots(container)[1]?.querySelector('[data-slot="otp-input-caret"]')).not.toBeNull();
+    // One caret for the whole row, placed over the slot it belongs to.
+    expect(container.querySelectorAll('[data-slot="otp-input-caret"]')).toHaveLength(1);
+    expect(caret(container)).toHaveAttribute("data-index", "1");
+    expect(caret(container)).toHaveAttribute("data-state", "visible");
+  });
+
+  it("slides one caret from slot to slot, measured from the slots", async () => {
+    layOutSlots();
+    const user = userEvent.setup();
+    const { container } = render(<OtpInput length={4} />);
+    expect(caret(container)).toHaveAttribute("data-state", "hidden");
+
+    await user.click(screen.getByRole("textbox"));
+    // Centred on the first slot, a quarter of the way down, half its height.
+    expect(caret(container)?.style.translate).toBe("20px 14px");
+    expect(caret(container)?.style.height).toBe("20px");
+    expect(caret(container)?.style.transition).toBe("");
+
+    await user.keyboard("5");
+    expect(caret(container)?.style.translate).toBe("70px 14px");
+    await user.keyboard("6");
+    expect(caret(container)).toHaveAttribute("data-index", "2");
+    expect(caret(container)?.style.translate).toBe("120px 14px");
+  });
+
+  it("restarts the caret's blink, solid, each time it arrives", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<OtpInput length={4} />);
+    await user.click(screen.getByRole("textbox"));
+    const first = container.querySelector('[data-slot="otp-input-caret-blink"]');
+    await user.keyboard("1");
+    expect(container.querySelector('[data-slot="otp-input-caret-blink"]')).not.toBe(first);
+  });
+
+  it("hides the caret while a filled slot is selected, and when focus leaves", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<OtpInput length={3} />);
+    await user.click(screen.getByRole("textbox"));
+    await user.keyboard("123");
+    // Full: the last slot is selected for overwriting, so there is no caret.
+    expect(caret(container)).toHaveAttribute("data-state", "hidden");
+    expect(caret(container)).not.toHaveAttribute("data-index");
+
+    await user.keyboard("{Backspace}");
+    expect(caret(container)).toHaveAttribute("data-state", "visible");
+    await user.tab();
+    expect(caret(container)).toHaveAttribute("data-state", "hidden");
+  });
+
+  it("re-places the caret when the row reflows", async () => {
+    let reflow: (() => void) | undefined;
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: () => void) {
+          reflow = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    const user = userEvent.setup();
+    const { container } = render(<OtpInput length={4} />);
+    await user.click(screen.getByRole("textbox"));
+    await user.keyboard("1");
+
+    layOutSlots();
+    reflow?.();
+    expect(caret(container)?.style.translate).toBe("70px 14px");
+  });
+
+  it("clears a slot in place with Backspace, then steps back on the next press", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<OtpInput length={4} />);
+    const input = screen.getByRole<HTMLInputElement>("textbox");
+    await user.click(input);
+    await user.keyboard("1234");
+
+    await user.keyboard("{Backspace}");
+    expect(painted(container)).toEqual(["1", "2", "3", ""]);
+    expect(caret(container)).toHaveAttribute("data-index", "3");
+
+    await user.keyboard("{Backspace}");
+    expect(painted(container)).toEqual(["1", "2", "", ""]);
+    expect(caret(container)).toHaveAttribute("data-index", "2");
   });
 
   it("clears the active slot on blur", async () => {
@@ -273,6 +380,103 @@ describe("OtpInput", () => {
     const { container } = render(<OtpInput aria-invalid />);
     expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
     expect(slots(container)[0]).toHaveAttribute("data-invalid");
+  });
+
+  describe("status", () => {
+    function root(container: HTMLElement) {
+      return container.querySelector<HTMLElement>('[data-slot="otp-input"]');
+    }
+
+    function traces(container: HTMLElement) {
+      return container.querySelectorAll('[data-slot="otp-input-trace"]');
+    }
+
+    it("is idle by default, with no status marks", () => {
+      const { container } = render(<OtpInput length={4} />);
+      expect(root(container)).not.toHaveAttribute("data-status");
+      expect(slots(container)[0]).not.toHaveAttribute("data-status");
+      expect(traces(container)).toHaveLength(0);
+      expect(screen.getByRole("textbox")).not.toHaveAttribute("aria-invalid");
+    });
+
+    it("traces a ring around each slot in turn on success", () => {
+      const { container, rerender } = render(<OtpInput length={4} defaultValue="1234" />);
+      rerender(<OtpInput length={4} defaultValue="1234" status="success" />);
+      expect(root(container)).toHaveAttribute("data-status", "success");
+      expect(root(container)).toHaveAttribute("data-played");
+      expect(traces(container)).toHaveLength(4);
+      expect(slots(container)[2]).toHaveAttribute("data-status", "success");
+      expect(slots(container)[2]).toHaveClass("data-[status=success]:border-success");
+      // Each trace inherits its slot's index, which staggers its sweep.
+      expect(slots(container)[2]?.style.getPropertyValue("--dowel-otp-input-index")).toBe("2");
+      expect(screen.getByRole("textbox")).not.toHaveAttribute("aria-invalid");
+    });
+
+    it("rings red, is invalid and shakes on error", () => {
+      const { container, rerender } = render(<OtpInput length={4} defaultValue="1234" />);
+      rerender(<OtpInput length={4} defaultValue="1234" status="error" />);
+      expect(root(container)).toHaveAttribute("data-status", "error");
+      expect(root(container)).toHaveAttribute("data-played");
+      expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
+      expect(slots(container)[0]).toHaveAttribute("data-invalid");
+      expect(slots(container)[0]).toHaveClass("data-[status=error]:ring-destructive/40");
+      expect(traces(container)).toHaveLength(0);
+
+      const sheet = document.head.querySelector('style[data-href="dowel-otp-input"]');
+      expect(sheet?.textContent).toContain("[data-played][data-status=error]{animation:");
+    });
+
+    it("lets an explicit aria-invalid win over the status", () => {
+      render(<OtpInput status="error" aria-invalid={false} />);
+      expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "false");
+    });
+
+    it("does not play its feedback for a status present on first render", () => {
+      const { container, rerender } = render(<OtpInput status="error" />);
+      expect(root(container)).toHaveAttribute("data-status", "error");
+      expect(root(container)).not.toHaveAttribute("data-played");
+
+      rerender(<OtpInput status="idle" />);
+      expect(root(container)).not.toHaveAttribute("data-played");
+      rerender(<OtpInput status="error" />);
+      expect(root(container)).toHaveAttribute("data-played");
+    });
+
+    it("announces a status message only once there is a verdict", () => {
+      const { rerender } = render(<OtpInput status="idle" statusMessage="Code verified" />);
+      const region = screen.getByRole("status");
+      expect(region).toBeEmptyDOMElement();
+      rerender(<OtpInput status="success" statusMessage="Code verified" />);
+      expect(region).toHaveTextContent("Code verified");
+      rerender(<OtpInput status="error" statusMessage="That code is wrong" />);
+      expect(region).toHaveTextContent("That code is wrong");
+    });
+
+    it("renders no live region without a message", () => {
+      render(<OtpInput status="success" />);
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    });
+
+    it("has no accessibility violations in either verdict", async () => {
+      const { container, rerender } = render(
+        <OtpInput defaultValue="123456" status="success" statusMessage="Code verified" />,
+      );
+      await expectNoA11yViolations(container);
+      rerender(<OtpInput defaultValue="123456" status="error" statusMessage="Wrong code" />);
+      await expectNoA11yViolations(container);
+    });
+  });
+
+  it("flips characters in by default and can roll them in instead", () => {
+    const { container, rerender } = render(<OtpInput />);
+    expect(container.firstElementChild).toHaveAttribute("data-entrance", "flip");
+    rerender(<OtpInput entrance="roll" />);
+    expect(container.firstElementChild).toHaveAttribute("data-entrance", "roll");
+  });
+
+  it("has an extra-large slot size", () => {
+    const { container } = render(<OtpInput slotSize="xl" />);
+    expect(slots(container)[0]).toHaveClass("size-14", "text-xl");
   });
 
   it("is disabled as a whole", () => {

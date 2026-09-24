@@ -184,6 +184,24 @@ import { meta as escapeButtonMeta } from "@/components/escape-button/meta";
 import { meta as expandingSearchMeta } from "@/components/expanding-search/meta";
 import { meta as dialMeta } from "@/components/dial/meta";
 import { meta as commandBarMeta } from "@/components/command-bar/meta";
+import { meta as durationPickerMeta } from "@/components/duration-picker/meta";
+import { meta as ratingMeta } from "@/components/rating/meta";
+import { meta as holdButtonMeta } from "@/components/hold-button/meta";
+import { meta as themeToggleMeta } from "@/components/theme-toggle/meta";
+import { meta as emojiReactionMeta } from "@/components/emoji-reaction/meta";
+import { meta as notificationBellMeta } from "@/components/notification-bell/meta";
+import { meta as likeButtonMeta } from "@/components/like-button/meta";
+import { meta as countdownMeta } from "@/components/countdown/meta";
+import { meta as folderMeta } from "@/components/folder/meta";
+import { meta as gravityFieldMeta } from "@/components/gravity-field/meta";
+import { meta as stepPlayerMeta } from "@/components/step-player/meta";
+import { meta as matrixOrbMeta } from "@/components/matrix-orb/meta";
+import { meta as fluidOrbMeta } from "@/components/fluid-orb/meta";
+import { meta as gridRevealMeta } from "@/components/grid-reveal/meta";
+import { meta as railNavMeta } from "@/components/rail-nav/meta";
+import { meta as minimapNavMeta } from "@/components/minimap-nav/meta";
+import { meta as scrollProgressMeta } from "@/components/scroll-progress/meta";
+import { meta as gooeyNavMeta } from "@/components/gooey-nav/meta";
 
 /**
  * Every component in the registry.
@@ -381,6 +399,24 @@ export const componentMetas: ComponentMeta[] = [
   expandingSearchMeta,
   dialMeta,
   commandBarMeta,
+  durationPickerMeta,
+  ratingMeta,
+  holdButtonMeta,
+  themeToggleMeta,
+  emojiReactionMeta,
+  notificationBellMeta,
+  likeButtonMeta,
+  countdownMeta,
+  folderMeta,
+  gravityFieldMeta,
+  stepPlayerMeta,
+  matrixOrbMeta,
+  fluidOrbMeta,
+  gridRevealMeta,
+  railNavMeta,
+  minimapNavMeta,
+  scrollProgressMeta,
+  gooeyNavMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is

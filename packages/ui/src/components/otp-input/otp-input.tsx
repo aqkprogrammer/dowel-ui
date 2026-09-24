@@ -4,6 +4,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -34,20 +35,42 @@ import { cn } from "@/lib/utils";
  * front of a filled character is widened to select that character, so typing
  * overwrites it and moves on — the behaviour people expect from a code field.
  *
- * Motion is CSS: slots rise in with a stagger, a digit flips in when it lands,
- * the active slot rings. All of it is decoration and stops under reduced
- * motion; the caret settles visible instead of blinking.
+ * Motion is CSS: slots rise in with a stagger, a character flips (or rolls)
+ * in when it lands, the active slot rings. All of it is decoration and stops
+ * under reduced motion; the caret settles visible instead of blinking.
+ *
+ * The caret is one element for the whole row, not one per slot. It is placed
+ * over the slot it belongs to by measuring that slot's box, and translated
+ * there with a transition, so it slides from slot to slot as you type or use
+ * the arrow keys. Each time it arrives its blink restarts, solid, the way a
+ * text caret stays solid while you type.
+ *
+ * `status` is the verdict on a complete code. "success" traces a ring around
+ * each slot in turn — a conic mask swept through a registered angle property —
+ * and "error" rings every slot red and shakes the row once. Only a change of
+ * status plays these; a field rendered with a status already set just shows
+ * the colours. An error also sets aria-invalid, and `statusMessage` is
+ * announced politely. (The status feedback, the sliding caret and the rolling
+ * entrance were inspired by the Rare UI OTP Input pattern; no code referenced.)
  */
 
 const PREFIX = "dowel-otp-input";
 
 const STYLES = `
+@property --${PREFIX}-sweep{syntax:"<angle>";inherits:false;initial-value:0deg}
 @keyframes ${PREFIX}-enter{from{opacity:0;transform:translateY(10px) scale(.8)}}
 @keyframes ${PREFIX}-char{from{opacity:0;transform:rotateY(-90deg) scale(.5)}}
-@keyframes ${PREFIX}-caret{0%,100%{opacity:0}50%{opacity:1}}
+@keyframes ${PREFIX}-roll{from{opacity:0;transform:translateY(55%) rotateX(-80deg);filter:blur(2px)}}
+@keyframes ${PREFIX}-blink{0%,45%{opacity:1}55%,100%{opacity:0}}
+@keyframes ${PREFIX}-trace{from{--${PREFIX}-sweep:0deg}}
+@keyframes ${PREFIX}-shake{0%,100%{translate:0}15%{translate:-7px}30%{translate:6px}45%{translate:-4px}60%{translate:3px}75%{translate:-1px}}
 [data-slot=otp-input-slot]{animation:${PREFIX}-enter calc(200ms * var(--motion-scale)) var(--ease-out-quint) both;animation-delay:calc(var(--${PREFIX}-index) * 50ms * var(--motion-scale))}
 [data-slot=otp-input-char]{animation:${PREFIX}-char calc(200ms * var(--motion-scale)) var(--ease-out-quint) both}
-[data-slot=otp-input-caret]{animation:${PREFIX}-caret calc(1s * var(--motion-scale)) var(--ease-in-out-quint) infinite}
+[data-slot=otp-input][data-entrance=roll] [data-slot=otp-input-char]{animation:${PREFIX}-roll calc(260ms * var(--motion-scale)) var(--ease-out-quint) both}
+[data-slot=otp-input-caret-blink]{animation:${PREFIX}-blink calc(1.1s * var(--motion-scale)) var(--ease-in-out-quint) infinite}
+[data-slot=otp-input-trace]{--${PREFIX}-sweep:360deg;mask-image:conic-gradient(var(--color-foreground) var(--${PREFIX}-sweep),transparent 0)}
+[data-slot=otp-input][data-played] [data-slot=otp-input-trace]{animation:${PREFIX}-trace calc(420ms * var(--motion-scale)) var(--ease-in-out-quint) both;animation-delay:calc(var(--${PREFIX}-index) * 80ms * var(--motion-scale))}
+[data-slot=otp-input][data-played][data-status=error]{animation:${PREFIX}-shake calc(420ms * var(--motion-scale)) var(--ease-out-quint)}
 `;
 
 /** A painted slot. */
@@ -58,6 +81,8 @@ const otpInputVariants = cva(
     "data-[filled]:scale-105",
     "data-[active]:z-10 data-[active]:border-ring data-[active]:ring-2 data-[active]:ring-ring/55",
     "data-[invalid]:border-destructive data-[invalid]:data-[active]:ring-destructive/40",
+    "data-[status=error]:ring-2 data-[status=error]:ring-destructive/40",
+    "data-[status=success]:border-success data-[status=success]:data-[active]:border-success data-[status=success]:data-[active]:ring-success/40",
   ),
   {
     variants: {
@@ -65,6 +90,7 @@ const otpInputVariants = cva(
         sm: "size-8 text-sm",
         md: "size-10 text-base",
         lg: "size-12 text-lg",
+        xl: "size-14 text-xl",
       },
     },
     defaultVariants: {
@@ -72,6 +98,9 @@ const otpInputVariants = cva(
     },
   },
 );
+
+/** The verdict on a complete code. */
+export type OtpInputStatus = "idle" | "success" | "error";
 
 /** Which characters a slot accepts. A RegExp is tested against one character. */
 export type OtpInputAllow = "numeric" | "alphanumeric" | "alpha" | RegExp;
@@ -109,6 +138,18 @@ export interface OtpInputProps
   separator?: ReactNode;
   /** Classes for each painted slot. */
   slotClassName?: string;
+  /**
+   * The verdict on the code. "success" traces a ring around each slot in
+   * turn; "error" rings them red, shakes the row once and sets aria-invalid.
+   */
+  status?: OtpInputStatus;
+  /**
+   * Announced politely while `status` is "success" or "error" — "Code
+   * verified", "That code is wrong". Visible error text belongs in FormMessage.
+   */
+  statusMessage?: string;
+  /** How a character arrives in its slot: `flip` turns it in, `roll` rolls it up from below. */
+  entrance?: "flip" | "roll";
 }
 
 function assignRef<T>(ref: Ref<T> | undefined, value: T | null) {
@@ -165,6 +206,9 @@ export function OtpInput({
   groups,
   separator,
   slotSize,
+  status = "idle",
+  statusMessage,
+  entrance = "flip",
   disabled,
   style,
   ref,
@@ -185,7 +229,18 @@ export function OtpInput({
   const [selection, setSelection] = useState<[number, number]>([value.length, value.length]);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const slotRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const caretRef = useRef<HTMLSpanElement | null>(null);
   const pendingCaret = useRef<number | null>(null);
+
+  // A status that changes plays its feedback; one present on first render
+  // only colours the slots. Derived during render, like the value.
+  const [seenStatus, setSeenStatus] = useState(status);
+  const [played, setPlayed] = useState(false);
+  if (seenStatus !== status) {
+    setSeenStatus(status);
+    setPlayed(true);
+  }
 
   const setRefs = useCallback(
     (node: HTMLInputElement | null) => {
@@ -305,7 +360,52 @@ export function OtpInput({
   }
 
   const [start, end] = selection;
-  const invalid = ariaInvalid === true || ariaInvalid === "true";
+  // The one caret sits in the next empty slot while nothing is selected.
+  const caretAt =
+    focused && start === end && start === value.length && start < length ? start : null;
+  const caretShown = caretAt !== null;
+  const lastCaret = useRef<number | null>(null);
+
+  // Places the caret over its slot. Moving between slots slides; appearing
+  // (focus, or leaving a selection) jumps straight there.
+  const placeCaret = useCallback((index: number | null, jump: boolean) => {
+    const caret = caretRef.current;
+    const slot = index === null ? null : slotRefs.current[index];
+    if (!caret || !slot) return;
+    const x = slot.offsetLeft + slot.offsetWidth / 2;
+    const y = slot.offsetTop + slot.offsetHeight / 4;
+    if (jump) caret.style.transition = "none";
+    caret.style.translate = `${String(x)}px ${String(y)}px`;
+    caret.style.height = `${String(slot.offsetHeight / 2)}px`;
+    if (jump) {
+      void caret.offsetWidth;
+      caret.style.transition = "";
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    if (caretAt === null) {
+      lastCaret.current = null;
+      return;
+    }
+    placeCaret(caretAt, lastCaret.current === null);
+    lastCaret.current = caretAt;
+  }, [caretAt, placeCaret, length, groups, slotSize]);
+
+  // Slots move when the row reflows — a font arriving, a container resizing.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      placeCaret(lastCaret.current, true);
+    });
+    observer.observe(root);
+    return () => {
+      observer.disconnect();
+    };
+  }, [placeCaret]);
+
+  const invalid = ariaInvalid === true || ariaInvalid === "true" || status === "error";
   const maskChar = typeof mask === "string" ? mask : "•";
   const named =
     props["aria-label"] !== undefined ||
@@ -314,8 +414,12 @@ export function OtpInput({
 
   return (
     <div
+      ref={rootRef}
       data-slot="otp-input"
       data-disabled={disabled ? "" : undefined}
+      data-status={status === "idle" ? undefined : status}
+      data-played={played && status !== "idle" ? "" : undefined}
+      data-entrance={entrance}
       dir="ltr"
       className={cn(
         "relative inline-flex items-center gap-2 data-[disabled]:opacity-55",
@@ -338,7 +442,6 @@ export function OtpInput({
               focused &&
               index >= Math.min(start, length - 1) &&
               index < Math.max(end, start + 1);
-            const caret = focused && start === end && start === index && index === value.length;
             return (
               <div
                 key={index}
@@ -349,6 +452,7 @@ export function OtpInput({
                 data-active={active ? "" : undefined}
                 data-filled={char ? "" : undefined}
                 data-invalid={invalid ? "" : undefined}
+                data-status={status === "idle" ? undefined : status}
                 style={{ [`--${PREFIX}-index`]: index } as CSSProperties}
                 className={cn(otpInputVariants({ slotSize }), slotClassName)}
               >
@@ -357,10 +461,10 @@ export function OtpInput({
                     {mask ? maskChar : char}
                   </span>
                 ) : null}
-                {caret ? (
+                {status === "success" ? (
                   <span
-                    data-slot="otp-input-caret"
-                    className="pointer-events-none absolute h-1/2 w-px bg-foreground"
+                    data-slot="otp-input-trace"
+                    className="pointer-events-none absolute -inset-[3px] rounded-[inherit] border-2 border-success"
                   />
                 ) : null}
               </div>
@@ -368,6 +472,24 @@ export function OtpInput({
           })}
         </div>
       ))}
+      <span
+        ref={caretRef}
+        aria-hidden="true"
+        data-slot="otp-input-caret"
+        data-state={caretShown ? "visible" : "hidden"}
+        data-index={caretAt ?? undefined}
+        className={cn(
+          "pointer-events-none absolute start-0 top-0 z-20 w-px",
+          "transition-[translate,opacity] duration-[var(--duration-normal)] ease-[var(--ease-out-quint)]",
+          "data-[state=hidden]:opacity-0 data-[state=hidden]:duration-[var(--duration-fast)]",
+        )}
+      >
+        <span
+          key={caretAt ?? "hidden"}
+          data-slot="otp-input-caret-blink"
+          className="block size-full bg-foreground"
+        />
+      </span>
       <input
         ref={setRefs}
         data-slot="otp-input-control"
@@ -378,12 +500,12 @@ export function OtpInput({
         autoCorrect="off"
         spellCheck={false}
         aria-label={named ? undefined : "One-time code"}
-        aria-invalid={ariaInvalid}
+        aria-invalid={ariaInvalid ?? (status === "error" ? true : undefined)}
         disabled={disabled}
         maxLength={length}
         value={value}
         style={{ ...INPUT_STYLE, ...style }}
-        className="absolute inset-0 size-full border-0 p-0 outline-none selection:bg-transparent disabled:cursor-not-allowed"
+        className="absolute inset-0 z-30 size-full border-0 p-0 outline-none selection:bg-transparent disabled:cursor-not-allowed"
         onChange={handleChange}
         onPaste={handlePaste}
         onKeyDown={handleKeyDown}
@@ -400,6 +522,11 @@ export function OtpInput({
         onBlur={handleBlur}
         {...props}
       />
+      {statusMessage === undefined ? null : (
+        <span role="status" aria-live="polite" className="sr-only">
+          {status === "idle" ? "" : statusMessage}
+        </span>
+      )}
     </div>
   );
 }

@@ -3,6 +3,39 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Interaction patterns: 18 components, and motion for 6 more
+
+Every pattern on Rare UI's components page is now reachable in Dowel, plus five
+the library was missing. Rare UI's licence (MIT with the Commons Clause) forbids
+redistributing its components or ports of them, so none of its code was read or
+used: each item is an original implementation written from the published
+behaviour descriptions, marked _original_ in its header and listed in
+`THIRD_PARTY_NOTICES.md`.
+
+- **AI** — `matrix-orb` (a dot-matrix orb for idle, listening and thinking),
+  `fluid-orb` (a WebGL orb with its own shader and a CSS fallback) and
+  `grid-reveal` (a generating-image frame that splits into cells and resolves,
+  busiest detail first).
+- **Navigation** — `rail-nav` (a vertical nav with a bouncing dot or a hooked
+  rail: Rare UI's Bounce and Hook sidebars as one component with an
+  `indicator` axis), `minimap-nav` (a proximity-scaled document minimap),
+  `scroll-progress` and `gooey-nav`.
+- **Form** — `duration-picker`, plus `rating`, `hold-button` and
+  `theme-toggle`, which are new.
+- **Display, feedback, effects** — `folder`, `step-player`, `gravity-field`
+  (its own tested physics), `emoji-reaction`, `notification-bell`, plus
+  `like-button` and `countdown`, which are new.
+- **Existing components gained Rare UI's behaviours without API changes** —
+  `code-block` (an `accent` theme, line numbers, highlighted lines, a springing
+  copy check), `otp-input` (`status` success and error feedback, a single
+  sliding caret, a `roll` entrance), `number-flow` (faded reel edges, spinning
+  through rapid updates, animated width, `prefix`/`suffix`),
+  `contribution-graph` (`ContributionGraphPanel`, `months`, `accent`),
+  `animated-checklist` (`sortDone`, `size`) and `inline-confirm`
+  (`variant="icon"`, a bin whose lid lifts).
+
 ## 0.8.0
 
 ### The motion catalogue: 109 components, 34 blocks, and motion for 32 more

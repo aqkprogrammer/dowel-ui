@@ -3,12 +3,15 @@
 // Ported from SmoothUI Contribution Graph (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { cva } from "class-variance-authority";
 import {
+  createContext,
   useId,
   useMemo,
   useRef,
   useState,
   type ComponentPropsWithRef,
+  type CSSProperties,
   type KeyboardEvent,
+  type ReactNode,
 } from "react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/tooltip";
@@ -30,6 +33,18 @@ import { cn } from "@/lib/utils";
  * Dates are calendar days in UTC throughout: "2025-03-09" is that day wherever
  * the reader is, which the source's local-time arithmetic did not guarantee.
  * Levels are the primary token mixed into muted at 25/50/75/100%.
+ *
+ * Two additions, inspired by the Rare UI activity-card pattern (no code
+ * referenced). `months` narrows the window to the last N whole months, ending
+ * today or at the end of `year`, whichever is earlier — the "last year of
+ * activity" view rather than a calendar year. `accent` swaps the primary token
+ * for any colour: it is a custom property the cells, the legend and the panel
+ * read, and each cell carries `data-accent` so the default classes (and
+ * `bg-primary` at the top level) stay exactly what they were without it.
+ *
+ * Children render after the legend — the place for `ContributionGraphPanel`,
+ * which reads the count phrase from context and, while it is open, makes the
+ * grid it covers inert so keyboard focus never lands under it.
  */
 
 const DAY = 86_400_000;
@@ -42,14 +57,24 @@ export interface ContributionDay {
   level?: number;
 }
 
+/** Cell colours. `data-accent` on the cell switches from primary to `--contribution-graph-accent`. */
 const contributionGraphCellVariants = cva("block size-2.5 rounded-[2px]", {
   variants: {
     level: {
       0: "bg-muted",
-      1: "bg-[color-mix(in_oklab,var(--color-primary)_25%,var(--color-muted))]",
-      2: "bg-[color-mix(in_oklab,var(--color-primary)_50%,var(--color-muted))]",
-      3: "bg-[color-mix(in_oklab,var(--color-primary)_75%,var(--color-muted))]",
-      4: "bg-primary",
+      1: cn(
+        "bg-[color-mix(in_oklab,var(--color-primary)_25%,var(--color-muted))]",
+        "data-[accent]:bg-[color-mix(in_oklab,var(--contribution-graph-accent)_25%,var(--color-muted))]",
+      ),
+      2: cn(
+        "bg-[color-mix(in_oklab,var(--color-primary)_50%,var(--color-muted))]",
+        "data-[accent]:bg-[color-mix(in_oklab,var(--contribution-graph-accent)_50%,var(--color-muted))]",
+      ),
+      3: cn(
+        "bg-[color-mix(in_oklab,var(--color-primary)_75%,var(--color-muted))]",
+        "data-[accent]:bg-[color-mix(in_oklab,var(--contribution-graph-accent)_75%,var(--color-muted))]",
+      ),
+      4: "bg-primary data-[accent]:bg-[var(--contribution-graph-accent)]",
     },
   },
   defaultVariants: { level: 0 },
@@ -63,6 +88,18 @@ export interface ContributionGraphProps extends Omit<ComponentPropsWithRef<"div"
   data?: ContributionDay[];
   /** The calendar year shown. Defaults to the current year. */
   year?: number;
+  /**
+   * Show only the last N whole months instead of the calendar year. The window
+   * ends today, or on 31 December of `year` when that year is over.
+   */
+  months?: number;
+  /**
+   * Any CSS colour for the cells, the legend and the panel's bars, e.g.
+   * `var(--color-success)`. Defaults to the primary token.
+   */
+  accent?: string;
+  /** Rendered after the legend — the place for `ContributionGraphPanel`. */
+  children?: ReactNode;
   /** Locale for month, weekday and date names. */
   locales?: Intl.LocalesArgument;
   /** Show the Less → More legend. */
@@ -89,8 +126,30 @@ function defaultCount(count: number): string {
   return `${String(count)} ${count === 1 ? "contribution" : "contributions"}`;
 }
 
+/** What a child part (the panel) reads from the graph around it. Not part of the public API. */
+export const ContributionGraphContext = createContext<{
+  formatCount: (count: number) => string;
+  locales?: Intl.LocalesArgument;
+  /** Makes the grid and legend inert while something covers them. */
+  setCovered: (covered: boolean) => void;
+}>({ formatCount: defaultCount, setCovered: () => {} });
+
 const keyOf = (time: number) => new Date(time).toISOString().slice(0, 10);
 const weekday = (time: number) => new Date(time).getUTCDay();
+
+/**
+ * First and last day shown. A calendar year by default; with `months`, the last
+ * N whole months ending today — or on 31 December once `year` is over.
+ */
+function range(year: number, months: number | undefined): [number, number] {
+  const last = Date.UTC(year, 11, 31);
+  if (months === undefined) return [Date.UTC(year, 0, 1), last];
+  const now = new Date();
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const end = today < Date.UTC(year, 0, 1) ? last : Math.min(today, last);
+  const date = new Date(end);
+  return [Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - months + 1, 1), end];
+}
 
 function isRtl(element: Element) {
   return element.closest("[dir]")?.getAttribute("dir") === "rtl";
@@ -101,6 +160,8 @@ export function ContributionGraph({
   className,
   data = [],
   year = new Date().getUTCFullYear(),
+  months,
+  accent,
   locales,
   showLegend = true,
   showTooltips = true,
@@ -109,14 +170,17 @@ export function ContributionGraph({
   formatCount = defaultCount,
   lessLabel = "Less",
   moreLabel = "More",
+  children,
+  style,
   ...props
 }: ContributionGraphProps) {
   const captionId = useId();
   const table = useRef<HTMLTableElement>(null);
   const surface = useRef<HTMLDivElement>(null);
+  const [covered, setCovered] = useState(false);
 
-  const start = Date.UTC(year, 0, 1);
-  const end = Date.UTC(year, 11, 31);
+  const span = months === undefined ? undefined : Math.max(1, Math.round(months));
+  const [start, end] = range(year, span);
   const gridStart = start - weekday(start) * DAY;
   const weeks = Math.round(((end + (6 - weekday(end)) * DAY - gridStart) / DAY + 1) / 7);
 
@@ -129,16 +193,20 @@ export function ContributionGraph({
 
   const { byDate, max, total } = useMemo(() => {
     const map = new Map<string, ContributionDay>();
+    const first = keyOf(start);
+    const last = keyOf(end);
     let busiest = 0;
     let sum = 0;
     for (const day of data) {
-      if (!day.date.startsWith(String(year))) continue;
+      if (day.date < first || day.date > last) continue;
       map.set(day.date, day);
       busiest = Math.max(busiest, day.count);
       sum += day.count;
     }
     return { byDate: map, max: busiest, total: sum };
-  }, [data, year]);
+  }, [data, start, end]);
+
+  const context = useMemo(() => ({ formatCount, locales, setCovered }), [formatCount, locales]);
 
   const names = useMemo(() => {
     const month = new Intl.DateTimeFormat(locales, { month: "short", timeZone: "UTC" });
@@ -167,15 +235,22 @@ export function ContributionGraph({
     return { count, level, text: `${formatCount(count)}, ${names.full(time)}` };
   }
 
-  // Month headers: consecutive weeks grouped by the month their first in-year day falls in.
-  const months: { key: string; name: string; span: number }[] = [];
+  // Month headers: consecutive weeks grouped by the month their first in-range day falls in.
+  const headers: { key: string; name: string; span: number }[] = [];
   for (let week = 0; week < weeks; week++) {
     const first = Math.max(gridStart + week * 7 * DAY, start);
-    const month = new Date(first).getUTCMonth();
-    const last = months[months.length - 1];
-    if (last?.key === String(month)) last.span++;
-    else months.push({ key: String(month), name: names.month(first), span: 1 });
+    const key = keyOf(first).slice(0, 7);
+    const last = headers[headers.length - 1];
+    if (last?.key === key) last.span++;
+    else headers.push({ key, name: names.month(first), span: 1 });
   }
+
+  const counted = `${String(total)} ${total === 1 ? "contribution" : "contributions"}`;
+  const caption =
+    label ??
+    (span === undefined
+      ? `${counted} in ${String(year)}`
+      : `${counted} in the last ${String(span)} ${span === 1 ? "month" : "months"}`);
 
   function place(cell: HTMLElement) {
     const box = surface.current?.getBoundingClientRect();
@@ -225,10 +300,15 @@ export function ContributionGraph({
   return (
     <div
       data-slot="contribution-graph"
-      className={cn("flex flex-col gap-3 text-xs", className)}
+      className={cn("relative flex flex-col gap-3 text-xs", className)}
+      style={
+        accent === undefined
+          ? style
+          : ({ "--contribution-graph-accent": accent, ...style } as CSSProperties)
+      }
       {...props}
     >
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" inert={covered}>
         <div ref={surface} className="relative w-fit">
           <table
             ref={table}
@@ -247,15 +327,14 @@ export function ContributionGraph({
             }}
           >
             <caption id={captionId} className="sr-only">
-              {label ??
-                `${String(total)} ${total === 1 ? "contribution" : "contributions"} in ${String(year)}`}
+              {caption}
             </caption>
             <thead>
               <tr>
                 <th scope="col">
                   <span className="sr-only">Weekday</span>
                 </th>
-                {months.map((month, index) => (
+                {headers.map((month, index) => (
                   <th
                     key={`${month.key}-${String(index)}`}
                     scope="colgroup"
@@ -311,6 +390,7 @@ export function ContributionGraph({
                       >
                         <span
                           aria-hidden="true"
+                          data-accent={accent === undefined ? undefined : ""}
                           className={cn(
                             contributionGraphCellVariants({ level: day.level }),
                             "transition-[scale] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)] hover:scale-125",
@@ -353,18 +433,21 @@ export function ContributionGraph({
         <div
           data-slot="contribution-graph-legend"
           className="flex items-center justify-end gap-1 text-muted-foreground"
+          inert={covered}
         >
           <span className="me-1">{lessLabel}</span>
           {LEVELS.map((level) => (
             <span
               key={level}
               aria-hidden="true"
+              data-accent={accent === undefined ? undefined : ""}
               className={contributionGraphCellVariants({ level })}
             />
           ))}
           <span className="ms-1">{moreLabel}</span>
         </div>
       ) : null}
+      <ContributionGraphContext value={context}>{children}</ContributionGraphContext>
     </div>
   );
 }
