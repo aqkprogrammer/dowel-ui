@@ -78,6 +78,9 @@ export function PromptInput({
       <form
         ref={formRef}
         data-slot="prompt-input"
+        // Typing to the agent is not taking the page back from it (see
+        // agent-surface's takeOverOn).
+        data-agent-ui=""
         data-busy={busy || undefined}
         onSubmit={(event) => {
           if (disabled || busy) {
