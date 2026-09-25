@@ -279,6 +279,13 @@ describe("ApprovalRequest", () => {
     });
   });
 
+  it("marks itself as agent interface, so deciding never counts as taking over a surface", () => {
+    const { container } = render(<Example />);
+    expect(container.querySelector("[data-slot='approval-request']")).toHaveAttribute(
+      "data-agent-ui",
+    );
+  });
+
   it("has no accessibility violations while forming", async () => {
     const { container } = render(<Example arguments={{ to: "dana@acme.test" }} streaming />);
     await expectNoA11yViolations(container);

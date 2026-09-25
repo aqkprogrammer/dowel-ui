@@ -47,6 +47,13 @@ function Example({
 }
 
 describe("PromptInput", () => {
+  it("marks itself as agent interface, so typing to the agent never takes over a surface", () => {
+    const { container } = render(<Example />);
+    expect(container.querySelector("[data-slot='prompt-input']")).toHaveAttribute(
+      "data-agent-ui",
+    );
+  });
+
   it("submits on Enter", async () => {
     const onSubmit = vi.fn();
     const user = userEvent.setup();

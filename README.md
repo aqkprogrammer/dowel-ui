@@ -44,14 +44,16 @@ as you pick, and [per-component quality](https://dowel-eight.vercel.app/quality)
 
 ## What is in it
 
-**202 components** and **51 blocks**, every one keyboard-operable and audited for
+**209 components** and **51 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
 Reasoning · Sources · Model Selector · Token Usage · Agent Status ·
 Agent Plan · Approval Request · Action Ledger · Structured Output ·
 Inline Completion · Disclosure · **Extraction Review** ·
-**Suggested Value**
+**Suggested Value** · **Agent Surface** · **Control Baton** ·
+**Agent Approvals** · **Agent Ledger** · **Agent Form** ·
+**Agent Data Table** · **Stream Announcer**
 
 **Forms** — Input · Label · Checkbox · Radio Group · Switch · Slider · Select ·
 Combobox · Form · Calendar · Date Picker · Tags Input · File Upload ·
@@ -87,6 +89,18 @@ up front so nothing jumps as it fills in.
 
 **`ai-inline-completion`** — ghost text in a real textarea. Escape always gives
 Tab back to focus management, so a keyboard user is never trapped.
+
+**`agent-surface` + `control-baton`** — the agent operates the page, and the
+person can take it back. Actions register as tools that run the same handlers a
+click does, for your own assistant or, experimentally, for browser agents over
+WebMCP. While the person holds control every call is refused, reads included,
+and handing back carries a note the agent receives with its next result. Around it: `agent-approvals` (correct the
+arguments, then approve), `agent-ledger` (undo what can be undone), and
+ready-made tools for forms (`agent-form`) and TanStack tables
+(`agent-data-table`).
+
+**`stream-announcer`** — an opt-in way for screen reader users to hear a
+streaming reply a sentence at a time, with pause, skip and repeat.
 
 ## Blocks
 

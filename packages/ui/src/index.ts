@@ -200,6 +200,13 @@ export * from "./components/rail-nav";
 export * from "./components/minimap-nav";
 export * from "./components/scroll-progress";
 export * from "./components/gooey-nav";
+export * from "./components/agent-surface";
+export * from "./components/control-baton";
+export * from "./components/stream-announcer";
+export * from "./components/agent-approvals";
+export * from "./components/agent-ledger";
+export * from "./components/agent-form";
+export * from "./components/agent-data-table";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";
