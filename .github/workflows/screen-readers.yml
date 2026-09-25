@@ -1,0 +1,90 @@
+name: Screen readers
+
+# Real VoiceOver and NVDA, driven by Guidepup, against the Storybook stories.
+# Not part of CI on every push: each run takes over a runner's speech and
+# keyboard for minutes. It runs when the announcer or these tests change, and
+# on demand. JAWS needs a licence and is tested by hand; see
+# docs/testing/screen-readers.md.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "packages/ui/src/components/stream-announcer/**"
+      - "packages/screen-reader-tests/**"
+      - ".github/workflows/screen-readers.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  STORYBOOK_DISABLE_TELEMETRY: 1
+
+jobs:
+  harness:
+    name: Harness (no screen reader)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps chromium
+      - run: pnpm --filter @dowel-ui/screen-reader-tests test:harness
+
+  voiceover:
+    name: VoiceOver (macOS, WebKit)
+    needs: harness
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: guidepup/setup-action@0.21.0
+        with:
+          record: true
+      - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps webkit
+      - run: pnpm --filter @dowel-ui/screen-reader-tests test:voiceover
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: voiceover-results
+          path: |
+            packages/screen-reader-tests/playwright-report/
+            packages/screen-reader-tests/test-results/
+            recordings/
+
+  nvda:
+    name: NVDA (Windows, Chromium)
+    needs: harness
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: guidepup/setup-action@0.21.0
+      - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps chromium
+      - run: pnpm --filter @dowel-ui/screen-reader-tests test:nvda
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nvda-results
+          path: |
+            packages/screen-reader-tests/playwright-report/
+            packages/screen-reader-tests/test-results/
