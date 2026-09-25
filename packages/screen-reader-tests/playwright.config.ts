@@ -1,4 +1,3 @@
-import { screenReaderConfig } from "@guidepup/playwright";
 import { defineConfig, devices } from "@playwright/test";
 
 /**
@@ -12,9 +11,15 @@ import { defineConfig, devices } from "@playwright/test";
  *
  * The pages under test are the Storybook stories, so what is tested here is
  * the same thing the docs site previews and the unit tests render.
+ *
+ * Guidepup's own `screenReaderConfig` is written out below rather than
+ * imported: importing Guidepup looks for a screen reader straight away and
+ * throws where there is none, which would take the harness down on Linux.
  */
 export default defineConfig({
-  ...screenReaderConfig,
+  // One screen reader per machine, so one test at a time.
+  workers: 1,
+  fullyParallel: false,
   testDir: "./tests",
   // Speech takes as long as it takes. One reply, read at a screen reader's
   // default rate, is most of a minute.
@@ -22,8 +27,8 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
-    ...screenReaderConfig.use,
     baseURL: "http://localhost:6007",
+    // Screen readers do not work against a headless browser.
     headless: false,
     video: "retain-on-failure",
   },
