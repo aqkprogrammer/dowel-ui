@@ -45,7 +45,11 @@ settings you change yourself, either by running Guidepup's setup or through
 VoiceOver Utility and System Settings:
 
 ```bash
-npx @guidepup/setup
+npx @guidepup/setup@0.24.6 setup
+```
+
+```bash
+npx @guidepup/setup@0.24.6 install
 ```
 
 ```bash

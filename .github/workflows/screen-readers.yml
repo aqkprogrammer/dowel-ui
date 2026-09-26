@@ -1,6 +1,7 @@
 name: Screen readers
 
 # Real VoiceOver and NVDA, driven by Guidepup, against the Storybook stories.
+# Set up the way Guidepup's own CI (guidepup/guidepup-playwright) does it.
 # Not part of CI on every push: each run takes over a runner's speech and
 # keyboard for minutes. It runs when the announcer or these tests change, and
 # on demand. JAWS needs a licence and is tested by hand; see
@@ -47,7 +48,8 @@ jobs:
   voiceover:
     name: VoiceOver (macOS, WebKit)
     needs: harness
-    runs-on: macos-latest
+    # The images Guidepup's own CI runs VoiceOver on.
+    runs-on: macos-15
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
@@ -56,10 +58,16 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # Guidepup's own recipe, in its order: `setup` prepares the OS
+      # (permissions, Do Not Disturb, the screen reader's automation settings)
+      # before anything else; `install` puts the screen reader assets in place
+      # once dependencies are installed. The setup action skipped the second
+      # and could not do the first on these runners.
+      - name: Prepare the screen reader
+        run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 setup --ci --macos-record
       - run: pnpm install --frozen-lockfile
-      - uses: guidepup/setup-action@0.21.0
-        with:
-          record: true
+      - name: Install the screen reader assets
+        run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 install
       # Storybook imports workspace packages (the themes) that ship from dist/,
       # which a clean checkout does not have yet.
       - name: Build Storybook
@@ -75,12 +83,12 @@ jobs:
           path: |
             packages/screen-reader-tests/playwright-report/
             packages/screen-reader-tests/test-results/
-            recordings/
+            **/recordings/**/*
 
   nvda:
     name: NVDA (Windows, Chromium)
     needs: harness
-    runs-on: windows-latest
+    runs-on: windows-2025
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
@@ -89,8 +97,16 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # Guidepup's own recipe, in its order: `setup` prepares the OS
+      # (permissions, Do Not Disturb, the screen reader's automation settings)
+      # before anything else; `install` puts the screen reader assets in place
+      # once dependencies are installed. The setup action skipped the second
+      # and could not do the first on these runners.
+      - name: Prepare the screen reader
+        run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 setup --ci --macos-record
       - run: pnpm install --frozen-lockfile
-      - uses: guidepup/setup-action@0.21.0
+      - name: Install the screen reader assets
+        run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 install
       # Storybook imports workspace packages (the themes) that ship from dist/,
       # which a clean checkout does not have yet.
       - name: Build Storybook
@@ -106,3 +122,4 @@ jobs:
           path: |
             packages/screen-reader-tests/playwright-report/
             packages/screen-reader-tests/test-results/
+            **/recordings/**/*
