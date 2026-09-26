@@ -31,6 +31,12 @@ resolves to `index.ts`, but the CLI installs files flat and rewrites that
 import to `@/components/ui/<name>`, which is the main file. `audit:installed-imports`
 enforces it.
 
+Component code also type-checks at ES2017, the target a new Next.js app's
+`tsconfig.json` uses, not only at the repo's own: `pnpm typecheck` in
+`packages/ui` runs both. Syntax gated by target, such as the regular
+expression flag `s`, would otherwise pass here and fail in the app that
+installed it.
+
 ## API
 
 - **Props extend `ComponentPropsWithRef<E>`** and spread `...props` onto the
