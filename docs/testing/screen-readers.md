@@ -14,8 +14,8 @@ until the checks below have passed on real screen readers.
 | Project     | Screen reader | Browser  | Where                                     |
 | ----------- | ------------- | -------- | ----------------------------------------- |
 | `harness`   | none          | Chromium | anywhere; proves the scenarios themselves |
-| `voiceover` | VoiceOver     | WebKit   | macOS (`macos-latest` in CI)              |
-| `nvda`      | NVDA          | Chromium | Windows (`windows-latest` in CI)          |
+| `voiceover` | VoiceOver     | WebKit   | macOS (`macos-15` in CI)                  |
+| `nvda`      | NVDA          | Chromium | Windows (`windows-2025` in CI)            |
 
 Each project runs two scenarios:
 
@@ -28,6 +28,13 @@ Each project runs two scenarios:
 The `harness` project runs the same scenarios against a "perfect listener"
 that hears exactly what is in the live region. If `harness` passes and
 `voiceover` fails, the problem is the screen reader's behaviour, not the test.
+
+The scenarios don't use Guidepup's `lastSpokenPhrase` or `spokenPhraseLog`.
+Those hold only what was said in response to one of Guidepup's own commands,
+and a live region speaks between commands, so they never contain an
+announcement. `tests/overhear.ts` reads the screen reader directly instead:
+it polls VoiceOver's last phrase over AppleScript, and it joins NVDA's Remote
+Access channel as a second listener, which receives every speech message.
 
 CI runs the workflow `.github/workflows/screen-readers.yml` whenever the
 announcer or these tests change, and you can also start it by hand. CI tests
