@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/screen-reader-tests",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "private": true,
   "type": "module",
   "description": "Real screen reader tests: VoiceOver on macOS and NVDA on Windows, driven by Guidepup. Not part of `pnpm test` — they need a real screen reader and take over the machine.",

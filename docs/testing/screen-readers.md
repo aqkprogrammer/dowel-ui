@@ -107,6 +107,8 @@ Add a row for each pass. A failure needs an issue link in Notes.
 
 It becomes `stable` when all three of these hold for the same release:
 
-- `voiceover` and `nvda` pass in CI.
-- The results table has a passing row for each of JAWS, NVDA and VoiceOver.
-- There is no open issue from step 2, 3 or 7.
+- [x] `voiceover` and `nvda` pass in CI. First passed on 2026-09-26, in
+      aqkprogrammer/dowel-ui#9, after the harness learned to hear live
+      regions and the NVDA re-reading fix.
+- [ ] The results table has a passing row for each of JAWS, NVDA and VoiceOver.
+- [ ] There is no open issue from step 2, 3 or 7.
