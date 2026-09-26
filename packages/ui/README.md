@@ -54,7 +54,7 @@ they want to change something.
 
 ## What is in it
 
-**209 components** and **51 blocks**, every one keyboard-operable and audited for
+**213 components** and **51 blocks**, every one keyboard-operable and audited for
 contrast.
 
 **AI** — the reason this library exists
@@ -64,7 +64,8 @@ Approval Request · Action Ledger · Structured Output · Inline Completion ·
 Disclosure · **Extraction Review** ·
 **Suggested Value** · **Agent Surface** · **Control Baton** ·
 **Agent Approvals** · **Agent Ledger** · **Agent Form** ·
-**Agent Data Table** · **Stream Announcer**
+**Agent Data Table** · **Agent Replay** · **Blast Radius** ·
+**Suggest Mode** · **Prompt Redactor** · **Stream Announcer**
 
 **Forms**
 Input · Label · Checkbox · Radio Group · Switch · Slider · Select · Combobox ·
