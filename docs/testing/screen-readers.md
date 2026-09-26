@@ -30,7 +30,11 @@ that hears exactly what is in the live region. If `harness` passes and
 `voiceover` fails, the problem is the screen reader's behaviour, not the test.
 
 CI runs the workflow `.github/workflows/screen-readers.yml` whenever the
-announcer or these tests change, and you can also start it by hand.
+announcer or these tests change, and you can also start it by hand. CI tests
+a static Storybook build served from disk (`serve-storybook.ts`), not the dev
+server: on a cold runner, the dev server's first page load could reload
+partway and leave the story blank. To test the same way locally, run
+`pnpm --filter @dowel-ui/react build-storybook` and set `STORYBOOK_STATIC=1`.
 
 ### Running VoiceOver locally
 

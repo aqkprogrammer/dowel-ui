@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Real screen reader tests: VoiceOver on macOS and NVDA on Windows, driven by Guidepup. Not part of `pnpm test` — they need a real screen reader and take over the machine.",
   "scripts": {
+    "serve": "node serve-storybook.ts",
     "test:harness": "playwright test --project=harness",
     "test:voiceover": "playwright test --project=voiceover",
     "test:nvda": "playwright test --project=nvda",
