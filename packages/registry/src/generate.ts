@@ -160,7 +160,7 @@ const SYNONYMS: Record<string, string[]> = {
   log: ["log-viewer"],
   diff: ["diff-viewer", "record-diff"],
   secret: ["secret-field"],
-  "api key": ["secret-field"],
+  "api key": ["secret-field", "prompt-redactor"],
   key: ["secret-field"],
   dns: ["dns-record"],
   loader: [
@@ -317,6 +317,20 @@ const SYNONYMS: Record<string, string[]> = {
   "form filling": ["agent-form"],
   "agent table": ["agent-data-table"],
   tanstack: ["data-table", "agent-data-table"],
+  "track changes": ["ai-suggest-mode", "diff-viewer"],
+  suggestions: ["ai-suggest-mode", "ai-suggestions"],
+  "suggested edits": ["ai-suggest-mode"],
+  proofread: ["ai-suggest-mode"],
+  "dry run": ["blast-radius"],
+  impact: ["blast-radius"],
+  "blast radius": ["blast-radius"],
+  replay: ["agent-replay"],
+  timeline: ["agent-replay", "activity-feed"],
+  "agent run": ["agent-replay", "agent-console"],
+  redact: ["prompt-redactor"],
+  redaction: ["prompt-redactor"],
+  pii: ["prompt-redactor"],
+  privacy: ["prompt-redactor"],
 };
 
 export interface PlanEntry {

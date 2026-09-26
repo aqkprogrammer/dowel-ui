@@ -174,6 +174,30 @@ The harness justified itself immediately. A locator that stopped matching
 mid-stream made the first sentence look unspoken. JAWS is tested by hand, to
 the protocol in `docs/testing/screen-readers.md`.
 
+## Four more pieces: dry runs, replay, suggestions, redaction
+
+- **A dry run is part of the approval, not a step before it.** A tool's
+  `preview` starts the moment the question is asked, and the answer fills in
+  the question already on screen. A sample is never passed off as a total: the
+  counts say "at least". A failed dry run is shown, and the person can still
+  decide.
+- **Replay shows what was recorded, not the page.** Each call now keeps
+  `told`, the exact text the agent received, and the surface keeps a
+  timestamped `controlLog`. That makes "how did it get there?" answerable
+  without keeping snapshots of the page; `renderStep` is for apps that do keep
+  them.
+- **The agent proposes; the person applies.** `ai-suggest-mode` never writes
+  to the text. The result is the original with only the accepted changes in
+  it. What was rejected goes back to the agent through `api.notify`, the same
+  channel as a hand-back note, so the next draft doesn't bring it back. For
+  code, `diff-viewer` already decides line by line.
+- **Redaction happens in the page.** `prompt-redactor` swaps values for
+  placeholders before sending and puts them back locally in the reply. The
+  model never sees the value, and the person sees exactly what was sent.
+  Detection is conservative: checksums for card numbers and IBANs, and known
+  formats for keys. A false alarm costs a click, and a noisy detector teaches
+  people to ignore it.
+
 ## Consequences
 
 - `agent-surface` and `control-baton` ship as `experimental`. The spec they

@@ -7,8 +7,8 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ### Agent-operable UI: agents can operate your UI and hand it back
 
-Seven components that let an agent work on the page itself, and let the person
-oversee it and take the page back. The plan is in
+Eleven components that let an agent work on the page itself, and let the
+person oversee it and take the page back. The plan is in
 `docs/plans/agent-operable-ui.md` and the decisions are in ADR 0015.
 
 **Control**
@@ -43,6 +43,27 @@ oversee it and take the page back. The plan is in
   `ai-action-ledger`. It can undo a call whose tool registered an undo with the
   new `onUndo`, and the agent is told what the person took back.
 
+- **`blast-radius`** (beta) shows what an action will change before it runs:
+  how many things, how, which can't be undone, and a sample by name. For
+  example: "43 deals will change: at least 3 deleted. At least 2 cannot be
+  undone." A tool's new `preview` dry run fills it in inside `agent-approvals`
+  while the person decides.
+- **`agent-replay`** (experimental) steps through a finished run, by button,
+  slider or playback. It shows each call, exactly what the agent was told,
+  and every take-over and hand-back.
+- **`ai-suggest-mode`** (beta) is track changes for an agent's edits to text.
+  Each change is shown in place with its reason and accepted or rejected on
+  its own. It works from edits or from a whole rewrite. The agent is told what
+  was rejected, so it doesn't suggest it again.
+
+**Privacy**
+
+- **`prompt-redactor`** (beta) checks a prompt before it's sent. Email
+  addresses, card numbers, IBANs, API keys and phone numbers are named, masked,
+  and sent as placeholders such as `[EMAIL_1]`. They're put back locally in
+  the reply. Card numbers and IBANs are only matched when their checksums
+  pass, and you can add your own detectors.
+
 **Tools for existing components**
 
 - **`agent-form`** (experimental) gives fill, read and submit tools to any
@@ -72,6 +93,9 @@ oversee it and take the page back. The plan is in
 
 **Changes to existing components**
 
+- `agent-surface` also gains `preview`, `told`, a `controlLog` of changes of
+  control, and `api.notify`, which tells the agent something with its next
+  result.
 - `ai-approval-request` and `ai-prompt-input` now carry `data-agent-ui`, so
   approving a call or typing to the agent inside a surface never counts as
   taking over.
