@@ -29,6 +29,7 @@ import {
   type AgentToolDefinition,
   type ApprovalHandler,
   type ControlChange,
+  type ControlEvent,
   type ControlHolder,
 } from "./agent-tools";
 import { registerWebMCPTool, type WebMCPResult } from "./webmcp";
@@ -44,8 +45,12 @@ export type {
   ApprovalAnswer,
   ApprovalHandler,
   ControlChange,
+  ControlEvent,
   ControlHolder,
+  PreviewChange,
+  PreviewState,
   ToolCallSource,
+  ToolPreview,
   ToolCallStatus,
   ToolEffect,
   ToolReversibility,
@@ -82,6 +87,8 @@ export interface AgentSurfaceContextValue {
   reason: string | null;
   /** Every call this session, oldest first, most recent state of each. */
   calls: AgentToolCall[];
+  /** Every change of control this session, oldest first. */
+  controlLog: ControlEvent[];
   lastCall: AgentToolCall | null;
   agentName: string;
   /** The surface's `name`, which prefixes its tools. */
@@ -176,6 +183,7 @@ export function AgentSurface({
   const holder = holderProp ?? holderState;
   const [reason, setReason] = useState<string | null>(null);
   const [calls, setCalls] = useState<AgentToolCall[]>([]);
+  const [controlLog, setControlLog] = useState<ControlEvent[]>([]);
   const [announcement, setAnnouncement] = useState("");
 
   const holderRef = useRef(holder);
@@ -254,6 +262,7 @@ export function AgentSurface({
         note: trimmed || undefined,
       };
       setAnnouncement(labels().change(event, latest.current.agentName));
+      setControlLog((log) => [...log, { ...event, at: Date.now() }].slice(-HISTORY));
       latest.current.onControlChange?.(event);
     },
     [labels, stores],
@@ -399,6 +408,9 @@ export function AgentSurface({
   const api = useMemo<AgentSurfaceApi>(
     () => ({
       getHolder: () => holderRef.current,
+      notify: (text) => {
+        if (text.trim()) notices.current.push(text.trim());
+      },
       tools: () => Array.from(entries.current.values(), definition),
       call: (toolName, input, options) =>
         runTool(runtime, toolName, input, options?.source ?? "app", options?.signal),
@@ -450,6 +462,7 @@ export function AgentSurface({
       holder,
       reason,
       calls,
+      controlLog,
       lastCall: calls.at(-1) ?? null,
       agentName,
       prefix: name,
@@ -458,7 +471,18 @@ export function AgentSurface({
       register,
       registerApprover,
     }),
-    [holder, reason, calls, agentName, name, webmcp, api, register, registerApprover],
+    [
+      holder,
+      reason,
+      calls,
+      controlLog,
+      agentName,
+      name,
+      webmcp,
+      api,
+      register,
+      registerApprover,
+    ],
   );
 
   return (

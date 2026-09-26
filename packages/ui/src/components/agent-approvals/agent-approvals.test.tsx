@@ -4,7 +4,12 @@ import { createRef, useState } from "react";
 import { describe, expect, it } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
-import { AgentSurface, useAgentTool, type AgentSurfaceApi } from "../agent-surface";
+import {
+  AgentSurface,
+  useAgentTool,
+  type AgentSurfaceApi,
+  type ToolPreview,
+} from "../agent-surface";
 import { AgentApprovals, approvalFields, correctedInput } from "./agent-approvals";
 
 function Mailer() {
@@ -182,6 +187,51 @@ describe("AgentApprovals", () => {
     });
     await user.click(screen.getByRole("button", { name: "Approve once" }));
     expect(api().getHolder()).toBe("agent");
+  });
+
+  it("shows the tool's dry run inside the request, filled in when it arrives", async () => {
+    let finish: (value: ToolPreview) => void = () => undefined;
+    function Closer() {
+      useAgentTool({
+        name: "close_stale",
+        title: "Close stale deals",
+        description: "Closes stale deals.",
+        reversibility: "irreversible",
+        preview: () =>
+          new Promise<ToolPreview>((resolve) => {
+            finish = resolve;
+          }),
+        execute: () => "Closed.",
+      });
+      return null;
+    }
+    const apiRef = createRef<AgentSurfaceApi>();
+    render(
+      <AgentSurface apiRef={apiRef}>
+        <AgentApprovals />
+        <Closer />
+      </AgentSurface>,
+    );
+    act(() => {
+      void apiRef.current?.call("close_stale");
+    });
+    const radius = screen.getByRole("region", { name: "What this will change" });
+    expect(radius).toHaveAttribute("aria-busy", "true");
+
+    await act(async () => {
+      finish({
+        changes: [{ id: "1", label: "Acme", kind: "delete" }],
+        total: 12,
+        noun: { one: "deal", other: "deals" },
+      });
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0);
+      });
+    });
+    expect(radius).not.toHaveAttribute("aria-busy");
+    expect(radius).toHaveTextContent(
+      "12 deals will change: at least 1 deleted. None of it can be undone.",
+    );
   });
 
   it("renders nothing visible until asked", () => {

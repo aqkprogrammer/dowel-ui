@@ -209,6 +209,10 @@ import { meta as agentApprovalsMeta } from "@/components/agent-approvals/meta";
 import { meta as agentLedgerMeta } from "@/components/agent-ledger/meta";
 import { meta as agentFormMeta } from "@/components/agent-form/meta";
 import { meta as agentDataTableMeta } from "@/components/agent-data-table/meta";
+import { meta as blastRadiusMeta } from "@/components/blast-radius/meta";
+import { meta as agentReplayMeta } from "@/components/agent-replay/meta";
+import { meta as aiSuggestModeMeta } from "@/components/ai-suggest-mode/meta";
+import { meta as promptRedactorMeta } from "@/components/prompt-redactor/meta";
 
 /**
  * Every component in the registry.
@@ -431,6 +435,10 @@ export const componentMetas: ComponentMeta[] = [
   agentLedgerMeta,
   agentFormMeta,
   agentDataTableMeta,
+  blastRadiusMeta,
+  agentReplayMeta,
+  aiSuggestModeMeta,
+  promptRedactorMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is

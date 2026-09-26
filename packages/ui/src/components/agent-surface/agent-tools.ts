@@ -28,6 +28,37 @@ export interface AgentToolContext {
   onUndo: (undo: () => unknown) => void;
 }
 
+/** One thing a call would change, as a dry run reports it. */
+export interface PreviewChange {
+  id: string;
+  /** What it is, in the person's words: "Acme renewal". */
+  label: string;
+  kind: "create" | "update" | "delete";
+  /** Overrides the tool's own reversibility for this one change. */
+  reversibility?: ToolReversibility;
+  /** What changes about it: "Stage: Negotiation → Closed lost". */
+  detail?: string;
+}
+
+/**
+ * What a call would do, worked out without doing it. Shape-compatible with
+ * `blast-radius`'s data, which is how an approval shows it.
+ */
+export interface ToolPreview {
+  changes: PreviewChange[];
+  /** How many there are in all, when `changes` is a sample. */
+  total?: number;
+  /** Anything the list cannot say: "Also emails each owner." */
+  note?: string;
+  /** What the things are called: `{ one: "deal", other: "deals" }`. */
+  noun?: { one: string; other: string };
+}
+
+export type PreviewState =
+  | { state: "loading" }
+  | { state: "ready"; data: ToolPreview }
+  | { state: "failed"; error: string };
+
 export interface AgentTool<Input extends Record<string, unknown> = Record<string, unknown>> {
   /** Letters, digits, `_` and `-`. Prefixed with the surface's `name` when exposed. */
   name: string;
@@ -61,6 +92,11 @@ export interface AgentTool<Input extends Record<string, unknown> = Record<string
    * never asked to approve something that was going to fail anyway.
    */
   precondition?: (input: Input) => string | undefined;
+  /**
+   * A dry run: what the call would change, without changing it. Run while the
+   * person is asked to approve, so they see the blast radius before deciding.
+   */
+  preview?: (input: Input) => ToolPreview | Promise<ToolPreview>;
   /** Returns text for the agent, or data it will receive as JSON. */
   execute: (input: Input, context: AgentToolContext) => unknown;
 }
@@ -89,6 +125,10 @@ export interface AgentToolCall {
   data?: unknown;
   /** Arguments the person corrected before approving. */
   edited?: string[];
+  /** The dry run shown with the approval, as it stands. */
+  preview?: PreviewState;
+  /** Exactly what the agent was told, notices included. */
+  told?: string;
   /** Whether the tool registered a way to take it back. */
   undoable: boolean;
   undo?: UndoState;
@@ -127,8 +167,19 @@ export interface ControlChange {
   note?: string;
 }
 
+/** A change of control, and when it happened. */
+export interface ControlEvent extends ControlChange {
+  at: number;
+}
+
 export interface AgentSurfaceApi {
   getHolder: () => ControlHolder;
+  /**
+   * Something the agent should know, delivered at the start of its next
+   * result — the same channel as a hand-back note. For decisions the person
+   * makes outside a tool call, such as accepting some of its suggestions.
+   */
+  notify: (text: string) => void;
   /** Definitions for your own model's tool list. */
   tools: () => AgentToolDefinition[];
   /** Runs a tool on behalf of the app's own assistant. */

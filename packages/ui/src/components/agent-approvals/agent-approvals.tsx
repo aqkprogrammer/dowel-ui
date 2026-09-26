@@ -13,6 +13,7 @@ import {
   type ApprovalDecision,
   type ApprovalField,
 } from "@/components/ai-approval-request";
+import { BlastRadius } from "@/components/blast-radius";
 import { cn } from "@/lib/utils";
 
 /**
@@ -21,7 +22,9 @@ import { cn } from "@/lib/utils";
  * Mounted inside an `AgentSurface`, it answers the surface's approval
  * requests with `ai-approval-request` — so the person can correct the
  * agent's arguments before approving, or allow a tool for the rest of the
- * session, rather than only saying yes or no. Requests queue, one on screen
+ * session, rather than only saying yes or no. A tool with a `preview` shows
+ * its blast radius in the request — what approving will change — filled in
+ * when the dry run finishes. Requests queue, one on screen
  * at a time. If it unmounts with requests waiting, they are refused: an agent
  * left waiting on an approval nobody can see is an agent that eventually
  * times out and retries.
@@ -110,7 +113,7 @@ export interface AgentApprovalsProps extends Omit<ComponentPropsWithRef<"div">, 
 }
 
 export function AgentApprovals({ className, fieldLabels, ...props }: AgentApprovalsProps) {
-  const { registerApprover, api, agentName } = useAgentSurface();
+  const { registerApprover, api, agentName, calls } = useAgentSurface();
   const [queue, setQueue] = useState<Pending[]>([]);
   const [settled, setSettled] = useState<Settled | null>(null);
   const pending = useRef<Pending[]>([]);
@@ -161,6 +164,9 @@ export function AgentApprovals({ className, fieldLabels, ...props }: AgentApprov
       )
     : { fields: [], values: {} };
 
+  // The call as it stands now, not as it was asked: its dry run fills in after.
+  const preview = shown ? calls.find((call) => call.id === shown.id)?.preview : undefined;
+
   return (
     <div
       data-slot="agent-approvals"
@@ -185,7 +191,18 @@ export function AgentApprovals({ className, fieldLabels, ...props }: AgentApprov
           onDecision={(decision) => {
             if (current) decide(current, decision);
           }}
-        />
+        >
+          {preview && current ? (
+            <BlastRadius
+              className="mt-3"
+              loading={preview.state === "loading"}
+              error={preview.state === "failed" ? preview.error : undefined}
+              data={preview.state === "ready" ? preview.data : undefined}
+              noun={preview.state === "ready" ? preview.data.noun : undefined}
+              reversibility={shown?.reversibility}
+            />
+          ) : null}
+        </ApprovalRequest>
       ) : null}
       {queue.length > 1 ? (
         <p data-slot="agent-approvals-queued" className="text-xs text-muted-foreground">

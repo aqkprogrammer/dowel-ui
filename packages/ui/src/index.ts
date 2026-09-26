@@ -207,6 +207,10 @@ export * from "./components/agent-approvals";
 export * from "./components/agent-ledger";
 export * from "./components/agent-form";
 export * from "./components/agent-data-table";
+export * from "./components/blast-radius";
+export * from "./components/agent-replay";
+export * from "./components/ai-suggest-mode";
+export * from "./components/prompt-redactor";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";

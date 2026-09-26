@@ -951,6 +951,167 @@ describe("AgentSurface", () => {
     });
   });
 
+  describe("dry runs", () => {
+    function Deleter({ preview }: { preview: () => unknown }) {
+      useAgentTool<{ ids: string[] }>({
+        name: "delete_rows",
+        title: "Delete rows",
+        description: "Deletes rows.",
+        reversibility: "irreversible",
+        inputSchema: { type: "object", properties: { ids: { type: "array" } } },
+        preview: preview as never,
+        execute: () => "Deleted.",
+      });
+      return null;
+    }
+
+    function Watch() {
+      const { calls } = useAgentSurface();
+      const preview = calls.at(-1)?.preview;
+      return <output aria-label="Preview">{JSON.stringify(preview ?? null)}</output>;
+    }
+
+    it("runs alongside the approval and reaches the approver's view of the call", async () => {
+      let answer = (_ok: boolean) => undefined as void;
+      const onApprovalRequest = vi.fn(
+        () =>
+          new Promise<boolean>((resolve) => {
+            answer = resolve;
+          }),
+      );
+      const apiRef = createRef<AgentSurfaceApi>();
+      render(
+        <AgentSurface apiRef={apiRef} onApprovalRequest={onApprovalRequest}>
+          <Deleter
+            preview={() =>
+              Promise.resolve({
+                changes: [{ id: "a", label: "Acme", kind: "delete" }],
+                total: 3,
+              })
+            }
+          />
+          <Watch />
+        </AgentSurface>,
+      );
+      let pending: Promise<unknown> = Promise.resolve();
+      act(() => {
+        pending = apiRef.current?.call("delete_rows", { ids: ["a"] }) ?? Promise.resolve();
+      });
+      // Asked at once, before the dry run has finished.
+      expect(onApprovalRequest).toHaveBeenCalledOnce();
+      expect(screen.getByLabelText("Preview")).toHaveTextContent('{"state":"loading"}');
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+      expect(screen.getByLabelText("Preview")).toHaveTextContent('"state":"ready"');
+      expect(screen.getByLabelText("Preview")).toHaveTextContent('"total":3');
+      await act(async () => {
+        answer(true);
+        await pending;
+      });
+    });
+
+    it("records a dry run that fails, and still asks", async () => {
+      const onApprovalRequest = vi.fn(() => false);
+      const apiRef = createRef<AgentSurfaceApi>();
+      render(
+        <AgentSurface apiRef={apiRef} onApprovalRequest={onApprovalRequest}>
+          <Deleter
+            preview={() => {
+              throw new Error("The database is read-only.");
+            }}
+          />
+          <Watch />
+        </AgentSurface>,
+      );
+      await act(async () => {
+        await apiRef.current?.call("delete_rows", { ids: ["a"] });
+      });
+      expect(onApprovalRequest).toHaveBeenCalledOnce();
+      expect(screen.getByLabelText("Preview")).toHaveTextContent(
+        '{"state":"failed","error":"The database is read-only."}',
+      );
+    });
+
+    it("is not run when no approval is asked for", async () => {
+      const preview = vi.fn(() => ({ changes: [] }));
+      function Quiet() {
+        useAgentTool({
+          name: "tidy",
+          description: "Tidies.",
+          preview,
+          execute: () => "Tidied.",
+        });
+        return null;
+      }
+      const apiRef = createRef<AgentSurfaceApi>();
+      render(
+        <AgentSurface apiRef={apiRef}>
+          <Quiet />
+        </AgentSurface>,
+      );
+      await apiRef.current?.call("tidy");
+      expect(preview).not.toHaveBeenCalled();
+    });
+  });
+
+  it("records exactly what the agent was told, notices included", async () => {
+    const onToolCall = vi.fn();
+    const { api } = setup({ onToolCall, defaultHolder: "person" });
+    act(() => {
+      api().handBack("Use the EU account");
+    });
+    await api().call("list");
+    const told = (onToolCall.mock.lastCall?.[0] as AgentToolCall).told ?? "";
+    expect(told).toMatch(
+      /^Note from the person, who handed control back: "Use the EU account"\n\n\{/,
+    );
+  });
+
+  it("tells the agent what it is notified of, once, with its next result", async () => {
+    const { api } = setup();
+    api().notify("The person accepted 2 of your 3 suggestions.");
+    api().notify("   ");
+    expect((await api().call("list")).text).toMatch(
+      /^The person accepted 2 of your 3 suggestions\.\n\n\{/,
+    );
+    expect((await api().call("list")).text).not.toContain("accepted");
+  });
+
+  it("keeps a timestamped log of control changes", () => {
+    function Log() {
+      const { controlLog } = useAgentSurface();
+      return (
+        <ol aria-label="Control log">
+          {controlLog.map((event) => (
+            <li
+              key={event.at + event.holder}
+            >{`${event.previous}→${event.holder} ${event.by} ${typeof event.at}`}</li>
+          ))}
+        </ol>
+      );
+    }
+    const apiRef = createRef<AgentSurfaceApi>();
+    render(
+      <AgentSurface apiRef={apiRef}>
+        <Log />
+      </AgentSurface>,
+    );
+    act(() => {
+      apiRef.current?.grant();
+    });
+    act(() => {
+      apiRef.current?.takeOver();
+    });
+    expect(
+      Array.from(
+        screen.getByRole("list", { name: "Control log" }).children,
+        (li) => li.textContent,
+      ),
+    ).toEqual(["shared→agent app number", "agent→person person number"]);
+  });
+
   it("marks a call's source when the caller says where it came from", async () => {
     const onToolCall = vi.fn();
     const { api } = setup({ onToolCall });

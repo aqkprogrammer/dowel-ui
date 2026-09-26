@@ -21,6 +21,7 @@ import {
   type NormalisedApproval,
   type ToolCallSource,
   type ToolCallStatus,
+  type ToolPreview,
 } from "./agent-tools";
 import { validateInput } from "./tool-input";
 
@@ -86,13 +87,15 @@ export async function runTool(
   };
 
   const end = (status: ToolCallStatus, text: string, data?: unknown): AgentToolResult => {
+    const told = prefixNotices(runtime, text);
     report({
       status,
       finishedAt: Date.now(),
       data,
+      told,
       reason: status === "done" ? undefined : text,
     });
-    return { ok: status === "done", status, text: prefixNotices(runtime, text), data };
+    return { ok: status === "done", status, text: told, data };
   };
 
   if (runtime.holder() === "person") return end("refused", REFUSAL.personHolds);
@@ -107,6 +110,32 @@ export async function runTool(
     const ask = runtime.approver();
     if (!ask) return end("refused", REFUSAL.noApprover);
     report({ status: "running" });
+
+    // The dry run runs alongside the question rather than before it, so the
+    // approval appears at once and fills in when the preview arrives.
+    if (tool.preview) {
+      report({ preview: { state: "loading" } });
+      // Started now, not a tick later, so it is under way as the question is.
+      let pending: Promise<ToolPreview>;
+      try {
+        pending = Promise.resolve(tool.preview(input));
+      } catch (error) {
+        pending = Promise.reject(error instanceof Error ? error : new Error(String(error)));
+      }
+      void pending.then(
+        (data) => {
+          report({ preview: { state: "ready", data } });
+        },
+        (error: unknown) => {
+          report({
+            preview: {
+              state: "failed",
+              error: error instanceof Error ? error.message : String(error),
+            },
+          });
+        },
+      );
+    }
 
     // Asked synchronously, so an approval UI appears in the same tick; a
     // handler that throws is a refusal, like one that says no.
