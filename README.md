@@ -44,7 +44,7 @@ as you pick, and [per-component quality](https://dowel-eight.vercel.app/quality)
 
 ## What is in it
 
-**213 components** and **51 blocks**, every one keyboard-operable and audited for
+**220 components** and **51 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
@@ -107,6 +107,22 @@ before a prompt is sent, and put back in the reply.
 
 **`stream-announcer`** — an opt-in way for screen reader users to hear a
 streaming reply a sentence at a time, with pause, skip and repeat.
+
+**`permission-prompt` + `memory-inspector`** — what an assistant may do and
+what it knows. One asks for a capability when it is needed (allow once, for the
+session, always, or not at all); the other shows what is remembered about the
+person, where it came from, and lets them edit or forget it.
+
+**`provenance-text`** — who wrote each part of a paragraph: the person, an
+agent or a quoted source, marked by more than colour and read out to screen
+readers.
+
+**`chart-sonifier`** — hear a chart: each series as pitch over time, and a
+keyboard slider that speaks every value.
+
+Also new: `nl-filter` (words in, editable filter chips out), `expression-editor`
+(formulas with autocomplete and a safe evaluator) and `quantity-input` (a
+number with a unit that converts).
 
 ## Blocks
 

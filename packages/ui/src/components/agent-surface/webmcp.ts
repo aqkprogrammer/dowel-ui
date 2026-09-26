@@ -15,7 +15,7 @@
  * component touches it. When the draft moves again, this is the file to edit —
  * it is your copy.
  *
- * Checked against the spec text of 2026-09-17:
+ * Checked against the spec text of 2026-09-26:
  * https://github.com/webmachinelearning/webmcp
  */
 
@@ -35,6 +35,16 @@ export interface WebMCPToolAnnotations {
   untrustedContentHint?: boolean;
   /** It has consequences worth confirming, like sending or deleting. */
   consequentialHint?: boolean;
+  /** It is for developer tooling, not for agents acting for a person. */
+  debugging?: boolean;
+}
+
+export interface WebMCPRegisterOptions {
+  /**
+   * Origins, beyond the page's own, that may see the tool within the page's
+   * frames: the app embedding this one, or one it embeds.
+   */
+  exposedTo?: readonly string[];
 }
 
 export interface WebMCPToolDefinition {
@@ -50,7 +60,7 @@ type Execute = (input: unknown, options?: { signal?: AbortSignal }) => Promise<W
 interface ModelContextLike {
   registerTool: (
     tool: WebMCPToolDefinition & { execute: Execute },
-    options?: { signal?: AbortSignal },
+    options?: { signal?: AbortSignal; exposedTo?: string[] },
   ) => unknown;
   /** The draft before March 2026. */
   unregisterTool?: (name: string) => void;
@@ -85,6 +95,41 @@ function isHandle(value: unknown): value is { unregister: () => void } {
   );
 }
 
+const LOOPBACK = /^(localhost|127(\.\d{1,3}){3}|\[::1\])$/;
+
+/**
+ * Splits `exposedTo` into origins the browser will accept and the rest.
+ *
+ * The browser rejects the whole registration if one entry is not a URL or not
+ * a potentially trustworthy origin — https, wss, or loopback — so one typo
+ * would take the tool away from the page's own agent too. Each entry is
+ * reduced to its origin, so a URL with a path names the site it belongs to.
+ */
+export function checkExposedTo(entries: readonly string[]): {
+  origins: string[];
+  rejected: string[];
+} {
+  const origins = new Set<string>();
+  const rejected: string[] = [];
+  for (const entry of entries) {
+    let url: URL;
+    try {
+      url = new URL(entry);
+    } catch {
+      rejected.push(entry);
+      continue;
+    }
+    const secure =
+      url.protocol === "https:" ||
+      url.protocol === "wss:" ||
+      LOOPBACK.test(url.hostname) ||
+      url.hostname.endsWith(".localhost");
+    if (secure && url.origin !== "null") origins.add(url.origin);
+    else rejected.push(entry);
+  }
+  return { origins: [...origins], rejected };
+}
+
 /** Whether this browser can expose tools to an agent at all. */
 export function isWebMCPAvailable(): boolean {
   return getModelContext() !== null;
@@ -98,9 +143,21 @@ export function isWebMCPAvailable(): boolean {
  * development and otherwise leave the page working without the tool, because a
  * page that throws for want of an experimental API has its priorities wrong.
  */
-export function registerWebMCPTool(tool: WebMCPToolDefinition, execute: Execute): () => void {
+export function registerWebMCPTool(
+  tool: WebMCPToolDefinition,
+  execute: Execute,
+  { exposedTo = [] }: WebMCPRegisterOptions = {},
+): () => void {
   const context = getModelContext();
   if (!context) return () => undefined;
+
+  const { origins, rejected } = checkExposedTo(exposedTo);
+  if (rejected.length > 0 && process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[agent-surface] "${tool.name}" is not exposed to ${rejected.join(", ")}: ` +
+        "exposedTo takes https or loopback origins. The browser would have refused the tool entirely.",
+    );
+  }
 
   const controller = new AbortController();
   let handle: { unregister?: () => void } | null = null;
@@ -112,7 +169,12 @@ export function registerWebMCPTool(tool: WebMCPToolDefinition, execute: Execute)
   };
 
   try {
-    const result = context.registerTool({ ...tool, execute }, { signal: controller.signal });
+    const result = context.registerTool(
+      { ...tool, execute },
+      origins.length > 0
+        ? { signal: controller.signal, exposedTo: origins }
+        : { signal: controller.signal },
+    );
     if (result instanceof Promise) {
       result.catch(report);
     } else if (isHandle(result)) {

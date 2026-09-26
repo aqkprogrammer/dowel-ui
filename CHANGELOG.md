@@ -3,10 +3,58 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
-## Unreleased
+## 0.11.0
+
+Seven components from the "later" list in `docs/plans/agent-operable-ui.md`,
+WebMCP's `exposedTo`, and fixes that make every registry item install and
+build. The plan is `docs/plans/next-components.md`. All seven are `beta`.
+
+### Added
+
+- **`provenance-text`** shows who wrote each part of a paragraph: the person,
+  an agent or a quoted source, with each author's share. Provenance is hidden
+  until someone turns it on; when shown, agent and source text differ by
+  underline shape as well as colour, and screen readers hear who wrote each
+  marked part. `provenanceFromEdit` keeps attribution current word by word.
+- **`nl-filter`**: type what you want to see ("failed on main took over 5"),
+  press Enter, and get filter chips you can edit or remove. A plain parser
+  ships for `field:value`, `field>3`, quoted values and option names; pass
+  your own, such as a model call, and a newer submission aborts the older
+  one. Text it cannot read stays in the field as "Not understood: …".
+- **`memory-inspector`** shows what an assistant remembers about the person,
+  where each memory came from and when it was last used, with search, edit
+  in place, pin and forget. A forgotten memory disappears at once, and
+  `onForget` is only called when the undo window closes.
+- **`expression-editor`**, a formula field with highlighting, autocomplete
+  for variables and functions, the error shown where it is, and a live
+  result. It parses and evaluates the expression itself, from an allowlist,
+  without `eval`.
+- **`quantity-input`**, a number with a unit (kg/lb, GB/TB, s/min, °C/°F).
+  Changing the unit converts the amount, min and max are quantities so they
+  hold in any unit, "5 lb" typed or pasted sets both parts, and numbers are
+  read and written the locale's way.
+- **`permission-prompt`** asks for a capability when it is needed ("Claude
+  wants to read your calendar"): why, what it allows and doesn't, and the
+  risk in words, with allow once, for this session, always, or not at all.
+  `usePermissionPrompt` gives an app or agent tool a promise to await, and
+  remembers session and stored grants.
+- **`chart-sonifier`** lets you hear a chart. Each series plays as pitch over
+  time, and a keyboard slider steps through the points, playing each note and
+  reading the value, beside a one-sentence summary of the series. Nothing
+  plays until someone asks, and Pause, Escape and Mute stop it at once.
+- **`agent-surface`: `exposedTo` and `debugging`,** from the WebMCP draft of
+  2026-09-26. `exposedTo` lists origins, beyond the page's own, that may see
+  the tools within the page's frames, on the surface or per tool. The browser
+  refuses a whole tool over one bad origin, so the page drops those first
+  and says which in development.
 
 ### Fixed
 
+- **`expression-editor` builds in apps that target ES2017,** as a new Next.js
+  app does. It used the regular expression flag `s`, which TypeScript refuses
+  below ES2018. `packages/ui` now also type-checks at ES2017. Found by
+  installing every registry item into a fresh app, which all 220 components
+  and 47 blocks now pass.
 - **Components installed with the CLI now build.** In this repo
   `@/components/x` resolves to a folder's `index.ts`, but an installed project
   has no index: the CLI rewrites the import to `@/components/ui/x`, the main

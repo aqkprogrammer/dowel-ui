@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getModelContext, isWebMCPAvailable, registerWebMCPTool } from "./webmcp";
+import {
+  checkExposedTo,
+  getModelContext,
+  isWebMCPAvailable,
+  registerWebMCPTool,
+} from "./webmcp";
 
 const DEFINITION = { name: "sort", description: "Sort the table" };
 const execute = () => Promise.resolve({ content: [{ type: "text" as const, text: "ok" }] });
@@ -59,6 +64,30 @@ describe("WebMCP adapter", () => {
     expect(options.signal.aborted).toBe(true);
   });
 
+  it("passes exposedTo as origins, and leaves it out when there are none", () => {
+    const registerTool = vi.fn((..._args: unknown[]) => Promise.resolve());
+    install(document, { registerTool });
+    registerWebMCPTool(DEFINITION, execute, { exposedTo: ["https://app.example.com/embed"] });
+    registerWebMCPTool(DEFINITION, execute);
+    expect(registerTool.mock.calls[0]?.[1]).toMatchObject({
+      exposedTo: ["https://app.example.com"],
+    });
+    expect(registerTool.mock.calls[1]?.[1]).not.toHaveProperty("exposedTo");
+  });
+
+  it("drops origins the browser would refuse the whole tool for, and says so", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const registerTool = vi.fn((..._args: unknown[]) => Promise.resolve());
+    install(document, { registerTool });
+    registerWebMCPTool(DEFINITION, execute, {
+      exposedTo: ["http://app.example.com", "https://ok.example.com"],
+    });
+    expect(registerTool.mock.calls[0]?.[1]).toMatchObject({
+      exposedTo: ["https://ok.example.com"],
+    });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("http://app.example.com"));
+  });
+
   it("uses an early draft's handle to unregister", () => {
     const unregister = vi.fn();
     install(document, { registerTool: vi.fn(() => ({ unregister })) });
@@ -106,5 +135,38 @@ describe("WebMCP adapter", () => {
     expect(() => {
       registerWebMCPTool(DEFINITION, execute)();
     }).not.toThrow();
+  });
+});
+
+describe("checkExposedTo", () => {
+  it("keeps https, wss and loopback origins, reduced to the origin", () => {
+    expect(
+      checkExposedTo([
+        "https://app.example.com/path?q=1",
+        "wss://live.example.com",
+        "http://localhost:3000",
+        "http://127.0.0.1:8080",
+        "http://dev.localhost",
+        "https://app.example.com",
+      ]),
+    ).toEqual({
+      origins: [
+        "https://app.example.com",
+        "wss://live.example.com",
+        "http://localhost:3000",
+        "http://127.0.0.1:8080",
+        "http://dev.localhost",
+      ],
+      rejected: [],
+    });
+  });
+
+  it("rejects what is not a URL or not potentially trustworthy", () => {
+    expect(
+      checkExposedTo(["app.example.com", "http://example.com", "data:text/plain,hi"]),
+    ).toEqual({
+      origins: [],
+      rejected: ["app.example.com", "http://example.com", "data:text/plain,hi"],
+    });
   });
 });

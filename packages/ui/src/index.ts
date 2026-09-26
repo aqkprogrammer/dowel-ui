@@ -211,6 +211,13 @@ export * from "./components/blast-radius";
 export * from "./components/agent-replay";
 export * from "./components/ai-suggest-mode";
 export * from "./components/prompt-redactor";
+export * from "./components/provenance-text";
+export * from "./components/nl-filter";
+export * from "./components/memory-inspector";
+export * from "./components/quantity-input";
+export * from "./components/permission-prompt";
+export * from "./components/chart-sonifier";
+export * from "./components/expression-editor";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";
