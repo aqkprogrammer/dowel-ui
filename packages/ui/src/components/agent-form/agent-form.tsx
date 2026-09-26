@@ -21,6 +21,18 @@ import {
   type FormFieldInfo,
 } from "./form-fields";
 
+// Installed, this file is what `@/components/ui/agent-form` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  discoverFields,
+  fieldSchema,
+  isPrivate,
+  type DiscoveredForm,
+  type FieldKind,
+  type FormFieldInfo,
+  type PrivateField,
+} from "./form-fields";
+
 /**
  * A form an agent can fill in, read back and submit — the way a person does.
  *

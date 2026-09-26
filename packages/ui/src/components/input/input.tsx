@@ -4,6 +4,14 @@ import type { ComponentPropsWithRef } from "react";
 import { focusRingInset, invalidStyles } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
+// Installed, this file is what `@/components/ui/input` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  FloatingLabelInput,
+  floatingLabelVariants,
+  type FloatingLabelInputProps,
+} from "./floating-label-input";
+
 const inputVariants = cva(
   cn(
     "flex w-full min-w-0 rounded-md border border-input bg-background text-foreground shadow-xs",

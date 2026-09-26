@@ -30,6 +30,25 @@ import {
   type ShaderTransitionPresetName,
 } from "./shader-transition-presets";
 
+// Installed, this file is what `@/components/ui/shader-transition` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  buildFragmentShader,
+  createProgram,
+  createShaderRenderer,
+  VERTEX_SHADER,
+  type Rgb,
+  type ShaderColors,
+  type ShaderRenderer,
+} from "./shader-transition-engine";
+export {
+  getShaderTransitionPreset,
+  SHADER_TRANSITION_PRESET_NAMES,
+  SHADER_TRANSITION_PRESETS,
+  type ShaderTransitionPreset,
+  type ShaderTransitionPresetName,
+} from "./shader-transition-presets";
+
 /*
  * A frame-level transition between two states, both of them real DOM.
  *
