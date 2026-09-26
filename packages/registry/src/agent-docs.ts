@@ -268,6 +268,13 @@ ${ai.map((entry) => `- **${entry.name}** — ${entry.description}`).join("\n")}
 - How a run went, step by step → \`agent-replay\` inside the surface.
 - Prompts that may contain customer data or secrets → \`usePromptRedactor\` + \`PromptRedactor\` next to \`ai-prompt-input\`: send \`redactor.redact()\`, display \`redactor.restore(reply)\`.
 - Approvals inside a surface → mount \`agent-approvals\`; the person can correct the arguments before approving. What the agent did, with undo → mount \`agent-ledger\`, and call \`onUndo\` in a tool's \`execute\` for anything that can be taken back.
+- A paragraph mixing the person's writing with agent-written or quoted text → \`provenance-text\`. Rebuild \`segments\` with \`provenanceFromEdit(previous, next, author)\` after each edit; use \`ProvenanceInline\` and \`ProvenanceLegend\` inside your own layout.
+- Narrowing a list or table by describing it in words → \`nl-filter\` with the list's \`fields\`, then \`applyFilters\` or your own query. Pass a model-backed \`parse\` for free phrasing and relative dates; the built-in one reads \`field:value\` and option names.
+- Showing and editing what an assistant remembers about the person → \`memory-inspector\` with controlled \`memories\`. Remove a memory for real only when \`onForget\` is called: that waits out the undo window.
+- A formula or rule the person writes → \`expression-editor\` with \`variables\` and, if needed, an allowlist of \`functions\`. It never uses \`eval\`; do not evaluate the text any other way.
+- An amount in a unit the person may choose (weight, length, storage, duration, temperature) → \`quantity-input\` with a preset such as \`MASS_UNITS\`, not a number field beside a separate select. Give \`min\` and \`max\` as quantities.
+- The agent needs a capability (calendar, contacts, sending mail), not approval of one call → \`permission-prompt\`: \`await usePermissionPrompt().request(capability, { requester, reason })\` and render \`prompt\`. To approve one call with editable arguments, use \`ai-approval-request\`.
+- A chart that must work without sight → \`chart-sonifier\` next to it, with the same series and categories: it plays each series as pitch and speaks each value as you step through it.
 
 ## Whole surface at once
 
