@@ -21,13 +21,12 @@ export interface Listener {
 
 const STORY = "/iframe.html?id=ai-stream-announcer--default&viewMode=story";
 
-/** Case, punctuation and spacing differ between what is written and spoken. */
+/**
+ * Case, punctuation and spacing differ between what is written and what is
+ * spoken — NVDA logs "3.5 kB" as "3.5 k B" — so all three are dropped.
+ */
 export function normalise(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
 }
 
 const wait = (ms: number) =>
