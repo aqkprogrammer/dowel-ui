@@ -55,16 +55,20 @@ Chainlit. Repeat the search before any launch post.
 
 ## WebMCP, as coded against
 
-This is the spec text of 2026-09-17. It is a community group draft, running as
-an origin trial in Chrome (versions 149 to 156) and Edge (from version 150).
+This is the spec text of 2026-09-26 (first coded against 2026-09-17). It is a
+community group draft, running as an origin trial in Chrome (versions 149 to 156) and Edge (from version 150).
 
 - The entry point is `document.modelContext`. It moved there from
   `navigator.modelContext` on 2026-05-27.
-- `registerTool(tool, { signal })` returns a promise. A tool is removed by
-  aborting its signal. `provideContext()` and `unregisterTool()` are gone.
+- `registerTool(tool, { signal, exposedTo })` returns a promise. A tool is
+  removed by aborting its signal. `provideContext()` and `unregisterTool()` are
+  gone. `exposedTo` lists origins, beyond the page's own, that may see the tool
+  within the page's frames; one invalid or insecure origin rejects the whole
+  registration, so `webmcp.ts` drops those first and says which.
 - A tool has `name`, an optional `title`, `description`, `inputSchema`,
   `execute(input, { signal })` and `annotations`. The annotations are
-  `readOnlyHint`, `untrustedContentHint` and `consequentialHint`.
+  `readOnlyHint`, `untrustedContentHint`, `consequentialHint` and, since
+  2026-09-26, `debugging` for tools meant for developer tooling.
 - **The browser does not validate input against `inputSchema`**, so the page
   has to (`tool-input.ts`).
 - **`requestUserInteraction` was removed on 2026-06-11**, and consent is still
@@ -293,8 +297,9 @@ have looked like the screen reader's fault.
   (300 or more). Apps should let the user set it and remember it.
 - **Consent in WebMCP.** When the spec replaces `requestUserInteraction`,
   route approvals through it as well as through `onApprovalRequest`.
-- **`exposedTo`,** which limits which origins can see a tool, is not exposed
-  yet.
+- **`exposedTo`** is supported, on the surface and per tool (0.11.0). The
+  spec's declarative section is still a TODO pointing at the explainer, which
+  is what `agent-form` follows.
 - **Taking over by input misses gestures that aren't clicks or edits.** A drag
   on a canvas or a keyboard shortcut does not take over. Such components can
   call `api.takeOver()` themselves.
@@ -334,7 +339,7 @@ have looked like the screen reader's fault.
 | 6 Declarative WebMCP         | done (experimental, against the 2026-09-17 draft)                          |
 | 8 Four more components       | done: `ai-suggest-mode`, `blast-radius`, `agent-replay`, `prompt-redactor` |
 | 7 Release                    | waiting for Phase 8; deploy and publish are the maintainer's               |
-| Screen readers               | harness passes; VoiceOver and NVDA ready in CI; JAWS protocol ready        |
+| Screen readers               | VoiceOver and NVDA pass in CI (PR #9); manual passes, JAWS included, to do |
 
 ## Later
 

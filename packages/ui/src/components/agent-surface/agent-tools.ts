@@ -87,6 +87,14 @@ export interface AgentTool<Input extends Record<string, unknown> = Record<string
    */
   webmcp?: boolean;
   /**
+   * Origins, beyond the page's own, that may see this tool through WebMCP
+   * within the page's frames: the app embedding this one, or one it embeds.
+   * Replaces the surface's `exposedTo`. https or loopback origins only.
+   */
+  exposedTo?: readonly string[];
+  /** For developer tooling rather than agents acting for a person (WebMCP's `debugging`). */
+  debugging?: boolean;
+  /**
    * Checked after the input is validated and before anyone is asked to
    * approve: returns why the call cannot run yet, or nothing. So the person is
    * never asked to approve something that was going to fail anyway.
@@ -259,6 +267,7 @@ export function annotate(tool: AgentTool): WebMCPToolDefinition["annotations"] {
     readOnlyHint: (tool.effect ?? "write") === "read",
     consequentialHint: needsApproval(tool) || tool.reversibility === "irreversible",
     untrustedContentHint: tool.untrustedOutput ?? false,
+    ...(tool.debugging ? { debugging: true } : {}),
   };
 }
 
