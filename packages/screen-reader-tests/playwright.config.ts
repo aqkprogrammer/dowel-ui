@@ -16,6 +16,8 @@ import { defineConfig, devices } from "@playwright/test";
  * imported: importing Guidepup looks for a screen reader straight away and
  * throws where there is none, which would take the harness down on Linux.
  */
+const STATIC = Boolean(process.env.CI ?? process.env.STORYBOOK_STATIC);
+
 export default defineConfig({
   // One screen reader per machine, so one test at a time.
   workers: 1,
@@ -32,13 +34,27 @@ export default defineConfig({
     headless: false,
     video: "retain-on-failure",
   },
-  webServer: {
-    command: "pnpm --filter @dowel-ui/react exec storybook dev -p 6007 --ci --no-open",
-    cwd: "../..",
-    url: "http://localhost:6007",
-    reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
-  },
+  // In CI, a built Storybook served from disk (see serve-storybook.ts); run
+  // `pnpm --filter @dowel-ui/react build-storybook` first. Locally, the dev
+  // server, unless STORYBOOK_STATIC is set.
+  webServer: STATIC
+    ? {
+        command: "node serve-storybook.ts",
+        url: "http://localhost:6007/iframe.html",
+        reuseExistingServer: false,
+        stdout: "pipe",
+        stderr: "pipe",
+        timeout: 60_000,
+      }
+    : {
+        command: "pnpm --filter @dowel-ui/react exec storybook dev -p 6007 --ci --no-open",
+        cwd: "../..",
+        url: "http://localhost:6007",
+        reuseExistingServer: true,
+        stdout: "pipe",
+        stderr: "pipe",
+        timeout: 180_000,
+      },
   projects: [
     {
       // No screen reader: proves the scenarios themselves, anywhere.
