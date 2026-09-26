@@ -3,7 +3,7 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
-## Unreleased
+## 0.11.0
 
 Seven components from the "later" list in `docs/plans/agent-operable-ui.md`,
 WebMCP's `exposedTo`, and fixes that make every registry item install and
@@ -50,6 +50,11 @@ build. The plan is `docs/plans/next-components.md`. All seven are `beta`.
 
 ### Fixed
 
+- **`expression-editor` builds in apps that target ES2017,** as a new Next.js
+  app does. It used the regular expression flag `s`, which TypeScript refuses
+  below ES2018. `packages/ui` now also type-checks at ES2017. Found by
+  installing every registry item into a fresh app, which all 220 components
+  and 47 blocks now pass.
 - **Components installed with the CLI now build.** In this repo
   `@/components/x` resolves to a folder's `index.ts`, but an installed project
   has no index: the CLI rewrites the import to `@/components/ui/x`, the main

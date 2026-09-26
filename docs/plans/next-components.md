@@ -1,6 +1,6 @@
 # Plan: 0.11.0 — the "Later" list, `exposedTo`, and a clean install
 
-**Status:** in progress (2026-09-26)
+**Status:** done, released as 0.11.0 (2026-09-27)
 
 ## Goal
 
@@ -52,11 +52,11 @@ counts, `audit:all`, deploy the site, then publish (`RELEASING.md`).
 
 ## Progress
 
-| Item                         | Status  |
-| ---------------------------- | ------- |
-| Installed imports (PR #10)   | done    |
-| Full install check           | done    |
-| Screen readers in CI (PR #9) | done    |
-| Seven components             | started |
-| `exposedTo` and `debugging`  | started |
-| Release                      | waiting |
+| Item                         | Status |
+| ---------------------------- | ------ |
+| Installed imports (PR #10)   | done   |
+| Full install check           | done   |
+| Screen readers in CI (PR #9) | done   |
+| Seven components             | done   |
+| `exposedTo` and `debugging`  | done   |
+| Release                      | 0.11.0 |
