@@ -1,0 +1,22 @@
+{
+  "name": "@dowel-ui/screen-reader-tests",
+  "version": "0.10.0",
+  "private": true,
+  "type": "module",
+  "description": "Real screen reader tests: VoiceOver on macOS and NVDA on Windows, driven by Guidepup. Not part of `pnpm test` — they need a real screen reader and take over the machine.",
+  "scripts": {
+    "serve": "node serve-storybook.ts",
+    "test:harness": "playwright test --project=harness",
+    "test:voiceover": "playwright test --project=voiceover",
+    "test:nvda": "playwright test --project=nvda",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@dowel-ui/config": "workspace:*",
+    "@guidepup/guidepup": "0.34.0",
+    "@guidepup/playwright": "0.19.1",
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.4.0",
+    "typescript": "6.0.3"
+  }
+}

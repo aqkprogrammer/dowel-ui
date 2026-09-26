@@ -202,6 +202,17 @@ import { meta as railNavMeta } from "@/components/rail-nav/meta";
 import { meta as minimapNavMeta } from "@/components/minimap-nav/meta";
 import { meta as scrollProgressMeta } from "@/components/scroll-progress/meta";
 import { meta as gooeyNavMeta } from "@/components/gooey-nav/meta";
+import { meta as agentSurfaceMeta } from "@/components/agent-surface/meta";
+import { meta as controlBatonMeta } from "@/components/control-baton/meta";
+import { meta as streamAnnouncerMeta } from "@/components/stream-announcer/meta";
+import { meta as agentApprovalsMeta } from "@/components/agent-approvals/meta";
+import { meta as agentLedgerMeta } from "@/components/agent-ledger/meta";
+import { meta as agentFormMeta } from "@/components/agent-form/meta";
+import { meta as agentDataTableMeta } from "@/components/agent-data-table/meta";
+import { meta as blastRadiusMeta } from "@/components/blast-radius/meta";
+import { meta as agentReplayMeta } from "@/components/agent-replay/meta";
+import { meta as aiSuggestModeMeta } from "@/components/ai-suggest-mode/meta";
+import { meta as promptRedactorMeta } from "@/components/prompt-redactor/meta";
 
 /**
  * Every component in the registry.
@@ -417,6 +428,17 @@ export const componentMetas: ComponentMeta[] = [
   minimapNavMeta,
   scrollProgressMeta,
   gooeyNavMeta,
+  agentSurfaceMeta,
+  controlBatonMeta,
+  streamAnnouncerMeta,
+  agentApprovalsMeta,
+  agentLedgerMeta,
+  agentFormMeta,
+  agentDataTableMeta,
+  blastRadiusMeta,
+  agentReplayMeta,
+  aiSuggestModeMeta,
+  promptRedactorMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is

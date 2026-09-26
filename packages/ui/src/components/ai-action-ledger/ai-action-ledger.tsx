@@ -123,10 +123,17 @@ export function ActionLedger({
     [actions],
   );
 
+  // A selection only ever holds what can still be undone. Once an action is
+  // reverted it drops out, rather than being counted by "Undo 2 selected".
+  const live = useMemo(
+    () => new Set([...selected].filter((id) => selectableIds.includes(id))),
+    [selected, selectableIds],
+  );
+
   const context = useMemo<LedgerContextValue>(
     () => ({
       actions,
-      selected,
+      selected: live,
       selectableIds,
       onRevert,
       toggle: (id: string) => {
@@ -144,7 +151,7 @@ export function ActionLedger({
         setSelected(new Set());
       },
     }),
-    [actions, selected, selectableIds, onRevert],
+    [actions, live, selectableIds, onRevert],
   );
 
   return (
