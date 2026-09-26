@@ -288,7 +288,7 @@ function quote(token: ExpressionToken): string {
 
 function decodeString(text: string): string {
   const body = text.slice(1, -1);
-  return body.replace(/\\(.)/gs, (_, escaped: string) =>
+  return body.replace(/\\([\s\S])/g, (_, escaped: string) =>
     escaped === "n" ? "\n" : escaped === "t" ? "\t" : escaped === "r" ? "\r" : escaped,
   );
 }
