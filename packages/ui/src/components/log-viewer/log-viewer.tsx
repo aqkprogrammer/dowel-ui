@@ -15,6 +15,22 @@ import { cn } from "@/lib/utils";
 
 import { LOG_LEVELS, segment, type LogLevel, type VisibleLine } from "./log-stream";
 
+// Installed, this file is what `@/components/ui/log-viewer` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  LOG_LEVELS,
+  compileQuery,
+  findMatches,
+  segment,
+  useLogStream,
+  type FilterState,
+  type LogLevel,
+  type LogLine,
+  type MatchRange,
+  type UseLogStreamOptions,
+  type VisibleLine,
+} from "./log-stream";
+
 /**
  * A streaming console: filter, follow, expand.
  *

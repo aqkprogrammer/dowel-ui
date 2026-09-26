@@ -7,6 +7,22 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ### Fixed
 
+- **Components installed with the CLI now build.** In this repo
+  `@/components/x` resolves to a folder's `index.ts`, but an installed project
+  has no index: the CLI rewrites the import to `@/components/ui/x`, the main
+  file. 22 main files exported less than their index, so a project that
+  installed one of them failed to build:
+  - Every dither chart and `uptime-matrix` imported `createSprings`,
+    `ditherFill` and more from `dither-canvas`, which `dither-canvas.tsx` did
+    not export.
+  - `agent-form` and `agent-approvals` imported the `JsonSchema` type from
+    `agent-surface`.
+  - `toast()`, `parseCron`, `FloatingLabelInput`, `findSensitive` and other
+    documented exports could not be imported from their component's file.
+
+  Each main file now re-exports what its index does, and the new
+  `audit:installed-imports` fails CI when one doesn't. Found by installing
+  0.10.0 into a fresh Next.js app.
 - `stream-announcer`: NVDA with Chrome no longer re-reads the previous two
   sentences with every announcement after the third. The live region used to
   drop its oldest sentence while adding the newest, and Chrome then reported

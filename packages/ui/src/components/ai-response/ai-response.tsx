@@ -5,6 +5,10 @@ import type { ComponentPropsWithRef } from "react";
 
 import { cn } from "@/lib/utils";
 
+// Installed, this file is what `@/components/ui/ai-response` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export { ResponseText, type ResponseCitation, type ResponseTextProps } from "./response-text";
+
 /**
  * The text of an assistant response.
  *

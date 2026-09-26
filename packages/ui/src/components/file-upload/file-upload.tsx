@@ -18,6 +18,20 @@ import { cn } from "@/lib/utils";
 
 import { formatBytes, type QueuedFile, type UploadStatus } from "./upload-queue";
 
+// Installed, this file is what `@/components/ui/file-upload` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  formatBytes,
+  matchesAccept,
+  useUploadQueue,
+  xhrUpload,
+  type QueuedFile,
+  type UploadContext,
+  type UploadFn,
+  type UploadQueueOptions,
+  type UploadStatus,
+} from "./upload-queue";
+
 /**
  * The visible half of uploading. The queue is in `upload-queue.ts` and is the
  * part worth owning.
