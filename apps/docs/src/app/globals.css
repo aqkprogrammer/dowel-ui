@@ -52,3 +52,167 @@
   backdrop-filter: blur(16px) saturate(1.3);
   -webkit-backdrop-filter: blur(16px) saturate(1.3);
 }
+
+/*
+ * The catalogue's own surfaces: the components index and the home page's
+ * showcase.
+ *
+ * Every colour here is mixed from the theme's semantic tokens, so a preset
+ * re-skins the gallery along with the components in it. Every animation is
+ * caught by the reduced-motion rule in the theme's base layer, which ends each
+ * one on its final frame — the cards are simply there, the glows simply sit.
+ */
+@layer components {
+  .docs-card-in {
+    animation: docs-rise var(--duration-slower) var(--ease-out-quint) both;
+    animation-delay: var(--card-delay, 0ms);
+  }
+
+  /* The surface a live preview sits on: a faint dot grid, so a component with
+   * no background of its own still reads as placed rather than floating. */
+  .docs-stage-backdrop {
+    background-color: color-mix(in oklab, var(--muted) 45%, var(--card));
+    background-image: radial-gradient(
+      color-mix(in oklab, var(--foreground) 12%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 14px 14px;
+    background-position: center;
+  }
+
+  .docs-hero-grid {
+    background-image:
+      linear-gradient(
+        to right,
+        color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 36px 36px;
+    mask-image: radial-gradient(ellipse 85% 75% at 20% 0%, black 10%, transparent 75%);
+  }
+
+  .docs-glow {
+    position: absolute;
+    width: 26rem;
+    height: 26rem;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.45;
+    pointer-events: none;
+    animation: docs-drift 18s ease-in-out infinite alternate;
+  }
+
+  .docs-glow-a {
+    top: -12rem;
+    left: -8rem;
+    background: color-mix(in oklab, var(--primary) 60%, transparent);
+  }
+
+  .docs-glow-b {
+    right: -8rem;
+    bottom: -14rem;
+    background: color-mix(in oklab, var(--info) 50%, transparent);
+    animation-delay: -9s;
+  }
+
+  .docs-gradient-text {
+    background-image: linear-gradient(
+      100deg,
+      var(--primary) 0%,
+      var(--info) 35%,
+      var(--primary) 70%,
+      var(--info) 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: docs-sheen 9s linear infinite;
+  }
+
+  /* An endless row: the track holds its items twice and slides by half its
+   * own width, so the second copy lands exactly where the first began. */
+  .docs-marquee {
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+
+  .docs-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: docs-marquee var(--marquee-duration, 60s) linear infinite;
+    animation-direction: var(--marquee-direction, normal);
+  }
+
+  .docs-marquee:hover .docs-marquee-track,
+  .docs-marquee:focus-within .docs-marquee-track {
+    animation-play-state: paused;
+  }
+
+  :where([dir="rtl"]) .docs-marquee-track {
+    animation-name: docs-marquee-rtl;
+  }
+
+  /* Revealed on scroll by the showcase, which sets data-shown when a tile
+   * enters the viewport. Hidden only where script runs to reveal it again. */
+  @media (scripting: enabled) {
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(18px) scale(0.98);
+      transition:
+        opacity 700ms var(--ease-out-quint),
+        transform 700ms var(--ease-out-quint);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    [data-reveal][data-shown] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@keyframes docs-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes docs-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(3rem, 2rem) scale(1.1);
+  }
+  100% {
+    transform: translate(-2rem, 3rem) scale(0.95);
+  }
+}
+
+@keyframes docs-sheen {
+  to {
+    background-position: 200% center;
+  }
+}
+
+@keyframes docs-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes docs-marquee-rtl {
+  to {
+    transform: translateX(50%);
+  }
+}

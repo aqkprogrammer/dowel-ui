@@ -5,11 +5,16 @@ import Link from "next/link";
 
 import { AstraHeaderShell, AstraHero, AstraScrollCue } from "~/components/astra";
 import { InstallCommand } from "~/components/install-command";
+import {
+  ComponentShowcase,
+  type MarqueeEntry,
+  type ShowcaseTile,
+} from "~/components/showcase/component-showcase";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
 import { branding } from "~/lib/branding";
 import { averageQuality } from "~/lib/quality.generated";
-import { getBlocks, getComponentGroups, getComponents } from "~/lib/registry";
+import { CATEGORY_LABELS, getBlocks, getComponentGroups, getComponents } from "~/lib/registry";
 import { SITE_KEYWORDS, SITE_NAME, pageMetadata } from "~/lib/site";
 import { getEcosystemStats } from "~/lib/stats";
 import { version } from "~/lib/version.generated";
@@ -29,6 +34,89 @@ export const metadata: Metadata = pageMetadata({
 });
 
 const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+
+/**
+ * The live showcase, in bento order.
+ *
+ * Picked for range — an assistant, a chart, three controls, two text effects —
+ * and for moving on their own or answering a pointer, so the section looks
+ * alive before anyone touches it. Each story must also be listed in
+ * `showcase-stories.tsx`, which is what keeps the rest of the library out of
+ * this page's bundle.
+ */
+const SHOWCASE: Pick<
+  ShowcaseTile,
+  "name" | "story" | "size" | "hint" | "stageWidth" | "maxScale"
+>[] = [
+  { name: "fluid-orb", story: "Default", size: "hero", stageWidth: 300, maxScale: 1.8 },
+  { name: "typewriter-text", story: "Cycling", size: "wide", stageWidth: 620 },
+  {
+    name: "liquid-toggle",
+    story: "Default",
+    size: "base",
+    hint: "Drag it",
+    stageWidth: 120,
+    maxScale: 1.6,
+  },
+  {
+    name: "orb-face",
+    story: "Default",
+    size: "base",
+    hint: "It watches you",
+    stageWidth: 200,
+    maxScale: 0.62,
+  },
+  { name: "dither-donut", story: "Default", size: "wide", stageWidth: 520 },
+  {
+    name: "magnify-dock",
+    story: "Default",
+    size: "wide",
+    hint: "Sweep across",
+    stageWidth: 360,
+  },
+  {
+    name: "dial",
+    story: "Default",
+    size: "base",
+    hint: "Turn it",
+    stageWidth: 220,
+    maxScale: 0.85,
+  },
+  { name: "shimmer-text", story: "Default", size: "base", stageWidth: 300 },
+  { name: "contribution-graph", story: "Default", size: "wide", stageWidth: 760 },
+];
+
+/**
+ * Two rows of names for the marquee: every category taken in turn, so a row
+ * reads as the breadth of the library rather than forty form controls.
+ */
+function marqueeRows(
+  components: ReturnType<typeof getComponents>,
+  exclude: Set<string>,
+): [MarqueeEntry[], MarqueeEntry[]] {
+  const byCategory = new Map<string, MarqueeEntry[]>();
+  for (const item of [...components].sort((a, b) => a.title.localeCompare(b.title))) {
+    if (exclude.has(item.name)) continue;
+    const entries = byCategory.get(item.category) ?? [];
+    entries.push({ name: item.name, title: item.title, category: item.category });
+    byCategory.set(item.category, entries);
+  }
+
+  const interleaved: MarqueeEntry[] = [];
+  const queues = [...byCategory.values()];
+  while (interleaved.length < 72 && queues.some((queue) => queue.length > 0)) {
+    for (const queue of queues) {
+      const next = queue.shift();
+      if (next) interleaved.push(next);
+    }
+  }
+
+  const capped = interleaved.slice(0, 72);
+  return [
+    capped.filter((_, index) => index % 2 === 0),
+    capped.filter((_, index) => index % 2 === 1),
+  ];
+}
 
 /**
  * The front page opens on the star field.
@@ -77,6 +165,23 @@ export default async function HomePage() {
           },
         ]),
   ];
+
+  const showcaseTiles: ShowcaseTile[] = SHOWCASE.flatMap((tile) => {
+    const item = components.find((component) => component.name === tile.name);
+    return item
+      ? [
+          {
+            ...tile,
+            title: item.title,
+            description: item.description,
+            category: item.category,
+            label: CATEGORY_LABELS[item.category] ?? item.category,
+          },
+        ]
+      : [];
+  });
+
+  const marquee = marqueeRows(components, new Set(SHOWCASE.map((tile) => tile.name)));
 
   const searchEntries = groups.flatMap((group) =>
     group.items.map((item) => ({
@@ -189,6 +294,8 @@ export default async function HomePage() {
         {/* The last cue: where the dowel lets go of its outline and the field
             returns to being a background. */}
         <AstraScrollCue />
+
+        <ComponentShowcase tiles={showcaseTiles} marquee={marquee} total={components.length} />
 
         <div className="mx-auto w-full max-w-5xl px-4 pt-12 pb-20">
           <section aria-labelledby="surfaces">
