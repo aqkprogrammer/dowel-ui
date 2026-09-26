@@ -3,7 +3,7 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
-## Unreleased
+## 0.10.0
 
 ### Agent-operable UI: agents can operate your UI and hand it back
 
