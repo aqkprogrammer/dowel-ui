@@ -1,14 +1,10 @@
 "use client";
 
-import type { ComponentType, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { storyModules, storyOrder } from "~/lib/previews.generated";
-import {
-  asStory,
-  asStoryMeta,
-  type StoryArgs,
-  type StoryDecoratorContext,
-} from "~/lib/story-types";
+import { StoryRender } from "~/lib/story-render";
+import { asStory } from "~/lib/story-types";
 
 /**
  * Renders a Storybook story as a documentation preview.
@@ -57,28 +53,7 @@ export function StoryPreview({ component, story, fallback }: StoryPreviewProps) 
   if (!storyModule) return <>{fallback}</>;
 
   const name = story ?? getStoryNames(component)[0];
-  const resolved = name === undefined ? undefined : asStory(storyModule[name]);
-  const meta = asStoryMeta(storyModule.default);
-  if (!resolved || !meta) return <>{fallback}</>;
+  if (name === undefined) return <>{fallback}</>;
 
-  const args: StoryArgs = { ...meta.args, ...resolved.args };
-
-  // Rendered as a component, not called as a function: stories use hooks, and
-  // invoking them directly would break the rules of hooks.
-  // Storybook's precedence: the story's render, then the file's, then the bare
-  // component.
-  const Render: ComponentType<StoryArgs> | undefined =
-    resolved.render ?? meta.render ?? meta.component;
-  if (!Render) return <>{fallback}</>;
-
-  const context: StoryDecoratorContext = { args, globals: {}, parameters: {} };
-
-  let node: ReactNode = <Render {...args} />;
-  for (const decorator of meta.decorators) {
-    const current = node;
-    const Wrapped = () => <>{current}</>;
-    node = decorator(Wrapped, context);
-  }
-
-  return <>{node}</>;
+  return <StoryRender module={storyModule} story={name} fallback={fallback} />;
 }
