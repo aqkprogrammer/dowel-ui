@@ -22,6 +22,10 @@ the others. Phases 4 and 5 added four more that plug into them:
 | `agent-data-table` | Read, sort, search, filter, select and page tools for a TanStack table, calling the same API as the table's own controls.                                 | experimental |
 | `agent-approvals`  | The approval step, built on `ai-approval-request`: correct the arguments, approve once or for the session, or deny with a reason.                         | experimental |
 | `agent-ledger`     | What the agent did, built on `ai-action-ledger`, with an undo for each call whose tool registered one.                                                    | experimental |
+| `ai-suggest-mode`  | Track changes for an agent's edits to text: each change in place, with its reason, accepted or rejected on its own.                                       | beta         |
+| `blast-radius`     | What an action will change before it runs: how many things, how, which can't be undone, and a sample by name. Shown in `agent-approvals`.                 | beta         |
+| `agent-replay`     | Step through a finished run: each call, what the agent was told, and every take-over and hand-back.                                                       | experimental |
+| `prompt-redactor`  | A privacy check before a prompt is sent: emails, card numbers and keys swapped for placeholders, then put back in the reply.                              | beta         |
 
 ## Prior art (checked 2026-09-25)
 
@@ -233,6 +237,32 @@ Opt-in registry items, so no existing component gains a dependency:
 - The fill and submit tools are then registered with `webmcp: false`, so the
   browser is not told about the same form twice.
 
+### Phase 8: Four more, before the release
+
+- **`blast-radius`**: a dry run shown inside the approval. Tools gain
+  `preview(input)`. It starts at the same moment as the approval question, so
+  the question appears immediately and the preview fills in when it arrives.
+  When the list is only a sample, the sentence says "at least". Permanent
+  changes are listed first.
+- **`agent-replay`**: calls and changes of control on one timeline, stepped
+  through with buttons, a slider or playback. Calls now record `told`, the
+  exact text the agent received. The surface keeps a timestamped
+  `controlLog`. Playback stops at the end rather than looping, and doesn't
+  announce each step while it plays.
+- **`ai-suggest-mode`**: works from edits with reasons, or from a whole rewrite
+  diffed word by word. The agent proposes changes and cannot apply them.
+  After each decision, focus moves to the next suggestion still waiting.
+  Inside a surface, the agent is told what was rejected so it doesn't suggest
+  it again, through the new `api.notify`.
+- **`prompt-redactor`**: conservative detection. Card numbers must pass the
+  Luhn check, IBANs their checksum, and keys must match a known provider's
+  format. A value keeps the same placeholder across the whole conversation.
+  Values are shown masked and never in full. A kept secret gets a warning.
+- **Surface additions:** `preview`, `told`, `controlLog` and `notify`.
+- **Found by testing:** a dry run started a microtask late, which meant the
+  approval could be answered before its preview had begun. It now starts
+  synchronously.
+
 ### Phase 7: Release
 
 Changelog, search synonyms, agent docs, counts, `audit:all`, and version 0.10.0
@@ -293,25 +323,23 @@ have looked like the screen reader's fault.
 
 ## Progress
 
-| Phase                        | Status                                                              |
-| ---------------------------- | ------------------------------------------------------------------- |
-| 0 Plan and prior art         | done                                                                |
-| 1 `stream-announcer`         | done (beta until the screen reader runs pass)                       |
-| 2 `agent-surface`            | done (experimental)                                                 |
-| 3 `control-baton`            | done (experimental)                                                 |
-| 4 Tools for components       | done: `agent-form`, `agent-data-table`                              |
-| 5 Ledger and approval wiring | done: `agent-approvals`, `agent-ledger`, `ai-action-ledger` fix     |
-| 6 Declarative WebMCP         | done (experimental, against the 2026-09-17 draft)                   |
-| 7 Release                    | 0.10.0 prepared; deploy and publish are the maintainer's            |
-| Screen readers               | harness passes; VoiceOver and NVDA ready in CI; JAWS protocol ready |
+| Phase                        | Status                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| 0 Plan and prior art         | done                                                                       |
+| 1 `stream-announcer`         | done (beta until the screen reader runs pass)                              |
+| 2 `agent-surface`            | done (experimental)                                                        |
+| 3 `control-baton`            | done (experimental)                                                        |
+| 4 Tools for components       | done: `agent-form`, `agent-data-table`                                     |
+| 5 Ledger and approval wiring | done: `agent-approvals`, `agent-ledger`, `ai-action-ledger` fix            |
+| 6 Declarative WebMCP         | done (experimental, against the 2026-09-17 draft)                          |
+| 8 Four more components       | done: `ai-suggest-mode`, `blast-radius`, `agent-replay`, `prompt-redactor` |
+| 7 Release                    | waiting for Phase 8; deploy and publish are the maintainer's               |
+| Screen readers               | harness passes; VoiceOver and NVDA ready in CI; JAWS protocol ready        |
 
 ## Later
 
 Ideas from the same review, in rough order of how hard they are to copy:
-`ai-suggest-mode` (track changes for an agent's edits, accepted or rejected
-one at a time), `provenance-text` (who wrote each part of a paragraph),
-`prompt-redactor` (a privacy check before a prompt is sent), `nl-filter`
-(natural language in, filter chips you can edit out), `blast-radius` (a dry
-run before approval), `agent-replay`, `memory-inspector`,
+`provenance-text` (who wrote each part of a paragraph), `nl-filter` (natural
+language in, filter chips you can edit out), `memory-inspector`,
 `expression-editor`, `quantity-input`, `permission-prompt`, and dither charts
 you can hear.

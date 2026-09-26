@@ -263,6 +263,10 @@ ${ai.map((entry) => `- **${entry.name}** — ${entry.description}`).join("\n")}
 - Letting a screen reader user hear a streaming response as it forms → \`stream-announcer\`, alongside \`ai-conversation\`, never instead of it. Off by default; the listener switches it on.
 - A form the agent should fill in and submit → wrap it in \`agent-form\`. Fields are read from the form; do not describe them again. Pass \`submitReversibility="revertible"\` only when submitting really can be taken back — otherwise it waits for approval. Mark anything the agent must never see with \`data-agent-private\`.
 - A TanStack table the agent should read, sort, filter or select → \`useDataTableAgentTools(table, { name, description })\` from \`agent-data-table\`.
+- The agent wants to change text the person owns → \`ai-suggest-mode\`. Give the agent a tool that *proposes* edits (find, replace, reason) and render them in suggest mode; never let it write the text directly. For code, \`diff-viewer\`.
+- Showing what an action will change before it is approved → give the tool a \`preview\` returning \`{ changes, total }\`; \`agent-approvals\` shows it as a \`blast-radius\`.
+- How a run went, step by step → \`agent-replay\` inside the surface.
+- Prompts that may contain customer data or secrets → \`usePromptRedactor\` + \`PromptRedactor\` next to \`ai-prompt-input\`: send \`redactor.redact()\`, display \`redactor.restore(reply)\`.
 - Approvals inside a surface → mount \`agent-approvals\`; the person can correct the arguments before approving. What the agent did, with undo → mount \`agent-ledger\`, and call \`onUndo\` in a tool's \`execute\` for anything that can be taken back.
 
 ## Whole surface at once
