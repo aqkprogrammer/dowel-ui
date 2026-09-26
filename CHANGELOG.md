@@ -23,6 +23,11 @@ per-package changelogs, whatever an earlier version of this line claimed.
   Each main file now re-exports what its index does, and the new
   `audit:installed-imports` fails CI when one doesn't. Found by installing
   0.10.0 into a fresh Next.js app.
+- `stream-announcer`: NVDA with Chrome no longer re-reads the previous two
+  sentences with every announcement after the third. The live region used to
+  drop its oldest sentence while adding the newest, and Chrome then reported
+  every sentence in it as new. It now fills up to three and then starts over.
+  Found by the first real NVDA run.
 
 ## 0.10.0
 

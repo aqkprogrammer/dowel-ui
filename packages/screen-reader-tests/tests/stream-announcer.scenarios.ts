@@ -1,5 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
+import type { Overheard } from "./overhear";
+
 /**
  * What `stream-announcer` promises a screen reader user, checked against a
  * real screen reader. The same scenarios run under VoiceOver and NVDA.
@@ -10,22 +12,21 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
  * rather than only the queue; and that Resume carries on.
  */
 
-/** The parts of Guidepup's VoiceOver and NVDA this needs. */
+/** A screen reader, as far as these scenarios need one. */
 export interface Listener {
   navigateToWebContent: () => Promise<void>;
-  lastSpokenPhrase: () => Promise<string>;
-  spokenPhraseLog: () => Promise<string[]>;
+  /** Starts hearing everything it says: see `overhear.ts`. */
+  overhear: () => Promise<Overheard>;
 }
 
 const STORY = "/iframe.html?id=ai-stream-announcer--default&viewMode=story";
 
-/** Case, punctuation and spacing differ between what is written and spoken. */
+/**
+ * Case, punctuation and spacing differ between what is written and what is
+ * spoken — NVDA logs "3.5 kB" as "3.5 k B" — so all three are dropped.
+ */
 export function normalise(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
 }
 
 const wait = (ms: number) =>
@@ -34,32 +35,29 @@ const wait = (ms: number) =>
   });
 
 /**
- * Collects what the screen reader says while nothing is being commanded.
- *
- * A screen reader's log is built from its responses to commands; a live
- * region speaks between them. So the last spoken phrase is polled as well,
- * and the two are merged, keeping order and dropping repeats of a phrase that
- * was simply read twice by the poll.
+ * Does `act`, then collects what the screen reader says until `done` has held
+ * for `graceMs` — long enough for the last announcement to be spoken.
  */
 async function listen(
   reader: Listener,
+  act: () => Promise<void>,
   done: () => Promise<boolean>,
   { graceMs = 8_000, timeoutMs = 150_000 } = {},
 ): Promise<string[]> {
-  const heard: string[] = [];
-  const started = Date.now();
-  let finishedAt: number | null = null;
-  while (Date.now() - started < timeoutMs) {
-    const phrase = await reader.lastSpokenPhrase();
-    if (phrase && phrase !== heard.at(-1)) heard.push(phrase);
-    if (finishedAt === null && (await done())) finishedAt = Date.now();
-    if (finishedAt !== null && Date.now() - finishedAt > graceMs) break;
-    await wait(150);
+  const ear = await reader.overhear();
+  try {
+    await act();
+    const started = Date.now();
+    let finishedAt: number | null = null;
+    while (Date.now() - started < timeoutMs) {
+      if (finishedAt === null && (await done())) finishedAt = Date.now();
+      if (finishedAt !== null && Date.now() - finishedAt > graceMs) break;
+      await wait(150);
+    }
+    return await ear.heard();
+  } finally {
+    await ear.stop();
   }
-  for (const phrase of await reader.spokenPhraseLog()) {
-    if (!heard.includes(phrase)) heard.push(phrase);
-  }
-  return heard;
 }
 
 async function open(page: Page, reader: Listener) {
@@ -90,9 +88,11 @@ function spokenFromAnswer(phrase: string, answer: string): boolean {
 
 export async function readsWholeSentencesInOrder(page: Page, reader: Listener) {
   const { stream, handed, screen } = await open(page, reader);
-  await stream.click();
-
-  const phrases = await listen(reader, () => drained(stream, page));
+  const phrases = await listen(
+    reader,
+    () => stream.click(),
+    () => drained(stream, page),
+  );
   const chunks = await handed.allTextContents();
   const answer = normalise((await screen.textContent()) ?? "");
   await test.info().attach("spoken", {
@@ -132,9 +132,16 @@ export async function pauseStopsTheResponseAndResumeCarriesOn(page: Page, reader
   await stream.click();
   await expect(handed).toHaveCount(1, { timeout: 20_000 });
 
-  await page.getByRole("button", { name: "Pause reading" }).click();
-  const paused = await handed.allTextContents();
-  const during = await listen(reader, () => Promise.resolve(true), { graceMs: 6_000 });
+  let paused: string[] = [];
+  const during = await listen(
+    reader,
+    async () => {
+      await page.getByRole("button", { name: "Pause reading" }).click();
+      paused = await handed.allTextContents();
+    },
+    () => Promise.resolve(true),
+    { graceMs: 6_000 },
+  );
   const answer = normalise((await screen.textContent()) ?? "");
 
   const unhanded = during.filter(
@@ -145,11 +152,12 @@ export async function pauseStopsTheResponseAndResumeCarriesOn(page: Page, reader
   expect(unhanded, "response text was spoken while paused").toEqual([]);
   await expect(handed).toHaveCount(paused.length);
 
-  await page.getByRole("button", { name: "Resume reading" }).click();
-  const after = await listen(reader, async () => (await handed.count()) > paused.length, {
-    graceMs: 5_000,
-    timeoutMs: 30_000,
-  });
+  const after = await listen(
+    reader,
+    () => page.getByRole("button", { name: "Resume reading" }).click(),
+    async () => (await handed.count()) > paused.length,
+    { graceMs: 5_000, timeoutMs: 30_000 },
+  );
   const next = (await handed.allTextContents())[paused.length] ?? "";
   await test.info().attach("spoken", {
     body: JSON.stringify({ paused, during, next, after }, null, 2),

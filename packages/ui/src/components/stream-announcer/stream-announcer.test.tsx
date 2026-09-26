@@ -149,18 +149,27 @@ describe("StreamAnnouncer", () => {
     expect(announced(container).join(" ")).toBe("Run this: Code block, sh, 1 line. Done");
   });
 
-  it("keeps only the last few chunks in the region", () => {
+  it("never trims the region from the front: it starts over when full", () => {
+    // Dropping the first node while adding a last one makes Chrome report every
+    // node as new, and NVDA reads the earlier sentences again.
     const { container, update } = setup();
+    const seen: (string | null)[][] = [];
     let text = "";
-    for (let i = 1; i <= 6; i += 1) {
+    for (let i = 1; i <= 5; i += 1) {
       text += `Sentence ${String(i)}. `;
       update({ text: `${text}Next` });
       act(() => {
         vi.runOnlyPendingTimers();
       });
+      seen.push(announced(container));
     }
-    expect(announced(container)).toHaveLength(3);
-    expect(announced(container).at(-1)).toBe("Sentence 6.");
+    expect(seen).toEqual([
+      ["Sentence 1."],
+      ["Sentence 1.", "Sentence 2."],
+      ["Sentence 1.", "Sentence 2.", "Sentence 3."],
+      ["Sentence 4."],
+      ["Sentence 4.", "Sentence 5."],
+    ]);
   });
 
   it("treats a text that stops beginning with what was said as a new response", () => {
