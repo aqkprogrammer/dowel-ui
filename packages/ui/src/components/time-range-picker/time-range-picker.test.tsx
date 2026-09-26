@@ -347,7 +347,7 @@ describe("TimeRange", () => {
     render(<Picker defaultValue="now-6h..now" />);
 
     const trigger = screen.getByRole("button", { name: /Last 6 hours/ });
-    expect(trigger).toHaveAccessibleName(/Last 6 hours.*Jun 17, 2026/s);
+    expect(trigger).toHaveAccessibleName(/Last 6 hours[\s\S]*Jun 17, 2026/);
   });
 
   describe("without a now prop", () => {
