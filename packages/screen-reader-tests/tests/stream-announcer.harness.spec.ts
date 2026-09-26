@@ -8,27 +8,44 @@ import {
 
 /**
  * The scenarios against a perfect listener — one that "hears" exactly what is
- * put in the live region. It proves the harness itself: the story's selectors,
- * the waiting, the assertions. When a real screen reader then fails a
- * scenario, the failure is about the screen reader, not the test.
+ * put in the live region, the moment it is put there. It proves the harness
+ * itself: the story's selectors, the waiting, the assertions. When a real
+ * screen reader then fails a scenario, the failure is about the screen reader,
+ * not the test.
  *
  * Runs anywhere, headless: `pnpm test:harness`.
  */
+type Ear = Window & { heard?: string[]; ear?: MutationObserver };
+
 function perfectListener(page: Page): Listener {
-  const region = page.locator("[data-slot='stream-announcer-region'] > *");
-  const said: string[] = [];
   return {
     navigateToWebContent: () => Promise.resolve(),
-    lastSpokenPhrase: async () => {
-      const last =
-        (await region
-          .last()
-          .textContent({ timeout: 100 })
-          .catch(() => null)) ?? "";
-      if (last && last !== said.at(-1)) said.push(last);
-      return last;
+    overhear: async () => {
+      await page.evaluate(() => {
+        const self = window as Ear;
+        const region = document.querySelector("[data-slot='stream-announcer-region']");
+        if (!region) throw new Error("The story has no live region.");
+        const heard: string[] = [];
+        self.heard = heard;
+        self.ear?.disconnect();
+        self.ear = new MutationObserver((records) => {
+          for (const record of records) {
+            for (const node of record.addedNodes) {
+              const text = node.textContent?.trim();
+              if (text) heard.push(text);
+            }
+          }
+        });
+        self.ear.observe(region, { childList: true });
+      });
+      return {
+        heard: () => page.evaluate(() => [...((window as Ear).heard ?? [])]),
+        stop: () =>
+          page.evaluate(() => {
+            (window as Ear).ear?.disconnect();
+          }),
+      };
     },
-    spokenPhraseLog: () => Promise.resolve([...said]),
   };
 }
 

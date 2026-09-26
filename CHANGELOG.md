@@ -3,6 +3,16 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Fixed
+
+- `stream-announcer`: NVDA with Chrome no longer re-reads the previous two
+  sentences with every announcement after the third. The live region used to
+  drop its oldest sentence while adding the newest, and Chrome then reported
+  every sentence in it as new. It now fills up to three and then starts over.
+  Found by the first real NVDA run.
+
 ## 0.10.0
 
 ### Agent-operable UI: agents can operate your UI and hand it back

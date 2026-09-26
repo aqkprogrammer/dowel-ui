@@ -63,8 +63,17 @@ jobs:
       # before anything else; `install` puts the screen reader assets in place
       # once dependencies are installed. The setup action skipped the second
       # and could not do the first on these runners.
+      # Turning on Do Not Disturb sometimes fails on a fresh runner ("Not
+      # authorized to send Apple events to System Events"), and the same
+      # image passes on another try.
       - name: Prepare the screen reader
-        run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 setup --ci --macos-record
+        run: |
+          for attempt in 1 2 3; do
+            npx -y --min-release-age=0 @guidepup/setup@0.24.6 setup --ci --macos-record && exit 0
+            echo "::warning::Screen reader setup failed, attempt $attempt of 3"
+            sleep 15
+          done
+          exit 1
       - run: pnpm install --frozen-lockfile
       # From the package that depends on Guidepup: `install` looks for it from
       # the working directory, and pnpm does not hoist it to the root.
