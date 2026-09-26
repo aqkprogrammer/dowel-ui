@@ -66,7 +66,10 @@ jobs:
       - name: Prepare the screen reader
         run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 setup --ci --macos-record
       - run: pnpm install --frozen-lockfile
+      # From the package that depends on Guidepup: `install` looks for it from
+      # the working directory, and pnpm does not hoist it to the root.
       - name: Install the screen reader assets
+        working-directory: packages/screen-reader-tests
         run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 install
       # Storybook imports workspace packages (the themes) that ship from dist/,
       # which a clean checkout does not have yet.
@@ -105,7 +108,10 @@ jobs:
       - name: Prepare the screen reader
         run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 setup --ci --macos-record
       - run: pnpm install --frozen-lockfile
+      # From the package that depends on Guidepup: `install` looks for it from
+      # the working directory, and pnpm does not hoist it to the root.
       - name: Install the screen reader assets
+        working-directory: packages/screen-reader-tests
         run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 install
       # Storybook imports workspace packages (the themes) that ship from dist/,
       # which a clean checkout does not have yet.

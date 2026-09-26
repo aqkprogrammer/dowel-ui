@@ -49,7 +49,7 @@ npx @guidepup/setup@0.24.6 setup
 ```
 
 ```bash
-npx @guidepup/setup@0.24.6 install
+cd packages/screen-reader-tests && npx @guidepup/setup@0.24.6 install
 ```
 
 ```bash
