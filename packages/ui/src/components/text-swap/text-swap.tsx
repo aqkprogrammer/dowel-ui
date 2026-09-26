@@ -15,6 +15,10 @@ import {
 
 import { cn } from "@/lib/utils";
 
+// Installed, this file is what `@/components/ui/text-swap` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export { TextRotate, type TextRotateProps } from "./text-rotate";
+
 /*
  * One mechanism for SmoothUI's five phrase transitions (ADR 0014). Each source
  * is a `motion` AnimatePresence in `mode="wait"`: the old phrase finishes

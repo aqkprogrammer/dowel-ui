@@ -30,6 +30,22 @@ import {
   type CronSchedule,
 } from "./cron-expression";
 
+// Installed, this file is what `@/components/ui/cron-editor` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  CRON_SHORTCUTS,
+  CronExpressionError,
+  describeCron,
+  isValidCron,
+  nextRuns,
+  parseCron,
+  zonedTimeToInstant,
+  type CronField,
+  type CronSchedule,
+  type DescribeOptions,
+  type NextRunsOptions,
+} from "./cron-expression";
+
 /**
  * The "run this nightly" control.
  *

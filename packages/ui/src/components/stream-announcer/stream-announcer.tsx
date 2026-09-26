@@ -17,6 +17,10 @@ import { cn } from "@/lib/utils";
 
 import { completeSentences, estimateSpeechMs } from "./speakable";
 
+// Installed, this file is what `@/components/ui/stream-announcer` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export { completeSentences, splitSentences, toSpeakable } from "./speakable";
+
 /**
  * Hears a streaming response as it arrives, a sentence at a time.
  *

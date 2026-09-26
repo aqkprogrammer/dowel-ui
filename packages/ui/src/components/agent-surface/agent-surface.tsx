@@ -34,6 +34,11 @@ import {
 } from "./agent-tools";
 import { registerWebMCPTool, type WebMCPResult } from "./webmcp";
 
+// Installed, this file is what `@/components/ui/agent-surface` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export { validateInput, type JsonSchema, type JsonSchemaType } from "./tool-input";
+export { isWebMCPAvailable } from "./webmcp";
+
 export type {
   AgentSurfaceApi,
   AgentSurfaceLabels,

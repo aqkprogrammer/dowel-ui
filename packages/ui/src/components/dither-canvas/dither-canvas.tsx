@@ -14,6 +14,63 @@ import { cn } from "@/lib/utils";
 
 import { clamp, DITHER_CELL, resolveColor } from "./dither-engine";
 
+// Installed, this file is what `@/components/ui/dither-canvas` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  cellSquare,
+  clamp,
+  createSpring,
+  createSprings,
+  DEFAULT_SPRING,
+  DITHER_CELL,
+  DITHER_PALETTE,
+  ditherFill,
+  drift,
+  forEachCell,
+  hash2,
+  lerp,
+  resample,
+  resolveColor,
+  seriesColor,
+  shimmer,
+  smoothstep,
+  tokenToCss,
+  type DitherBounds,
+  type DitherDensity,
+  type DitherFillOptions,
+  type Spring,
+  type SpringConfig,
+  type SpringList,
+} from "./dither-engine";
+export {
+  angleInWedge,
+  makePath,
+  monotoneTangents,
+  niceMax,
+  normalizeAngle,
+  pieWedges,
+  traceRoundedRect,
+  traceRoundedWedge,
+  tracePolyline,
+  traceSpline,
+  traceWedge,
+  valueAt,
+  wedgeAt,
+  type PathSink,
+  type Point,
+  type Wedge,
+} from "./dither-geometry";
+export {
+  DitherCursor,
+  indexFromKey,
+  indexFromPointer,
+  useDitherScrubber,
+  type DitherCursorProps,
+  type DitherScrubber,
+  type DitherScrubberOptions,
+  type DitherScrubberProps,
+} from "./dither-scrubber";
+
 /*
  * The React half of the dither engine: one canvas, sized to its box, drawn by
  * a function the chart supplies. The engine owns everything a canvas chart

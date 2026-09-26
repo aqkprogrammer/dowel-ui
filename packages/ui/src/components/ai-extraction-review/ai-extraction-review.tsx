@@ -24,6 +24,21 @@ import {
   type SourceRun,
 } from "./extraction-model";
 
+// Installed, this file is what `@/components/ui/ai-extraction-review` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  clampSpan,
+  evidenceOf,
+  isSourced,
+  segmentSource,
+  summarizeReview,
+  type ExtractionField,
+  type FieldDecision,
+  type ReviewSummary,
+  type SourceRun,
+  type SourceSpan,
+} from "./extraction-model";
+
 /**
  * The check after extraction: the document on one side, what the model read
  * out of it on the other, and a decision about every field.

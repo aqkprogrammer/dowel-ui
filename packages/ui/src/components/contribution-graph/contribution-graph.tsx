@@ -18,6 +18,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/tooltip";
 import { focusRing } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
+// Installed, this file is what `@/components/ui/contribution-graph` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  ContributionGraphPanel,
+  type ContributionGraphPanelItem,
+  type ContributionGraphPanelProps,
+} from "./contribution-graph-panel";
+
 /*
  * A GitHub-style year heatmap, as an ARIA grid: weekdays are rows, weeks are
  * columns, and every day is a gridcell whose screen-reader text is the whole

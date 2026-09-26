@@ -16,6 +16,20 @@ import { cn } from "@/lib/utils";
 
 import { countChanges, toSplitRows, type DiffHunk, type DiffRow } from "./diff-model";
 
+// Installed, this file is what `@/components/ui/diff-viewer` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  buildDiff,
+  countChanges,
+  groupIntoHunks,
+  toSplitRows,
+  type BuildDiffOptions,
+  type DiffHunk,
+  type DiffRow,
+  type RowKind,
+  type WordSegment,
+} from "./diff-model";
+
 /**
  * A diff, and a decision about it.
  *

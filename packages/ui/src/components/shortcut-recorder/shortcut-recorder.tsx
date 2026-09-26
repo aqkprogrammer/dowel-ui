@@ -24,6 +24,23 @@ import {
   type Shortcut,
 } from "./shortcut-model";
 
+// Installed, this file is what `@/components/ui/shortcut-recorder` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  RESERVED_KEYS,
+  describeShortcut,
+  detectPlatform,
+  formatShortcut,
+  needsModifier,
+  parseShortcut,
+  serializeShortcut,
+  shortcutFromKey,
+  shortcutParts,
+  shortcutsEqual,
+  type Platform,
+  type Shortcut,
+} from "./shortcut-model";
+
 /**
  * Press the keys you want.
  *

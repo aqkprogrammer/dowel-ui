@@ -21,6 +21,22 @@ import {
   type Role,
 } from "./permission-model";
 
+// Installed, this file is what `@/components/ui/permission-matrix` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  cellState,
+  countGranted,
+  groupPermissions,
+  groupState,
+  inheritedFrom,
+  type CellState,
+  type Grants,
+  type GroupState,
+  type Permission,
+  type PermissionGroup,
+  type Role,
+} from "./permission-model";
+
 /**
  * Roles across, permissions down, a checkbox at every crossing.
  *

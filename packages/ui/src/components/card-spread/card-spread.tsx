@@ -32,6 +32,19 @@ import {
   type CardSpreadTuning,
 } from "./card-spread-layouts";
 
+// Installed, this file is what `@/components/ui/card-spread` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  CARD_SPREAD_LAYOUTS,
+  getCardSpreadDefaults,
+  getCardSpreadOrigin,
+  getCardSpreadPose,
+  type CardSpreadLayout,
+  type CardSpreadOrigin,
+  type CardSpreadPose,
+  type CardSpreadTuning,
+} from "./card-spread-layouts";
+
 /*
  * A deck that fans out (ADR 0014: one mechanism, a `layout` axis for every
  * amicro spread). amicro animates each card with a spring from `motion`; the
