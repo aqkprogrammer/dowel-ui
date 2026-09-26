@@ -56,7 +56,14 @@ const DEFAULT_LABELS: StreamAnnouncerLabels = {
   group: "Response reading",
 };
 
-/** Chunks kept in the live region. Removals are never announced. */
+/**
+ * Chunks kept in the live region. It only gains nodes until it holds this
+ * many, then starts over with the next chunk. It is never trimmed from the
+ * front while nodes remain: Chrome compares the region before and after from
+ * both ends, and with the first node gone and a new last one nothing lines up,
+ * so it reports every node as new and NVDA reads them all again. Emptied and
+ * refilled in one update, only the new chunk is new.
+ */
 const RENDERED_CHUNKS = 3;
 
 /**
@@ -187,7 +194,11 @@ export function StreamAnnouncer({
       }
       nextId.current += 1;
       const id = nextId.current;
-      setChunks((current) => [...current, { id, text: chunk }].slice(-RENDERED_CHUNKS));
+      setChunks((current) =>
+        current.length < RENDERED_CHUNKS
+          ? [...current, { id, text: chunk }]
+          : [{ id, text: chunk }],
+      );
       announceTo.current?.(chunk);
       stop();
       timer.current = setTimeout(
