@@ -152,6 +152,20 @@ describe("ActionLedger", () => {
       expect(onRevert.mock.calls[0]?.[0]).toEqual([ACTIONS[0]]);
     });
 
+    it("drops an action from the selection once it is reverted", async () => {
+      const user = userEvent.setup();
+      const { rerender } = render(<Example />);
+      await user.click(screen.getByLabelText("Deleted 3 contacts"));
+      await user.click(screen.getByLabelText("Refunded $240 to Acme"));
+      expect(screen.getByRole("button", { name: "Undo 2 selected" })).toBeInTheDocument();
+
+      const reverted = ACTIONS.map((action) =>
+        action.id === "1" ? { ...action, status: "reverted" as const } : action,
+      );
+      rerender(<Example actions={reverted} />);
+      expect(screen.getByRole("button", { name: "Undo 1 selected" })).toBeInTheDocument();
+    });
+
     it("does nothing when nothing is selected", async () => {
       const onRevert = vi.fn();
       const user = userEvent.setup();

@@ -258,6 +258,16 @@ ${ai.map((entry) => `- **${entry.name}** — ${entry.description}`).join("\n")}
 - Reviewing what was pulled out of a document → \`ai-extraction-review\`.
 - Long-running work → \`ai-agent-status\` and \`ai-agent-plan\`.
 - Where an answer came from → \`ai-sources\`. Cost → \`ai-token-usage\`. Chain of thought → \`ai-reasoning\`.
+- Letting an agent operate part of the page → \`agent-surface\`. Register each action with \`useAgentTool\`, calling the same handler a person's click does — never a second code path. The app's own assistant calls tools through \`apiRef\`; \`webmcp\` also exposes them to browser agents. Irreversible actions need \`onApprovalRequest\` or they are refused.
+- Showing who has control, and letting the person take over and hand back with a note → \`control-baton\`, inside an \`agent-surface\` or on its own with \`holder\`.
+- Letting a screen reader user hear a streaming response as it forms → \`stream-announcer\`, alongside \`ai-conversation\`, never instead of it. Off by default; the listener switches it on.
+- A form the agent should fill in and submit → wrap it in \`agent-form\`. Fields are read from the form; do not describe them again. Pass \`submitReversibility="revertible"\` only when submitting really can be taken back — otherwise it waits for approval. Mark anything the agent must never see with \`data-agent-private\`.
+- A TanStack table the agent should read, sort, filter or select → \`useDataTableAgentTools(table, { name, description })\` from \`agent-data-table\`.
+- The agent wants to change text the person owns → \`ai-suggest-mode\`. Give the agent a tool that *proposes* edits (find, replace, reason) and render them in suggest mode; never let it write the text directly. For code, \`diff-viewer\`.
+- Showing what an action will change before it is approved → give the tool a \`preview\` returning \`{ changes, total }\`; \`agent-approvals\` shows it as a \`blast-radius\`.
+- How a run went, step by step → \`agent-replay\` inside the surface.
+- Prompts that may contain customer data or secrets → \`usePromptRedactor\` + \`PromptRedactor\` next to \`ai-prompt-input\`: send \`redactor.redact()\`, display \`redactor.restore(reply)\`.
+- Approvals inside a surface → mount \`agent-approvals\`; the person can correct the arguments before approving. What the agent did, with undo → mount \`agent-ledger\`, and call \`onUndo\` in a tool's \`execute\` for anything that can be taken back.
 
 ## Whole surface at once
 

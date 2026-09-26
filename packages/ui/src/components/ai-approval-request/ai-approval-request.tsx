@@ -187,6 +187,7 @@ export function ApprovalRequest({
       <section
         ref={setSectionRef}
         data-slot="approval-request"
+        data-agent-ui=""
         data-state={decision.approved ? "approved" : "denied"}
         data-resolved={initiallyDecided ? undefined : "live"}
         aria-labelledby={headingId}
@@ -224,6 +225,9 @@ export function ApprovalRequest({
     <section
       ref={setSectionRef}
       data-slot="approval-request"
+      // Deciding on the agent's request is not taking the page back from it
+      // (see agent-surface's takeOverOn).
+      data-agent-ui=""
       data-state={settled ? "pending" : "forming"}
       aria-labelledby={headingId}
       // Busy while the arguments are still arriving, so a reader is told the

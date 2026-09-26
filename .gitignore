@@ -22,3 +22,7 @@ apps/docs/next-env.d.ts
 .next/
 .vercel
 .env*
+# Screen reader test output: videos, traces, reports, setup recordings.
+packages/screen-reader-tests/test-results/
+packages/screen-reader-tests/playwright-report/
+packages/screen-reader-tests/recordings/

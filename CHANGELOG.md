@@ -3,6 +3,105 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## 0.10.0
+
+### Agent-operable UI: agents can operate your UI and hand it back
+
+Eleven components that let an agent work on the page itself, and let the
+person oversee it and take the page back. The plan is in
+`docs/plans/agent-operable-ui.md` and the decisions are in ADR 0015.
+
+**Control**
+
+- **`agent-surface`** (experimental) is a region whose actions are registered
+  as tools with `useAgentTool`. Each tool runs the same handler a person's
+  click runs, and its input is validated in the page. Your own assistant calls
+  tools through `apiRef`; with `webmcp`, browser agents can call them too,
+  through `document.modelContext` (Chrome and Edge origin trials). Control is
+  state: `shared`, `agent` or `person`.
+  - While the person holds control, every call is refused, reads included.
+  - Irreversible actions need approval; without it they are refused.
+  - Operating a control while the agent drives takes over, except inside
+    `[data-agent-ui]`.
+  - Other libraries already expose component actions over WebMCP. This one is
+    built around who has control.
+- **`control-baton`** (experimental) shows who has control and lets the person
+  take over, then hand back with a note. The note is added to the start of the
+  agent's next tool result. It works inside a surface, or on its own with
+  `holder`. We don't know of another component library that ships a reusable
+  take-over / hand-back control; the pattern comes from agent products such as
+  ChatGPT agent and Browserbase's live view.
+
+**Oversight**
+
+- **`agent-approvals`** (experimental) is the approval step, built on
+  `ai-approval-request`. The person can correct the agent's arguments before
+  approving, approve once or for the session, or deny with a reason the agent
+  is told. Mounting it inside a surface is all the wiring there is, and
+  requests still waiting when it unmounts are refused.
+- **`agent-ledger`** (experimental) lists what the agent did, built on
+  `ai-action-ledger`. It can undo a call whose tool registered an undo with the
+  new `onUndo`, and the agent is told what the person took back.
+
+- **`blast-radius`** (beta) shows what an action will change before it runs:
+  how many things, how, which can't be undone, and a sample by name. For
+  example: "43 deals will change: at least 3 deleted. At least 2 cannot be
+  undone." A tool's new `preview` dry run fills it in inside `agent-approvals`
+  while the person decides.
+- **`agent-replay`** (experimental) steps through a finished run, by button,
+  slider or playback. It shows each call, exactly what the agent was told,
+  and every take-over and hand-back.
+- **`ai-suggest-mode`** (beta) is track changes for an agent's edits to text.
+  Each change is shown in place with its reason and accepted or rejected on
+  its own. It works from edits or from a whole rewrite. The agent is told what
+  was rejected, so it doesn't suggest it again.
+
+**Privacy**
+
+- **`prompt-redactor`** (beta) checks a prompt before it's sent. Email
+  addresses, card numbers, IBANs, API keys and phone numbers are named, masked,
+  and sent as placeholders such as `[EMAIL_1]`. They're put back locally in
+  the reply. Card numbers and IBANs are only matched when their checksums
+  pass, and you can add your own detectors.
+
+**Tools for existing components**
+
+- **`agent-form`** (experimental) gives fill, read and submit tools to any
+  form. Fields, labels, options and errors are read from the form itself.
+  Values are set through the events typing fires, and submitting goes through
+  the form's own handler. Passwords, one-time codes and card numbers are never
+  read or filled. Submitting waits for approval unless you say it can be
+  undone. With `declarative`, the form also describes itself to browser agents
+  through WebMCP's form attributes, and their submits pass the same checks.
+- **`agent-data-table`** (experimental) provides `useDataTableAgentTools`,
+  which gives a TanStack table read, sort, search, filter, select and page
+  tools, each only when the table has that feature. They call the same API as
+  the table's own controls.
+
+**Accessibility**
+
+- **`stream-announcer`** (beta) is an opt-in way for a screen reader user to
+  hear a streaming response as it arrives. It reads whole sentences only,
+  pacing them so pause, skip and repeat can still act on the queue. Markdown is
+  read as prose, and a code block is summarised as its language and line count.
+  `ai-conversation`'s state-only announcements stay the default.
+- **Screen reader tests.** `packages/screen-reader-tests` drives real
+  VoiceOver and NVDA through Guidepup, in a new CI workflow. A harness project
+  checks the scenarios themselves without a screen reader, and JAWS has a
+  manual protocol in `docs/testing/screen-readers.md`. `stream-announcer` stays
+  beta until those runs pass.
+
+**Changes to existing components**
+
+- `agent-surface` also gains `preview`, `told`, a `controlLog` of changes of
+  control, and `api.notify`, which tells the agent something with its next
+  result.
+- `ai-approval-request` and `ai-prompt-input` now carry `data-agent-ui`, so
+  approving a call or typing to the agent inside a surface never counts as
+  taking over.
+- `ai-action-ledger` no longer keeps a reverted action in its selection, where
+  it was still counted by "Undo 2 selected".
+
 ## 0.9.0
 
 ### Interaction patterns: 18 components, and motion for 6 more

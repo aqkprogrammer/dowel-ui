@@ -1,0 +1,131 @@
+name: Screen readers
+
+# Real VoiceOver and NVDA, driven by Guidepup, against the Storybook stories.
+# Set up the way Guidepup's own CI (guidepup/guidepup-playwright) does it.
+# Not part of CI on every push: each run takes over a runner's speech and
+# keyboard for minutes. It runs when the announcer or these tests change, and
+# on demand. JAWS needs a licence and is tested by hand; see
+# docs/testing/screen-readers.md.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "packages/ui/src/components/stream-announcer/**"
+      - "packages/screen-reader-tests/**"
+      - ".github/workflows/screen-readers.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  STORYBOOK_DISABLE_TELEMETRY: 1
+
+jobs:
+  harness:
+    name: Harness (no screen reader)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Storybook imports workspace packages (the themes) that ship from dist/,
+      # which a clean checkout does not have yet.
+      - name: Build Storybook
+        run: |
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
+      - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps chromium
+      - run: pnpm --filter @dowel-ui/screen-reader-tests test:harness
+
+  voiceover:
+    name: VoiceOver (macOS, WebKit)
+    needs: harness
+    # The images Guidepup's own CI runs VoiceOver on.
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      # Guidepup's own recipe, in its order: `setup` prepares the OS
+      # (permissions, Do Not Disturb, the screen reader's automation settings)
+      # before anything else; `install` puts the screen reader assets in place
+      # once dependencies are installed. The setup action skipped the second
+      # and could not do the first on these runners.
+      - name: Prepare the screen reader
+        run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 setup --ci --macos-record
+      - run: pnpm install --frozen-lockfile
+      # From the package that depends on Guidepup: `install` looks for it from
+      # the working directory, and pnpm does not hoist it to the root.
+      - name: Install the screen reader assets
+        working-directory: packages/screen-reader-tests
+        run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 install
+      # Storybook imports workspace packages (the themes) that ship from dist/,
+      # which a clean checkout does not have yet.
+      - name: Build Storybook
+        run: |
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
+      - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps webkit
+      - run: pnpm --filter @dowel-ui/screen-reader-tests test:voiceover
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: voiceover-results
+          path: |
+            packages/screen-reader-tests/playwright-report/
+            packages/screen-reader-tests/test-results/
+            **/recordings/**/*
+
+  nvda:
+    name: NVDA (Windows, Chromium)
+    needs: harness
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      # Guidepup's own recipe, in its order: `setup` prepares the OS
+      # (permissions, Do Not Disturb, the screen reader's automation settings)
+      # before anything else; `install` puts the screen reader assets in place
+      # once dependencies are installed. The setup action skipped the second
+      # and could not do the first on these runners.
+      - name: Prepare the screen reader
+        run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 setup --ci --macos-record
+      - run: pnpm install --frozen-lockfile
+      # From the package that depends on Guidepup: `install` looks for it from
+      # the working directory, and pnpm does not hoist it to the root.
+      - name: Install the screen reader assets
+        working-directory: packages/screen-reader-tests
+        run: npx -y --min-release-age=0 @guidepup/setup@0.24.6 install
+      # Storybook imports workspace packages (the themes) that ship from dist/,
+      # which a clean checkout does not have yet.
+      - name: Build Storybook
+        run: |
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
+      - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps chromium
+      - run: pnpm --filter @dowel-ui/screen-reader-tests test:nvda
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nvda-results
+          path: |
+            packages/screen-reader-tests/playwright-report/
+            packages/screen-reader-tests/test-results/
+            **/recordings/**/*
