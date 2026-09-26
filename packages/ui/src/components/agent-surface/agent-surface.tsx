@@ -152,6 +152,11 @@ export interface AgentSurfaceProps extends ComponentPropsWithRef<"div"> {
   /** Expose the tools to browser agents through WebMCP, where supported. */
   webmcp?: boolean;
   /**
+   * With `webmcp`: origins, beyond the page's own, that may see the tools
+   * within the page's frames. A tool's own `exposedTo` replaces this.
+   */
+  exposedTo?: readonly string[];
+  /**
    * Asked before any call that needs approval. Takes precedence over an
    * `agent-approvals` mounted inside. With neither, those calls are refused.
    */
@@ -174,6 +179,7 @@ export function AgentSurface({
   onControlChange,
   takeOverOn = "input",
   webmcp = false,
+  exposedTo,
   onApprovalRequest,
   onToolCall,
   announceCalls = false,
@@ -207,6 +213,9 @@ export function AgentSurface({
   const sequence = useRef(0);
   const touched = useRef(new Map<Element, ReturnType<typeof setTimeout>>());
   const exposed = useRef(webmcp);
+  // Compared by value: an inline array is a new array every render.
+  const exposedToKey = JSON.stringify(exposedTo ?? []);
+  const exposedToDefault = useRef<readonly string[]>(exposedTo ?? []);
   const latest = useRef({
     agentName,
     onControlChange,
@@ -344,13 +353,17 @@ export function AgentSurface({
         reversibility: _reversibility,
         ...webDefinition
       } = definition(entry);
-      entry.dispose = registerWebMCPTool(webDefinition, async (input, options) => {
-        const result = await runTool(runtime, entry.name, input, "webmcp", options?.signal);
-        const response: WebMCPResult = { content: [{ type: "text", text: result.text }] };
-        if (!result.ok) response.isError = true;
-        if (result.data !== undefined) response.structuredContent = result.data;
-        return response;
-      });
+      entry.dispose = registerWebMCPTool(
+        webDefinition,
+        async (input, options) => {
+          const result = await runTool(runtime, entry.name, input, "webmcp", options?.signal);
+          const response: WebMCPResult = { content: [{ type: "text", text: result.text }] };
+          if (!result.ok) response.isError = true;
+          if (result.data !== undefined) response.structuredContent = result.data;
+          return response;
+        },
+        { exposedTo: entry.read().exposedTo ?? exposedToDefault.current },
+      );
     },
     [definition, runtime],
   );
@@ -388,15 +401,17 @@ export function AgentSurface({
     };
   }, []);
 
-  // Turning WebMCP on or off re-exposes whatever is already registered.
+  // Turning WebMCP on or off, or changing who may see the tools, re-exposes
+  // whatever is already registered.
   useEffect(() => {
     exposed.current = webmcp;
+    exposedToDefault.current = JSON.parse(exposedToKey) as string[];
     for (const entry of entries.current.values()) {
       entry.dispose?.();
       entry.dispose = undefined;
       if (webmcp) expose(entry);
     }
-  }, [webmcp, expose]);
+  }, [webmcp, exposedToKey, expose]);
 
   useEffect(() => {
     const timers = touched.current;
@@ -549,6 +564,8 @@ export function useAgentTool<Input extends Record<string, unknown>>(
     tool.requiresApproval,
     tool.untrustedOutput,
     tool.webmcp,
+    tool.exposedTo,
+    tool.debugging,
   ]);
 
   useEffect(() => {

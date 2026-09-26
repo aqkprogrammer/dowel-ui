@@ -1244,6 +1244,57 @@ describe("AgentSurface", () => {
       expect(registered.size).toBe(0);
     });
 
+    it("passes exposedTo to the browser: the surface's, or a tool's own instead", () => {
+      const { registerTool } = installModelContext();
+      function Tools() {
+        useAgentTool({
+          name: "shared",
+          description: "Uses the surface's list.",
+          effect: "read",
+          execute: () => "ok",
+        });
+        useAgentTool({
+          name: "admin",
+          description: "Has its own list.",
+          effect: "read",
+          exposedTo: ["https://admin.example.com"],
+          execute: () => "ok",
+        });
+        return null;
+      }
+      render(
+        <AgentSurface webmcp exposedTo={["https://app.example.com/embed"]}>
+          <Tools />
+        </AgentSurface>,
+      );
+      const optionsFor = (name: string) =>
+        registerTool.mock.calls.filter(([tool]) => tool.name === name).at(-1)?.[1];
+      expect(optionsFor("shared")).toMatchObject({ exposedTo: ["https://app.example.com"] });
+      expect(optionsFor("admin")).toMatchObject({ exposedTo: ["https://admin.example.com"] });
+    });
+
+    it("marks a tool for developer tooling with WebMCP's debugging annotation", () => {
+      const { registerTool } = installModelContext();
+      function Inspector() {
+        useAgentTool({
+          name: "dump_state",
+          description: "Returns the page's state, for debugging.",
+          effect: "read",
+          debugging: true,
+          execute: () => "{}",
+        });
+        return null;
+      }
+      render(
+        <AgentSurface webmcp>
+          <Inspector />
+        </AgentSurface>,
+      );
+      expect(registerTool.mock.calls.at(-1)?.[0].annotations).toMatchObject({
+        debugging: true,
+      });
+    });
+
     it("re-registers a tool when what the agent is told about it changes", () => {
       const { registerTool } = installModelContext();
       const { rerender } = render(
