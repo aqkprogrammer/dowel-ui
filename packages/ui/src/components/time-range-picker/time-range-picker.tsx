@@ -31,6 +31,23 @@ import {
   type TimeRangePreset,
 } from "./time-expression";
 
+// Installed, this file is what `@/components/ui/time-range-picker` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  DEFAULT_PRESETS,
+  TimeExpressionError,
+  absoluteExpression,
+  describeTimeRange,
+  formatResolvedRange,
+  isValidTimeRange,
+  resolveExpression,
+  resolveTimeRange,
+  type ResolveOptions,
+  type ResolvedRange,
+  type TimeRangePreset,
+  type TimeUnit,
+} from "./time-expression";
+
 /**
  * The control every observability product builds for itself.
  *

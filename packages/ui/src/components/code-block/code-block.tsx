@@ -13,6 +13,10 @@ import { CopyButton } from "@/components/copy-button";
 import { focusRing } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
+// Installed, this file is what `@/components/ui/code-block` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export { CopyButton, type CopyButtonProps } from "@/components/copy-button";
+
 /**
  * A block of code, with a copy control.
  *

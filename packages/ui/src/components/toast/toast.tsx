@@ -16,6 +16,20 @@ import {
   type ToastVariant,
 } from "./toast-store";
 
+// Installed, this file is what `@/components/ui/toast` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  DEFAULT_TOAST_DURATION,
+  TOAST_LIMIT,
+  toast,
+  useToasts,
+  type ToastAction as ToastActionOptions,
+  type ToastOptions,
+  type ToastPromiseMessages,
+  type ToastRecord,
+  type ToastVariant,
+} from "./toast-store";
+
 /**
  * Brief, non-blocking messages about something that just happened.
  *

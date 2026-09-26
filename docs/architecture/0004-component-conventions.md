@@ -24,6 +24,13 @@ button/
 Multi-part components (Card, Alert, Avatar) stay in one file and export a
 compound set until the file exceeds roughly 250 lines.
 
+A component split across files still exports its whole public surface from
+its main file, `<name>.tsx`, re-exporting from its siblings: whatever
+`index.ts` exports, the main file does too. In this repo `@/components/<name>`
+resolves to `index.ts`, but the CLI installs files flat and rewrites that
+import to `@/components/ui/<name>`, which is the main file. `audit:installed-imports`
+enforces it.
+
 ## API
 
 - **Props extend `ComponentPropsWithRef<E>`** and spread `...props` onto the

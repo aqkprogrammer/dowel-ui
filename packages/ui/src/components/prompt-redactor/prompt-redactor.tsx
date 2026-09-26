@@ -16,6 +16,21 @@ import {
   type SensitiveFinding,
 } from "./redact";
 
+// Installed, this file is what `@/components/ui/prompt-redactor` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  applyRedaction,
+  DEFAULT_DETECTORS,
+  findSensitive,
+  ibanValid,
+  luhn,
+  planPlaceholders,
+  restoreRedacted,
+  type Detector,
+  type RedactionMap,
+  type SensitiveFinding,
+} from "./redact";
+
 /**
  * A privacy check between the composer and the model.
  *

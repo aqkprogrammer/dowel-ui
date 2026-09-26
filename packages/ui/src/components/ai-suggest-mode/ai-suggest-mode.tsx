@@ -25,6 +25,20 @@ import {
   type SuggestionHunk,
 } from "./suggest-hunks";
 
+// Installed, this file is what `@/components/ui/ai-suggest-mode` resolves to, so it
+// exports everything the folder's index does: see scripts/audit/installed-imports.ts.
+export {
+  applyHunks,
+  describeHunk,
+  hunksFromEdits,
+  hunksFromRewrite,
+  segmentsOf,
+  type SuggestedEdit,
+  type SuggestionDecision,
+  type SuggestionHunk,
+  type SuggestionSegment,
+} from "./suggest-hunks";
+
 /**
  * Track changes for an agent's edits to text.
  *
