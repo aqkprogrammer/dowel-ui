@@ -35,8 +35,12 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Storybook imports workspace packages (the themes) that ship from dist/,
+      # which a clean checkout does not have yet.
       - name: Build Storybook
-        run: pnpm --filter @dowel-ui/react build-storybook
+        run: |
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
       - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps chromium
       - run: pnpm --filter @dowel-ui/screen-reader-tests test:harness
 
@@ -56,8 +60,12 @@ jobs:
       - uses: guidepup/setup-action@0.21.0
         with:
           record: true
+      # Storybook imports workspace packages (the themes) that ship from dist/,
+      # which a clean checkout does not have yet.
       - name: Build Storybook
-        run: pnpm --filter @dowel-ui/react build-storybook
+        run: |
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
       - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps webkit
       - run: pnpm --filter @dowel-ui/screen-reader-tests test:voiceover
       - uses: actions/upload-artifact@v4
@@ -83,8 +91,12 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - uses: guidepup/setup-action@0.21.0
+      # Storybook imports workspace packages (the themes) that ship from dist/,
+      # which a clean checkout does not have yet.
       - name: Build Storybook
-        run: pnpm --filter @dowel-ui/react build-storybook
+        run: |
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
       - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps chromium
       - run: pnpm --filter @dowel-ui/screen-reader-tests test:nvda
       - uses: actions/upload-artifact@v4
