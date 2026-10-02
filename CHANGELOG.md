@@ -3,6 +3,46 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Added
+
+- **A live agent demo, at `/agent-demo`.** A model operates a small deals page
+  through the tools the page registers with `agent-surface`, and the visitor
+  can take the page back by touching it, hand it back with a note, approve or
+  decline the one action that cannot be undone, and undo the rest. The model
+  runs through one narrow endpoint that is off until `ANTHROPIC_API_KEY` is
+  set; without it the page plays a scripted run through the same surface. See
+  `RELEASING.md` for the configuration and what bounds the cost.
+
+### Fixed
+
+Three things the demo showed within minutes of being used by hand, none of
+which a unit test could see.
+
+- **`agent-surface`: the click that takes control is no longer lost.** Ticking
+  a box or typing in a field while the agent held the page took control and
+  threw the tick or the character away. Control changed in the event's capture
+  phase, React rendered before the control's own `onChange` was worked out,
+  and a controlled input was put back to its old value. The agent is still
+  refused from the instant of the click, and the change now reaches React in
+  the bubble phase, with the person's handler. jsdom cannot show this, so it
+  is checked in a browser (`agent-surface.browser.spec.ts`, and a `Browser`
+  workflow).
+- **`agent-surface`, `agent-approvals`: a question is withdrawn when the
+  person takes over.** An approval stayed on screen after a take-over, though
+  approving it could only be refused. The call now ends at once, told that the
+  person holds the page, and `agent-approvals` moves on to the next request.
+  The same happens when the caller aborts.
+- **`agent-replay` no longer takes the page from the agent.** Stepping through
+  a replay inside a surface counted as taking over. Like the ledger, it is
+  marked as the agent's own interface.
+
+### Changed
+
+- **`blast-radius` says a single kind of change plainly:** "2 emails will be
+  created." where it said "2 emails will change: 2 created."
+
 ## 0.11.0
 
 Seven components from the "later" list in `docs/plans/agent-operable-ui.md`,

@@ -36,6 +36,7 @@ export function SiteHeader({ searchEntries }: { searchEntries: SearchEntry[] }) 
             { href: "/docs/components", label: "Components" },
             { href: "/docs/blocks", label: "Blocks" },
             { href: "/playground", label: "Playground" },
+            { href: "/agent-demo", label: "Demo" },
             { href: "/generate", label: "Generate" },
             { href: "/docs/themes", label: "Themes" },
             { href: "/pricing", label: "Pricing" },

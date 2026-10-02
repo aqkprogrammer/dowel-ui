@@ -37,6 +37,7 @@ const STATIC_ROUTES: {
   { path: "/docs/accessibility", priority: 0.6, changeFrequency: "monthly" },
   { path: "/docs/private-registry", priority: 0.6, changeFrequency: "monthly" },
   { path: "/playground", priority: 0.7, changeFrequency: "weekly" },
+  { path: "/agent-demo", priority: 0.8, changeFrequency: "monthly" },
   { path: "/theme-studio", priority: 0.7, changeFrequency: "monthly" },
   { path: "/generate", priority: 0.6, changeFrequency: "monthly" },
   { path: "/quality", priority: 0.6, changeFrequency: "weekly" },
