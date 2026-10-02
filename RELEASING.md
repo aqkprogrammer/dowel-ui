@@ -248,12 +248,13 @@ half-use it.
 
 ### 1. Version
 
-Set the same version in every package that ships, plus the two private ones that
+Set the same version in every package that ships, plus the private ones that
 move with them:
 
 ```
 packages/ui  packages/cli  packages/registry  packages/themes
 packages/mcp  packages/create-dowel-app  packages/config  apps/docs
+packages/screen-reader-tests  packages/visual-tests
 ```
 
 `packages/mcp` and `packages/create-dowel-app` are published and shipped at
