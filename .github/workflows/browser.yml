@@ -1,0 +1,55 @@
+name: Browser
+
+# Behaviour that only a real browser has, checked against the Storybook
+# stories with no screen reader involved. The unit tests run in jsdom, which
+# cannot show what React does between the phases of a real event: taking over
+# an `agent-surface` by ticking a box used to lose the tick, with every unit
+# test green.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "packages/ui/src/components/agent-surface/**"
+      - "packages/ui/src/components/agent-approvals/**"
+      - "packages/ui/src/components/control-baton/**"
+      - "packages/screen-reader-tests/**"
+      - ".github/workflows/browser.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  STORYBOOK_DISABLE_TELEMETRY: 1
+
+jobs:
+  browser:
+    name: Real-browser behaviour
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Storybook imports workspace packages (the themes) that ship from dist/,
+      # which a clean checkout does not have yet.
+      - name: Build Storybook
+        run: |
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
+      - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps chromium
+      - run: pnpm --filter @dowel-ui/screen-reader-tests test:browser
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-results
+          path: |
+            packages/screen-reader-tests/test-results
+            packages/screen-reader-tests/playwright-report
+          retention-days: 7
