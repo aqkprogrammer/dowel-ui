@@ -110,8 +110,9 @@ for (const story of readStories()) {
       }
 
       await pinDown(page);
-      // The accessibility addon checks every story it renders, and its contrast
-      // check scrolls elements into view while it works. `manual` turns it off.
+      // The accessibility addon runs axe on every story it renders, after the
+      // render and so alongside the capture. The screenshot has no use for
+      // that, and should not share the page with it. `manual` turns it off.
       await page.goto(`/iframe.html?id=${story.id}&viewMode=story&globals=a11y.manual:!true`);
       await rendered(page);
       await loaded(page);
