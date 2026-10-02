@@ -3,6 +3,29 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Fixed
+
+- **`swipe-carousel` no longer breaks `invite-carousel` and
+  `reviews-carousel`** when they are installed in the same project. Each
+  carousel carries its own `carousel-controls.tsx` so that it installs alone,
+  and `swipe-carousel` carried a shorter one under the same name: whichever was
+  written last won, and the other two then imported names their copy did not
+  have. All three now carry the same file, and `audit:installed-imports` fails
+  when two items ship different files under one name.
+
+### Changed
+
+- **The install check runs in CI.** `pnpm install-check` installs every
+  registry item into a new Next.js app with this checkout's CLI and builds it,
+  on pull requests that touch the library and nightly against the newest
+  Next.js. Its first run found the carousel bug above.
+- **Releases publish from a tag.** Pushing `vX.Y.Z` runs a workflow that
+  refuses to continue until the live registry serves that version, publishes
+  to npm with trusted publishing, and opens the GitHub release from this
+  file. See `RELEASING.md`.
+
 ## 0.11.0
 
 Seven components from the "later" list in `docs/plans/agent-operable-ui.md`,

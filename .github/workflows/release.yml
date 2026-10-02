@@ -1,0 +1,123 @@
+name: Release
+
+# Pushing a version tag publishes that version to npm and opens its GitHub
+# release. Deploy the site first: the first job refuses to go on until the
+# live registry serves the version being tagged (RELEASING.md).
+#
+# Two jobs, on purpose. `build` installs dependencies and runs their code, and
+# has no publishing rights. `publish` has them, and runs nothing it had to
+# install: it takes the tarballs `build` made and hands them to npm.
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: read
+
+# One release at a time, and never cancel one half-way through publishing.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  build:
+    name: Check the release and pack it
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # The tag matches every published package, the changelog has the
+      # section, and the live registry already serves this version.
+      - name: Check the release
+        run: pnpm release check "$GITHUB_REF_NAME"
+
+      - name: Build
+        run: pnpm turbo run build --filter='!@dowel-ui/docs'
+
+      - name: Pack
+        run: |
+          pnpm release pack "$GITHUB_REF_NAME" release/tarballs
+          pnpm release notes "$GITHUB_REF_NAME" release/notes.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: release
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish to npm
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Add required reviewers to this environment in the repository settings to
+    # make a person approve each publish. npm's trusted publisher for each
+    # package must name this environment too.
+    environment: npm
+    permissions:
+      contents: write # the GitHub release
+      id-token: write # npm trusted publishing
+
+    steps:
+      # For scripts/publish-tarballs.ts only. Nothing is installed in this job.
+      - uses: actions/checkout@v5
+
+      # No registry-url: it writes an .npmrc that overrides trusted publishing
+      # and turns every publish into a 404.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      # Trusted publishing needs npm 11.5.1 or later.
+      - name: Update npm
+        run: npm install -g npm@11 && npm --version
+
+      - uses: actions/download-artifact@v5
+        with:
+          name: release
+          path: release
+
+      # Only if the repository has an NPM_TOKEN secret, for accounts that have
+      # not set up trusted publishing. Without one, npm uses the workflow's
+      # identity.
+      - name: Use a token if one is configured
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then
+            npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          fi
+
+      - name: Publish
+        run: node scripts/publish-tarballs.ts release/tarballs
+
+      # A draft written ahead of time is published as it is; otherwise the
+      # release is created from the changelog's section.
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(gh release view "$GITHUB_REF_NAME" --json isDraft --jq .isDraft 2>/dev/null)" = "true" ]; then
+            gh release edit "$GITHUB_REF_NAME" --draft=false --latest
+          elif ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" --verify-tag --latest \
+              --title "${GITHUB_REF_NAME#v}" --notes-file release/notes.md
+          fi

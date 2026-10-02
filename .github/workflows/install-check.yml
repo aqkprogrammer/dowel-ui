@@ -1,0 +1,63 @@
+name: Install check
+
+# Installs every registry item into a new Next.js app and builds it. CI runs
+# inside this repository; a project that runs `dowel add` gets flat files, an
+# ES2017 target and only the dependencies the registry names. Three bugs
+# reached users, or nearly did, with every other check green: see
+# scripts/install-check.ts.
+
+on:
+  pull_request:
+    paths:
+      - "packages/ui/**"
+      - "packages/registry/**"
+      - "packages/cli/**"
+      - "packages/themes/**"
+      - "scripts/install-check.ts"
+      - "scripts/lib/installable.ts"
+      - ".github/workflows/install-check.yml"
+  # A new Next.js, TypeScript or Tailwind can break an install with no change
+  # here, so this also runs against whatever create-next-app gives today.
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+    inputs:
+      next:
+        description: "create-next-app version"
+        default: "latest"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  install:
+    name: Install every item into a new Next.js app
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # The check uses this checkout's CLI and a registry generated from the
+      # UI package's build output. The docs site is neither.
+      - name: Build
+        run: pnpm turbo run build --filter='!@dowel-ui/docs'
+
+      - name: Install every item and build
+        env:
+          NEXT_VERSION: ${{ inputs.next || 'latest' }}
+        run: pnpm install-check --next "$NEXT_VERSION"
