@@ -19,19 +19,19 @@ scripted stories behind it.
 
 ## Work
 
-| #   | Item                                 | Status   | Where                             |
-| --- | ------------------------------------ | -------- | --------------------------------- |
-| 1   | Install check in CI                  | done     | aqkprogrammer/dowel-ui#13         |
-| 2   | Releases from a tag, no login prompt | done     | aqkprogrammer/dowel-ui#13         |
-| 3   | Visual regression tests              | building | `test/visual-regression`          |
-| 4   | Live agent demo                      | done     | `feat/agent-demo`                 |
-| 5   | Screen reader tests for 0.11.0       | next     |                                   |
-| 6   | Locale-stable numbers in the charts  | next     |                                   |
-| 7   | A written path from beta to stable   | next     |                                   |
-| 8   | Labels for every hard-coded string   | later    |                                   |
-| 9   | Installs checked beyond Next.js      | later    |                                   |
-| —   | A domain the registry URL can keep   | owner's  | the URL is compiled into each CLI |
-| —   | Selling the Pro tier                 | owner's  | Polar product and three variables |
+| #   | Item                                 | Status  | Where                             |
+| --- | ------------------------------------ | ------- | --------------------------------- |
+| 1   | Install check in CI                  | done    | aqkprogrammer/dowel-ui#13         |
+| 2   | Releases from a tag, no login prompt | done    | aqkprogrammer/dowel-ui#13         |
+| 3   | Visual regression tests              | done    | aqkprogrammer/dowel-ui#15         |
+| 4   | Live agent demo                      | done    | aqkprogrammer/dowel-ui#14         |
+| 5   | Screen reader tests for 0.11.0       | next    |                                   |
+| 6   | Locale-stable numbers in the charts  | next    |                                   |
+| 7   | A written path from beta to stable   | next    |                                   |
+| 8   | Labels for every hard-coded string   | later   |                                   |
+| 9   | Installs checked beyond Next.js      | later   |                                   |
+| —   | A domain the registry URL can keep   | owner's | the URL is compiled into each CLI |
+| —   | Selling the Pro tier                 | owner's | Polar product and three variables |
 
 ### 1. Install check in CI
 
@@ -80,6 +80,17 @@ cannot reproduce it, which is why there is now a `browser` Playwright project.
   English in the source.
 - **Other frameworks.** The install check covers Next.js. Vite is documented
   and unchecked.
+
+## Found on the way, not yet fixed
+
+- **Loaders freeze under reduced motion.** Their docs say they slow down
+  rather than stop, but the blanket reduced-motion rule in the themes'
+  `base.css` still matches their animated parts.
+- **`ai-conversation` races on first paint.** A long transcript opens at the
+  top on some loads and at the latest message on others. It is the one story
+  the visual tests exclude.
+- **Twelve components write numbers or dates in the runtime's locale,** not
+  only the charts: item 6 is wider than its name.
 
 ## Not in this round
 
