@@ -48,7 +48,7 @@ run to the next:
 | CSS animations       | Over before they are first drawn. A finite animation shows its last frame; a spinner or shimmer shows the element's own style.                                                                                                                                    |
 | The network          | Requests to other hosts are refused. An image from another host (the stories use picsum.photos) becomes a grey placeholder of the size its URL asks for.                                                                                                          |
 | The environment      | Reduced motion, light colour scheme, `en-US`, UTC, one device pixel per CSS pixel.                                                                                                                                                                                |
-| Storybook's a11y run | Off for the capture. It scrolls elements into view while it checks contrast.                                                                                                                                                                                      |
+| Storybook's a11y run | Off for the capture. It checks every story it renders, which the screenshot has no use for and should not share the page with.                                                                                                                                    |
 
 A story with a play function runs it before the screenshot. The details, and
 the reasons for each, are in the comments of
