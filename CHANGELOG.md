@@ -3,6 +3,17 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Added
+
+- **Visual regression tests.** `packages/visual-tests` screenshots every
+  Storybook story and compares it with the same story on the base branch, in a
+  new CI workflow. No baseline images are committed: the job builds Storybook
+  for both commits and captures the baseline from the base build each time. A
+  pull request that changes how a story looks fails unless it carries the
+  `visual-change` label. See `docs/testing/visual-regression.md`.
+
 ## 0.11.0
 
 Seven components from the "later" list in `docs/plans/agent-operable-ui.md`,
