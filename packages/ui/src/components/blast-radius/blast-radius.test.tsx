@@ -40,7 +40,7 @@ describe("summariseBlastRadius", () => {
     );
     expect(
       summariseBlastRadius({ changes: [MIXED.changes[1]!] }, "irreversible").sentence,
-    ).toBe("1 record will change: 1 deleted. It cannot be undone.");
+    ).toBe("1 record will be deleted. It cannot be undone.");
   });
 
   it("does not claim all is permanent when a change says otherwise", () => {
@@ -52,7 +52,7 @@ describe("summariseBlastRadius", () => {
     };
     // A inherits the action's permanence; B says it can be undone.
     expect(summariseBlastRadius(data, "irreversible").sentence).toBe(
-      "2 records will change: 2 updated. 1 cannot be undone.",
+      "2 records will be updated. 1 cannot be undone.",
     );
   });
 
@@ -60,7 +60,7 @@ describe("summariseBlastRadius", () => {
     const noun = { one: "deal", other: "deals" };
     expect(
       summariseBlastRadius({ changes: [MIXED.changes[0]!] }, "revertible", noun).sentence,
-    ).toBe("1 deal will change: 1 updated.");
+    ).toBe("1 deal will be updated.");
   });
 
   it("never counts fewer than the changes it lists", () => {
