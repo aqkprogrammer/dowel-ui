@@ -26,3 +26,9 @@ apps/docs/next-env.d.ts
 packages/screen-reader-tests/test-results/
 packages/screen-reader-tests/playwright-report/
 packages/screen-reader-tests/recordings/
+# Visual regression output: the baseline images, reports and failure diffs.
+# The baseline is captured from a build each time and never committed.
+packages/visual-tests/baseline/
+packages/visual-tests/baseline-report/
+packages/visual-tests/test-results/
+packages/visual-tests/playwright-report/
