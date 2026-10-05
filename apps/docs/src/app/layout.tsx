@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { AnimatedFavicon } from "~/components/animated-favicon";
+import { CosmicHue } from "~/components/site/cosmic-hue";
 import { AstraExperience } from "~/components/astra";
 import { JsonLd } from "~/components/json-ld";
 import { ThemeProvider } from "~/components/theme-provider";
@@ -141,6 +142,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         <ThemeProvider>
           <AnimatedFavicon />
+          <CosmicHue />
           <AstraExperience>
             {/* Clipped here rather than on <body>: overflow on the body is
                 handed to the viewport, where `clip` becomes `hidden` — which

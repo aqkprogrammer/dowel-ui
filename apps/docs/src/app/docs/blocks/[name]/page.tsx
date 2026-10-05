@@ -19,7 +19,7 @@ import { componentProps } from "~/lib/props.generated";
 import { getBlocks, getComponents, getRegistryItem, isLicensed } from "~/lib/registry";
 import { componentKeywords } from "~/lib/site";
 import { breadcrumbSchema, componentSchema, graph } from "~/lib/structured-data";
-import { usageFor } from "~/lib/usage";
+import { slotsFor, usageFor } from "~/lib/usage";
 
 /**
  * A block's page, generated from the registry like a component's.
@@ -80,6 +80,13 @@ export default async function BlockPage({ params }: PageProps) {
     getComponents().map((component) => [component.name, component.title]),
   );
   const hasProps = (componentProps[item.name]?.length ?? 0) > 0;
+  // What the Parts view looks for: each component this block is built from,
+  // with the slot names its own installed source declares.
+  const parts = item.registryDependencies.map((dependency) => ({
+    name: dependency,
+    title: componentTitles.get(dependency) ?? dependency,
+    slots: slotsFor(getRegistryItem(dependency)),
+  }));
   // Rendered bare only if it can be: a block whose main export requires a prop
   // gets the import alone, rather than a snippet that does not type-check.
   const renderable =
@@ -187,6 +194,7 @@ export default async function BlockPage({ params }: PageProps) {
         prerendered={licensed ? proPreviews[item.name] : undefined}
         prerenderedLabel={`${item.title}: ${item.description}`}
         size="block"
+        parts={parts}
       />
 
       {/* The screen gets the full width; the rail starts with the reading. */}
