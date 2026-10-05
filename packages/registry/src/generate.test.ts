@@ -23,6 +23,16 @@ describe("planUi", () => {
     expect(names(planUi("reset password flow", index))).toContain("forgot-password");
   });
 
+  it("finds the motion components by the words people use for them", () => {
+    expect(names(planUi("a file explorer", index))).toContain("file-tree");
+    expect(names(planUi("link preview on hover", index))).toContain("preview-link-card");
+    expect(names(planUi("are you sure before deleting", index))).toContain("alert-dialog");
+    expect(names(planUi("fireworks to celebrate", index))).toContain("fireworks-background");
+    expect(names(planUi("a toolbar for bulk actions", index))).toContain("management-bar");
+    expect(names(planUi("pnpm and npm install command", index))).toContain("code-tabs");
+    expect(names(planUi("a honeycomb backdrop", index))).toContain("hexagon-background");
+  });
+
   it("does not suggest a component a chosen block already installs", () => {
     const plan = planUi("a dashboard with metrics and recent activity", index);
 
@@ -65,6 +75,8 @@ describe("planUi", () => {
       "settings with notifications and an API key",
       "a table of users with roles and permissions",
       "onboarding checklist",
+      "a landing page with a starfield hero background and a share button",
+      "a file explorer with bulk actions and pinned favourites",
     ]) {
       for (const name of names(planUi(prompt, index))) {
         expect(known.has(name), `${prompt} → ${name}`).toBe(true);

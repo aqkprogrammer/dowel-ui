@@ -43,6 +43,11 @@ motion.
 
 ### Changed
 
+- **Generate and the MCP server** find the new components from the words
+  people use for them — "file explorer", "link preview", "are you sure",
+  "bulk actions", "fireworks", "honeycomb" and others now reach them.
+- **The components page** features `fireworks-background`, `file-tree` and
+  `flip-card`.
 - **`button`, `badge`, `label`, `avatar`, `input`, `separator` and
   `data-table`** now mark their root with `data-slot`, like every other
   component. They were the exceptions, so tooling that finds a component's
