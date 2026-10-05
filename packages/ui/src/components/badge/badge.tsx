@@ -48,7 +48,13 @@ export interface BadgeProps
  */
 export function Badge({ className, variant, size, asChild = false, ...props }: BadgeProps) {
   const Comp = asChild ? Slot.Root : "span";
-  return <Comp className={cn(badgeVariants({ variant, size }), className)} {...props} />;
+  return (
+    <Comp
+      data-slot="badge"
+      className={cn(badgeVariants({ variant, size }), className)}
+      {...props}
+    />
+  );
 }
 
 export { badgeVariants };

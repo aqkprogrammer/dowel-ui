@@ -20,6 +20,7 @@ export function Separator({
 }: SeparatorProps) {
   return (
     <SeparatorPrimitive.Root
+      data-slot="separator"
       orientation={orientation}
       decorative={decorative}
       className={cn(

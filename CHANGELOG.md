@@ -3,6 +3,17 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Changed
+
+- **`button`, `badge`, `label`, `avatar`, `input`, `separator` and
+  `data-table`** now mark their root with `data-slot`, like every other
+  component. They were the exceptions, so tooling that finds a component's
+  parts in rendered markup — the docs site's "Parts" view on block pages —
+  could not see them. A `data-slot` passed by the caller still wins, so
+  wrappers such as `copy-button` keep their own.
+
 ## 0.11.0
 
 Seven components from the "later" list in `docs/plans/agent-operable-ui.md`,
