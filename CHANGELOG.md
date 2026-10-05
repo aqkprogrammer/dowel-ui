@@ -5,6 +5,42 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ## Unreleased
 
+### Added
+
+Twenty-four animated components whose patterns come from Animate UI. All are
+original implementations: Animate UI's licence (MIT with the Commons Clause)
+does not allow redistribution, so none of its code was used. See
+`THIRD_PARTY_NOTICES.md`. Animate UI items Dowel already covered, such as tabs,
+tooltip, accordion and the copy, icon and theme-toggler buttons, were not
+added again. All 24 are `beta`, and all of them stop or settle under reduced
+motion.
+
+- **Overlays:** `alert-dialog` (springs up out of a blur, and the destructive
+  tone shakes its icon once), `hover-card` (grows from its trigger with an
+  overshoot, and can stagger its contents) and `preview-link-card` (a link
+  whose preview image wipes in from a shimmer; nothing is fetched).
+- **Form controls:** `toggle` (squishes when pressed, and its fill pours out
+  from the centre), `toggle-group` (a sliding highlight in single mode,
+  per-item springs in multiple mode), `flip-button`, `ripple-button`,
+  `liquid-button` (rolling liquid fill with an inverting label) and
+  `share-button` (opens into a staggered row of targets, including copy-link
+  and the native share sheet).
+- **Data and navigation:** `file-tree` (the full ARIA tree pattern, with
+  folders that tilt open, a drawn guide rail and a gliding selection),
+  `code-tabs` (`syncKey` switches every instance on the page together and
+  remembers the choice), `pin-list`, `management-bar` (a floating bulk-actions
+  toolbar with rolling counts) and `radial-nav`.
+- **Display and feedback:** `flip-card` (leans toward the pointer, lifts as it
+  turns, and a sheen sweeps across), `radial-intro` (avatars spiral out into
+  an orbiting ring) and `notification-list` (a receding deck that springs open
+  into a list, with swipe-to-dismiss and an always-available dismiss button).
+- **Backgrounds:** `stars-background`, `gravity-stars-background`,
+  `fireworks-background` and `hole-background` draw through the
+  `dither-canvas` engine, so they inherit its DPR cap, pause when off-screen
+  or in a hidden tab, and take their colours from the theme.
+  `bubble-background`, `gradient-background` (linear, aurora and mesh) and
+  `hexagon-background` are CSS-first.
+
 ### Changed
 
 - **`button`, `badge`, `label`, `avatar`, `input`, `separator` and
