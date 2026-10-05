@@ -48,6 +48,9 @@ const FEATURED: FeaturedItem[] = [
   { name: "carousel-3d", size: "wide" },
   { name: "gooey-nav", size: "base" },
   { name: "contribution-graph", size: "base" },
+  { name: "fireworks-background", size: "wide" },
+  { name: "file-tree", size: "base" },
+  { name: "flip-card", size: "base" },
 ];
 
 export default function ComponentsIndexPage() {
