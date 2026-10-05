@@ -1,5 +1,10 @@
 "use client";
 
+import * as aiChatStories from "@ui/blocks/ai-chat/ai-chat.stories";
+import * as analyticsStories from "@ui/blocks/analytics/analytics.stories";
+import * as dashboardStories from "@ui/blocks/dashboard/dashboard.stories";
+import * as loginStories from "@ui/blocks/login/login.stories";
+import * as pricingThreeTierStories from "@ui/blocks/pricing-three-tier/pricing-three-tier.stories";
 import * as contributionGraphStories from "@ui/components/contribution-graph/contribution-graph.stories";
 import * as dialStories from "@ui/components/dial/dial.stories";
 import * as ditherDonutStories from "@ui/components/dither-donut/dither-donut.stories";
@@ -17,18 +22,23 @@ import type { StoryModule } from "~/lib/story-types";
  * The stories the home page shows, and only those.
  *
  * Imported by name rather than through the generated table of every story, so
- * the front page's showcase is one small chunk rather than the whole library.
- * A tile naming a component missing from here renders nothing — the tile list
- * and this map are kept side by side in the showcase for that reason.
+ * the front page's live previews are one small chunk rather than the whole
+ * library. A tile naming a story missing from here renders nothing — the
+ * home page's lists and this map are kept in step for that reason.
  */
 const modules: Record<string, StoryModule> = {
+  "ai-chat": aiChatStories,
+  analytics: analyticsStories,
   "contribution-graph": contributionGraphStories,
+  dashboard: dashboardStories,
   dial: dialStories,
   "dither-donut": ditherDonutStories,
   "fluid-orb": fluidOrbStories,
   "liquid-toggle": liquidToggleStories,
+  login: loginStories,
   "magnify-dock": magnifyDockStories,
   "orb-face": orbFaceStories,
+  "pricing-three-tier": pricingThreeTierStories,
   "shimmer-text": shimmerTextStories,
   "typewriter-text": typewriterTextStories,
 };

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import type { CSSProperties } from "react";
 
 import {
   ComponentsBrowser,
@@ -7,6 +6,7 @@ import {
   type FeaturedItem,
 } from "~/components/components-browser";
 import { JsonLd } from "~/components/json-ld";
+import { PageHeader } from "~/components/site/page-header";
 import { getComponentGroups, getComponents } from "~/lib/registry";
 import { breadcrumbSchema, collectionSchema, graph } from "~/lib/structured-data";
 import { version } from "~/lib/version.generated";
@@ -68,16 +68,6 @@ export default function ComponentsIndexPage() {
     })),
   }));
 
-  const countOf = (category: string) =>
-    groups.find((group) => group.category === category)?.items.length ?? 0;
-
-  const figures = [
-    { label: "Components", value: total, href: "#all" },
-    { label: "Categories", value: groups.length, href: "#all" },
-    { label: "Built for AI", value: countOf("ai"), href: "#ai" },
-    { label: "Effects & motion", value: countOf("effects"), href: "#effects" },
-  ];
-
   // The whole catalogue as one list, so a crawler that reaches this page has
   // every component page from it rather than only the ones above the fold.
   const structuredData = graph(
@@ -104,47 +94,13 @@ export default function ComponentsIndexPage() {
     <article>
       <JsonLd json={structuredData} />
 
-      <header className="relative isolate overflow-hidden rounded-3xl border border-border bg-card/40 px-6 py-10 sm:px-10 sm:py-14">
-        <div aria-hidden="true" className="docs-hero-grid absolute inset-0 -z-10" />
-        <div aria-hidden="true" className="docs-glow docs-glow-a -z-10" />
-        <div aria-hidden="true" className="docs-glow docs-glow-b -z-10" />
-
-        <p className="inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
-          <span className="relative flex size-1.5">
-            <span className="absolute inline-flex size-full rounded-full bg-success opacity-70 motion-safe:animate-ping" />
-            <span className="relative inline-flex size-1.5 rounded-full bg-success" />
-          </span>
-          v{version} · MIT · installed as source
-        </p>
-
-        <h1 className="mt-5 max-w-2xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-          React UI components, <span className="docs-gradient-text">built to be owned.</span>
-        </h1>
-        <p className="mt-4 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg">
-          {total} components, installed as source you own. Every preview below is the live
-          component; each page shows the exact file the CLI writes and what it needs to work.
-        </p>
-
-        <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {figures.map((figure, index) => (
-            <li
-              key={figure.label}
-              className="docs-card-in"
-              style={{ "--card-delay": `${String(120 + index * 70)}ms` } as CSSProperties}
-            >
-              <a
-                href={figure.href}
-                className="block h-full rounded-2xl border border-border bg-background/60 p-4 backdrop-blur-sm transition-[border-color,transform] duration-[var(--duration-normal)] outline-none hover:-translate-y-0.5 hover:border-primary/45 focus-visible:ring-2 focus-visible:ring-ring/55"
-              >
-                <span className="block text-3xl font-semibold tracking-tight tabular-nums">
-                  {figure.value}
-                </span>
-                <span className="mt-1 block text-xs text-muted-foreground">{figure.label}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </header>
+      <PageHeader
+        eyebrow={`Components · v${version} · MIT`}
+        title="Composable React primitives, live."
+        cosmic="ambient"
+        seed={11}
+        description={`${String(total)} accessible components across ${String(groups.length)} categories, installed as source you own. Every preview below is the real component — open one for its variants, its props and the exact file the CLI writes.`}
+      />
 
       <ComponentsBrowser groups={browserGroups} featured={FEATURED} />
     </article>

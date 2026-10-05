@@ -1,96 +1,33 @@
 import type { ReactNode } from "react";
 
-import { SidebarNav, type NavGroup } from "~/components/sidebar-nav";
-import { AstraHeaderShell, AstraHero } from "~/components/astra";
+import { SidebarNav } from "~/components/sidebar-nav";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
-import type { SearchEntry } from "~/components/search";
-import { getBlocks, getComponentGroups } from "~/lib/registry";
+import { getSidebarTree } from "~/lib/sidebar";
 
-const GUIDE_GROUP: NavGroup = {
-  label: "Getting started",
-  items: [
-    { title: "Introduction", href: "/docs" },
-    { title: "Installation", href: "/docs/installation" },
-    { title: "CLI", href: "/docs/cli" },
-    { title: "Themes", href: "/docs/themes" },
-    { title: "Theme Studio", href: "/theme-studio" },
-    { title: "Playground", href: "/playground" },
-    { title: "Generate", href: "/generate" },
-    { title: "Accessibility", href: "/docs/accessibility" },
-    { title: "Quality", href: "/quality" },
-    { title: "AI agents", href: "/docs/ai-agents" },
-    { title: "Private registries", href: "/docs/private-registry" },
-    { title: "Pricing", href: "/pricing" },
-    { title: "All components", href: "/docs/components" },
-    { title: "Blocks", href: "/docs/blocks" },
-  ],
-};
-
+/**
+ * Every documentation page: the header, a folding sidebar, and the page.
+ *
+ * These pages used to open on half a viewport of the WebGL galaxy, which put
+ * the first line of every document below the fold and kept a GPU busy behind
+ * reading. The galaxy is the home page's now; a documentation page opens on
+ * its own heading, under the CSS sky its PageHeader draws.
+ */
 export default function DocsLayout({ children }: { children: ReactNode }) {
-  const groups = getComponentGroups();
-
-  const blocks = getBlocks();
-
-  const navGroups: NavGroup[] = [
-    GUIDE_GROUP,
-    {
-      label: "Blocks",
-      items: blocks.map((block) => ({
-        title: block.title,
-        href: `/docs/blocks/${block.name}`,
-      })),
-    },
-    ...groups.map((group) => ({
-      label: group.label,
-      items: group.items.map((item) => ({
-        title: item.title,
-        href: `/docs/components/${item.name}`,
-      })),
-    })),
-  ];
-
-  const searchEntries: SearchEntry[] = [
-    ...GUIDE_GROUP.items.map((item) => ({
-      name: item.href,
-      title: item.title,
-      description: "Guide",
-      category: "Guides",
-      href: item.href,
-    })),
-    ...blocks.map((block) => ({
-      name: block.name,
-      title: block.title,
-      description: block.description,
-      category: "Blocks",
-      href: `/docs/blocks/${block.name}`,
-    })),
-    ...groups.flatMap((group) =>
-      group.items.map((item) => ({
-        name: item.name,
-        title: item.title,
-        description: item.description,
-        category: group.label,
-        href: `/docs/components/${item.name}`,
-      })),
-    ),
-  ];
+  const tree = getSidebarTree();
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <AstraHeaderShell>
-        <SiteHeader searchEntries={searchEntries} />
-      </AstraHeaderShell>
-      <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Docs" />
+      <SiteHeader />
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4">
+      <div className="mx-auto flex w-full max-w-[88rem] flex-1 gap-10 px-4 sm:px-6">
         {/* Its own scroll container, so the nav does not scroll away with the
             page on a long article. */}
-        <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-56 shrink-0 overflow-y-auto py-8 lg:block">
-          <SidebarNav groups={navGroups} />
+        <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-60 shrink-0 [scrollbar-width:thin] overflow-y-auto overscroll-contain py-8 pe-2 lg:block">
+          <SidebarNav tree={tree} />
         </aside>
 
-        <main id="content" className="min-w-0 flex-1 py-8">
+        <main id="content" className="min-w-0 flex-1 pb-24">
           {children}
         </main>
       </div>

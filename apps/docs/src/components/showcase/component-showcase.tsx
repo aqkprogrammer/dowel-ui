@@ -84,8 +84,8 @@ function Tile({ tile, index }: { tile: ShowcaseTile; index: number }) {
       )}
       style={{ "--reveal-delay": `${String((index % 4) * 90)}ms` } as CSSProperties}
     >
-      <div className="group/tile relative isolate flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-xs transition-[border-color,box-shadow] duration-[var(--duration-normal)] hover:border-primary/40 hover:shadow-lg">
-        <div className="docs-stage-backdrop relative min-h-0 flex-1">
+      <div className="group/tile lift relative isolate flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--pane)]">
+        <div className="stage-surface relative min-h-0 flex-1">
           {/* Live and operable: trying the component is what this is for.
               Only the footer below is a link, so nothing here is nested in one. */}
           <LiveStage
@@ -96,7 +96,7 @@ function Tile({ tile, index }: { tile: ShowcaseTile; index: number }) {
             fill={0.82}
             placeholder={
               <div className="absolute inset-0 grid place-items-center">
-                <span className="grid size-11 place-items-center rounded-2xl border border-border bg-background/70 text-muted-foreground motion-safe:animate-pulse">
+                <span className="grid size-11 place-items-center rounded-2xl border border-[var(--hairline)] bg-background/70 text-muted-foreground motion-safe:animate-pulse">
                   <Icon className="size-4" aria-hidden="true" />
                 </span>
               </div>
@@ -105,12 +105,12 @@ function Tile({ tile, index }: { tile: ShowcaseTile; index: number }) {
             <ShowcaseStory component={tile.name} story={tile.story} />
           </LiveStage>
 
-          <span className="pointer-events-none absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-background/75 px-2.5 py-1 text-[0.6875rem] font-medium text-muted-foreground backdrop-blur-sm">
-            <Icon className="size-3 text-primary" aria-hidden="true" />
+          <span className="pointer-events-none absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-background/75 px-2.5 py-1 font-mono text-[0.625rem] tracking-wide text-muted-foreground uppercase backdrop-blur-sm">
+            <Icon className="size-3 text-[var(--cosmic-blue)]" aria-hidden="true" />
             {tile.label}
           </span>
           {tile.hint ? (
-            <span className="pointer-events-none absolute top-3 right-3 hidden items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[0.6875rem] font-medium text-primary sm:inline-flex">
+            <span className="pointer-events-none absolute top-3 right-3 hidden items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-background/75 px-2.5 py-1 text-[0.6875rem] font-medium text-[var(--cosmic-orange)] backdrop-blur-sm sm:inline-flex">
               <MousePointerClick className="size-3" aria-hidden="true" />
               {tile.hint}
             </span>
@@ -119,7 +119,7 @@ function Tile({ tile, index }: { tile: ShowcaseTile; index: number }) {
 
         <Link
           href={`/docs/components/${tile.name}`}
-          className="flex items-center gap-3 border-t border-border px-4 py-3 transition-colors outline-none hover:bg-accent/40 focus-visible:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-inset"
+          className="flex items-center gap-3 border-t border-[var(--hairline)] px-4 py-3 transition-colors outline-none hover:bg-[var(--pane-raised)] focus-visible:bg-[var(--pane-raised)] focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-inset"
         >
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium">{tile.title}</span>
@@ -176,9 +176,9 @@ function MarqueeRow({
               <Link
                 href={`/docs/components/${entry.name}`}
                 tabIndex={copy ? -1 : undefined}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3.5 py-1.5 text-sm whitespace-nowrap text-muted-foreground shadow-xs backdrop-blur-sm transition-colors outline-none hover:border-primary/45 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/55"
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--hairline)] bg-[var(--pane)] px-3.5 py-1.5 text-sm whitespace-nowrap text-muted-foreground transition-colors outline-none hover:border-[var(--hairline-strong)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/55"
               >
-                <Icon className="size-3.5 text-primary" aria-hidden="true" />
+                <Icon className="size-3.5 text-[var(--cosmic-blue)]" aria-hidden="true" />
                 {entry.title}
               </Link>
             </li>
@@ -201,64 +201,46 @@ export function ComponentShowcase({
   const grid = useReveal<HTMLUListElement>();
 
   return (
-    // Full-bleed, so the glows are clipped by the edges of the window rather
-    // than by a column in the middle of it.
-    <section aria-labelledby="showcase" className="relative isolate w-full overflow-x-clip">
-      <div aria-hidden="true" className="docs-glow docs-glow-a -z-10 opacity-30" />
-      <div aria-hidden="true" className="docs-glow docs-glow-b -z-10 opacity-30" />
+    <div>
+      <ul
+        ref={grid}
+        className="grid grid-flow-dense auto-rows-[15rem] gap-3 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {tiles.map((tile, index) => (
+          <Tile key={tile.name} tile={tile} index={index} />
+        ))}
+      </ul>
 
-      <div className="mx-auto w-full max-w-6xl px-4 pt-8 pb-24">
-        <header className="mx-auto max-w-2xl text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
-            <span className="relative flex size-1.5">
-              <span className="absolute inline-flex size-full rounded-full bg-primary opacity-70 motion-safe:animate-ping" />
-              <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
-            </span>
-            Live on this page
-          </p>
-          <h2
-            id="showcase"
-            className="mt-5 text-3xl font-semibold tracking-tight text-balance sm:text-4xl"
-          >
-            Not screenshots. <span className="docs-gradient-text">The real components.</span>
-          </h2>
-          <p className="mt-4 text-base text-pretty text-muted-foreground sm:text-lg">
-            Drag the toggle, sweep across the dock, turn the dial. Each one is the code the CLI
-            installs, running the same story its tests run.
-          </p>
-        </header>
-
-        <ul
-          ref={grid}
-          className="mt-12 grid grid-flow-dense auto-rows-[15rem] gap-4 sm:grid-cols-2 lg:grid-cols-4"
-        >
-          {tiles.map((tile, index) => (
-            <Tile key={tile.name} tile={tile} index={index} />
-          ))}
-        </ul>
-
-        <div className="mt-14">
-          <p className="text-center text-sm text-muted-foreground">
-            …and {total - tiles.length} more, each with its own page.
-          </p>
-          <div className="mt-5 grid gap-2">
-            <MarqueeRow entries={marquee[0]} duration={90} />
-            <MarqueeRow entries={marquee[1]} duration={105} reverse />
-          </div>
-        </div>
-
-        <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <Button asChild size="lg">
-            <Link href="/docs/components">
-              Browse all {total} components
-              <ArrowRight aria-hidden="true" />
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/playground">Open the playground</Link>
-          </Button>
+      <div className="mt-12">
+        <p className="text-center font-mono text-xs tracking-wide text-muted-foreground">
+          …and {total - tiles.length} more, each with its own page
+        </p>
+        <div className="mt-5 grid gap-2">
+          <MarqueeRow entries={marquee[0]} duration={90} />
+          <MarqueeRow entries={marquee[1]} duration={105} reverse />
         </div>
       </div>
-    </section>
+
+      <div className="mt-10 flex flex-wrap justify-center gap-3">
+        <Button
+          asChild
+          size="lg"
+          className="bg-foreground text-background hover:bg-foreground/90"
+        >
+          <Link href="/docs/components">
+            Browse all {total} components
+            <ArrowRight aria-hidden="true" />
+          </Link>
+        </Button>
+        <Button
+          asChild
+          size="lg"
+          variant="outline"
+          className="border-[var(--hairline-strong)] bg-transparent"
+        >
+          <Link href="/playground">Open the playground</Link>
+        </Button>
+      </div>
+    </div>
   );
 }
