@@ -40,3 +40,19 @@ export function usageFor(item: Pick<RegistryItem, "name" | "files">): Usage | un
     exportName: match[1],
   };
 }
+
+/**
+ * The `data-slot` names an item's own source declares, for finding it in
+ * rendered markup. Only literal names: a slot built at runtime cannot be
+ * known here, and leaving it out costs a box, where guessing would draw the
+ * wrong one.
+ */
+export function slotsFor(item: Pick<RegistryItem, "files">): string[] {
+  const slots = new Set<string>();
+  for (const file of item.files) {
+    for (const match of file.content.matchAll(/data-slot(?:=|:\s*)["'`]([a-z0-9-]+)["'`]/g)) {
+      if (match[1]) slots.add(match[1]);
+    }
+  }
+  return [...slots];
+}
