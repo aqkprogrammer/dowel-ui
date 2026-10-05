@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { Playground, type PlaygroundEntry } from "~/components/playground";
-import { AstraHeaderShell, AstraHero } from "~/components/astra";
-import { SiteFooter } from "~/components/site-footer";
-import { SiteHeader } from "~/components/site-header";
+import { CosmicLoader } from "~/components/site/cosmic-loader";
+import { PageHeader } from "~/components/site/page-header";
+import { SiteShell } from "~/components/site/site-shell";
 import { CATEGORY_LABELS, getComponents } from "~/lib/registry";
 import { pageMetadata } from "~/lib/site";
 
@@ -32,30 +32,26 @@ export default function PlaygroundPage() {
     .sort((a, b) => a.title.localeCompare(b.title));
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <AstraHeaderShell>
-        <SiteHeader searchEntries={[]} />
-      </AstraHeaderShell>
-      <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Playground" />
+    <SiteShell>
+      <PageHeader
+        eyebrow={`Playground · ${String(entries.length)} components`}
+        title="Turn every knob. Copy the code."
+        cosmic="ambient"
+        seed={31}
+        description="Every control is read from the component itself — its variants from the same definition that generates its classes, its examples from the stories that run in CI. Nothing here can offer a value the component does not implement."
+      />
 
-      <main id="content" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
-        <div className="mb-6 max-w-2xl">
-          <h1 className="text-2xl font-semibold tracking-tight">Playground</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Every control here is read from the component itself — its variants come from the
-            same definition that generates its classes, and the previews are the stories that
-            run in CI. Nothing on this page can offer a value the component does not implement.
-          </p>
-        </div>
-
-        {/* useSearchParams needs a boundary, and the shell above it is worth
-            painting immediately rather than after the client bundle arrives. */}
-        <Suspense fallback={<div className="h-96" />}>
-          <Playground entries={entries} />
-        </Suspense>
-      </main>
-
-      <SiteFooter />
-    </div>
+      {/* useSearchParams needs a boundary, and the shell above it is worth
+          painting immediately rather than after the client bundle arrives. */}
+      <Suspense
+        fallback={
+          <div className="grid h-[36rem] place-items-center rounded-2xl border border-[var(--hairline)] bg-[var(--pane)]">
+            <CosmicLoader label="Loading the playground" />
+          </div>
+        }
+      >
+        <Playground entries={entries} />
+      </Suspense>
+    </SiteShell>
   );
 }

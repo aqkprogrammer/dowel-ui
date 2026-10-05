@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 
 import { Generator } from "~/components/generator";
-import { AstraHeaderShell, AstraHero } from "~/components/astra";
-import { SiteFooter } from "~/components/site-footer";
-import { SiteHeader } from "~/components/site-header";
+import { PageHeader } from "~/components/site/page-header";
+import { SiteShell } from "~/components/site/site-shell";
 import { branding } from "~/lib/branding";
-import { pageMetadata } from "~/lib/site";
 import { getRegistryIndex } from "~/lib/registry";
+import { pageMetadata } from "~/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Generate a React UI from a description",
@@ -25,29 +24,25 @@ const SITE_URL = branding.registryUrl.replace(/\/r$/, "");
 
 export default function GeneratePage() {
   return (
-    <div className="flex min-h-dvh flex-col">
-      <AstraHeaderShell>
-        <SiteHeader searchEntries={[]} />
-      </AstraHeaderShell>
-      <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Generate" />
+    <SiteShell>
+      <PageHeader
+        eyebrow="Generate"
+        title="Describe a screen. Get the parts that build it."
+        cosmic="hero"
+        seed={43}
+        align="center"
+        className="mx-auto max-w-4xl"
+        description={
+          <>
+            A planner, not a model: your description is matched against the registry, so it
+            cannot suggest something that does not exist — or a{" "}
+            <code className="font-mono text-[0.9em]">variant</code> nobody implemented. It stops
+            at the composition and leaves the props to the pages that document them.
+          </>
+        }
+      />
 
-      <main id="content" className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight">Generate</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Describe a screen and get the components that build it. Everything here is resolved
-            against the registry first, so it cannot suggest something that does not exist —
-            which is what asking a model directly gets you, complete with a <code>variant</code>{" "}
-            nobody implemented. It also does not guess at props: the registry says what a
-            component is, not the shape of its arguments, and a plausible invented prop is worse
-            than an obvious gap.
-          </p>
-        </div>
-
-        <Generator index={getRegistryIndex()} docsUrl={SITE_URL} />
-      </main>
-
-      <SiteFooter />
-    </div>
+      <Generator index={getRegistryIndex()} docsUrl={SITE_URL} />
+    </SiteShell>
   );
 }

@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { AnimatedFavicon } from "~/components/animated-favicon";
@@ -16,6 +17,26 @@ import {
 } from "~/lib/structured-data";
 
 import "./globals.css";
+
+/**
+ * The site's typefaces, self-hosted at build time and exposed as variables the
+ * stylesheet maps onto Tailwind's font tokens. Swapped in, not blocked on: a
+ * reader on a slow connection reads the system face first.
+ */
+const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap" });
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap",
+});
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0b0d12" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  ],
+  colorScheme: "dark light",
+};
 
 /**
  * Site-wide metadata.
@@ -107,15 +128,26 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     // Dark is the default, so the server renders it: the script below only has
     // to correct the markup for a reader who has chosen otherwise.
-    <html lang="en" className="dark" data-astra-theme="dark" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`dark ${geistSans.variable} ${geistMono.variable}`}
+      data-astra-theme="dark"
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <JsonLd json={siteGraph} />
       </head>
-      <body className="min-h-dvh bg-background text-foreground antialiased">
+      <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         <ThemeProvider>
           <AnimatedFavicon />
-          <AstraExperience>{children}</AstraExperience>
+          <AstraExperience>
+            {/* Clipped here rather than on <body>: overflow on the body is
+                handed to the viewport, where `clip` becomes `hidden` — which
+                still scrolls when something focuses or scrolls into view. The
+                page headers' light bleeds past the column on purpose. */}
+            <div className="overflow-x-clip">{children}</div>
+          </AstraExperience>
         </ThemeProvider>
       </body>
     </html>

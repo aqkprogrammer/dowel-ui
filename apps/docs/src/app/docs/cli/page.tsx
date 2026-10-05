@@ -1,4 +1,3 @@
-import { CodeBlock } from "@dowel-ui/react/code-block";
 import {
   Table,
   TableBody,
@@ -10,6 +9,8 @@ import {
 import type { Metadata } from "next";
 
 import { Prose } from "~/components/prose";
+import { CodePanel } from "~/components/site/code-panel";
+import { PageHeader } from "~/components/site/page-header";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
 
@@ -66,7 +67,7 @@ Re-run with --overwrite to replace them and lose those edits.`;
 export default function CliPage() {
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">CLI</h1>
+      <PageHeader eyebrow="Docs" title="CLI" cosmic="subtle" className="pb-2 sm:pb-4" />
 
       <Prose>
         <p>
@@ -138,9 +139,7 @@ export default function CliPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="text" title={`${branding.cliName} update`} code={UPDATE_OUTPUT}>
-          {UPDATE_OUTPUT}
-        </CodeBlock>
+        <CodePanel language="text" title={`${branding.cliName} update`} code={UPDATE_OUTPUT} />
       </div>
 
       <Prose>

@@ -85,7 +85,7 @@ export const CATEGORY_ORDER = [
 ] as const;
 
 export const CATEGORY_LABELS: Record<string, string> = {
-  foundation: "Foundation",
+  foundation: "Foundations",
   form: "Forms",
   overlay: "Overlays",
   navigation: "Navigation",
@@ -94,7 +94,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   feedback: "Feedback",
   layout: "Layout",
   ai: "AI",
-  effects: "Effects",
+  effects: "Effects & motion",
 };
 
 export interface ComponentGroup {
