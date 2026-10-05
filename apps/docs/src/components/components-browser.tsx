@@ -1,11 +1,22 @@
 "use client";
 
-import { LayoutGrid, Search, Star } from "lucide-react";
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { cn } from "@dowel-ui/react";
+import { LayoutGrid, Orbit, Search, Star } from "lucide-react";
+import dynamic from "next/dynamic";
+import {
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import { categoryMeta } from "~/lib/category-meta";
 
+import type { MapBlock } from "./constellation-map";
 import { ComponentCard, type CardItem, type CardSize } from "./site/component-card";
+import { CosmicLoader } from "./site/cosmic-loader";
 import { FilterChips, type FilterChip } from "./site/filter-chips";
 import { SearchInput } from "./site/search-input";
 
@@ -33,6 +44,41 @@ function matches(item: BrowserItem, label: string, words: string[]): boolean {
   const haystack =
     `${item.title} ${item.name} ${item.description} ${label} ${item.category}`.toLowerCase();
   return words.every((word) => haystack.includes(word));
+}
+
+/** The map is its own chunk, fetched when someone asks for it. */
+const ConstellationMap = dynamic(
+  () => import("./constellation-map").then((mod) => mod.ConstellationMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid aspect-[3/2] place-items-center rounded-2xl border border-[var(--hairline)]">
+        <CosmicLoader label="Charting the constellations" />
+      </div>
+    ),
+  },
+);
+
+type View = "grid" | "map";
+
+/**
+ * The view lives in the URL (`?view=map`), read as an external store: the
+ * server and the first render agree on the grid, and the map follows the
+ * address — on load, on back and forward, and when the switch rewrites it.
+ */
+const VIEW_EVENT = "dowel:components-view";
+
+function subscribeView(callback: () => void): () => void {
+  window.addEventListener("popstate", callback);
+  window.addEventListener(VIEW_EVENT, callback);
+  return () => {
+    window.removeEventListener("popstate", callback);
+    window.removeEventListener(VIEW_EVENT, callback);
+  };
+}
+
+function readView(): View {
+  return new URLSearchParams(window.location.search).get("view") === "map" ? "map" : "grid";
 }
 
 const ALL = "all";
@@ -72,11 +118,15 @@ function EmptyState({ query, onClear }: { query: string; onClear: () => void }) 
 export function ComponentsBrowser({
   groups,
   featured,
+  blocks,
 }: {
   groups: BrowserGroup[];
   featured: FeaturedItem[];
+  /** Blocks and what they are built from, for the map. */
+  blocks: MapBlock[];
 }) {
   const [filter, setFilter] = useState(ALL);
+  const view = useSyncExternalStore<View>(subscribeView, readView, () => "grid");
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const top = useRef<HTMLDivElement | null>(null);
@@ -117,10 +167,18 @@ export function ComponentsBrowser({
     };
   }, [ids]);
 
+  function url(nextView: View, nextFilter: string): string {
+    return `${window.location.pathname}${nextView === "map" ? "?view=map" : ""}${nextFilter === ALL ? "" : `#${nextFilter}`}`;
+  }
+
   function choose(value: string) {
     setFilter(value);
-    const url = value === ALL ? window.location.pathname : `#${value}`;
-    window.history.replaceState(window.history.state, "", url);
+    window.history.replaceState(window.history.state, "", url(view, value));
+  }
+
+  function chooseView(value: View) {
+    window.history.replaceState(window.history.state, "", url(value, filter));
+    window.dispatchEvent(new Event(VIEW_EVENT));
   }
 
   const counts = new Map(
@@ -246,14 +304,47 @@ export function ComponentsBrowser({
           are always one move away on a long category. */}
       <div className="glass sticky top-14 z-30 -mx-4 border-b border-[var(--hairline)] px-4 py-3 [--glass:color-mix(in_oklab,var(--background)_84%,transparent)] sm:-mx-6 sm:px-6">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-          <SearchInput
-            value={query}
-            onChange={setQuery}
-            label="Search components"
-            placeholder={`Search ${String(everything.length)} components…`}
-            shortcut
-            className="xl:order-last xl:w-72 xl:shrink-0"
-          />
+          <div className="flex items-center gap-2 xl:order-last">
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              label="Search components"
+              placeholder={`Search ${String(everything.length)} components…`}
+              shortcut
+              className="min-w-0 flex-1 xl:w-72 xl:flex-none"
+            />
+            <div
+              role="group"
+              aria-label="View"
+              className="flex h-10 shrink-0 items-center gap-0.5 rounded-xl border border-[var(--hairline-strong)] bg-[var(--pane)] p-1"
+            >
+              {(
+                [
+                  ["grid", "Grid", LayoutGrid],
+                  ["map", "Map", Orbit],
+                ] as const
+              ).map(([value, label, Icon]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={view === value}
+                  onClick={() => {
+                    chooseView(value);
+                  }}
+                  className={cn(
+                    "inline-flex h-full items-center gap-1.5 rounded-lg px-2.5 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/55",
+                    view === value
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Icon aria-hidden="true" className="size-3.5" />
+                  <span className="hidden sm:inline">{label}</span>
+                  <span className="sr-only sm:hidden">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <FilterChips
             label="Component categories"
             chips={chips}
@@ -273,7 +364,18 @@ export function ComponentsBrowser({
         </p>
       ) : null}
 
-      <div className="mt-8">{body}</div>
+      <div className="mt-8">
+        {view === "map" ? (
+          <ConstellationMap
+            groups={groups}
+            blocks={blocks}
+            query={deferredQuery}
+            category={scope?.category}
+          />
+        ) : (
+          body
+        )}
+      </div>
     </div>
   );
 }

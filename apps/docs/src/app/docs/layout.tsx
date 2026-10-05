@@ -23,7 +23,7 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
       <div className="mx-auto flex w-full max-w-[88rem] flex-1 gap-10 px-4 sm:px-6">
         {/* Its own scroll container, so the nav does not scroll away with the
             page on a long article. */}
-        <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-60 shrink-0 [scrollbar-width:thin] overflow-y-auto overscroll-contain py-8 pe-2 lg:block">
+        <aside className="vt-sidebar sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-60 shrink-0 [scrollbar-width:thin] overflow-y-auto overscroll-contain py-8 pe-2 lg:block">
           <SidebarNav tree={tree} />
         </aside>
 

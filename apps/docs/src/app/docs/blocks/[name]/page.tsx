@@ -2,6 +2,7 @@ import { ArrowUpRight, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ViewTransition } from "react";
 
 import { InstallCommand } from "~/components/install-command";
 import { JsonLd } from "~/components/json-ld";
@@ -157,7 +158,9 @@ export default async function BlockPage({ params }: PageProps) {
         </nav>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <h1 className="display-md text-luminous">{item.title}</h1>
+          <ViewTransition name={`title-${item.name}`} share="morph-text" default="none">
+            <h1 className="display-md text-luminous">{item.title}</h1>
+          </ViewTransition>
           <span className="rounded-full border border-[var(--hairline-strong)] px-2 py-0.5 font-mono text-[0.625rem] tracking-wide text-muted-foreground uppercase">
             Block
           </span>
@@ -189,6 +192,7 @@ export default async function BlockPage({ params }: PageProps) {
             is careful never to serve. */}
       <Preview
         component={item.name}
+        transitionName={`preview-${item.name}`}
         source={source}
         sourceTitle={item.files[0] ? `components/${item.files[0].path}` : undefined}
         prerendered={licensed ? proPreviews[item.name] : undefined}

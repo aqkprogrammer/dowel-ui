@@ -5,7 +5,7 @@ import { CopyButton } from "@dowel-ui/react/copy-button";
 import { ArrowUpRight } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import type { CSSProperties, PointerEvent } from "react";
+import { ViewTransition, type CSSProperties, type PointerEvent } from "react";
 
 import { categoryMeta } from "~/lib/category-meta";
 import { branding } from "~/lib/branding";
@@ -28,6 +28,8 @@ export interface CardItem {
   description: string;
   category: string;
   status: string;
+  /** Components this one imports, for the map's lines. */
+  uses?: string[];
 }
 
 export type CardSize = "hero" | "wide" | "tall" | "base";
@@ -129,44 +131,50 @@ export function ComponentCard({
           "has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring/55 has-[a:focus-visible]:ring-offset-2 has-[a:focus-visible]:ring-offset-background",
         )}
       >
-        <div
-          className={cn(
-            "stage-surface relative border-b border-[var(--hairline)]",
-            // In the bento the row height is fixed and the preview takes what
-            // the text leaves; stacked in one column, rows size to content.
-            featured ? "h-48 sm:h-auto sm:min-h-0 sm:flex-1" : "h-48",
-          )}
-        >
-          {NO_THUMBNAIL.has(item.name) ? (
-            <Placeholder category={item.category} still />
-          ) : (
-            <LiveStage
-              className="absolute inset-0"
-              stageWidth={size === "hero" ? 520 : 440}
-              maxScale={size === "hero" ? 1.1 : 1}
-              placeholder={<Placeholder category={item.category} />}
-            >
-              <StoryPreview component={item.name} story={story} />
-            </LiveStage>
-          )}
+        {/* Named for the morph: opening the component carries this preview
+            into the page's own, and the title into its heading. */}
+        <ViewTransition name={`preview-${item.name}`} share="morph" default="none">
+          <div
+            className={cn(
+              "stage-surface relative border-b border-[var(--hairline)]",
+              // In the bento the row height is fixed and the preview takes what
+              // the text leaves; stacked in one column, rows size to content.
+              featured ? "h-48 sm:h-auto sm:min-h-0 sm:flex-1" : "h-48",
+            )}
+          >
+            {NO_THUMBNAIL.has(item.name) ? (
+              <Placeholder category={item.category} still />
+            ) : (
+              <LiveStage
+                className="absolute inset-0"
+                stageWidth={size === "hero" ? 520 : 440}
+                maxScale={size === "hero" ? 1.1 : 1}
+                placeholder={<Placeholder category={item.category} />}
+              >
+                <StoryPreview component={item.name} story={story} />
+              </LiveStage>
+            )}
 
-          {status ? (
-            <span className="absolute top-3 right-3 rounded-full border border-[var(--hairline-strong)] bg-background/80 px-2 py-0.5 font-mono text-[0.625rem] tracking-wide text-[var(--cosmic-orange)] uppercase backdrop-blur-sm">
-              {status}
-            </span>
-          ) : null}
-        </div>
+            {status ? (
+              <span className="absolute top-3 right-3 rounded-full border border-[var(--hairline-strong)] bg-background/80 px-2 py-0.5 font-mono text-[0.625rem] tracking-wide text-[var(--cosmic-orange)] uppercase backdrop-blur-sm">
+                {status}
+              </span>
+            ) : null}
+          </div>
+        </ViewTransition>
 
         <div className="flex flex-1 flex-col gap-1 p-4 pb-3">
           <div className="flex items-center gap-2">
-            <h3 className="truncate text-sm font-medium tracking-tight">
-              <Link
-                href={`/docs/components/${item.name}`}
-                className="outline-none after:absolute after:inset-0 after:z-20"
-              >
-                {item.title}
-              </Link>
-            </h3>
+            <ViewTransition name={`title-${item.name}`} share="morph-text" default="none">
+              <h3 className="truncate text-sm font-medium tracking-tight">
+                <Link
+                  href={`/docs/components/${item.name}`}
+                  className="outline-none after:absolute after:inset-0 after:z-20"
+                >
+                  {item.title}
+                </Link>
+              </h3>
+            </ViewTransition>
             {showCategory ? (
               <span className="inline-flex shrink-0 items-center gap-1 font-mono text-[0.625rem] tracking-wide text-muted-foreground uppercase">
                 <Icon className="size-3" aria-hidden="true" />
