@@ -50,9 +50,7 @@ export function MobileNav({ tree }: { tree: SidebarTree }) {
       </SheetTrigger>
       <SheetContent
         side="left"
-        // Above the overlay: the library's sheet sits on the drawer layer,
-        // below its own overlay's, so without this the scrim covers it.
-        className="z-[var(--z-modal)] w-[min(22rem,88vw)] max-w-none gap-0 overflow-y-auto border-[var(--hairline)] p-0 *:shrink-0 [&_[data-slot=sheet-close]]:top-3.5 [&_[data-slot=sheet-close]]:z-20"
+        className="w-[min(22rem,88vw)] max-w-none gap-0 overflow-y-auto border-[var(--hairline)] p-0 *:shrink-0 [&_[data-slot=sheet-close]]:top-3.5 [&_[data-slot=sheet-close]]:z-20"
         // Focus the first section rather than the filter field: on a phone,
         // focusing a text field on open throws up the keyboard over the menu.
         onOpenAutoFocus={(event) => {
