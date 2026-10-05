@@ -34,6 +34,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import type { SearchEntry, SearchKind } from "~/lib/search-index";
 
 import { useTheme } from "./theme-provider";
+import { useModeSweep } from "./use-mode-sweep";
 
 /**
  * Site search, as a command palette.
@@ -102,7 +103,8 @@ export function CommandMenu({ entries }: { entries: SearchEntry[] }) {
   const [search, setSearch] = useState("");
   const router = useRouter();
   const modifier = useModifierLabel();
-  const { resolvedDark, setMode } = useTheme();
+  const { resolvedDark } = useTheme();
+  const sweep = useModeSweep();
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -266,8 +268,9 @@ export function CommandMenu({ entries }: { entries: SearchEntry[] }) {
                     value="action:toggle-mode"
                     keywords={["dark", "light", "mode", "theme"]}
                     onSelect={() => {
-                      setMode(resolvedDark ? "light" : "dark");
                       setOpen(false);
+                      // From the top centre: the palette was over the page.
+                      sweep(resolvedDark ? "light" : "dark");
                     }}
                     className="gap-3 rounded-lg px-2.5 py-2"
                   >

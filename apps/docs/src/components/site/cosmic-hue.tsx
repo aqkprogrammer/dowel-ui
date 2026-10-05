@@ -1,7 +1,7 @@
 "use client";
 
 import { hexToOklch } from "@dowel-ui/themes";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useTheme } from "../theme-provider";
 
@@ -50,6 +50,7 @@ function resolvePrimary(): string | undefined {
 
 export function CosmicHue() {
   const { preset, resolvedDark } = useTheme();
+  const previous = useRef<string | null>(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -72,14 +73,22 @@ export function CosmicHue() {
         root.style.setProperty("--cosmic-chroma", grey ? "0" : "1");
         root.setAttribute("data-cosmic-tinted", "");
       }
-      // Transitions only from here on: the first application on load should
-      // land, not animate in from the default.
-      requestAnimationFrame(() => {
-        root.setAttribute("data-cosmic-ready", "");
-      });
     });
+    // The field eases only when the preset itself changed: not on load, which
+    // should land rather than animate in, and not on a light/dark switch,
+    // where easing the inversion would pass through grey.
+    let settle: number | undefined;
+    if (previous.current !== null && previous.current !== preset) {
+      root.setAttribute("data-cosmic-turning", "");
+      settle = window.setTimeout(() => {
+        root.removeAttribute("data-cosmic-turning");
+      }, 1400);
+    }
+    previous.current = preset;
     return () => {
       cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
+      root.removeAttribute("data-cosmic-turning");
     };
   }, [preset, resolvedDark]);
 
