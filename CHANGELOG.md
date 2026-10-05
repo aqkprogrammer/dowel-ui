@@ -14,6 +14,17 @@ per-package changelogs, whatever an earlier version of this line claimed.
   could not see them. A `data-slot` passed by the caller still wins, so
   wrappers such as `copy-button` keep their own.
 
+### Fixed
+
+- **`sheet` and `drawer` no longer dim themselves.** Each put its overlay on
+  `--z-overlay` (300) and its panel on `--z-drawer` (200), so the overlay
+  painted over the open panel — and over `sidebar`'s mobile panel, which is a
+  sheet. The overlay now shares the panel's drawer layer and comes first in
+  the portal, so the panel sits above it; a dialog opened from inside a panel
+  still dims it from the layer above. If you installed either, run
+  `dowel update sheet drawer`, or change `z-[var(--z-overlay)]` to
+  `z-[var(--z-drawer)]` on the overlay yourself.
+
 ## 0.11.0
 
 Seven components from the "later" list in `docs/plans/agent-operable-ui.md`,
