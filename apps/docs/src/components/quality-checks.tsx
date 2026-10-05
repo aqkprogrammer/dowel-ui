@@ -36,26 +36,30 @@ export function QualityChecks({ name }: { name: string }) {
   const applicable = quality.checks.filter((check) => check.state !== "not-applicable");
   const passed = applicable.filter((check) => check.state === "pass").length;
 
-  return (
-    <section aria-labelledby={`quality-${name}`} className="not-prose my-8">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id={`quality-${name}`} className="text-lg font-semibold tracking-tight">
-          Quality
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          <span className="font-mono text-foreground tabular-nums">
-            {String(passed)}/{String(applicable.length)}
-          </span>{" "}
-          checks, measured from the source and its tests
-        </p>
-      </div>
+  const ratio = applicable.length === 0 ? 1 : passed / applicable.length;
 
-      <ul className="mt-3 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+  // The page's own section supplies the heading; this is the score and the list.
+  return (
+    <div className="not-prose grid gap-6 rounded-2xl border border-[var(--hairline)] bg-[var(--pane)] p-5 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-center">
+      <div className="flex items-center gap-4 sm:flex-col sm:items-start sm:gap-2">
+        <p className="text-4xl font-semibold tracking-tight tabular-nums">
+          {String(passed)}
+          <span className="text-muted-foreground">/{String(applicable.length)}</span>
+        </p>
+        <div className="h-1.5 w-full max-w-36 overflow-hidden rounded-full bg-[var(--hairline)]">
+          <div
+            className="h-full rounded-full bg-[linear-gradient(90deg,var(--cosmic-blue),var(--cosmic-cyan))]"
+            style={{ width: `${String(Math.round(ratio * 100))}%` }}
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">checks passed</p>
+      </div>
+      <ul className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
         {quality.checks.map((check) => (
           <QualityRow key={check.id} check={check} />
         ))}
       </ul>
-    </section>
+    </div>
   );
 }
 

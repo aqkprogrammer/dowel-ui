@@ -2,7 +2,6 @@
 
 import { Badge } from "@dowel-ui/react/badge";
 import { Button } from "@dowel-ui/react/button";
-import { CodeBlock } from "@dowel-ui/react/code-block";
 import {
   Combobox,
   ComboboxContent,
@@ -38,6 +37,7 @@ import {
 import { storyModules } from "~/lib/previews.generated";
 import { asStory, asStoryMeta, type StoryArgs } from "~/lib/story-types";
 
+import { CodePanel } from "./site/code-panel";
 import { getStoryNames } from "./story-preview";
 
 export interface PlaygroundEntry {
@@ -164,157 +164,181 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
   const modified = Object.keys(current).length > 0;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)] lg:items-start">
-      <div className="grid gap-5 lg:sticky lg:top-20">
-        <Field label="Component" htmlFor="playground-component">
-          <Combobox value={name} onValueChange={selectComponent}>
-            <ComboboxTrigger id="playground-component" placeholder="Choose a component…" />
-            <ComboboxContent label="Search components">
-              <ComboboxInput placeholder="Search…" aria-label="Search components" />
-              <ComboboxEmpty>Nothing matches.</ComboboxEmpty>
-              <ComboboxList>
-                {entries.map((item) => (
-                  <ComboboxItem
-                    key={item.name}
-                    value={item.name}
-                    keywords={[item.title, item.category, item.description]}
-                  />
-                ))}
-              </ComboboxList>
-            </ComboboxContent>
-          </Combobox>
-        </Field>
-
-        {storyNames.length > 1 ? (
-          <Field label="Example" htmlFor="playground-story">
-            <Select
-              value={storyName ?? storyNames[0]}
-              onValueChange={(value) => {
-                setStoryName(value);
-              }}
-            >
-              <SelectTrigger id="playground-story">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {storyNames.map((item) => (
-                  <SelectItem key={item} value={item}>
-                    {item.replace(/([a-z])([A-Z])/g, "$1 $2")}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+    <div className="overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--pane)] shadow-[0_40px_120px_-60px_var(--glow-blue)]">
+      {/* The toolbar: what is on the stage, and how the stage is lit. */}
+      <div className="flex flex-wrap items-end gap-4 border-b border-[var(--hairline)] px-4 py-3">
+        <div className="w-full sm:w-64">
+          <Field label="Component" htmlFor="playground-component">
+            <Combobox value={name} onValueChange={selectComponent}>
+              <ComboboxTrigger id="playground-component" placeholder="Choose a component…" />
+              <ComboboxContent label="Search components">
+                <ComboboxInput placeholder="Search…" aria-label="Search components" />
+                <ComboboxEmpty>Nothing matches.</ComboboxEmpty>
+                <ComboboxList>
+                  {entries.map((item) => (
+                    <ComboboxItem
+                      key={item.name}
+                      value={item.name}
+                      keywords={[item.title, item.category, item.description]}
+                    />
+                  ))}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
           </Field>
-        ) : null}
-
-        {controls.map((control) => (
-          <ControlField
-            key={control.prop}
-            control={control}
-            value={values[control.prop]}
-            onChange={(value) => {
-              setValue(control.prop, value);
-            }}
-          />
-        ))}
-
-        {controls.length === 0 ? (
-          <p className="text-xs text-muted-foreground">
-            {entry?.title ?? "This component"} has no variant props. Its examples and the theme
-            below still apply.
-          </p>
-        ) : null}
-
-        <hr className="border-border" />
-
-        <Field label="Theme" htmlFor="playground-theme">
-          <Select
-            value={preset}
-            onValueChange={(value) => {
-              setPreset(value);
-            }}
-          >
-            <SelectTrigger id="playground-theme" className="capitalize">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {THEME_PRESETS.map((item) => (
-                <SelectItem key={item} value={item} className="capitalize">
-                  {item}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-
-        <div className="flex items-center justify-between gap-3">
-          <Label htmlFor="playground-dark">Dark mode</Label>
-          <Switch
-            id="playground-dark"
-            checked={dark}
-            onCheckedChange={(next) => {
-              setDark(next);
-            }}
-          />
         </div>
 
-        <SliderField
-          id="playground-radius"
-          label="Radius"
-          hint={`${radius.toFixed(2)}×`}
-          valueText={`${radius.toFixed(2)} times the designed radius, applied to the whole page`}
-          min={0}
-          max={2}
-          step={0.05}
-          value={radius}
-          onChange={setRadius}
-        />
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={reset}
-          disabled={!modified && storyName === undefined}
-        >
-          <RotateCcw />
-          Reset
-        </Button>
-      </div>
-
-      <div className="grid min-w-0 gap-4">
-        {entry ? (
-          <div className="flex flex-wrap items-baseline gap-2">
-            <h2 className="text-lg font-semibold tracking-tight">{entry.title}</h2>
-            <Badge size="sm" variant="secondary">
-              {entry.category}
-            </Badge>
-            <p className="w-full text-sm text-muted-foreground">{entry.description}</p>
+        {storyNames.length > 1 ? (
+          <div className="w-full sm:w-52">
+            <Field label="Example" htmlFor="playground-story">
+              <Select
+                value={storyName ?? storyNames[0]}
+                onValueChange={(value) => {
+                  setStoryName(value);
+                }}
+              >
+                <SelectTrigger id="playground-story">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {storyNames.map((item) => (
+                    <SelectItem key={item} value={item}>
+                      {item.replace(/([a-z])([A-Z])/g, "$1 $2")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
           </div>
         ) : null}
 
-        {/*
-          The preset and mode are scoped here rather than set on <html>, so the
-          rest of the page keeps the reader's own choice — a playground that
-          flips the documentation into dark mode as a side effect of previewing
-          dark mode is doing something the reader did not ask for.
+        <div className="ms-auto flex flex-wrap items-end gap-4">
+          <div className="w-36">
+            <Field label="Theme" htmlFor="playground-theme">
+              <Select
+                value={preset}
+                onValueChange={(value) => {
+                  setPreset(value);
+                }}
+              >
+                <SelectTrigger id="playground-theme" className="capitalize">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {THEME_PRESETS.map((item) => (
+                    <SelectItem key={item} value={item} className="capitalize">
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
+          <div className="flex h-9 items-center gap-2">
+            <Label htmlFor="playground-dark">Dark</Label>
+            <Switch
+              id="playground-dark"
+              checked={dark}
+              onCheckedChange={(next) => {
+                setDark(next);
+              }}
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="md"
+            onClick={reset}
+            disabled={!modified && storyName === undefined}
+          >
+            <RotateCcw />
+            Reset
+          </Button>
+        </div>
+      </div>
 
-          Radius cannot be scoped the same way, for a reason CSS decides rather
-          than this file; see the effect above.
-        */}
-        <div
-          data-theme={preset}
-          className={cn(
-            "grid min-h-72 place-items-center overflow-x-auto rounded-xl border border-border bg-background p-8 text-foreground",
-            dark && "dark",
-          )}
-        >
-          {Render ? (
-            <Render {...args} />
-          ) : (
-            <p className="text-sm text-muted-foreground">No preview.</p>
-          )}
+      <div className="grid lg:grid-cols-[17rem_minmax(0,1fr)]">
+        {/* Controls: read from the component itself. */}
+        <div className="grid content-start gap-5 border-b border-[var(--hairline)] p-5 lg:border-e lg:border-b-0">
+          <p className="font-mono text-[0.625rem] tracking-[0.16em] text-muted-foreground uppercase">
+            Props
+          </p>
+          {controls.map((control) => (
+            <ControlField
+              key={control.prop}
+              control={control}
+              value={values[control.prop]}
+              onChange={(value) => {
+                setValue(control.prop, value);
+              }}
+            />
+          ))}
+
+          {controls.length === 0 ? (
+            <p className="text-xs text-pretty text-muted-foreground">
+              {entry?.title ?? "This component"} has no variant props. Its examples and the
+              theme still apply.
+            </p>
+          ) : null}
+
+          <hr className="border-[var(--hairline)]" />
+
+          <SliderField
+            id="playground-radius"
+            label="Radius"
+            hint={`${radius.toFixed(2)}×`}
+            valueText={`${radius.toFixed(2)} times the designed radius, applied to the whole page`}
+            min={0}
+            max={2}
+            step={0.05}
+            value={radius}
+            onChange={setRadius}
+          />
         </div>
 
+        <div className="grid min-w-0 content-start">
+          {entry ? (
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-[var(--hairline)] px-5 py-3">
+              <h2 className="font-semibold tracking-tight">{entry.title}</h2>
+              <Badge size="sm" variant="secondary">
+                {entry.category}
+              </Badge>
+              <a
+                href={`/docs/components/${name}`}
+                className="ms-auto text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Documentation
+              </a>
+              <p className="w-full text-sm text-muted-foreground">{entry.description}</p>
+            </div>
+          ) : null}
+
+          {/*
+            The preset and mode are scoped here rather than set on <html>, so the
+            rest of the page keeps the reader's own choice — a playground that
+            flips the documentation into dark mode as a side effect of previewing
+            dark mode is doing something the reader did not ask for.
+
+            Radius cannot be scoped the same way, for a reason CSS decides rather
+            than this file; see the effect above.
+          */}
+          <div
+            data-theme={preset}
+            className={cn(
+              "stage-surface grid min-h-[26rem] place-items-center overflow-x-auto p-10 text-foreground",
+              "[--color-primary-foreground:var(--primary-foreground)] [--color-primary-hover:var(--primary-hover)] [--color-primary:var(--primary)]",
+              dark && "dark",
+            )}
+          >
+            {Render ? (
+              <Render {...args} />
+            ) : (
+              <p className="text-sm text-muted-foreground">No preview.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-[var(--hairline)]">
         <Code
           name={name}
           controls={controls}
@@ -489,7 +513,7 @@ function Code({
 }) {
   if (controls.length === 0 || composed) {
     return (
-      <p className="text-sm text-muted-foreground">
+      <p className="px-5 py-4 text-sm text-muted-foreground">
         {composed
           ? "This example is a hand-written composition, so there is no single tag to generate. "
           : "This component has no variant props. "}
@@ -507,8 +531,11 @@ function Code({
   const code = generateJsx(tag, values, controls, children);
 
   return (
-    <CodeBlock language="tsx" title={`${name}.tsx`} code={code}>
-      {code}
-    </CodeBlock>
+    <CodePanel
+      code={code}
+      language="tsx"
+      title={`Generated · ${name}.tsx`}
+      className="rounded-none border-0"
+    />
   );
 }

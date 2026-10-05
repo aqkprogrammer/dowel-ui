@@ -18,40 +18,43 @@ export function PropsTable({ name }: { name: string }) {
   const groups = componentProps[name];
   if (!groups || groups.length === 0) return null;
 
+  // The page's own section supplies the heading; this is the tables.
   return (
-    <section aria-labelledby={`props-${name}`} className="not-prose my-8">
-      <h2 id={`props-${name}`} className="text-lg font-semibold tracking-tight">
-        Props
-      </h2>
-
-      <div className="mt-4 grid gap-6">
-        {groups.map((group) => (
-          <PartTable key={group.component} group={group} />
-        ))}
-      </div>
-    </section>
+    <div className="not-prose grid gap-8">
+      {groups.map((group) => (
+        <PartTable key={group.component} group={group} />
+      ))}
+    </div>
   );
 }
 
 function PartTable({ group }: { group: PropsGroup }) {
   return (
     <div>
-      <h3 className="font-mono text-sm font-medium">{group.component}</h3>
+      <h3 className="font-mono text-sm font-medium text-foreground">
+        &lt;{group.component}&gt;
+      </h3>
 
       {group.props.length > 0 ? (
         // Types are long and the page is not: a narrow viewport scrolls the
         // table rather than wrapping a signature into an unreadable column.
-        <div className="mt-2 overflow-x-auto rounded-lg border border-border">
+        <div
+          // Focusable, so a keyboard can scroll a table wider than the column.
+          tabIndex={0}
+          role="region"
+          aria-label={`${group.component} props`}
+          className="mt-3 overflow-x-auto rounded-xl border border-[var(--hairline)] outline-none focus-visible:ring-2 focus-visible:ring-ring/55"
+        >
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/40 text-left">
-                <th scope="col" className="px-3 py-2 font-medium">
+              <tr className="border-b border-[var(--hairline)] bg-[var(--pane)] text-left font-mono text-[0.6875rem] tracking-wide text-muted-foreground uppercase">
+                <th scope="col" className="px-4 py-2.5 font-normal">
                   Prop
                 </th>
-                <th scope="col" className="px-3 py-2 font-medium">
+                <th scope="col" className="px-4 py-2.5 font-normal">
                   Type
                 </th>
-                <th scope="col" className="px-3 py-2 font-medium">
+                <th scope="col" className="px-4 py-2.5 font-normal">
                   Default
                 </th>
               </tr>
@@ -60,10 +63,12 @@ function PartTable({ group }: { group: PropsGroup }) {
               {group.props.map((prop) => (
                 <tr
                   key={prop.name}
-                  className="border-b border-border align-top last:border-b-0"
+                  className="border-b border-[var(--hairline)] align-top transition-colors last:border-b-0 hover:bg-[var(--pane)]"
                 >
-                  <td className="px-3 py-2 whitespace-nowrap">
-                    <code className="font-mono text-xs">{prop.name}</code>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <code className="font-mono text-xs text-[var(--cosmic-blue)]">
+                      {prop.name}
+                    </code>
                     {prop.required ? (
                       <>
                         <span aria-hidden className="ml-0.5 text-destructive">
@@ -78,10 +83,10 @@ function PartTable({ group }: { group: PropsGroup }) {
                       </p>
                     ) : null}
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="px-4 py-3">
                     <code className="font-mono text-xs text-muted-foreground">{prop.type}</code>
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap">
+                  <td className="px-4 py-3 whitespace-nowrap">
                     {prop.default ? (
                       <code className="font-mono text-xs text-muted-foreground">
                         {prop.default}

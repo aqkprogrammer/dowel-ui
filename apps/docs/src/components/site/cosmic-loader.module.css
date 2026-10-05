@@ -1,0 +1,42 @@
+/*
+ * The loader's ink. The bodies' travel is SMIL in the markup; only the core's
+ * breathing is CSS, scaled by the theme's indicator rate so reduced motion
+ * slows it rather than freezing it.
+ */
+
+.loader {
+  overflow: visible;
+}
+
+.halo {
+  fill: color-mix(in oklab, var(--cosmic-blue) 14%, transparent);
+  filter: blur(4px);
+}
+
+.ring {
+  fill: none;
+  stroke: color-mix(in oklab, var(--foreground) 16%, transparent);
+  stroke-width: 0.75;
+}
+
+.body {
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+.core {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: loader-core calc(1.8s * var(--motion-scale-indicator, 1)) ease-in-out infinite;
+}
+
+@keyframes loader-core {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 1;
+  }
+}
