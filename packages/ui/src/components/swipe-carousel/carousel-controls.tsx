@@ -1,21 +1,30 @@
 "use client";
 
 // Original design (pattern inspired by the WAI-ARIA APG Carousel pattern).
-import { useCallback, useState, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type FocusEvent,
+  type KeyboardEvent,
+} from "react";
 
 import { Button, type ButtonProps } from "@/components/button";
 import { mirrorForDirection } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 /*
- * The state and keyboard rules every Dowel carousel shares, kept in one file
- * that each carousel carries so it installs on its own. This carousel never
- * rotates by itself, so it carries the subset without the rotation control
- * (see reviews-carousel/carousel-controls.tsx for the full set).
+ * The state, keyboard and rotation rules every Dowel carousel shares, kept in
+ * one file that each carousel carries so it installs on its own.
  *
  * - The index is controllable (`index` / `defaultIndex` / `onIndexChange`).
  * - Arrow keys follow the reading direction: in a right-to-left document the
  *   right arrow goes back, because "next" lies toward the inline end.
+ * - Automatic rotation follows the APG: it has a stop/start control, pauses
+ *   while the pointer is over the carousel or focus is inside it, and never
+ *   starts by itself under reduced motion.
  */
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
@@ -26,6 +35,22 @@ export function prefersReducedMotion(): boolean {
     typeof window.matchMedia === "function" &&
     window.matchMedia(REDUCED_MOTION).matches
   );
+}
+
+function subscribeReducedMotion(onChange: () => void): () => void {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return () => {};
+  }
+  const query = window.matchMedia(REDUCED_MOTION);
+  query.addEventListener("change", onChange);
+  return () => {
+    query.removeEventListener("change", onChange);
+  };
+}
+
+/** Whether the reader has asked for less motion, kept live. */
+export function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(subscribeReducedMotion, prefersReducedMotion, () => false);
 }
 
 /** `index` wrapped into `[0, count)`. */
@@ -116,6 +141,86 @@ export function handleCarouselKey(
   return true;
 }
 
+export interface AutoRotateOptions {
+  autoPlay: boolean;
+  /** Milliseconds per slide. */
+  interval: number;
+  count: number;
+  /** Changes whenever the slide changes, so a manual move restarts the clock. */
+  resetKey: number;
+  advance: () => void;
+}
+
+/** APG automatic rotation: a stop/start control, and pauses for hover and focus. */
+export function useAutoRotate({
+  autoPlay,
+  interval,
+  count,
+  resetKey,
+  advance,
+}: AutoRotateOptions) {
+  const reduced = usePrefersReducedMotion();
+  const [playing, setPlaying] = useState(autoPlay);
+  // Under reduced motion rotation only runs once the reader has asked for it.
+  const [chosen, setChosen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const advanceRef = useRef(advance);
+
+  useEffect(() => {
+    advanceRef.current = advance;
+  });
+
+  const enabled = playing && (chosen || !reduced);
+  const rotating = enabled && !hovered && !focused && count > 1;
+
+  useEffect(() => {
+    if (!rotating) return;
+    const timer = setInterval(() => {
+      advanceRef.current();
+    }, interval);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [rotating, interval, resetKey]);
+
+  return {
+    /** Whether rotation is switched on (it may still be paused by hover or focus). */
+    enabled,
+    /** Whether slides are changing by themselves right now. */
+    rotating,
+    toggle: () => {
+      setChosen(true);
+      setPlaying(!enabled);
+    },
+    rootProps: {
+      onPointerEnter: () => {
+        setHovered(true);
+      },
+      onPointerLeave: () => {
+        setHovered(false);
+      },
+      // Focus on the rotation control itself does not pause: that is where a
+      // keyboard user sits to start rotation and watch it run.
+      onFocus: (event: FocusEvent<HTMLElement>) => {
+        const target = event.target as Element;
+        setFocused(target.closest("[data-slot=carousel-rotation]") === null);
+      },
+      onBlur: (event: FocusEvent<HTMLElement>) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+      },
+    },
+  };
+}
+
+/** Chains a consumer's handler before ours. */
+export function chain<E>(ours: (event: E) => void, theirs?: (event: E) => void) {
+  return (event: E) => {
+    theirs?.(event);
+    ours(event);
+  };
+}
+
 export interface CarouselButtonProps extends Omit<ButtonProps, "children"> {
   direction: "previous" | "next";
 }
@@ -142,6 +247,44 @@ export function CarouselButton({ direction, className, ...props }: CarouselButto
         className={cn("size-4", mirrorForDirection)}
       >
         <path d={direction === "previous" ? "m15 18-6-6 6-6" : "m9 18 6-6-6-6"} />
+      </svg>
+    </Button>
+  );
+}
+
+export interface RotationButtonProps extends Omit<ButtonProps, "children" | "onClick"> {
+  enabled: boolean;
+  onToggle: () => void;
+  stopLabel: string;
+  startLabel: string;
+}
+
+/** The APG rotation control. Its name says what pressing it will do. */
+export function RotationButton({
+  enabled,
+  onToggle,
+  stopLabel,
+  startLabel,
+  className,
+  ...props
+}: RotationButtonProps) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon-sm"
+      data-slot="carousel-rotation"
+      aria-label={enabled ? stopLabel : startLabel}
+      className={cn("size-8 rounded-full bg-background/70 backdrop-blur-sm", className)}
+      onClick={onToggle}
+      {...props}
+    >
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="size-3.5">
+        {enabled ? (
+          <path d="M7 5h3v14H7zM14 5h3v14h-3z" />
+        ) : (
+          <path d="M8 5.5v13a.5.5 0 0 0 .76.43l10.4-6.5a.5.5 0 0 0 0-.86L8.76 5.07A.5.5 0 0 0 8 5.5z" />
+        )}
       </svg>
     </Button>
   );
