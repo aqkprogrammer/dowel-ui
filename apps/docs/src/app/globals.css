@@ -45,9 +45,11 @@
  * The cosmic palette.
  *
  * The same five colours the star field is drawn in — two blues, two oranges
- * and a white — plus the navy of its ambient glow. They are a brand layer, not
- * a theme: a preset re-skins the components, and these stay put, so the site
- * reads as Dowel in every preset. Used sparingly, for light and not for fill.
+ * and a white — plus the navy of its ambient glow. They are a brand layer over
+ * the theme rather than part of it: a preset does not reassign them, it turns
+ * them — see "The cosmos follows the theme" below — so the site reads as Dowel
+ * in every preset, in that preset's light. Used sparingly, for light and not
+ * for fill.
  */
 :root {
   --cosmic-navy: #23435f;
@@ -96,6 +98,56 @@
 
 :root[data-astra-theme="light"] [data-astra-backdrop] {
   filter: invert(1);
+}
+
+/*
+ * The cosmos follows the theme.
+ *
+ * `CosmicHue` measures how far the active preset's primary hue sits from the
+ * default's and writes the angle here. The WebGL field is turned with
+ * hue-rotate rather than repainted — its colours are baked into the scene, and
+ * rebuilding it would replay its opening — and the cosmic tokens are
+ * re-derived from the same angle, so the CSS sky and every glow mixed from it
+ * turn with the stars. Blue and orange move together, keeping the field
+ * two-toned; a colourless preset drains it to grey. The default preset sets
+ * nothing, and the brand palette stands exactly as drawn.
+ */
+:root[data-cosmic-tinted] [data-astra-backdrop] {
+  filter: hue-rotate(var(--astra-hue-shift, 0deg)) saturate(var(--cosmic-chroma, 1));
+}
+
+:root[data-cosmic-tinted][data-astra-theme="light"] [data-astra-backdrop] {
+  filter: invert(1) hue-rotate(var(--astra-hue-shift, 0deg)) saturate(var(--cosmic-chroma, 1));
+}
+
+:root[data-cosmic-ready] [data-astra-backdrop] {
+  transition: filter 1.2s var(--ease-out-quint);
+}
+
+@supports (color: oklch(from red l c h)) {
+  :root[data-cosmic-tinted] {
+    --cosmic-cyan: oklch(
+      from #6dcbf4 l calc(c * var(--cosmic-chroma, 1)) calc(h + var(--cosmic-hue-shift, 0))
+    );
+    --cosmic-blue: oklch(
+      from #7ab1fe l calc(c * var(--cosmic-chroma, 1)) calc(h + var(--cosmic-hue-shift, 0))
+    );
+    --cosmic-orange: oklch(
+      from #fa994c l calc(c * var(--cosmic-chroma, 1)) calc(h + var(--cosmic-hue-shift, 0))
+    );
+    --cosmic-ember: oklch(
+      from #f87915 l calc(c * var(--cosmic-chroma, 1)) calc(h + var(--cosmic-hue-shift, 0))
+    );
+    --cosmic-navy: oklch(
+      from #23435f l calc(c * var(--cosmic-chroma, 1)) calc(h + var(--cosmic-hue-shift, 0))
+    );
+  }
+
+  :root[data-cosmic-tinted]:not(.dark) {
+    --cosmic-navy: oklch(
+      from #b9cde3 l calc(c * var(--cosmic-chroma, 1)) calc(h + var(--cosmic-hue-shift, 0))
+    );
+  }
 }
 
 @layer components {

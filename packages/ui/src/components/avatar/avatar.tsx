@@ -30,7 +30,11 @@ export interface AvatarProps
 /** Image representation of a user or entity, with a text fallback. */
 export function Avatar({ className, size, ...props }: AvatarProps) {
   return (
-    <AvatarPrimitive.Root className={cn(avatarVariants({ size }), className)} {...props} />
+    <AvatarPrimitive.Root
+      data-slot="avatar"
+      className={cn(avatarVariants({ size }), className)}
+      {...props}
+    />
   );
 }
 

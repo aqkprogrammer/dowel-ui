@@ -149,6 +149,7 @@ export function Button({
 
   return (
     <Comp
+      data-slot="button"
       className={cn(buttonVariants({ variant, size, shape, press }), className)}
       disabled={disabled}
       aria-disabled={loading || undefined}

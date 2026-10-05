@@ -52,7 +52,12 @@ export interface InputProps
  */
 export function Input({ className, inputSize, type = "text", ...props }: InputProps) {
   return (
-    <input type={type} className={cn(inputVariants({ inputSize }), className)} {...props} />
+    <input
+      data-slot="input"
+      type={type}
+      className={cn(inputVariants({ inputSize }), className)}
+      {...props}
+    />
   );
 }
 

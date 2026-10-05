@@ -151,7 +151,7 @@ export function DataTable<TFeatures extends TableFeatures, TData extends RowData
   const columnCount = table.getAllLeafColumns().length;
 
   return (
-    <div className="rounded-lg border border-border">
+    <div data-slot="data-table" className="rounded-lg border border-border">
       <Table className={cn(className)} {...props}>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
