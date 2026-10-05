@@ -65,6 +65,25 @@ describe("buildRegistry", () => {
     }
   });
 
+  it("never ships two different files to the same place", () => {
+    // Files install flat, so items that share a file (the carousels'
+    // carousel-controls.tsx) must ship it identically. Otherwise whichever
+    // item is added last silently replaces the copy the others import from.
+    const shipped = new Map<string, { hash: string; item: string }>();
+    for (const item of items) {
+      for (const file of item.files) {
+        const first = shipped.get(file.path);
+        if (first) {
+          expect(file.hash, `${file.path}: ${first.item} and ${item.name} differ`).toBe(
+            first.hash,
+          );
+        } else {
+          shipped.set(file.path, { hash: file.hash, item: item.name });
+        }
+      }
+    }
+  });
+
   it("names every registry dependency that exists", () => {
     const names = new Set(items.map((item) => item.name));
     for (const item of items) {

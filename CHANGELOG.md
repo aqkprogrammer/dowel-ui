@@ -3,7 +3,11 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
-## Unreleased
+## 0.12.0
+
+Twenty-four animated components from Animate UI's patterns, 244 in all (up
+from 220). Also fixes `sheet` and `drawer` dimming their own panel, and
+`swipe-carousel` breaking the other carousels when installed after them.
 
 ### Added
 
@@ -57,6 +61,14 @@ motion.
 
 ### Fixed
 
+- **Installing `swipe-carousel` no longer breaks `reviews-carousel` and
+  `invite-carousel`.** All three ship a `carousel-controls.tsx`, but
+  `swipe-carousel`'s was a shorter copy without the rotation control. Files
+  install flat, so adding `swipe-carousel` after either of the others replaced
+  the file they import from, and the project stopped type-checking. All three
+  now ship the same file, and a registry test fails if two items ever ship
+  different files to the same path. If it happened to you, run
+  `dowel update swipe-carousel`.
 - **`sheet` and `drawer` no longer dim themselves.** Each put its overlay on
   `--z-overlay` (300) and its panel on `--z-drawer` (200), so the overlay
   painted over the open panel — and over `sidebar`'s mobile panel, which is a
