@@ -120,7 +120,9 @@
   filter: invert(1) hue-rotate(var(--astra-hue-shift, 0deg)) saturate(var(--cosmic-chroma, 1));
 }
 
-:root[data-cosmic-ready] [data-astra-backdrop] {
+/* Only while a preset is changing: a light/dark switch inverts the field, and
+ * easing an inversion passes through grey. */
+:root[data-cosmic-turning] [data-astra-backdrop] {
   transition: filter 1.2s var(--ease-out-quint);
 }
 
@@ -546,5 +548,92 @@
 @keyframes type-on {
   to {
     width: calc(var(--type-steps, 24) * 1ch);
+  }
+}
+
+/*
+ * View transitions.
+ *
+ * Navigations morph what they share — a card's preview into the page's, its
+ * title into the heading — and cross-fade the rest briefly, with the header
+ * and the sidebar held still as the fixed points that say the content moved,
+ * not the page. A colour-mode switch instead reveals the new mode in a circle
+ * from the control that asked for it.
+ */
+.vt-header {
+  view-transition-name: site-header;
+}
+
+.vt-sidebar {
+  view-transition-name: docs-sidebar;
+}
+
+/* A mode switch changes the anchors too, so they join the sweep. */
+:root.theme-sweep .vt-header,
+:root.theme-sweep .vt-sidebar {
+  view-transition-name: none;
+}
+
+::view-transition-group(site-header),
+::view-transition-group(docs-sidebar),
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(docs-sidebar),
+::view-transition-new(docs-sidebar) {
+  animation: none;
+}
+
+::view-transition-old(root) {
+  animation: 150ms var(--ease-in-quint) both vt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 260ms var(--ease-out-quint) 90ms both vt-fade-in;
+}
+
+::view-transition-group(.morph) {
+  animation-duration: 520ms;
+  animation-timing-function: var(--ease-out-quint);
+}
+
+::view-transition-image-pair(.morph) {
+  animation-name: vt-via-blur;
+}
+
+::view-transition-group(.morph-text) {
+  animation-duration: 440ms;
+  animation-timing-function: var(--ease-out-quint);
+}
+
+:root.theme-sweep::view-transition-old(root),
+:root.theme-sweep::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-image-pair(*) {
+    animation: none !important;
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-via-blur {
+  35% {
+    filter: blur(4px);
   }
 }
