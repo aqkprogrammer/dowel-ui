@@ -31,7 +31,7 @@ export function SiteHeader() {
   const tree = getSidebarTree();
 
   return (
-    <header className="glass sticky top-0 z-[var(--z-sticky)] border-b border-[var(--hairline)] [--glass:color-mix(in_oklab,var(--background)_80%,transparent)]">
+    <header className="glass vt-header sticky top-0 z-[var(--z-sticky)] border-b border-[var(--hairline)] [--glass:color-mix(in_oklab,var(--background)_80%,transparent)]">
       <a
         href="#content"
         className="sr-only rounded-md bg-background px-3 py-2 text-sm focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:ring-2 focus:ring-ring/55"

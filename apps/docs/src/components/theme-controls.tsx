@@ -14,11 +14,13 @@ import {
 import { Monitor, Moon, Palette, Sun } from "lucide-react";
 
 import { useTheme } from "./theme-provider";
+import { originOf, useModeSweep } from "./use-mode-sweep";
 
 const MODE_ICON = { light: Sun, dark: Moon, system: Monitor } as const;
 
 export function ThemeControls() {
-  const { mode, setMode, preset, setPreset, resolvedDark } = useTheme();
+  const { mode, preset, setPreset, resolvedDark } = useTheme();
+  const sweep = useModeSweep();
   const ModeIcon = MODE_ICON[mode];
 
   return (
@@ -28,8 +30,8 @@ export function ThemeControls() {
         size="icon-sm"
         // The name says what pressing it does, not what the state currently is.
         aria-label={resolvedDark ? "Switch to light mode" : "Switch to dark mode"}
-        onClick={() => {
-          setMode(resolvedDark ? "light" : "dark");
+        onClick={(event) => {
+          sweep(resolvedDark ? "light" : "dark", originOf(event.currentTarget));
         }}
       >
         <ModeIcon />
@@ -46,7 +48,9 @@ export function ThemeControls() {
           <DropdownMenuRadioGroup
             value={mode}
             onValueChange={(value) => {
-              setMode(value as typeof mode);
+              // From the palette button, which the menu closes back onto.
+              const trigger = document.querySelector('[aria-label="Change theme"]');
+              sweep(value as typeof mode, trigger ? originOf(trigger) : undefined);
             }}
           >
             <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>

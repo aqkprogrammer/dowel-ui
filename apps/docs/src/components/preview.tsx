@@ -3,7 +3,7 @@
 import { cn } from "@dowel-ui/react";
 import { Code2, Eye, Layers, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, useState, ViewTransition, type ReactNode } from "react";
 
 import type { ProPreviewStory } from "~/lib/pro-previews.generated";
 
@@ -65,6 +65,11 @@ export interface PreviewProps {
    * them in the rendered screen.
    */
   parts?: PartSpec[];
+  /**
+   * Shared with the card that links here, so opening it morphs the card's
+   * preview into this one.
+   */
+  transitionName?: string;
   className?: string;
   children?: ReactNode;
 }
@@ -84,6 +89,7 @@ export function Preview({
   playgroundHref,
   size = "component",
   parts: partSpecs,
+  transitionName,
   className,
   children,
 }: PreviewProps) {
@@ -128,7 +134,7 @@ export function Preview({
     </button>
   );
 
-  return (
+  const frame = (
     <div
       className={cn(
         "not-prose overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--pane)]",
@@ -303,5 +309,13 @@ export function Preview({
         />
       ) : null}
     </div>
+  );
+
+  return transitionName ? (
+    <ViewTransition name={transitionName} share="morph" default="none">
+      {frame}
+    </ViewTransition>
+  ) : (
+    frame
   );
 }

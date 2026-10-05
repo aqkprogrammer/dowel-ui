@@ -7,7 +7,7 @@ import {
 } from "~/components/components-browser";
 import { JsonLd } from "~/components/json-ld";
 import { PageHeader } from "~/components/site/page-header";
-import { getComponentGroups, getComponents } from "~/lib/registry";
+import { getBlocks, getComponentGroups, getComponents } from "~/lib/registry";
 import { breadcrumbSchema, collectionSchema, graph } from "~/lib/structured-data";
 import { version } from "~/lib/version.generated";
 
@@ -52,6 +52,9 @@ const FEATURED: FeaturedItem[] = [
 
 export default function ComponentsIndexPage() {
   const groups = getComponentGroups();
+  const componentNames = new Set(
+    groups.flatMap((group) => group.items.map((item) => item.name)),
+  );
   const total = groups.reduce((count, group) => count + group.items.length, 0);
 
   // Only what the browser shows crosses to the client — not the dependency
@@ -65,7 +68,17 @@ export default function ComponentsIndexPage() {
       description: item.description,
       category: item.category,
       status: item.status,
+      // Only the dependencies that are themselves components: the map draws
+      // the lines between stars, and the theme and utils are not stars.
+      uses: item.registryDependencies.filter((name) => componentNames.has(name)),
     })),
+  }));
+
+  // Blocks, for the map's galaxies: each pulls in what it is built from.
+  const mapBlocks = getBlocks().map((block) => ({
+    name: block.name,
+    title: block.title,
+    uses: block.registryDependencies.filter((name) => componentNames.has(name)),
   }));
 
   // The whole catalogue as one list, so a crawler that reaches this page has
@@ -102,7 +115,7 @@ export default function ComponentsIndexPage() {
         description={`${String(total)} accessible components across ${String(groups.length)} categories, installed as source you own. Every preview below is the real component — open one for its variants, its props and the exact file the CLI writes.`}
       />
 
-      <ComponentsBrowser groups={browserGroups} featured={FEATURED} />
+      <ComponentsBrowser groups={browserGroups} featured={FEATURED} blocks={mapBlocks} />
     </article>
   );
 }
