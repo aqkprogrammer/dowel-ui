@@ -93,6 +93,13 @@ export interface LiveStageProps {
   interactive?: boolean;
   /** Shown until the component mounts, and if it fails to. */
   placeholder?: ReactNode;
+  /**
+   * How the component meets the box. `contain` scales it until all of it fits
+   * and centres it — right for a control. `width` scales it to the box's width
+   * and crops what falls below, anchored at the top — right for a whole
+   * screen, which reads as a screen only at a size where its text is text.
+   */
+  fit?: "contain" | "width";
   className?: string;
 }
 
@@ -109,6 +116,7 @@ export function LiveStage({
   fill = 0.86,
   interactive = false,
   placeholder,
+  fit = "contain",
   className,
 }: LiveStageProps) {
   const [box, near] = useNearViewport<HTMLDivElement>();
@@ -123,6 +131,7 @@ export function LiveStage({
           fill={fill}
           interactive={interactive}
           placeholder={placeholder}
+          fit={fit}
         >
           {children}
         </FittedStage>
@@ -147,6 +156,7 @@ function FittedStage({
   fill,
   interactive,
   placeholder,
+  fit,
 }: Required<Omit<LiveStageProps, "className" | "placeholder">> & {
   box: RefObject<HTMLDivElement | null>;
   placeholder: ReactNode;
@@ -172,11 +182,14 @@ function FittedStage({
 
         const contentWidth = Math.max(inner.scrollWidth, 1);
         const contentHeight = Math.max(inner.scrollHeight, 1);
-        const next = Math.min(
-          maxScale,
-          (outer.clientWidth * fill) / contentWidth,
-          (outer.clientHeight * fill) / contentHeight,
-        );
+        const next =
+          fit === "width"
+            ? Math.min(maxScale, (outer.clientWidth * fill) / contentWidth)
+            : Math.min(
+                maxScale,
+                (outer.clientWidth * fill) / contentWidth,
+                (outer.clientHeight * fill) / contentHeight,
+              );
         setScale((current) =>
           current !== null && Math.abs(current - next) < 0.005 ? current : next,
         );
@@ -208,7 +221,7 @@ function FittedStage({
       resizes.disconnect();
       mutations.disconnect();
     };
-  }, [maxScale, fill, interactive, box]);
+  }, [maxScale, fill, interactive, box, fit]);
 
   return (
     <div
@@ -216,13 +229,17 @@ function FittedStage({
       // A transformed ancestor is the containing block for anything fixed
       // inside it, so a toast region or a pinned bar stays in the card.
       className={cn(
-        "absolute top-1/2 left-1/2 grid place-items-center",
+        "absolute left-1/2 grid place-items-center",
+        fit === "width" ? "top-0 origin-top" : "top-1/2",
         "transition-opacity duration-[var(--duration-slow)] ease-[var(--ease-out-quint)]",
         !interactive && "pointer-events-none select-none",
       )}
       style={{
         width,
-        transform: `translate(-50%, -50%) scale(${String(scale ?? 1)})`,
+        transform:
+          fit === "width"
+            ? `translateX(-50%) scale(${String(scale ?? 1)})`
+            : `translate(-50%, -50%) scale(${String(scale ?? 1)})`,
         opacity: scale === null ? 0 : 1,
       }}
       inert={!interactive}

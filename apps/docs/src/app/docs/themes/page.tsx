@@ -1,18 +1,18 @@
 "use client";
 
 import { THEME_PRESETS } from "@dowel-ui/themes";
-import { Badge } from "@dowel-ui/react/badge";
 import { Button } from "@dowel-ui/react/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@dowel-ui/react/card";
-import { CodeBlock } from "@dowel-ui/react/code-block";
-import { Input } from "@dowel-ui/react/input";
 import { Label } from "@dowel-ui/react/label";
 import { Slider } from "@dowel-ui/react/slider";
 import { cn } from "@dowel-ui/react";
-import { useState } from "react";
+import { ArrowRight, Download } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-import { Prose } from "~/components/prose";
-import { useTheme } from "~/components/theme-provider";
+import { CodePanel } from "~/components/site/code-panel";
+import { CosmicBackground } from "~/components/site/cosmic-background";
+import { DocSection } from "~/components/site/doc-section";
+import { ThemeGallery } from "~/components/theme-gallery";
 
 const TOKEN_CSS = `:root {
   --primary: oklch(0.545 0.196 275);
@@ -27,183 +27,189 @@ const TOKEN_CSS = `:root {
   --background: oklch(0.145 0.01 265);
 }`;
 
+const SEMANTIC = [
+  { token: "primary", className: "bg-primary" },
+  { token: "secondary", className: "bg-secondary" },
+  { token: "muted", className: "bg-muted" },
+  { token: "accent", className: "bg-accent" },
+  { token: "destructive", className: "bg-destructive" },
+  { token: "success", className: "bg-success" },
+  { token: "warning", className: "bg-warning" },
+  { token: "info", className: "bg-info" },
+] as const;
+
 /**
  * The theme page changes the live site rather than a sandbox.
  *
- * Anything else would be a demonstration of a preview mechanism instead of the
- * theming system itself.
+ * The gallery previews every preset side by side, each scoped to its own
+ * card; choosing one applies it to the whole site, which is the theming
+ * system itself rather than a demonstration of a preview mechanism. The
+ * radius knob, likewise, re-proportions this page.
  */
 export default function ThemesPage() {
-  const { preset, setPreset } = useTheme();
   const [radius, setRadius] = useState([1]);
 
+  // The radius knob writes to the document, so it is put back on the way out:
+  // a reader who leaves for another page should not take a squared-off site
+  // with them.
+  useEffect(
+    () => () => {
+      document.documentElement.style.removeProperty("--radius-scale");
+    },
+    [],
+  );
+
   return (
-    <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Themes</h1>
-
-      <div className="not-prose mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 p-4">
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">Build your own preset</p>
-          <p className="text-sm text-muted-foreground">
-            Pick a colour and be told whether text can be read on it — checked with the same
-            conversion that gates CI.
-          </p>
-        </div>
-        <Button asChild size="sm">
-          <a href="/theme-studio">Open Theme Studio</a>
-        </Button>
-      </div>
-
-      <Prose>
-        <p>
-          Tokens come in two tiers. Raw scales — a cool-tinted OKLCH neutral ramp, a radius
-          ladder, a 15px-base type scale — and semantic aliases on top of them. Components
-          reference only the semantic layer, so re-skinning the system touches no component
-          file.
-        </p>
-
-        <h2>Presets</h2>
-        <p>Pick one. This changes the whole site, not a preview pane.</p>
-      </Prose>
-
-      <div className="not-prose my-4 flex flex-wrap gap-2">
-        {THEME_PRESETS.map((name) => (
-          <Button
-            key={name}
-            variant={preset === name ? "primary" : "outline"}
-            size="sm"
-            className="capitalize"
-            aria-pressed={preset === name}
-            onClick={() => {
-              setPreset(name);
-            }}
-          >
-            {name}
-          </Button>
-        ))}
-      </div>
-
-      <div className="not-prose my-6 grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Create project</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            <div className="grid gap-2">
-              <Label htmlFor="preview-name">Project name</Label>
-              <Input id="preview-name" placeholder="acme-inc" />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Badge>Default</Badge>
-              <Badge variant="success">Deployed</Badge>
-              <Badge variant="destructive">Failed</Badge>
-            </div>
-            <Button>Create project</Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Semantic tokens</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-2">
-            {[
-              { token: "primary", className: "bg-primary" },
-              { token: "secondary", className: "bg-secondary" },
-              { token: "muted", className: "bg-muted" },
-              { token: "accent", className: "bg-accent" },
-              { token: "destructive", className: "bg-destructive" },
-              { token: "success", className: "bg-success" },
-              { token: "warning", className: "bg-warning" },
-              { token: "info", className: "bg-info" },
-            ].map((swatch) => (
-              <div key={swatch.token} className="flex items-center gap-2">
-                <span
-                  aria-hidden="true"
-                  className={cn("size-5 rounded border border-border", swatch.className)}
-                />
-                <span className="font-mono text-2xs text-muted-foreground">{swatch.token}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Prose>
-        <h2>One knob for every corner</h2>
-        <p>
-          Radius tokens are all multiples of <code>--radius-scale</code>, so a single custom
-          property re-proportions the whole system. Drag it and watch the cards above.
-        </p>
-      </Prose>
-
-      <div className="not-prose my-4 grid max-w-sm gap-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="radius-scale">Radius scale</Label>
-          <span className="text-sm text-muted-foreground tabular-nums">
-            {radius[0]?.toFixed(2)}
-          </span>
-        </div>
-        <Slider
-          id="radius-scale"
-          aria-label="Radius scale"
-          min={0}
-          max={2}
-          step={0.05}
-          value={radius}
-          onValueChange={(next) => {
-            setRadius(next);
-            document.documentElement.style.setProperty("--radius-scale", String(next[0]));
-          }}
+    <article>
+      <header className="relative isolate pt-10 pb-10 sm:pt-14">
+        <CosmicBackground
+          intensity="ambient"
+          seed={37}
+          className="-inset-x-[50vw] -top-24 bottom-0 -z-10"
         />
-      </div>
-
-      <Prose>
-        <h2>Your own theme</h2>
-        <p>
-          <code>init</code> writes the tokens into your stylesheet, so they are yours to edit. A
-          theme is a handful of semantic values — no build step, no configuration file.
+        <p className="eyebrow" data-tone="orange">
+          Themes · {THEME_PRESETS.length} presets
         </p>
-      </Prose>
-
-      <div className="not-prose my-4">
-        <CodeBlock language="css" title="app/globals.css" code={TOKEN_CSS}>
-          {TOKEN_CSS}
-        </CodeBlock>
-      </div>
-
-      <Prose>
-        <p>
-          Colours are OKLCH because its lightness is perceptually even, which makes ramps
-          predictable to generate and contrast tractable to audit. The <code>monochrome</code>{" "}
-          preset exists partly as a standing test: if a component becomes unusable without
-          colour, colour was carrying meaning it should not have been.
+        <h1 className="display-lg text-luminous mt-4">
+          Find the visual language for your product.
+        </h1>
+        <p className="mt-4 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg">
+          Two tiers of OKLCH tokens: raw scales, and the semantic aliases components actually
+          use. A preset reassigns a handful of them; every component follows, and no component
+          file changes.
         </p>
-
-        <h2>In Figma</h2>
-        <p>
-          Every preset is available as a W3C design-tokens file, generated at build time from
-          the same CSS the components use. Import one with Tokens Studio for Figma and you get
-          three sets — <code>core</code> for the raw scale, <code>light</code> and{" "}
-          <code>dark</code> for the semantic colours, resolved to sRGB hex — that mirror exactly
-          how the CSS composes. A preset built in the <a href="/theme-studio">Theme Studio</a>{" "}
-          downloads the same file.
-        </p>
-      </Prose>
-
-      <ul className="not-prose mt-4 flex flex-wrap gap-2">
-        {THEME_PRESETS.map((preset) => (
-          <li key={preset}>
-            <a
-              href={`/figma/${preset}.tokens.json`}
-              download
-              className="inline-flex rounded-md border border-border px-2 py-1 font-mono text-xs transition-colors outline-none hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring/55"
-            >
-              {preset}.tokens.json
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button asChild className="bg-foreground text-background hover:bg-foreground/90">
+            <Link href="/theme-studio">
+              Create your own theme
+              <ArrowRight aria-hidden="true" />
+            </Link>
+          </Button>
+          <Button asChild variant="ghost">
+            <a href="#figma">
+              <Download aria-hidden="true" />
+              Figma tokens
             </a>
-          </li>
-        ))}
-      </ul>
+          </Button>
+        </div>
+      </header>
+
+      <DocSection
+        id="presets"
+        title="Presets"
+        description="Each card is real components in that preset. Use one on this site to see it everywhere — the choice is remembered, and the palette menu in the header can change it back."
+      >
+        <ThemeGallery />
+      </DocSection>
+
+      <DocSection
+        id="radius"
+        title="One knob for every corner"
+        description={
+          <>
+            Radius tokens are all multiples of <code className="font-mono">--radius-scale</code>
+            , so a single custom property re-proportions the whole system. Drag it and watch
+            this page — the presets above included.
+          </>
+        }
+      >
+        <div className="grid max-w-md gap-3 rounded-2xl border border-[var(--hairline)] bg-[var(--pane)] p-5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="radius-scale">Radius scale</Label>
+            <span className="font-mono text-sm text-muted-foreground tabular-nums">
+              {radius[0]?.toFixed(2)}×
+            </span>
+          </div>
+          <Slider
+            id="radius-scale"
+            aria-label="Radius scale"
+            min={0}
+            max={2}
+            step={0.05}
+            value={radius}
+            onValueChange={(next) => {
+              setRadius(next);
+              document.documentElement.style.setProperty("--radius-scale", String(next[0]));
+            }}
+          />
+        </div>
+      </DocSection>
+
+      <DocSection
+        id="tokens"
+        title="Semantic tokens"
+        description="Components reference only these. Colours are OKLCH, whose lightness is perceptually even — which makes ramps predictable to generate and contrast tractable to audit."
+      >
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {SEMANTIC.map((swatch) => (
+            <li
+              key={swatch.token}
+              className="flex items-center gap-3 rounded-xl border border-[var(--hairline)] bg-[var(--pane)] p-3"
+            >
+              <span
+                aria-hidden="true"
+                className={cn("size-8 rounded-lg border border-border", swatch.className)}
+              />
+              <span className="font-mono text-xs text-muted-foreground">{swatch.token}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 max-w-2xl text-sm text-pretty text-muted-foreground">
+          The <code className="font-mono">monochrome</code> preset exists partly as a standing
+          test: if a component becomes unusable without colour, colour was carrying meaning it
+          should not have been.
+        </p>
+      </DocSection>
+
+      <DocSection
+        id="your-own"
+        title="Your own theme"
+        description={
+          <>
+            <code className="font-mono">init</code> writes the tokens into your stylesheet, so
+            they are yours to edit. A theme is a handful of semantic values — no build step, no
+            configuration file.
+          </>
+        }
+      >
+        <CodePanel language="css" title="app/globals.css" code={TOKEN_CSS} highlight={[2]} />
+      </DocSection>
+
+      <DocSection
+        id="figma"
+        title="In Figma"
+        description={
+          <>
+            Every preset is a W3C design-tokens file, generated at build time from the same CSS
+            the components use. Import one with Tokens Studio for Figma and you get three sets —{" "}
+            <code className="font-mono">core</code>, <code className="font-mono">light</code>{" "}
+            and <code className="font-mono">dark</code> — that mirror how the CSS composes. A
+            preset built in the{" "}
+            <Link
+              href="/theme-studio"
+              className="underline underline-offset-4 hover:text-foreground"
+            >
+              Theme Studio
+            </Link>{" "}
+            downloads the same file.
+          </>
+        }
+      >
+        <ul className="flex flex-wrap gap-2">
+          {THEME_PRESETS.map((preset) => (
+            <li key={preset}>
+              <a
+                href={`/figma/${preset}.tokens.json`}
+                download
+                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--hairline)] bg-[var(--pane)] px-3 py-1.5 font-mono text-xs text-muted-foreground transition-colors outline-none hover:border-[var(--hairline-strong)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/55"
+              >
+                <Download aria-hidden="true" className="size-3" />
+                {preset}.tokens.json
+              </a>
+            </li>
+          ))}
+        </ul>
+      </DocSection>
     </article>
   );
 }

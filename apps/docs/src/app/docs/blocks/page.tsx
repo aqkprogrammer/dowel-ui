@@ -1,9 +1,12 @@
-import { Badge } from "@dowel-ui/react/badge";
+import { Button } from "@dowel-ui/react/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { BlocksBrowser, type BlockBrowserGroup } from "~/components/blocks-browser";
 import { JsonLd } from "~/components/json-ld";
-import { Prose } from "~/components/prose";
+import { PageHeader } from "~/components/site/page-header";
+import { BLOCK_GROUPS, blockGroupLabel, blockGroupOf } from "~/lib/block-taxonomy";
+import { proPreviews } from "~/lib/pro-previews.generated";
 import { getBlocks } from "~/lib/registry";
 import { breadcrumbSchema, collectionSchema, graph } from "~/lib/structured-data";
 
@@ -25,8 +28,37 @@ export const metadata: Metadata = {
   openGraph: { type: "website", url: "/docs/blocks" },
 };
 
+/** Groups whose blocks are small forms: shown whole, not cropped. */
+const CONTAINED = new Set(["auth"]);
+
 export default function BlocksIndexPage() {
   const blocks = getBlocks();
+
+  const groups: BlockBrowserGroup[] = BLOCK_GROUPS.map((group) => ({
+    id: group.id,
+    label: group.label,
+    blurb: group.blurb,
+    blocks: blocks
+      .filter((block) => blockGroupOf(block) === group.id)
+      .map((block) => {
+        const contained = CONTAINED.has(group.id);
+        return {
+          name: block.name,
+          title: block.title,
+          description: block.description,
+          groupLabel: blockGroupLabel(group.id),
+          components: block.registryDependencies.length,
+          pro: block.access === "pro",
+          fit: contained ? ("contain" as const) : ("width" as const),
+          stageWidth: contained ? 560 : 1280,
+          // A licensed block has no live preview anywhere on the site; its
+          // card shows the first still rendered at build time instead.
+          ...(block.access === "pro" && proPreviews[block.name]?.[0]
+            ? { still: proPreviews[block.name]?.[0]?.html }
+            : {}),
+        };
+      }),
+  })).filter((group) => group.blocks.length > 0);
 
   const structuredData = graph(
     collectionSchema({
@@ -46,54 +78,32 @@ export default function BlocksIndexPage() {
     ]),
   );
 
+  const pro = blocks.filter((block) => block.access === "pro").length;
+
   return (
-    <article className="max-w-3xl">
+    <article>
       <JsonLd json={structuredData} />
-      <h1 className="text-2xl font-semibold tracking-tight">React page templates and blocks</h1>
+      <PageHeader
+        eyebrow={`Blocks · ${String(blocks.length)} screens and sections`}
+        title="Production-ready screens, assembled."
+        cosmic="ambient"
+        seed={29}
+        description="Dashboards, sign-in, billing, AI surfaces and every section a landing page needs — built from the components rather than reimplementing them, and installed as source that is yours to edit."
+        actions={
+          <>
+            <Button asChild className="bg-foreground text-background hover:bg-foreground/90">
+              <Link href="/docs/blocks/dashboard">Open the dashboard block</Link>
+            </Button>
+            {pro > 0 ? (
+              <Button asChild variant="ghost">
+                <Link href="/pricing">{pro} Pro surfaces · Pricing</Link>
+              </Button>
+            ) : null}
+          </>
+        }
+      />
 
-      <Prose>
-        <p>
-          Blocks are whole sections — a sign-in form, a settings page, a chat surface —
-          assembled from the components rather than reimplementing them. Installing one brings
-          everything it is built from with it.
-        </p>
-        <p>
-          They are starting points, not black boxes. The source lands in your project like any
-          other file, and it is meant to be edited: the layout, the copy and the fields are all
-          yours.
-        </p>
-        <p>
-          Blocks marked <strong>Pro</strong> install the same way once the CLI is signed in with
-          a licence key. Their previews are real; only the source is withheld. See{" "}
-          <Link href="/pricing">pricing</Link>.
-        </p>
-      </Prose>
-
-      <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-        {blocks.map((block) => (
-          <li key={block.name}>
-            <Link
-              href={`/docs/blocks/${block.name}`}
-              className="block rounded-lg border border-border p-4 transition-colors outline-none hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring/55"
-            >
-              <span className="flex items-center gap-2">
-                <span className="text-sm font-medium">{block.title}</span>
-                <Badge size="sm" variant="secondary">
-                  {block.registryDependencies.length} components
-                </Badge>
-                {block.access === "pro" ? (
-                  <Badge size="sm" variant="default">
-                    Pro
-                  </Badge>
-                ) : null}
-              </span>
-              <span className="mt-1 block text-xs text-muted-foreground">
-                {block.description}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <BlocksBrowser groups={groups} />
     </article>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Prose } from "~/components/prose";
+import { PageHeader } from "~/components/site/page-header";
 import { pageMetadata } from "~/lib/site";
 
 export const metadata: Metadata = pageMetadata({
@@ -60,7 +61,12 @@ const DECISIONS = [
 export default function AccessibilityPage() {
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Accessibility</h1>
+      <PageHeader
+        eyebrow="Docs"
+        title="Accessibility"
+        cosmic="subtle"
+        className="pb-2 sm:pb-4"
+      />
 
       <Prose>
         <p>

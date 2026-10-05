@@ -1,8 +1,9 @@
-import { CodeBlock } from "@dowel-ui/react/code-block";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Prose } from "~/components/prose";
+import { CodePanel } from "~/components/site/code-panel";
+import { PageHeader } from "~/components/site/page-header";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
 
@@ -55,7 +56,12 @@ const CONFIG = `{
 export default function PrivateRegistryPage() {
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Private registries</h1>
+      <PageHeader
+        eyebrow="Docs"
+        title="Private registries"
+        cosmic="subtle"
+        className="pb-2 sm:pb-4"
+      />
 
       <Prose>
         <p>
@@ -78,9 +84,7 @@ export default function PrivateRegistryPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="ts" title="registry.build.ts" code={BUILD}>
-          {BUILD}
-        </CodeBlock>
+        <CodePanel language="ts" title="registry.build.ts" code={BUILD} />
       </div>
 
       <Prose>
@@ -125,9 +129,7 @@ export default function PrivateRegistryPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="json" title="components.json" code={CONFIG}>
-          {CONFIG}
-        </CodeBlock>
+        <CodePanel language="json" title="components.json" code={CONFIG} />
       </div>
 
       <Prose>

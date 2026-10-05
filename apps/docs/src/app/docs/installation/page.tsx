@@ -1,9 +1,10 @@
-import { CodeBlock } from "@dowel-ui/react/code-block";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { InstallCommand } from "~/components/install-command";
 import { Prose } from "~/components/prose";
+import { CodePanel } from "~/components/site/code-panel";
+import { PageHeader } from "~/components/site/page-header";
 import { pageMetadata } from "~/lib/site";
 
 export const metadata: Metadata = pageMetadata({
@@ -45,7 +46,12 @@ export function CreateProject() {
 export default function InstallationPage() {
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Installation</h1>
+      <PageHeader
+        eyebrow="Docs"
+        title="Installation"
+        cosmic="subtle"
+        className="pb-2 sm:pb-4"
+      />
 
       <Prose>
         <h2>Starting from nothing</h2>
@@ -57,9 +63,7 @@ export default function InstallationPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="bash" title="Terminal" code={CREATE}>
-          {CREATE}
-        </CodeBlock>
+        <CodePanel language="bash" title="Terminal" code={CREATE} />
       </div>
 
       <Prose>
@@ -105,9 +109,7 @@ export default function InstallationPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="tsx" title="create-project.tsx" code={USAGE}>
-          {USAGE}
-        </CodeBlock>
+        <CodePanel language="tsx" title="create-project.tsx" code={USAGE} />
       </div>
 
       <Prose>

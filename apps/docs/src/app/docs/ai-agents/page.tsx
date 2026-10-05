@@ -1,4 +1,3 @@
-import { CodeBlock } from "@dowel-ui/react/code-block";
 import {
   Table,
   TableBody,
@@ -11,6 +10,8 @@ import type { Metadata } from "next";
 
 import { InstallCommand } from "~/components/install-command";
 import { Prose } from "~/components/prose";
+import { CodePanel } from "~/components/site/code-panel";
+import { PageHeader } from "~/components/site/page-header";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
 import { getBlocks, getComponents } from "~/lib/registry";
@@ -93,7 +94,7 @@ export default function AiAgentsPage() {
 
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">AI agents</h1>
+      <PageHeader eyebrow="Docs" title="AI agents" cosmic="subtle" className="pb-2 sm:pb-4" />
 
       <Prose>
         <p>
@@ -163,9 +164,7 @@ export default function AiAgentsPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="json" title=".mcp.json" code={MCP_CONFIG}>
-          {MCP_CONFIG}
-        </CodeBlock>
+        <CodePanel language="json" title=".mcp.json" code={MCP_CONFIG} />
       </div>
 
       <Prose>
