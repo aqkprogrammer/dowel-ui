@@ -1,0 +1,18 @@
+export {
+  createStarsBackgroundRandom,
+  createStarsBackgroundStars,
+  spawnStarsBackgroundStreak,
+  STARS_BACKGROUND_LAYERS,
+  StarsBackground,
+  starsBackgroundCount,
+  starsBackgroundPosition,
+  starsBackgroundStreakDelay,
+  starsBackgroundStreakShape,
+  starsBackgroundTwinkle,
+  starsBackgroundVariants,
+  stepStarsBackgroundStreaks,
+  type StarsBackgroundLayer,
+  type StarsBackgroundProps,
+  type StarsBackgroundStar,
+  type StarsBackgroundStreak,
+} from "./stars-background";

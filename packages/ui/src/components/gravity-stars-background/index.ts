@@ -1,0 +1,16 @@
+export {
+  addGravityStarsWave,
+  createGravityStarsWorld,
+  GRAVITY_STARS,
+  GravityStarsBackground,
+  gravityStarsBackgroundVariants,
+  gravityStarsCount,
+  gravityStarsLinks,
+  resizeGravityStarsWorld,
+  setGravityStarsPointer,
+  stepGravityStars,
+  type GravityStar,
+  type GravityStarsBackgroundProps,
+  type GravityStarsWave,
+  type GravityStarsWorld,
+} from "./gravity-stars-background";
