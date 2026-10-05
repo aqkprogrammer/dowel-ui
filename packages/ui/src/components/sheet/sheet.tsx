@@ -29,7 +29,11 @@ export function SheetOverlay({
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-[var(--z-overlay)] bg-overlay",
+        // The panel's own layer, not --z-overlay: overlay and panel are
+        // siblings in one portal, the overlay first, so on a shared layer the
+        // panel paints above it. On the overlay layer it covered the panel. A
+        // dialog opened from inside the panel still dims it, from the layer above.
+        "fixed inset-0 z-[var(--z-drawer)] bg-overlay",
         "data-[state=closed]:animate-overlay-out data-[state=open]:animate-overlay-in",
         className,
       )}
