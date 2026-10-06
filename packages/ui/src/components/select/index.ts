@@ -10,5 +10,6 @@ export {
   selectTriggerVariants,
   type SelectContentProps,
   type SelectItemProps,
+  type SelectProps,
   type SelectTriggerProps,
 } from "./select";

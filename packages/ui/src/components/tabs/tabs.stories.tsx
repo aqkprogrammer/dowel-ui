@@ -144,6 +144,11 @@ export const ManualActivation: Story = {
  * `pill` and `segment` variants are the solid list with a rounded-full or
  * stretched track; `underline` is the underline list.
  */
+/*
+ * Each trigger's aria-controls names its panel, so the panels are rendered
+ * even though this story is about the lists alone; they are only visually
+ * hidden.
+ */
 export const SmoothTabs: Story = {
   render: () => (
     <div className="grid gap-8">
@@ -155,6 +160,18 @@ export const SmoothTabs: Story = {
           <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
+        <TabsContent value="overview" className="sr-only">
+          Overview
+        </TabsContent>
+        <TabsContent value="analytics" className="sr-only">
+          Analytics
+        </TabsContent>
+        <TabsContent value="reports" className="sr-only">
+          Reports
+        </TabsContent>
+        <TabsContent value="notifications" className="sr-only">
+          Notifications
+        </TabsContent>
       </Tabs>
       <Tabs defaultValue="overview">
         <p className="mb-2 text-xs text-muted-foreground">Pill</p>
@@ -172,6 +189,15 @@ export const SmoothTabs: Story = {
             Reports
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="overview" className="sr-only">
+          Overview
+        </TabsContent>
+        <TabsContent value="analytics" className="sr-only">
+          Analytics
+        </TabsContent>
+        <TabsContent value="reports" className="sr-only">
+          Reports
+        </TabsContent>
       </Tabs>
       <Tabs defaultValue="overview">
         <p className="mb-2 text-xs text-muted-foreground">Underline</p>
@@ -186,6 +212,15 @@ export const SmoothTabs: Story = {
             Reports
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="overview" className="sr-only">
+          Overview
+        </TabsContent>
+        <TabsContent value="analytics" className="sr-only">
+          Analytics
+        </TabsContent>
+        <TabsContent value="reports" className="sr-only">
+          Reports
+        </TabsContent>
       </Tabs>
     </div>
   ),

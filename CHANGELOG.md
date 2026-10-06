@@ -3,6 +3,23 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+Fixes for the accessibility problems the real-browser suite found in 0.13.0.
+
+### Fixed
+
+- **`Select` inside `FormControl` had no accessible name.** `FormControl`
+  passes the field's id, description and invalid state to its child, and
+  `Select`'s root renders no element, so they were dropped and the label
+  pointed at nothing. `Select` now passes them on to its trigger.
+- **`Conversation`'s transcript could not be scrolled by keyboard** when the
+  messages held nothing focusable. It is now a focusable, named region (`label`,
+  default "Conversation"), as `Table`'s scroll wrapper already is.
+- Stories: the `agent-data-table` selection column has a header name, the
+  skeleton loading stories give their label a role to belong to, and the tabs
+  stories render the panels their triggers point at.
+
 ## 0.13.0
 
 The CLI and the MCP server now work after the install as well as during it,
