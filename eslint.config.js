@@ -19,6 +19,10 @@ export default [
       // checked by generating from each template and building the result, which
       // is a stronger check than linting them here would be.
       "packages/create-dowel-app/templates/**",
+      // AgentBench reference solutions, for the same reason: they are pages for
+      // a generated project and import `@/components/ui/*` from it. The harness
+      // checks them by scoring them inside one.
+      "packages/agentbench/tasks/**",
     ],
   },
 ];
