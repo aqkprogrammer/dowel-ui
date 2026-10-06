@@ -3,6 +3,7 @@
 import { cn } from "@dowel-ui/react";
 import {
   Component,
+  Suspense,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -107,7 +108,8 @@ export interface LiveStageProps {
  * Lays a live component out at page size and scales it to fit its box.
  *
  * Mounts only near the viewport, so the cost of a preview is paid when
- * somebody is looking at it.
+ * somebody is looking at it — including the download, for a story that is
+ * fetched on demand.
  */
 export function LiveStage({
   children,
@@ -124,17 +126,23 @@ export function LiveStage({
   return (
     <div ref={box} className={cn("relative overflow-hidden", className)}>
       {near ? (
-        <FittedStage
-          box={box}
-          stageWidth={stageWidth}
-          maxScale={maxScale}
-          fill={fill}
-          interactive={interactive}
-          placeholder={placeholder}
-          fit={fit}
-        >
-          {children}
-        </FittedStage>
+        // Around the stage rather than inside it, so a story still being
+        // fetched holds back the stage as well. Mounted early, the stage would
+        // measure an empty box, and an interactive one stops re-measuring once
+        // it has settled — the story would arrive to a scale chosen for nothing.
+        <Suspense fallback={placeholder}>
+          <FittedStage
+            box={box}
+            stageWidth={stageWidth}
+            maxScale={maxScale}
+            fill={fill}
+            interactive={interactive}
+            placeholder={placeholder}
+            fit={fit}
+          >
+            {children}
+          </FittedStage>
+        </Suspense>
       ) : (
         placeholder
       )}

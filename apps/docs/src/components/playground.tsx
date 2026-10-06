@@ -25,7 +25,14 @@ import { cn } from "@dowel-ui/react";
 import { THEME_PRESETS } from "@dowel-ui/themes";
 import { RotateCcw } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 import {
   componentTag,
@@ -34,11 +41,10 @@ import {
   initialValue,
   type Control,
 } from "~/lib/playground";
-import { storyModules } from "~/lib/previews.generated";
 import { asStory, asStoryMeta, type StoryArgs } from "~/lib/story-types";
 
 import { CodePanel } from "./site/code-panel";
-import { getStoryNames } from "./story-preview";
+import { getStoryNames, useStoryModule } from "./story-preview";
 
 export interface PlaygroundEntry {
   name: string;
@@ -93,7 +99,11 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
   }, [radius]);
 
   const entry = entries.find((item) => item.name === name);
-  const storyModule = storyModules[name];
+  // Suspends the first time a component is chosen, until its stories arrive.
+  // The page's boundary covers the first load; after that, choosing another
+  // component is a transition, so the stage keeps showing the last one rather
+  // than blanking while the next is fetched.
+  const storyModule = useStoryModule(name);
   const meta = asStoryMeta(storyModule?.default);
 
   // Through the shared helper, so the first example here is the same one the
@@ -144,8 +154,10 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
 
   const selectComponent = useCallback(
     (next: string) => {
-      setName(next);
-      setStoryName(undefined);
+      startTransition(() => {
+        setName(next);
+        setStoryName(undefined);
+      });
       // Replace, not push: forty knob turns should not mean forty presses of
       // the back button to leave the page.
       router.replace(`/playground?c=${next}`, { scroll: false });

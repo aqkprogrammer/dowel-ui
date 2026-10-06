@@ -415,7 +415,7 @@ one request), generated at build time from the same registry.
 
 ## Development
 
-Requires Node ≥ 20 and pnpm 11.
+Requires Node ≥ 22.18 and pnpm 11 to develop. The published CLI, MCP server and scaffolder run on Node 20.12 or later, and CI runs them there.
 
 ```bash
 pnpm install
