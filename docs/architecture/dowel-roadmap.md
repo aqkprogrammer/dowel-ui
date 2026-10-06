@@ -37,21 +37,21 @@ public API without a migration path. Nothing below is a commitment to a date.
 
 | Brief item                  | State       | Note                                                                                                                                 |
 | --------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Component Genome            | **Partial** | `meta.ts` is already the single source of truth. It lacks usage guidance, composition and props — extend it, do not replace it       |
-| `dowel doctor`              | Missing     | `update` already computes installed / modified / outdated per file; most of doctor is a new view of data the CLI has                 |
-| `dowel audit` / drift       | **Partial** | The checks exist as `scripts/audit/*`, hard-wired to monorepo paths. Porting them to run against a consumer project is the work      |
-| `dowel diff`                | Missing     | `update` reports state, never content                                                                                                |
-| Visual regression           | Missing     | ADR 12 deferred it until the API settled; with 244 components it now has                                                             |
-| Dowel Verified              | **Partial** | `/quality` already scores each component; the missing part is a written standard                                                     |
+| Component Genome            | **Done**    | Phase 2: guidance and composition declared in `meta.ts` (188 items), props, capabilities and quality derived by the build            |
+| `dowel doctor`              | **Done**    | Phase 3, a checklist rather than a score                                                                                             |
+| `dowel audit` / drift       | **Done**    | Phase 3: six rules shared with the repository's own audits; MCP `audit_code` in phase 4                                              |
+| `dowel diff`                | **Done**    | Phase 3                                                                                                                              |
+| Visual regression           | **Done**    | Phase 6: 188 screenshots of 42 stories, in a pinned container                                                                        |
+| Dowel Verified              | **Partial** | The standard is written down (ADR 16); a mark for third parties waits on CI running the browser checks                               |
 | DOWEL.md / Skills           | **Exists**  | Under the names `AGENTS.md` and `SKILL.md`, which agents already read. A new filename would be one more file nobody's tool looks for |
-| MCP expansion               | Partial     | Tools are live; they are also untested and the package has no README                                                                 |
+| MCP expansion               | **Done**    | Six tools, contract-tested, with the genome and `audit_code` (phases 1 and 4)                                                        |
 | AI components / patterns    | **Exists**  | 41 components; patterns are the blocks `ai-chat`, `agent-console`, `ai-dashboard`, `ai-workspace`                                    |
 | Theme studio                | **Exists**  | At `/theme-studio`. Not renamed: the URL is linked from the README and npm                                                           |
 | Density token               | Missing     | Mentioned in a comment in `tokens.css`, never implemented                                                                            |
 | RTL                         | **Exists**  | `audit:rtl` enforces logical properties; `direction-provider` ships                                                                  |
 | ⌘K search                   | **Exists**  | Substring only; no ranking or typo tolerance                                                                                         |
 | AgentBench                  | **Partial** | Harness and ten tasks in `packages/agentbench`; no run published yet. Scope in Phase 5                                               |
-| Cloud / enterprise registry | Missing     | Self-hosted private registry is complete; hosted is a demand question                                                                |
+| Cloud / enterprise registry | **Partial** | Private registries with per-registry keys and governance metadata (phase 7); hosted is a demand question                             |
 | Showcase / marketplace      | Missing     | Requires real submissions; there are none to show                                                                                    |
 
 ## Findings that come before any new feature
@@ -172,7 +172,7 @@ inventing new ones.
 
 This document.
 
-### Phase 1 — Trust and foundation
+### Phase 1 — Trust and foundation ✅
 
 The installer and the site have to be sound before anything is built on them.
 
@@ -213,41 +213,26 @@ _Value:_ trust is the adoption bottleneck for any tool that writes into
 someone's repository. Phase 1 items 1–3 are prerequisites for an enterprise
 conversation of any kind.
 
-### Phase 2 — The Component Genome
+### Phase 2 — The Component Genome ✅
 
-Extend `ComponentMeta` with optional, test-verified fields rather than build a
-parallel system:
+Built as planned in principle — **derive if possible, declare if not, verify
+either way** — with these differences from the sketch that was here:
 
-```ts
-guidance?: {
-  useWhen: string[];      // "confirming a destructive action"
-  avoidWhen: string[];    // "navigation — use a link"
-  alternatives?: string[]; // registry names, verified to exist
-};
-composesWith?: string[];  // registry names, verified to exist
-capabilities?: {
-  rtl: boolean;           // derived from audit:rtl, not declared
-  reducedMotion: boolean; // derived from audit:motion
-  server: boolean;        // derived: no "use client"
-};
-props?: PropSummary[];    // derived from the source, as the docs already do
-```
-
-The rule for each field is **derive if possible, declare if not, verify
-either way**. `server` and `rtl` are facts the build can compute, so a human
-never types them. `useWhen` cannot be derived, so it is declared, and the test
-checks only that what it references exists. `props` is already extracted by
-`apps/docs/scripts/prepare.ts`; moving that extraction into the registry build
-makes it available to the CLI, MCP and agent docs, and removes the reason
-`plan_ui` stops short of props.
-
-Collapse the triplicated category list into the schema, make the registry's
-`category` an enum, and publish the JSON Schema the `$schema` field already
-points at.
-
-_Value:_ this is what makes the MCP server and agent files materially better
-than reading the source — the difference between an agent picking `Dialog` and
-picking it for the right reason.
+- **Capabilities** are `client` (from the `"use client"` directive) and
+  `animated` (keyframes or the motion library). `rtl` and `reducedMotion` were
+  dropped as per-item flags: the RTL and motion audits hold every component to
+  them, so a per-item `true` would have said nothing.
+- **Props** moved from the docs site's extractor into
+  `@dowel-ui/registry/analysis` and onto every item; the site, the MCP server
+  and the agent docs all read the same table.
+- **Quality**, the ten checks `/quality` showed, is now on every item.
+- **Guidance** (`useWhen`, `avoidWhen`, `alternatives`) and `composesWith` are
+  written for 188 items, read from each component's source; a test checks that
+  every name they mention exists.
+- **Categories** are defined once, in the registry package, with one set of
+  labels. The item schema's `category` stays a string rather than an enum,
+  because a custom registry may have categories of its own.
+- **The JSON Schemas** the `$schema` fields pointed at are emitted.
 
 ### Phase 3 — Developer tooling ✅
 
@@ -334,7 +319,7 @@ _Value:_ a reproducible result that agent docs and MCP improve output is the
 strongest evidence the "AI-native" positioning can have, and the harness doubles
 as a regression test for the agent files.
 
-### Phase 6 — Visual and browser CI
+### Phase 6 — Visual and browser CI ✅
 
 See ADR 18. Everything below is in CI (`.github/workflows/browser.yml` and
 `ci.yml`); what has and has not been run is stated per item.
