@@ -1,7 +1,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import type { RegistryIndex, RegistryItem } from "@dowel-ui/registry";
+import {
+  CATEGORY_LABELS as REGISTRY_CATEGORY_LABELS,
+  REGISTRY_CATEGORIES,
+  type RegistryIndex,
+  type RegistryItem,
+} from "@dowel-ui/registry";
 
 import { licensedItems } from "./licensed-registry.generated";
 
@@ -71,31 +76,13 @@ export function getBlocks() {
     .sort((a, b) => a.title.localeCompare(b.title));
 }
 
-export const CATEGORY_ORDER = [
-  "foundation",
-  "form",
-  "overlay",
-  "navigation",
-  "display",
-  "data",
-  "feedback",
-  "layout",
-  "ai",
-  "effects",
-] as const;
-
-export const CATEGORY_LABELS: Record<string, string> = {
-  foundation: "Foundations",
-  form: "Forms",
-  overlay: "Overlays",
-  navigation: "Navigation",
-  display: "Display",
-  data: "Data",
-  feedback: "Feedback",
-  layout: "Layout",
-  ai: "AI",
-  effects: "Effects & motion",
-};
+/**
+ * Reading order and labels, from the registry package that every consumer —
+ * the CLI, the agent docs, the MCP server and this site — groups by. Typed
+ * loosely here because the site indexes them with categories read from JSON.
+ */
+export const CATEGORY_ORDER: readonly string[] = REGISTRY_CATEGORIES;
+export const CATEGORY_LABELS: Record<string, string> = REGISTRY_CATEGORY_LABELS;
 
 export interface ComponentGroup {
   category: string;
