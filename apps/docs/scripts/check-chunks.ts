@@ -54,7 +54,36 @@ const ALLOWANCES: { label: string; marker: string; ceiling: number; reason: stri
 ];
 
 const here = dirname(fileURLToPath(import.meta.url));
-const chunksDir = join(here, "..", ".next", "static", "chunks");
+const appRoot = join(here, "..");
+
+/**
+ * Where this build put its client chunks.
+ *
+ * `.next/static/chunks` locally and in CI. A host can move Next's output — the
+ * first deploy after this check was added failed on Vercel, whose build
+ * rewrites the config, because the chunks were not there — so the output
+ * directory is found by the `BUILD_ID` file Next writes at its root rather
+ * than assumed.
+ */
+function findChunksDir(): string | undefined {
+  const candidates = [join(appRoot, ".next")];
+  const search = (directory: string, depth: number): void => {
+    if (depth > 3) return;
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name === "node_modules" || entry.name === ".git")
+        continue;
+      const path = join(directory, entry.name);
+      if (existsSync(join(path, "BUILD_ID"))) candidates.push(path);
+      search(path, depth + 1);
+    }
+  };
+  search(appRoot, 0);
+  return candidates
+    .map((distDir) => join(distDir, "static", "chunks"))
+    .find((directory) => existsSync(directory));
+}
+
+const chunksDir = findChunksDir();
 
 function walk(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -67,8 +96,15 @@ function kb(bytes: number): string {
   return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
-if (!existsSync(chunksDir)) {
-  throw new Error(`No chunks at ${chunksDir}. Run \`next build\` first.`);
+if (chunksDir === undefined) {
+  // On the host the build still succeeds: every pull request runs this check
+  // in CI against the same commit, so a deploy is not the gate. Anywhere else,
+  // no chunks means `next build` did not run, which is an error.
+  if (process.env.VERCEL === "1") {
+    console.warn("Chunk budget: no client chunks found in this build's output; checked in CI.");
+    process.exit(0);
+  }
+  throw new Error(`No client chunks under ${appRoot}. Run \`next build\` first.`);
 }
 
 const chunks = walk(chunksDir)
@@ -109,6 +145,7 @@ for (const allowance of ALLOWANCES) {
   }
 }
 
+console.log(`Chunks in ${relative(appRoot, chunksDir)}.`);
 console.log(`Chunk budget: ${kb(BUDGET)} raw per chunk, ${String(chunks.length)} chunks.`);
 for (const chunk of chunks.slice(0, 5)) {
   const note = chunk.allowance
