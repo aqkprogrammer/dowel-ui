@@ -1,0 +1,141 @@
+name: Browser
+
+# Every Storybook story in a real browser (ADR 18). Its own workflow so ci.yml
+# stays readable, and so a failure here is labelled as what it is.
+#
+# Storybook is built once and shared. Both suites then run inside the official
+# Playwright image, pinned to the @playwright/test version in
+# packages/browser-tests/package.json — bump the two together (a mismatch fails
+# at launch: the image has only its own browser build). The image is what makes
+# results reproducible: one Chromium, one font set, one rasteriser, on the same
+# x86-64 runners the baselines were written for.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      update-snapshots:
+        description: "Rewrite the screenshot baselines and upload them as an artifact to commit"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  STORYBOOK_DISABLE_TELEMETRY: 1
+
+jobs:
+  storybook:
+    name: Build Storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Storybook imports workspace packages (the themes) that ship from dist/,
+      # which a clean checkout does not have yet.
+      - name: Build Storybook
+        run: |
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
+      - uses: actions/upload-artifact@v4
+        with:
+          name: storybook-static
+          path: packages/ui/storybook-static
+          retention-days: 3
+
+  # 2,692 page loads took 4.8 minutes on an M-series Mac with five workers,
+  # and many times that in a container on a busy machine (ADR 18); a
+  # four-vCPU runner has not been measured, so the stories are split three
+  # ways. Each
+  # shard checks its own stories against the baseline, stale entries included,
+  # so nothing is lost by splitting.
+  a11y:
+    name: Accessibility, every story (${{ matrix.shard }}/3)
+    needs: storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: storybook-static
+          path: packages/ui/storybook-static
+      - run: pnpm --filter @dowel-ui/browser-tests test:a11y --shard=${{ matrix.shard }}/3
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: a11y-report-${{ matrix.shard }}
+          path: |
+            packages/browser-tests/playwright-report/
+            packages/browser-tests/test-results/
+          retention-days: 7
+
+  visual:
+    name: Visual regression
+    needs: storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: storybook-static
+          path: packages/ui/storybook-static
+
+      - name: Compare screenshots
+        if: ${{ !inputs.update-snapshots }}
+        run: pnpm --filter @dowel-ui/browser-tests test:visual
+
+      # Baselines are written here and nowhere else, then committed by a person
+      # who has looked at them: download the artifact and copy it over
+      # packages/browser-tests/tests/__screenshots__/.
+      - name: Rewrite the baselines
+        if: ${{ inputs.update-snapshots }}
+        run: pnpm --filter @dowel-ui/browser-tests test:visual --update-snapshots=all
+      - uses: actions/upload-artifact@v4
+        if: ${{ inputs.update-snapshots }}
+        with:
+          name: visual-baselines
+          path: packages/browser-tests/tests/__screenshots__/
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: visual-report
+          path: |
+            packages/browser-tests/playwright-report/
+            packages/browser-tests/test-results/
+          retention-days: 7
