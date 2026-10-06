@@ -2,6 +2,8 @@ import { COLOR_MODES, THEME_PRESETS } from "@dowel-ui/themes";
 import type { Decorator, Preview } from "@storybook/react-vite";
 import { useEffect, type ReactNode } from "react";
 
+import { DirectionProvider } from "../src/components/direction";
+
 import "./preview.css";
 
 /**
@@ -12,10 +14,12 @@ import "./preview.css";
 function ThemeFrame({
   colorMode,
   themePreset,
+  direction,
   children,
 }: {
   colorMode: string;
   themePreset: string;
+  direction: "ltr" | "rtl";
   children: ReactNode;
 }) {
   useEffect(() => {
@@ -27,15 +31,22 @@ function ThemeFrame({
     } else {
       root.setAttribute("data-theme", themePreset);
     }
-  }, [colorMode, themePreset]);
 
-  return children;
+    root.setAttribute("dir", direction);
+  }, [colorMode, themePreset, direction]);
+
+  // Both halves of what an RTL application does (see DirectionProvider): `dir`
+  // on the document for the logical CSS, and the provider for the primitives
+  // that read direction from context. With only the first, menus and selects
+  // stay left-to-right and the story shows a bug no real app would have.
+  return <DirectionProvider dir={direction}>{children}</DirectionProvider>;
 }
 
 const withTheme: Decorator = (Story, context) => (
   <ThemeFrame
     colorMode={context.globals.colorMode as string}
     themePreset={context.globals.themePreset as string}
+    direction={context.globals.direction === "rtl" ? "rtl" : "ltr"}
   >
     <Story />
   </ThemeFrame>
@@ -46,6 +57,7 @@ const preview: Preview = {
   initialGlobals: {
     colorMode: "light",
     themePreset: "default",
+    direction: "ltr",
   },
   globalTypes: {
     colorMode: {
@@ -63,6 +75,17 @@ const preview: Preview = {
         title: "Theme",
         icon: "paintbrush",
         items: [...THEME_PRESETS],
+        dynamicTitle: true,
+      },
+    },
+    // Also what the visual regression suite sets (`globals=direction:rtl`), so
+    // an RTL screenshot is the story a person sees from this toolbar.
+    direction: {
+      description: "Writing direction",
+      toolbar: {
+        title: "Direction",
+        icon: "transfer",
+        items: ["ltr", "rtl"],
         dynamicTitle: true,
       },
     },

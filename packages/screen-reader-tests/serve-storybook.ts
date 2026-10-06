@@ -13,7 +13,10 @@ import { readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, normalize, sep } from "node:path";
 
-const root = join(import.meta.dirname, "..", "ui", "storybook-static");
+// Overridable for browser-tests' container runs, which copy the build off the
+// bind mount first: served from there, each page's chunks took seconds.
+const root =
+  process.env.STORYBOOK_STATIC_DIR ?? join(import.meta.dirname, "..", "ui", "storybook-static");
 const port = Number(process.env.PORT ?? 6007);
 
 const TYPES: Record<string, string> = {
