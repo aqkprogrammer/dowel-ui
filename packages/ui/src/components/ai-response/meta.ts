@@ -17,4 +17,11 @@ export const meta = defineMeta({
     "stops under reduced motion because a frozen one says the app has hung. ResponseText blurs " +
     "in only newly arrived words, adds no live region, and leaves the text content unchanged; " +
     "its [n] markers are InlineCitations named by their source title.",
+  guidance: {
+    useWhen: [
+      "an assistant's response text, with a streaming caret and a thinking indicator before the first token",
+    ],
+    alternatives: ["ai-message"],
+  },
+  composesWith: ["ai-message", "ai-reasoning", "stream-announcer"],
 });

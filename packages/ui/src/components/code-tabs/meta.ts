@@ -19,4 +19,12 @@ export const meta = defineMeta({
     "conveyed by aria-selected. A synced change from another instance or browser tab moves the selection without " +
     "moving focus. Nothing animates on first paint, and under reduced motion the indicator, cross-fade and " +
     "height change are instant.",
+  guidance: {
+    useWhen: [
+      "one command or snippet in several variants, such as pnpm, npm, yarn and bun",
+      "install instructions where the reader's choice should carry across the page",
+    ],
+    avoidWhen: ["a single snippet — use code-block"],
+    alternatives: ["code-block", "tabs"],
+  },
 });

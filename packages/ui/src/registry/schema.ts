@@ -59,6 +59,31 @@ export interface ComponentMeta {
    * `pro` breaks every project that already installs it.
    */
   access?: "free" | "pro";
+  /**
+   * When to use this, when not to, and what it is easily confused with.
+   *
+   * The part of the component genome nobody can derive from source — whether
+   * a Sheet or a Dialog suits a task is a judgement about the task — so it is
+   * written here, by whoever knows. Everything else agents are told (props,
+   * whether it needs a client boundary, whether it animates) is read from the
+   * source by the registry build. `meta.test.ts` checks that every name below
+   * exists, so guidance cannot point at a component that was renamed.
+   */
+  guidance?: ComponentGuidance;
+  /**
+   * Components it is usually used alongside — not ones it imports, which are
+   * `registryDependencies`, but ones a screen built with it tends to need.
+   */
+  composesWith?: string[];
+}
+
+export interface ComponentGuidance {
+  /** Situations it is the right choice for, each a short phrase. */
+  useWhen: string[];
+  /** Situations it is the wrong choice for, naming what to use instead. */
+  avoidWhen?: string[];
+  /** Registry names an agent is likely to confuse it with. */
+  alternatives?: string[];
 }
 
 /** Identity helper that gives editors autocomplete inside `meta.ts`. */

@@ -17,4 +17,12 @@ export const meta = defineMeta({
     "ConversationStatus instead, and let the reader navigate the transcript at their own pace. " +
     "Auto-scroll stops the moment the reader scrolls up, and ConversationScrollButton is the " +
     "explicit way back.",
+  guidance: {
+    useWhen: [
+      "the scrolling transcript of a chat, following new messages and announcing state",
+    ],
+    avoidWhen: ["a complete chat screen — start from the ai-chat block"],
+    alternatives: ["ai-chat"],
+  },
+  composesWith: ["ai-message", "ai-response", "ai-prompt-input"],
 });

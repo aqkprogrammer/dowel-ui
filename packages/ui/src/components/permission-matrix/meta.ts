@@ -20,4 +20,9 @@ export const meta = defineMeta({
     "the keyboard path, with the role it came from as its description. A locked role says in " +
     "each cell's description that nothing can be changed. Group toggles are tri-state, and the " +
     "column header counts each role's grants in text.",
+  guidance: {
+    useWhen: ["editing which roles have which permissions, with inheritance and locked roles"],
+    avoidWhen: ["asking for a capability while an agent runs — use permission-prompt"],
+    alternatives: ["permission-prompt"],
+  },
 });

@@ -26,4 +26,9 @@ export const meta = defineMeta({
     "Escape backing out, and says how many are pinned. The search result count is spoken by a polite " +
     "status region once typing pauses, not on every keystroke. Dates are UTC by default so the server " +
     "and browser render the same text.",
+  guidance: {
+    useWhen: [
+      "letting a person see, search, edit, pin and forget what an assistant remembers about them",
+    ],
+  },
 });

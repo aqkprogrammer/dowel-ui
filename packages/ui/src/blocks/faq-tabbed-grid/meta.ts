@@ -16,4 +16,8 @@ export const meta = defineMeta({
     "between them. Each panel is a description list — questions as terms, answers as details — so " +
     "the pairing is announced. Icons are decorative. The staggered rise of a newly shown panel " +
     "collapses to nothing under reduced motion.",
+  guidance: {
+    useWhen: ["an FAQ in category tabs with every answer visible in a grid"],
+    alternatives: ["faq-categorized", "faq-accordion"],
+  },
 });

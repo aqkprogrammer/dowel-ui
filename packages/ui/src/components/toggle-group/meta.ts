@@ -18,4 +18,15 @@ export const meta = defineMeta({
     "selection is announced from the state, never from colour. Nothing animates on first paint, and " +
     'the springs run inside MotionConfig reducedMotion="user", so under reduced motion the pill jumps ' +
     "and highlights appear at once.",
+  guidance: {
+    useWhen: [
+      "a segmented control choosing one of a few options, such as a view mode",
+      "a toolbar of formatting buttons where several can be on",
+    ],
+    avoidWhen: [
+      "switching between panels of content — use tabs",
+      "a form choice with longer labels — use radio-group",
+    ],
+    alternatives: ["tabs", "radio-group", "toggle"],
+  },
 });

@@ -24,4 +24,8 @@ export const meta = defineMeta({
     "politely. The filter has a real label rather than only a placeholder, which disappears the " +
     "moment anyone types. Each row's action button is named after its row — four identical " +
     '"Actions" buttons say nothing about which row you are on.',
+  guidance: {
+    useWhen: ["a team or user management page with filtering, sorting and per-row actions"],
+    alternatives: ["data-table", "crm"],
+  },
 });

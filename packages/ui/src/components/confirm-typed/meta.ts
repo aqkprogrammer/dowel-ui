@@ -19,4 +19,14 @@ export const meta = defineMeta({
     "description and the button's, and the status region exists from the first render so the " +
     "first announcement is heard. Pasting is allowed: blocking it punishes people who cannot " +
     "type a long name easily and stops nobody who can select-all and copy.",
+  guidance: {
+    useWhen: [
+      "an irreversible deletion where the person must type the name first, as GitHub does for repositories",
+    ],
+    avoidWhen: [
+      "routine confirmations — use alert-dialog",
+      "a quick delete that can be undone — use inline-confirm",
+    ],
+    alternatives: ["alert-dialog", "inline-confirm", "hold-button"],
+  },
 });

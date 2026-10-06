@@ -19,4 +19,10 @@ export const meta = defineMeta({
     "refused with the reason, clashing with which command, cancelled, cleared. Symbols are shown " +
     "on a Mac and words elsewhere, and the description uses the platform's own names for its " +
     "keys.",
+  guidance: {
+    useWhen: [
+      "letting people set their own keyboard shortcut in settings",
+      "a keybindings page where clashes with existing shortcuts must be caught",
+    ],
+  },
 });

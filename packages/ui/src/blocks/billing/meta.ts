@@ -19,4 +19,11 @@ export const meta = defineMeta({
     'after its invoice rather than being one of ten identical "Download" links, which is all a ' +
     "links list would show. A card's last four digits are spoken as digits instead of as a " +
     "four-figure number. Dates carry a machine-readable time element.",
+  guidance: {
+    useWhen: [
+      "a billing page: current plan, usage against limits, payment method and invoices",
+    ],
+    avoidWhen: ["presenting plans to buy on a marketing page — use pricing"],
+    alternatives: ["pricing", "settings"],
+  },
 });

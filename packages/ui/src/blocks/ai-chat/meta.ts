@@ -29,4 +29,9 @@ export const meta = defineMeta({
     "ConversationStatus, and the composer will not send while an IME composition is active. Tool " +
     "payloads are named per tool, so two open tool calls do not present two regions called " +
     '"Result".',
+  guidance: {
+    useWhen: ["a chat screen with transcript, reasoning, tool calls, sources and composer"],
+    avoidWhen: ["a whole app with a conversation list and a context panel — use ai-workspace"],
+    alternatives: ["ai-workspace", "agent-console"],
+  },
 });

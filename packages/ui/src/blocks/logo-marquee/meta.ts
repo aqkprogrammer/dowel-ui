@@ -17,4 +17,8 @@ export const meta = defineMeta({
     "on hover and focus, runs mirrored on right-to-left pages, and stops under reduced motion. " +
     "A visible Pause button stops it outright (WCAG 2.2.2). Each entry is named by its " +
     "organisation; the graphic is aria-hidden, and focus brightens an entry as hover does.",
+  guidance: {
+    useWhen: ["a quiet scrolling row of customer logos with a pause control"],
+    alternatives: ["logo-links-marquee", "logo-cloud-simple"],
+  },
 });

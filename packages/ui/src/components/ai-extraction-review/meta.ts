@@ -21,4 +21,15 @@ export const meta = defineMeta({
     "ten Accept buttons are ten different buttons. Status is a word, outside the label so editing " +
     "never renames the control, and the running count is a polite live region present from the " +
     "start. Enter accepts, except while an IME is composing.",
+  guidance: {
+    useWhen: [
+      "checking fields extracted from a document against its text and deciding each one",
+      "invoice capture, onboarding or claims intake review",
+    ],
+    avoidWhen: [
+      "streaming an extracted object into a layout without review — use ai-structured-output",
+      "one AI-proposed value in a form — use ai-suggested-value",
+    ],
+    alternatives: ["ai-structured-output", "ai-suggested-value"],
+  },
 });

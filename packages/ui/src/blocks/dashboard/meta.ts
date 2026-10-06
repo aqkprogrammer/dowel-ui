@@ -15,4 +15,12 @@ export const meta = defineMeta({
     "which is unreadable to a screen reader and ambiguous to anyone who cannot distinguish the " +
     "colours. Whether a rise is good is configurable, since churn going up is not. The metrics " +
     "sit in a named region so they can be jumped to.",
+  guidance: {
+    useWhen: ["a simple overview page with headline metrics and recent activity"],
+    avoidWhen: [
+      "an admin area with its own navigation — use admin-dashboard",
+      "metrics with a series over time — use analytics",
+    ],
+    alternatives: ["admin-dashboard", "analytics"],
+  },
 });

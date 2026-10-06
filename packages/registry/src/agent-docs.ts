@@ -1,3 +1,4 @@
+import { categoryLabel, categoryRank } from "./categories";
 import type { RegistryIndex, RegistryIndexEntry, RegistryItem } from "./schema";
 
 /**
@@ -43,42 +44,10 @@ export interface AgentDocsContext {
   importFrom: string;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  foundation: "Foundation",
-  form: "Forms",
-  overlay: "Overlays",
-  navigation: "Navigation",
-  display: "Display",
-  data: "Data",
-  feedback: "Feedback",
-  layout: "Layout",
-  ai: "AI",
-  effects: "Effects",
-};
-
-const CATEGORY_ORDER = [
-  "foundation",
-  "form",
-  "overlay",
-  "navigation",
-  "display",
-  "data",
-  "feedback",
-  "layout",
-  "ai",
-  "effects",
-];
-
-function label(category: string): string {
-  return CATEGORY_LABELS[category] ?? category;
-}
-
 /** Ordered by curation where curated, alphabetical for anything new. */
 function categoriesOf(entries: RegistryIndexEntry[]): string[] {
   const present = new Set(entries.map((entry) => entry.category));
-  const known = CATEGORY_ORDER.filter((category) => present.has(category));
-  const rest = [...present].filter((category) => !CATEGORY_ORDER.includes(category)).sort();
-  return [...known, ...rest];
+  return [...present].sort((a, b) => categoryRank(a) - categoryRank(b) || a.localeCompare(b));
 }
 
 function byType(index: RegistryIndex, type: RegistryIndexEntry["type"]): RegistryIndexEntry[] {
@@ -206,7 +175,7 @@ export function componentsDoc(context: AgentDocsContext): string {
     known ? (have.has(entry.name) ? "✓ " : "  ") : "";
 
   for (const category of categoriesOf(ui)) {
-    lines.push(`## ${label(category)}`, "");
+    lines.push(`## ${categoryLabel(category)}`, "");
     for (const entry of ui.filter((item) => item.category === category)) {
       const status = entry.status === "stable" ? "" : ` _(${entry.status})_`;
       lines.push(`- ${mark(entry)}**${entry.name}** — ${entry.description}${status}`);
@@ -497,7 +466,7 @@ export function llmsTxt(context: AgentDocsContext): string {
   ];
 
   for (const category of categoriesOf(ui)) {
-    lines.push(`## ${label(category)}`, "");
+    lines.push(`## ${categoryLabel(category)}`, "");
     for (const entry of ui.filter((item) => item.category === category)) {
       lines.push(
         `- [${entry.name}](${docsUrl}/docs/components/${entry.name}): ${entry.description}`,
@@ -544,7 +513,7 @@ export function llmsFullTxt(context: AgentDocsContext): string {
       const item = detail.get(entry.name);
       lines.push(`## ${entry.title} \`${entry.name}\``, "", entry.description, "");
       lines.push(
-        `- Category: ${label(entry.category)} · Status: ${entry.status}`,
+        `- Category: ${categoryLabel(entry.category)} · Status: ${entry.status}`,
         `- Install: \`add ${entry.name}\``,
       );
       if (entry.registryDependencies.length > 0) {

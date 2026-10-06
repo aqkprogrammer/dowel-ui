@@ -16,4 +16,16 @@ export const meta = defineMeta({
     "must carry altText describing how to do the same thing without the toast, since it may " +
     "be gone before a screen reader user reaches it. The optional spring entrance stops under " +
     "reduced motion.",
+  guidance: {
+    useWhen: [
+      "brief, non-blocking feedback about something that just happened, such as Saved",
+      "messages raised from outside components, such as a fetch handler",
+    ],
+    avoidWhen: [
+      "information that must stay visible — use alert",
+      "a choice the person must make — use alert-dialog",
+      "showing a newly created secret — use secret-field",
+    ],
+    alternatives: ["alert", "alert-dialog", "secret-field", "sync-status"],
+  },
 });

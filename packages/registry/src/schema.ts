@@ -118,6 +118,76 @@ export const registryFileSchema = z.object({
 
 export type RegistryFile = z.infer<typeof registryFileSchema>;
 
+/**
+ * When to reach for an item, and when not to.
+ *
+ * The one part of the genome that cannot be derived from source: whether a
+ * Sheet or a Dialog is right for a task is a judgement about the task. It is
+ * declared in `meta.ts`, and the build checks only what can be checked, which
+ * is that every name it mentions exists.
+ */
+export const registryGuidanceSchema = z.object({
+  /** Situations it is the right choice for. */
+  useWhen: z.array(z.string().min(1)).min(1),
+  /** Situations it is the wrong choice for, ideally naming what to use. */
+  avoidWhen: z.array(z.string().min(1)).default([]),
+  /** Items an agent is likely to confuse it with. */
+  alternatives: z.array(registryItemNameSchema).default([]),
+});
+
+export type RegistryGuidance = z.infer<typeof registryGuidanceSchema>;
+
+/** Facts about an item, computed from its source rather than declared. */
+export const registryCapabilitiesSchema = z.object({
+  /**
+   * Needs `"use client"`, so it cannot render in a Server Component without a
+   * client boundary.
+   */
+  client: z.boolean(),
+  /** Animates, through CSS keyframes or the `motion` library. */
+  animated: z.boolean(),
+});
+
+export type RegistryCapabilities = z.infer<typeof registryCapabilitiesSchema>;
+
+export const registryPropSchema = z.object({
+  name: z.string().min(1),
+  /** The declared type, on one line. */
+  type: z.string(),
+  required: z.boolean(),
+  default: z.string().optional(),
+  description: z.string().optional(),
+});
+
+/** The props one exported component adds, read from its type. */
+export const registryPropsGroupSchema = z.object({
+  component: z.string().min(1),
+  props: z.array(registryPropSchema),
+  /** The intrinsic element whose attributes also pass through. */
+  element: z.string().optional(),
+  /** The primitive every prop is forwarded to, when it adds none of its own. */
+  forwards: z.string().optional(),
+  /** Attributes of `element` removed with `Omit`. */
+  omitted: z.array(z.string()).default([]),
+});
+
+export type RegistryPropsGroup = z.infer<typeof registryPropsGroupSchema>;
+
+/** One check from the quality standard, against one item. */
+export const registryCheckSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  state: z.enum(["pass", "fail", "not-applicable"]),
+});
+
+export const registryQualitySchema = z.object({
+  checks: z.array(registryCheckSchema),
+  /** Passed as a percentage of the checks that apply, rounded. */
+  score: z.number().int().min(0).max(100),
+});
+
+export type RegistryQuality = z.infer<typeof registryQualitySchema>;
+
 export const registryItemSchema = z.object({
   $schema: z.string().optional(),
   registryVersion: z.literal(REGISTRY_VERSION),
@@ -134,6 +204,16 @@ export const registryItemSchema = z.object({
   files: z.array(registryFileSchema).min(1),
   a11y: z.string().optional(),
   access: registryAccessSchema,
+  /*
+   * The genome. Every field below is optional, so a registry built before it
+   * existed still parses, and a CLI that predates it ignores it.
+   */
+  guidance: registryGuidanceSchema.optional(),
+  /** Items it is commonly used together with. */
+  composesWith: z.array(registryItemNameSchema).optional(),
+  capabilities: registryCapabilitiesSchema.optional(),
+  props: z.array(registryPropsGroupSchema).optional(),
+  quality: registryQualitySchema.optional(),
 });
 
 export type RegistryItem = z.infer<typeof registryItemSchema>;
@@ -158,6 +238,11 @@ export const registryIndexEntrySchema = registryItemSchema
     dependencies: true,
     registryDependencies: true,
     access: true,
+    // What an agent needs to choose between items without fetching each one.
+    // Props and quality stay on the item: they are only wanted once chosen.
+    guidance: true,
+    composesWith: true,
+    capabilities: true,
   })
   .extend({ fileCount: z.number().int().positive() });
 

@@ -15,4 +15,9 @@ export const meta = defineMeta({
     "in text. Message actions fade in on hover but stay in the DOM and in the tab order — a " +
     "control that only exists on hover is unreachable by keyboard and invisible on touch — and " +
     "on devices that cannot hover they are always shown. MessageTimestamp is a real <time>.",
+  guidance: {
+    useWhen: ["one turn in a chat, with the speaker's role, avatar, actions and footer"],
+    alternatives: ["ai-response"],
+  },
+  composesWith: ["ai-response", "ai-conversation", "ai-branch"],
 });

@@ -15,4 +15,8 @@ export const meta = defineMeta({
     "questions are reachable by heading navigation, carry aria-expanded, and arrow keys move between " +
     "them. The staggered entrance only hides a list that starts below the fold, and never under " +
     "reduced motion.",
+  guidance: {
+    useWhen: ["a short FAQ with one answer open at a time"],
+    alternatives: ["faq-categorized", "faq-searchable", "faq-tabbed-grid"],
+  },
 });
