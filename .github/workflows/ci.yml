@@ -106,9 +106,14 @@ jobs:
           pnpm turbo run build --filter=@dowel-ui/cli --filter=@dowel-ui/mcp
           --filter=create-dowel-app --filter=@dowel-ui/registry
 
+      # No package-manager cache here. setup-node caches by default when
+      # package.json names a package manager, and doing so runs `pnpm store
+      # path` on this Node — pnpm 11 needs `node:sqlite`, which Node 20 does not
+      # have, so the step crashed before the binaries were ever run.
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
+          package-manager-cache: false
       - name: Run them
         run: node scripts/smoke/binaries.mjs
 
