@@ -1,4 +1,4 @@
-import { contrastRatio, formatOklch, oklchToLinearRgb, type Oklch } from "./colour";
+import { composite, contrastRatio, formatOklch, oklchToLinearRgb, type Oklch } from "./colour";
 
 /**
  * Deriving a theme preset from a single colour.
@@ -38,6 +38,10 @@ export const TEXT_MINIMUM = 4.5;
 
 function clampLightness(value: number): number {
   return Math.min(0.99, Math.max(0.01, value));
+}
+
+function lch(colour: Oklch): [number, number, number] {
+  return [colour.l, colour.c, colour.h];
 }
 
 function ratio(a: Oklch, b: Oklch): number {
@@ -112,6 +116,27 @@ export function derivePreset(input: Oklch, options: DeriveOptions = {}): Derived
   return { light, dark };
 }
 
+/**
+ * The page background in each mode, which the soft tints are painted over.
+ * The same values as `--background` in `base.css`; a test holds them to it.
+ */
+export const PAGE_BACKGROUND: { light: Oklch; dark: Oklch } = {
+  light: { l: 1, c: 0, h: 0 },
+  dark: { l: 0.145, c: 0.01, h: 265 },
+};
+
+/**
+ * The tints primary text sits on: the soft button at rest, hovered and
+ * pressed, and the colour its label takes in each. Kept in step with
+ * `scripts/audit/contrast.ts`, which checks the same pairs for the shipped
+ * presets.
+ */
+const SOFT_TINTS: { state: string; alpha: number; text: "primary" | "primaryHover" }[] = [
+  { state: "soft", alpha: 0.12, text: "primary" },
+  { state: "soft hover", alpha: 0.18, text: "primaryHover" },
+  { state: "soft pressed", alpha: 0.2, text: "primaryHover" },
+];
+
 export interface ContrastCheck {
   label: string;
   ratio: number;
@@ -122,9 +147,11 @@ export interface ContrastCheck {
 /**
  * The pairs a derived preset is responsible for.
  *
- * Only these four per mode: every other pair in the system is inherited from
- * the base tokens, which the audit already covers. Reporting the inherited ones
- * would be reporting on something the person cannot change from here.
+ * The label on each of the three solid states, and primary text on the soft
+ * tints, per mode: every other pair in the system is inherited from the base
+ * tokens, which the audit already covers. The tints are here because a colour
+ * can pass on its solid fill and still fail as text on a tint of itself — the
+ * shipped presets did, until the audit learned to look.
  */
 export function checkPreset(preset: DerivedPreset): ContrastCheck[] {
   const checks: ContrastCheck[] = [];
@@ -143,6 +170,21 @@ export function checkPreset(preset: DerivedPreset): ContrastCheck[] {
         ratio: ratio(values.primaryForeground, background),
         minimum: TEXT_MINIMUM,
         passes: ratio(values.primaryForeground, background) >= TEXT_MINIMUM,
+      });
+    }
+
+    const page = oklchToLinearRgb(
+      ...lch(mode === "Light" ? PAGE_BACKGROUND.light : PAGE_BACKGROUND.dark),
+    );
+    const fill = oklchToLinearRgb(...lch(values.primary));
+    for (const tint of SOFT_TINTS) {
+      const text = oklchToLinearRgb(...lch(values[tint.text]));
+      const value = contrastRatio(text, composite(fill, tint.alpha, page));
+      checks.push({
+        label: `${mode}: ${tint.text === "primary" ? "primary" : "primary-hover"} on the ${tint.state} tint`,
+        ratio: value,
+        minimum: TEXT_MINIMUM,
+        passes: value >= TEXT_MINIMUM,
       });
     }
   }
