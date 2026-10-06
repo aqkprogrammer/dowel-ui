@@ -276,21 +276,23 @@ _Value:_ doctor and audit are what make Dowel useful _after_ install, which is
 where retention is decided. Audit is also the first feature a team lead, rather
 than an individual developer, would ask for.
 
-### Phase 4 — AI infrastructure
+### Phase 4 — AI infrastructure ✅
 
-1. **MCP tools on the genome:** `suggest_components` (with reasons from
-   `guidance`), `get_component_api` (props), `validate_composition` (do these
-   names exist, are they compatible, what is missing), `get_tokens`,
-   `audit_file` (the Phase 3 rules over a snippet). Keep existing tool names;
-   add, never rename.
-2. **Agent files** gain the genome's guidance, and `create-dowel-app` writes
-   them at scaffold time instead of printing a hint.
-3. **`plan_ui` with an optional model.** A provider interface
-   (`PlanProvider`) where the deterministic planner is the default and always
-   available, and a model-backed provider is opt-in with the user's own key.
-   The model's output is validated against the registry and genome before it is
-   shown, so the guarantee "it cannot name a component that does not exist"
-   survives. No server-side key; no execution of generated code.
+See ADR 17.
+
+1. ✅ **The genome reaches agents.** `get_component` carries guidance,
+   capabilities and props; `search_components` matches on guidance; the agent
+   files list "Use for / Not for / Often with" under each component; the
+   planners score guidance above a description. Existing MCP tool names are
+   unchanged.
+2. ✅ **`audit_code`** — the `dowel audit` rules as an MCP tool, so an agent
+   checks what it wrote before a person sees it.
+3. ✅ **`create-dowel-app` writes the agent files** at scaffold time.
+4. ✅ **`dowel plan [--model]`** — the built-in planner by default; with
+   `--model`, Claude chooses from the catalogue and `planFromPicks` holds the
+   result to the registry. Opt-in, the person's own credentials, the SDK an
+   optional peer. Not on the website and not inside MCP, for the reasons in
+   ADR 17. Tested offline against a stand-in SDK; no live call was made.
 
 _Value:_ technical differentiation. The defensible claim is not "AI
 generates UI" — everyone has that — but "the agent's output is checked against

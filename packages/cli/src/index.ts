@@ -11,6 +11,7 @@ import { login, logout, whoami } from "./commands/auth";
 import { diff } from "./commands/diff";
 import { doctor } from "./commands/doctor";
 import { init } from "./commands/init";
+import { plan } from "./commands/plan";
 import { list } from "./commands/list";
 import { remove } from "./commands/remove";
 import { update } from "./commands/update";
@@ -159,6 +160,25 @@ program
       registry,
       yes: options.yes,
       overwrite: options.overwrite,
+    });
+  });
+
+program
+  .command("plan")
+  .description("choose the components and blocks for a screen you describe")
+  .argument("<prompt>", 'what to build, e.g. "a billing page with usage and invoices"')
+  .option("--model [id]", "plan with a Claude model, using your own Anthropic credentials")
+  .option("--format <format>", "brief, code or both", "both")
+  .action(async (prompt: string, options: { model?: string | boolean; format: string }) => {
+    const { cwd, registry } = globals();
+    if (!["brief", "code", "both"].includes(options.format)) {
+      throw new CliError(`Unknown format "${options.format}".`, "Choose brief, code or both.");
+    }
+    await plan(prompt, {
+      cwd,
+      registry,
+      model: options.model,
+      format: options.format as "brief" | "code" | "both",
     });
   });
 

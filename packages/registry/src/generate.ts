@@ -15,11 +15,10 @@ export type { RegistryIndex, RegistryIndexEntry } from "./schema";
  * that is not installable, because it only ever repeats names the registry
  * gave it.
  *
- * It does not guess at props. The registry publishes what a component *is* and
- * what it depends on, not the shape of its arguments, so the output stops at
- * the composition and points at the page where the props are documented.
- * Emitting a plausible prop is worse than emitting none — one is a gap, the
- * other is a bug that looks like working code.
+ * It does not write props. Each item's props are in the registry, read from its
+ * type, so the output stops at the composition and points at them. Emitting a
+ * plausible prop is worse than emitting none — one is a gap, the other is a
+ * bug that looks like working code.
  */
 
 /** Words that carry no signal about which component is wanted. */
@@ -516,6 +515,9 @@ function scoreEntry(
   const name = entry.name.toLowerCase();
   const title = entry.title.toLowerCase();
   const description = entry.description.toLowerCase();
+  // Curated situations from the genome. Weighted above a category or a
+  // description, because someone wrote them to answer exactly this question.
+  const useWhen = (entry.guidance?.useWhen ?? []).join(" ").toLowerCase();
 
   let score = 0;
   const reasons: string[] = [];
@@ -536,6 +538,9 @@ function scoreEntry(
     } else if (title.includes(term)) {
       score += 20;
       reasons.push(`"${term}" in its title`);
+    } else if (useWhen.includes(term)) {
+      score += 15;
+      reasons.push(`"${term}" in when to use it`);
     } else if (entry.category === term) {
       score += 12;
       reasons.push(`the ${term} category`);
@@ -623,6 +628,68 @@ export function planUi(
   };
 }
 
+/** A pick made by something other than this planner, such as a model. */
+export interface PlanPick {
+  name: string;
+  because: string;
+}
+
+export interface PicksResult {
+  plan: UiPlan;
+  /** Names that are not in the registry, and were dropped. */
+  unknown: string[];
+}
+
+/**
+ * Builds a plan from picks made elsewhere, holding them to the registry.
+ *
+ * The guarantee every plan carries — it cannot name a component that does not
+ * exist — has to survive a model making the choice, so this is where it is
+ * enforced: unknown names are dropped and reported rather than rendered, and
+ * a component a chosen block already installs is folded into the block, as
+ * `planUi` does.
+ */
+export function planFromPicks(
+  prompt: string,
+  index: RegistryIndex,
+  picks: PlanPick[],
+): PicksResult {
+  const byName = new Map(index.items.map((entry) => [entry.name, entry]));
+  const unknown: string[] = [];
+  const seen = new Set<string>();
+  const chosen: PlanEntry[] = [];
+
+  for (const pick of picks) {
+    const entry = byName.get(pick.name);
+    if (!entry || (entry.type !== "registry:ui" && entry.type !== "registry:block")) {
+      unknown.push(pick.name);
+      continue;
+    }
+    if (seen.has(entry.name)) continue;
+    seen.add(entry.name);
+    chosen.push({ entry, because: pick.because });
+  }
+
+  const blocks = chosen.filter((item) => item.entry.type === "registry:block");
+  const covered = new Set(
+    blocks.flatMap((item) => [item.entry.name, ...item.entry.registryDependencies]),
+  );
+  const components = chosen.filter(
+    (item) => item.entry.type === "registry:ui" && !covered.has(item.entry.name),
+  );
+
+  return {
+    plan: {
+      prompt,
+      blocks,
+      components,
+      install: [...blocks, ...components].map((item) => item.entry.name),
+      empty: blocks.length === 0 && components.length === 0,
+    },
+    unknown,
+  };
+}
+
 /** PascalCase export name for a registry name, e.g. "ai-tool" -> "AiTool". */
 function tag(name: string): string {
   return name
@@ -673,9 +740,9 @@ export function blocksPathFor(importFrom: string): string {
  * The plan as a starting file.
  *
  * Imports and composition only. Every element carries the page its props are
- * documented on, because the registry does not publish prop shapes and a
- * plausible invented prop is worse than an obvious gap — one is a TODO, the
- * other is a bug wearing the costume of working code.
+ * documented on rather than guessed props: a plausible invented prop is worse
+ * than an obvious gap — one is a TODO, the other is a bug wearing the costume
+ * of working code.
  */
 export function renderPlan(plan: UiPlan, options: RenderOptions = {}): string {
   const {

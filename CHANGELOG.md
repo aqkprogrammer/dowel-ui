@@ -11,6 +11,18 @@ filesystem.
 
 ### Added
 
+- **`dowel plan "<screen>"`** chooses the blocks and components for a screen you
+  describe. `--model` asks Claude to choose, with your own Anthropic
+  credentials and the optional peer `@anthropic-ai/sdk`; whatever it names
+  that the registry does not have is dropped and reported. Without `--model`
+  it uses the built-in planner, which needs nothing.
+- **MCP `audit_code`** checks code an agent wrote against the same rules as
+  `dowel audit`. `get_component` now says when to use a component, what it is
+  confused with, whether it needs a client boundary, and every prop its type
+  declares; `search_components` matches on what a component is for.
+- The agent files list each component's guidance under it, and the planners
+  score it above a description match.
+- `create-dowel-app` writes the agent files when it scaffolds.
 - **`dowel doctor`** checks a project's setup and prints a checklist: the
   project shape, the import alias against `tsconfig.json`, the tokens in the
   stylesheet, installed files present, npm packages and component dependencies

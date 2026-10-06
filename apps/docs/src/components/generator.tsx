@@ -42,10 +42,9 @@ type OutputView = "install" | "code" | "brief";
  *
  * Everything here is resolved against the registry before anything is written,
  * so it cannot name a component that does not exist — which is the failure mode
- * of asking a model directly. It also does not guess at props: the registry
- * publishes what a component is and what it depends on, not the shape of its
- * arguments, so the output stops at the composition and links to the page where
- * the props are documented.
+ * of asking a model directly. It stops at the composition rather than writing
+ * props: those are published on each registry item, read from its type, and
+ * the output links to the page that shows them.
  *
  * The page says plainly that this is a planner, not a model. The previews
  * under a plan are the real parts it chose, live — the closest honest thing
