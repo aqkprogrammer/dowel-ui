@@ -290,6 +290,25 @@ describe("BrowserTabs", () => {
     );
   });
 
+  it("puts the inactive tabs on a strip that follows the tone", () => {
+    // The strip was always bg-muted, so an inverted window's light idle
+    // titles sat on a light band at 2.1:1. It now shades the tone's own surface.
+    const { container, rerender } = render(<BrowserTabs tabs={TABS} />);
+    const root = container.firstElementChild as HTMLElement;
+    expect(root).toHaveClass("bg-[var(--browser-tabs-strip)]");
+    expect(root.className).toContain("--browser-tabs-strip:var(--color-muted)");
+
+    rerender(<BrowserTabs tabs={TABS} tone="inverted" />);
+    expect(root.className).toContain(
+      "--browser-tabs-strip:color-mix(in_oklab,var(--color-foreground)_88%,var(--color-background))",
+    );
+    expect(root.className).not.toContain("--browser-tabs-strip:var(--color-muted)");
+    expect(tab("Finds")).toHaveAttribute("data-state", "inactive");
+    expect(tab("Finds").style.getPropertyValue("--browser-tabs-idle")).toContain(
+      "var(--browser-tabs-ink) 67%",
+    );
+  });
+
   it("renders decorative nav glyphs unless handlers are given", async () => {
     const user = userEvent.setup();
     const { rerender } = render(<BrowserTabs tabs={TABS} />);
@@ -346,7 +365,7 @@ describe("BrowserTabs", () => {
     const root = container.firstElementChild as HTMLElement;
     expect(ref.current).toBe(root);
     expect(root).toHaveClass("bg-transparent");
-    expect(root).not.toHaveClass("bg-muted");
+    expect(root).not.toHaveClass("bg-[var(--browser-tabs-strip)]");
     expect(root).toHaveAttribute("data-testid", "window");
   });
 

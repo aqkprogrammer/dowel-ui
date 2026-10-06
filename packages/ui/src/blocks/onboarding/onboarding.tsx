@@ -143,10 +143,12 @@ export function OnboardingBlock({
                 // so it is programmatically identifiable rather than only being
                 // the one with a ring around it.
                 aria-current={isCurrent ? "step" : undefined}
+                // A blocked step is never faded: opacity on the row lightened
+                // the warning badge's fill until its light text fell to 3.95:1.
+                // The badge, the reason and the disabled action already say it.
                 className={cn(
                   "flex gap-3 rounded-lg border p-4",
                   isCurrent ? "border-primary/50 bg-primary/5" : "border-border",
-                  isBlocked && "opacity-90",
                 )}
               >
                 <span

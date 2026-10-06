@@ -258,7 +258,10 @@ export function LogViewerRow({ line, expanded = false, onToggle }: LogViewerRowP
   const parts = segment(line.message, line.matches);
 
   return (
-    <div className="px-3 py-0.5 hover:bg-accent/40">
+    // A row with a Fields toggle is at least 24px tall (2px more than a plain
+    // row), so the toggles of consecutive rows each get a whole 24px target
+    // without overlapping the next one (WCAG 2.5.8).
+    <div className={cn("px-3 py-0.5 hover:bg-accent/40", hasFields && "min-h-6")}>
       <div className="flex items-baseline gap-2">
         {line.timestamp ? (
           <time className="shrink-0 text-muted-foreground tabular-nums">{line.timestamp}</time>
@@ -297,8 +300,10 @@ export function LogViewerRow({ line, expanded = false, onToggle }: LogViewerRowP
             data-slot="log-viewer-expand"
             aria-expanded={expanded}
             onClick={onToggle}
+            // py-1 grows the hit area to 24px tall; -my-1 takes it back out of
+            // the layout, so the label stays on the text baseline.
             className={cn(
-              "shrink-0 rounded px-1 text-2xs text-muted-foreground",
+              "-my-1 shrink-0 rounded px-1 py-1 text-2xs text-muted-foreground",
               "transition-colors hover:text-foreground",
               focusRing,
               disabledStyles,

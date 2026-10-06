@@ -16,6 +16,16 @@ Fixes for the accessibility problems the real-browser suite found in 0.13.0.
 - **`Conversation`'s transcript could not be scrolled by keyboard** when the
   messages held nothing focusable. It is now a focusable, named region (`label`,
   default "Conversation"), as `Table`'s scroll wrapper already is.
+- `ai-loader`: the elapsed-time counter is full-strength muted text instead of `opacity-60` on muted text (2.4:1).
+- `pull-to-refresh`: the demo's balance decimals and idle time windows use `text-muted-foreground` instead of a faded foreground (2.2:1).
+- `browser-tabs`: the tab strip follows the tone, so an inverted window's inactive tab titles read at 4.5:1 or more instead of 2.1:1.
+- `island`: secondary text in the demo views is full-strength, not `opacity-70`, which was 3.34:1 on the primary tone.
+- `code-block`: the light-mode highlighted-line band is a 4% tint of the page, so syntax colours on it stay at 4.5:1 or more (`text-info` was 4.08:1).
+- `log-viewer`: the Fields toggle is a 24px-tall target instead of 16px; only rows that have one grow, by 2px.
+- `image-accordion`: a collapsed panel, which is its own trigger, is never narrower than 24px (it could be 16px).
+- `reviews-carousel`: each pagination dot is a 24 × 24 target instead of 16 × 24; the dot itself is unchanged.
+- `command-center` block: a resolved incident shows an outline severity badge and muted title instead of fading the row, which took the warning badge to 2.8:1.
+- `onboarding` block: a blocked step is no longer faded, so its warning badge has the solid fill instead of a lighter one (3.95:1).
 - Stories: the `agent-data-table` selection column has a header name, the
   skeleton loading stories give their label a role to belong to, and the tabs
   stories render the panels their triggers point at.
