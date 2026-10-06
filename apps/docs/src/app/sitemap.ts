@@ -40,6 +40,7 @@ const STATIC_ROUTES: {
   { path: "/theme-studio", priority: 0.7, changeFrequency: "monthly" },
   { path: "/generate", priority: 0.6, changeFrequency: "monthly" },
   { path: "/quality", priority: 0.6, changeFrequency: "weekly" },
+  { path: "/agentbench", priority: 0.5, changeFrequency: "monthly" },
   { path: "/pricing", priority: 0.8, changeFrequency: "monthly" },
 ];
 

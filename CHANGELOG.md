@@ -11,6 +11,13 @@ filesystem.
 
 ### Added
 
+- **AgentBench** (`packages/agentbench`, private): a harness that runs the same
+  prompt in two copies of a project — with Dowel's agent files and MCP server,
+  and without — and scores both diffs with `tsc`, `dowel audit`, invented and
+  uninstalled imports, recall of expected components, and the jsx-a11y rules.
+  Ten tasks, a Claude Code adapter, and `noop`/`reference` adapters that cost
+  nothing. No run has been published; `/agentbench` on the site documents the
+  method and shows published runs only.
 - **`dowel plan "<screen>"`** chooses the blocks and components for a screen you
   describe. `--model` asks Claude to choose, with your own Anthropic
   credentials and the optional peer `@anthropic-ai/sdk`; whatever it names

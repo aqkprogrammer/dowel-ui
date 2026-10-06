@@ -1,0 +1,17 @@
+{
+  "id": "analytics",
+  "title": "Analytics dashboard",
+  "prompt": "Make an analytics dashboard at /analytics with headline numbers for revenue, active users and churn compared with last month, a way to switch between the last 7, 30 and 90 days, and a table of the top pages by views.",
+  "route": "src/app/analytics/page.tsx",
+  "install": [
+    "card",
+    "metric-delta",
+    "select",
+    "toggle-group",
+    "tabs",
+    "table",
+    "button",
+    "badge"
+  ],
+  "expect": ["metric-delta", "table"]
+}

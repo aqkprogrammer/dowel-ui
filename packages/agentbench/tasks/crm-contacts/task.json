@@ -1,0 +1,19 @@
+{
+  "id": "crm-contacts",
+  "title": "CRM contacts table with filters",
+  "prompt": "Build a contacts page at /contacts for our CRM: a table of contacts showing name, company, email, owner and status, with a search box and filters for status and owner.",
+  "route": "src/app/contacts/page.tsx",
+  "install": [
+    "data-table",
+    "table",
+    "input",
+    "select",
+    "combobox",
+    "badge",
+    "button",
+    "dropdown-menu",
+    "avatar",
+    "checkbox"
+  ],
+  "expect": ["data-table", "input"]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "login",
+  "title": "Login page",
+  "prompt": "Add a login page at /login with email and password fields, a \"remember me\" option, a link to reset a forgotten password, and a sign-in button.",
+  "route": "src/app/login/page.tsx",
+  "install": ["button", "card", "input", "label", "checkbox", "form", "separator"],
+  "expect": ["button", "input", "label", "checkbox"]
+}
