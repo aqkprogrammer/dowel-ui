@@ -226,6 +226,7 @@ rewrites imports to your project's own path alias.
 | `add <names…>` | Installs components and everything they depend on                  |
 | `list`         | Shows the registry, marking what you already have                  |
 | `update`       | Compares installed components against the registry                 |
+| `plan`         | Chooses the components for a screen you describe                   |
 | `diff`         | Shows how installed files differ from the registry's               |
 | `doctor`       | Checks the setup, installed components and agent docs              |
 | `audit`        | Finds hardcoded colours, off-scale sizes and bypassed components   |
@@ -293,16 +294,25 @@ npx @dowel-ui/cli list          # what exists
 [**dowel-eight.vercel.app/generate**](https://dowel-eight.vercel.app/generate) —
 describe a screen, get the components that build it, the install command, and a
 brief to paste into your coding agent. The MCP server exposes the same thing as
-`plan_ui`, so an agent can ask for it directly.
+`plan_ui`, so an agent can ask for it directly, and so does the CLI:
+
+```bash
+npx @dowel-ui/cli plan "a support dashboard with ticket filters and an assistant"
+npx @dowel-ui/cli plan "…" --model    # choose with Claude, using your own credentials
+```
 
 Every suggestion is resolved against the registry before anything is written, so
 it cannot name a component that does not exist — which is what asking a model
-directly gets you, complete with a `variant` nobody implemented. It also does
-not guess at props: the registry publishes what a component _is_ and what it
-depends on, not the shape of its arguments, so the output stops at the
-composition and links to the page where the props are documented. A plausible
-invented prop is worse than an obvious gap — one is a TODO, the other is a bug
-wearing the costume of working code.
+directly gets you, complete with a `variant` nobody implemented. That holds with
+`--model` too: the model chooses from the catalogue it is given, with each
+item's guidance on when to use it, and anything it names that the registry does
+not have is dropped and reported. `--model` needs `@dowel-ui/cli`'s optional peer
+`@anthropic-ai/sdk` and Anthropic credentials; it sends the prompt and the public
+catalogue, never your files.
+
+The plan stops at the composition. It does not write props: each component's
+props are published on its registry item, read from its type, and the agent is
+pointed at them — a plausible invented prop is worse than an obvious gap.
 
 ## Pro
 
@@ -420,8 +430,10 @@ exist.
 }
 ```
 
-Four tools: `search_components`, `get_component`, `get_guide`,
-`install_command`.
+Six tools: `search_components`, `get_component` (with when to use it, what it
+is confused with, and its props), `get_guide`, `install_command`, `plan_ui`, and
+`audit_code`, which checks what the agent wrote against the same rules as
+`dowel audit` before anyone sees it.
 
 **llms.txt.** For an agent that can fetch a URL but not run a server, the site
 serves [`/llms.txt`](https://dowel-eight.vercel.app/llms.txt) (the index) and

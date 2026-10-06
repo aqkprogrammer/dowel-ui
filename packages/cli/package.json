@@ -56,7 +56,16 @@
     "picocolors": "1.1.1",
     "zod": "4.5.4"
   },
+  "peerDependencies": {
+    "@anthropic-ai/sdk": ">=0.131.0"
+  },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/sdk": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@anthropic-ai/sdk": "0.131.0",
     "@dowel-ui/config": "workspace:*",
     "@dowel-ui/registry": "workspace:*",
     "@types/node": "26.4.0",
