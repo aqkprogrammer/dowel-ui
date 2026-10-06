@@ -18,6 +18,21 @@ filesystem.
   Ten tasks, a Claude Code adapter, and `noop`/`reference` adapters that cost
   nothing. No run has been published; `/agentbench` on the site documents the
   method and shows published runs only.
+- **Private registries can require a key.** A registry that answers `401` gets
+  one retry with the key stored for it, and no other; a public registry never
+  receives a key it did not ask for. Keys are stored per registry, so a Pro
+  licence and a company key coexist. `login --registry <url>` verifies against
+  the registry's index when it has no licence endpoint; `logout --registry`
+  removes one key; `whoami` lists them. The MCP server reads `DOWEL_TOKEN` and
+  `DOWEL_TOKEN_REGISTRY` for the same.
+- **Governance metadata:** an item can declare `owner`, `since`, and
+  `deprecated` (version, reason, replacement). Deprecated items still install;
+  `add` and `update` name the replacement, `list` and `doctor` mark them, the
+  MCP server and agent docs warn off them, and the planners skip them. Custom
+  registries can also declare `guidance` and `composesWith`, and the build
+  rejects any of these naming an item that does not exist. Upstream guidance
+  that names an item the extending registry cannot serve, such as a Pro block,
+  is dropped from the inherited copy.
 - **`dowel plan "<screen>"`** chooses the blocks and components for a screen you
   describe. `--model` asks Claude to choose, with your own Anthropic
   credentials and the optional peer `@anthropic-ai/sdk`; whatever it names

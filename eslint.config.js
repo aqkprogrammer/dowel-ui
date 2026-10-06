@@ -8,6 +8,8 @@ export default [
       "**/coverage/**",
       "**/storybook-static/**",
       "**/.turbo/**",
+      // Claude Code agent worktrees: whole checkouts of other branches.
+      ".claude/worktrees/**",
       // A published shim with no build step, so it belongs to no tsconfig
       // project and typed linting cannot parse it. There is nothing to lint:
       // the file is a single re-export of the real CLI.

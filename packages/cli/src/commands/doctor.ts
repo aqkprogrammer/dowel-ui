@@ -315,6 +315,22 @@ function checkAgainstIndex(
         },
   );
 
+  const retired = installed.filter((name) => byName.get(name)?.deprecated !== undefined);
+  if (retired.length > 0) {
+    add({
+      group: "components",
+      label: "Deprecated",
+      status: "warn",
+      detail: retired
+        .map((name) => {
+          const replacement = byName.get(name)?.deprecated?.replacement;
+          return replacement ? `${name} → ${replacement}` : name;
+        })
+        .join(", "),
+      hint: "They keep working; `get_component` or the docs say why each was retired.",
+    });
+  }
+
   const licensed = installed.filter((name) => byName.get(name)?.access === "pro");
   if (licensed.length > 0) {
     let signedIn: boolean;

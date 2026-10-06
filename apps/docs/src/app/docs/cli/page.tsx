@@ -61,7 +61,10 @@ const COMMANDS = [
     command: "login [key]",
     what: "Stores a licence key, for components that require one.",
   },
-  { command: "logout", what: "Removes the stored licence key from this machine." },
+  {
+    command: "logout",
+    what: "Removes the stored key for --registry, or every stored key.",
+  },
   { command: "whoami [--check]", what: "Reports whether this machine is signed in." },
 ];
 

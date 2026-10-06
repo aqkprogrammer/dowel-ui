@@ -648,3 +648,24 @@ describe("audit_code", () => {
     expect(text).toBe("No findings.");
   });
 });
+
+describe("keyFor", () => {
+  const env = (registry: string) => ({ DOWEL_TOKEN: "k", DOWEL_TOKEN_REGISTRY: registry });
+
+  it("gives the key only to the registry it is configured for", async () => {
+    const { keyFor } = await import("./registry");
+    expect(keyFor("https://acme.example/r", env("https://acme.example/r"))).toBe("k");
+    expect(keyFor("https://other.example/r", env("https://acme.example/r"))).toBeUndefined();
+  });
+
+  it("never sends it over plain HTTP, except to this machine", async () => {
+    const { keyFor } = await import("./registry");
+    expect(keyFor("http://acme.example/r", env("http://acme.example/r"))).toBeUndefined();
+    expect(keyFor("http://localhost:3333/r", env("http://localhost:3333/r"))).toBe("k");
+  });
+
+  it("needs both variables, so a Pro key is not mistaken for a private one", async () => {
+    const { keyFor } = await import("./registry");
+    expect(keyFor("https://acme.example/r", { DOWEL_TOKEN: "k" })).toBeUndefined();
+  });
+});

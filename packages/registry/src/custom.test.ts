@@ -135,6 +135,68 @@ describe("extending an upstream registry", () => {
     expect(result.inherited).toBeGreaterThan(50);
   });
 
+  it("drops upstream recommendations of items this registry cannot serve", async () => {
+    // Upstream's free dashboard names its Pro admin-dashboard as an
+    // alternative; a registry built from upstream's public files has no
+    // admin-dashboard to send an agent to.
+    const root = scratch();
+    writeItem(root, "ui", "acme-header", "acme-header.tsx", "x");
+    const result = await buildCustomRegistry({
+      root,
+      extends: upstream(),
+      items: [{ name: "acme-header", ...BASE }],
+    });
+
+    const names = new Set(result.items.map((item) => item.name));
+    for (const item of result.items) {
+      for (const name of [
+        ...(item.guidance?.alternatives ?? []),
+        ...(item.composesWith ?? []),
+      ]) {
+        expect(names.has(name), `${item.name} still names ${name}`).toBe(true);
+      }
+    }
+  });
+
+  it("holds an organisation's own items to every name they recommend", async () => {
+    const root = scratch();
+    writeItem(root, "ui", "acme-header", "acme-header.tsx", "x");
+    await expect(
+      buildCustomRegistry({
+        root,
+        items: [
+          {
+            name: "acme-header",
+            ...BASE,
+            deprecated: { since: "2.0.0", reason: "Use the new one.", replacement: "acme-nav" },
+          },
+        ],
+      }),
+    ).rejects.toThrow(/acme-header → acme-nav/);
+  });
+
+  it("publishes governance: who owns an item, and what replaced it", async () => {
+    const root = scratch();
+    writeItem(root, "ui", "acme-header", "acme-header.tsx", "x");
+    writeItem(root, "ui", "acme-nav", "acme-nav.tsx", "x");
+    const result = await buildCustomRegistry({
+      root,
+      items: [
+        {
+          name: "acme-header",
+          ...BASE,
+          owner: "design-systems@acme.example",
+          deprecated: { since: "2.0.0", reason: "Merged into nav.", replacement: "acme-nav" },
+        },
+        { name: "acme-nav", ...BASE, files: ["acme-nav.tsx"], since: "2.0.0" },
+      ],
+    });
+    const header = result.items.find((item) => item.name === "acme-header");
+    expect(header?.owner).toBe("design-systems@acme.example");
+    expect(header?.deprecated?.replacement).toBe("acme-nav");
+    expect(result.items.find((item) => item.name === "acme-nav")?.since).toBe("2.0.0");
+  });
+
   it("lets a local item replace an upstream one, and says which", async () => {
     const root = scratch();
     writeItem(root, "ui", "button", "button.tsx", 'export const Button = () => "acme";');

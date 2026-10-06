@@ -20,3 +20,7 @@ packages/agentbench/results/
 # Playwright output.
 playwright-report/
 test-results/
+
+# Claude Code agent worktrees: whole checkouts of other branches, not part of
+# this one.
+.claude/worktrees/
