@@ -30,11 +30,19 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80",
         link: "text-primary underline-offset-4 hover:underline",
-        /** A tint of the primary colour. Quieter than primary, warmer than ghost. */
+        /**
+         * A tint of the primary colour. Quieter than primary, warmer than ghost.
+         *
+         * The label steps to `primary-hover` as the tint deepens: primary text
+         * on a deeper tint of itself drops below 4.5:1. `primary-hover` is the
+         * shade that moves away from the page in both modes. The pressed tint
+         * stops at 20%, the most `primary-hover` text clears 4.5:1 on in every
+         * preset (`pnpm audit:contrast`).
+         */
         soft: cn(
           "bg-[color-mix(in_oklab,var(--color-primary)_12%,transparent)] text-primary",
-          "hover:bg-[color-mix(in_oklab,var(--color-primary)_18%,transparent)]",
-          "active:bg-[color-mix(in_oklab,var(--color-primary)_24%,transparent)]",
+          "hover:bg-[color-mix(in_oklab,var(--color-primary)_18%,transparent)] hover:text-primary-hover",
+          "active:bg-[color-mix(in_oklab,var(--color-primary)_20%,transparent)] active:text-primary-hover",
         ),
         /**
          * SmoothUI's "candy": primary running into its hover shade, with a

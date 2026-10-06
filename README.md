@@ -494,7 +494,7 @@ warn. Keyboard interaction is tested, not assumed.
 
 Contrast is checked separately, because a test environment that never paints
 cannot check it: `audit:contrast` converts the OKLCH tokens to sRGB and verifies
-all 598 semantic pairs across both modes and all thirteen presets. It runs in CI.
+all 962 semantic pairs across both modes and all thirteen presets. It runs in CI.
 
 A few choices worth knowing about, because they differ from what similar
 libraries do:

@@ -53,7 +53,7 @@ where SmoothUI's exact colour misses a contrast floor — each file says where a
 by how much.
 
 Every preset passes **WCAG AA contrast in light and dark**, checked by an audit
-that evaluates 598 colour pairs across 26 schemes on every commit. When the
+that evaluates 962 colour pairs across 26 schemes on every commit. When the
 audit first ran it found 88 failures — including that the amber preset could not
 carry dark text on its fill at any usable lightness, so amber became an ochre.
 That is a real trade, made knowingly, rather than a swatch that looks nice and

@@ -65,13 +65,32 @@ export function luminance(rgb: Rgb): number {
  * Several tokens are alpha values over a surface — an overlay, a tinted alert
  * background. Measuring them without compositing would report the contrast of a
  * colour nobody ever sees.
+ *
+ * The blend happens on gamma-encoded channels, not linear light, because that
+ * is what browsers paint and what axe measures. Blending in linear light reads
+ * a 10% tint as noticeably darker than it renders, which flatters coloured text
+ * on its own tint by ~0.3:1 — enough to pass a pair the browser fails.
+ * Channels are clipped to the gamut first, as the browser does before painting.
  */
 export function composite(foreground: Rgb, alpha: number, background: Rgb): Rgb {
+  const mix = (top: number, bottom: number) =>
+    decodeChannel(encodeChannel(top) * alpha + encodeChannel(bottom) * (1 - alpha));
   return {
-    r: foreground.r * alpha + background.r * (1 - alpha),
-    g: foreground.g * alpha + background.g * (1 - alpha),
-    b: foreground.b * alpha + background.b * (1 - alpha),
+    r: mix(foreground.r, background.r),
+    g: mix(foreground.g, background.g),
+    b: mix(foreground.b, background.b),
   };
+}
+
+/** One linear-light channel, clipped, to gamma-encoded 0–1. */
+function encodeChannel(channel: number): number {
+  const value = clamp(channel);
+  return value <= 0.0031308 ? value * 12.92 : 1.055 * value ** (1 / 2.4) - 0.055;
+}
+
+/** One gamma-encoded 0–1 channel to linear light. */
+function decodeChannel(value: number): number {
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
 }
 
 export function contrastRatio(a: Rgb, b: Rgb): number {

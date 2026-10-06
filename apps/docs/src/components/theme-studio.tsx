@@ -36,7 +36,7 @@ import { useEffect, useId, useMemo, useState, type CSSProperties, type ReactNode
 import { tokenDeclarations } from "~/lib/design-tokens.generated";
 
 /** The default preset's primary, so the studio opens on something that works. */
-const STARTING_COLOUR: Oklch = { l: 0.545, c: 0.196, h: 275 };
+const STARTING_COLOUR: Oklch = { l: 0.54, c: 0.196, h: 275 };
 
 /**
  * Build a theme preset, and be told before you ship it whether it can be read.

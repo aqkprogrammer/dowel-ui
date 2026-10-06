@@ -27,7 +27,7 @@ public API without a migration path. Nothing below is a commitment to a date.
 | Generation              | `/generate` and `plan_ui`: a deterministic planner resolved against the registry, honest about being one                                                   |
 | AI components           | 41, including the agent-operable layer (ADR 15) that no other library has                                                                                  |
 | Themes                  | Two-tier OKLCH tokens, 13 presets, `--radius-scale`, `--motion-scale`, DTCG/Figma export, a theme studio with live contrast                                |
-| Audits (repo-internal)  | contrast (598 pairs), tokens, API, bundle, package, motion, RTL, counts, installed-imports — all gated in CI                                               |
+| Audits (repo-internal)  | contrast (962 pairs), tokens, API, bundle, package, motion, RTL, counts, installed-imports — all gated in CI                                               |
 | Accessibility testing   | axe on every component and block; VoiceOver and NVDA in CI for `stream-announcer`                                                                          |
 | Private registries      | `buildCustomRegistry` with `extends`, override reporting, and import validation                                                                            |
 | Commercial              | Pro tier via Polar licence keys, a gated route that fails closed, and a pricing page that sells only what exists                                           |

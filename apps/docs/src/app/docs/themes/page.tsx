@@ -15,7 +15,7 @@ import { DocSection } from "~/components/site/doc-section";
 import { ThemeGallery } from "~/components/theme-gallery";
 
 const TOKEN_CSS = `:root {
-  --primary: oklch(0.545 0.196 275);
+  --primary: oklch(0.54 0.196 275);
   --primary-foreground: oklch(0.985 0.002 265);
   --background: oklch(1 0 0);
   --foreground: oklch(0.212 0.011 265);

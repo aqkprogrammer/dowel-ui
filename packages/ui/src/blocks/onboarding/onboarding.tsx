@@ -158,7 +158,7 @@ export function OnboardingBlock({
                     isDone
                       ? "border-success bg-success/15 text-success"
                       : isCurrent
-                        ? "border-primary bg-primary/15 text-primary"
+                        ? "border-primary bg-primary/12 text-primary"
                         : "border-border text-muted-foreground",
                   )}
                 >
