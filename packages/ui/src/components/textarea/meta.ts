@@ -18,4 +18,16 @@ export const meta = defineMeta({
     "close, and states the remainder in words rather than as a bare ratio that is read aloud as " +
     "two unlabelled numbers. Horizontal resizing is off by default, because a field dragged " +
     "wider than its container is a broken layout.",
+  guidance: {
+    useWhen: [
+      "multi-line text such as a comment, description or message",
+      "a field that should grow with its content or count characters against a limit",
+    ],
+    avoidWhen: [
+      "a chat composer that sends on Enter — use ai-prompt-input",
+      "a single line — use input",
+    ],
+    alternatives: ["input", "ai-prompt-input"],
+  },
+  composesWith: ["label", "form"],
 });

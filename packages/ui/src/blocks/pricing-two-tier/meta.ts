@@ -18,4 +18,8 @@ export const meta = defineMeta({
     '"Get started, Pro plan"), links are real links, the recommended plan is marked in text, and ' +
     "feature ticks are decorative. The cards' entrance and the rolling digits settle instantly " +
     "under reduced motion.",
+  guidance: {
+    useWhen: ["a free plan beside one featured paid plan"],
+    alternatives: ["pricing-three-tier", "pricing-single-plan", "pricing"],
+  },
 });

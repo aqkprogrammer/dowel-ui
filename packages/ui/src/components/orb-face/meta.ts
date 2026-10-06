@@ -15,4 +15,11 @@ export const meta = defineMeta({
     "label in step with `state`, and keep a text status nearby, because an expression is not a word. It is never " +
     "a live region. Under reduced motion the gaze, blinking and thinking glances are switched off and every " +
     "keyframe stops, leaving each state's settled face; the gaze spring is the only use of `motion`.",
+  guidance: {
+    useWhen: [
+      "a friendly assistant character whose expression shows listening, thinking, speaking, done or broken",
+    ],
+    avoidWhen: ["a status that must be read as text — use ai-agent-status"],
+    alternatives: ["matrix-orb", "fluid-orb", "ai-agent-status"],
+  },
 });

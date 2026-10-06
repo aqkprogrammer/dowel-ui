@@ -19,4 +19,12 @@ export const meta = defineMeta({
     "Ctrl/⌘+Enter hands back, Escape cancels, and either returns focus to the button. If control moves " +
     "elsewhere while the note is open, the note closes and focus returns to the button rather than falling to " +
     "the page. The baton is marked data-agent-ui, so using it never counts as taking over by input.",
+  guidance: {
+    useWhen: [
+      "showing whether the agent or the person has control, with take over and hand back",
+      "watching a remote browser agent session",
+    ],
+    avoidWhen: ["what an agent is doing, with no way to take control — use ai-agent-status"],
+    alternatives: ["ai-agent-status"],
+  },
 });

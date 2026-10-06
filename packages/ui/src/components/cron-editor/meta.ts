@@ -20,4 +20,11 @@ export const meta = defineMeta({
     "elements with machine-readable datetimes, headed by the zone they are in, because a time " +
     "with no zone is the classic scheduling mistake. Nothing clock-dependent renders until the " +
     "clock is known, so server and client cannot disagree.",
+  guidance: {
+    useWhen: [
+      "editing a recurring schedule stored as a cron expression, such as a nightly job",
+    ],
+    avoidWhen: ["a single date or time — use date-picker"],
+    alternatives: ["date-picker"],
+  },
 });

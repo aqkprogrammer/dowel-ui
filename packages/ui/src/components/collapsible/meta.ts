@@ -13,4 +13,9 @@ export const meta = defineMeta({
     "The trigger carries aria-expanded and points at the region it controls, both from the " +
     "primitive. Reach for this rather than an Accordion of one item: a single-item Accordion " +
     "gives its trigger a heading role and a position in a list of one, neither of which is true.",
+  guidance: {
+    useWhen: ["one section that opens and closes, such as advanced options"],
+    avoidWhen: ["several related sections — use accordion"],
+    alternatives: ["accordion"],
+  },
 });

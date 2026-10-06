@@ -17,4 +17,16 @@ export const meta = defineMeta({
     "on close. Escape cancels; clicking outside does not dismiss, so a consequential choice is never " +
     "made by accident. The media tile and its one-off shake are aria-hidden decoration, and colour " +
     "is never the only warning. Every entrance, stagger and the shake collapse under reduced motion.",
+  guidance: {
+    useWhen: [
+      "confirming a destructive or irreversible action",
+      "a choice that must not be dismissed by clicking outside",
+    ],
+    avoidWhen: [
+      "collecting input or showing general content — use dialog",
+      "a deletion serious enough to make the person type the name — use confirm-typed",
+      "a quick delete in a list row that can be undone — use inline-confirm",
+    ],
+    alternatives: ["dialog", "confirm-typed", "inline-confirm", "hold-button"],
+  },
 });

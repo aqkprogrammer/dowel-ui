@@ -18,4 +18,11 @@ export const meta = defineMeta({
     "saving itself. Announcing is on by default because going offline is the one thing a reader " +
     "who is typing has to be told, and it can be turned off. The server render assumes online, " +
     "since a page with no interface to report has no business saying offline.",
+  guidance: {
+    useWhen: [
+      "whether edits are saved, saving, offline or failed, in an app that saves as you type",
+    ],
+    avoidWhen: ["a one-off confirmation after an explicit save — use toast"],
+    alternatives: ["toast", "ai-agent-status", "badge"],
+  },
 });

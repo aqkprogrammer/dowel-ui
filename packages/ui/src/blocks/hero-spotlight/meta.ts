@@ -15,4 +15,8 @@ export const meta = defineMeta({
     "through the theme's own dark tokens, so contrast holds. The beam and dust are aria-hidden " +
     "decoration; the dust twinkles three times and rests rather than looping forever. The " +
     "entrance plays once, on first scroll into view, and settles instantly under reduced motion.",
+  guidance: {
+    useWhen: ["a dark landing hero lit by a spotlight beam"],
+    alternatives: ["hero-perspective-grid", "hero-grid"],
+  },
 });

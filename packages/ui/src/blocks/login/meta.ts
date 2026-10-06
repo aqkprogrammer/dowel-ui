@@ -15,4 +15,8 @@ export const meta = defineMeta({
     "mobile keyboards behave. Field errors are tied to their inputs through the Form wiring; a " +
     "server error is an assertive alert, because it arrived after the user acted and explains why " +
     "nothing happened. The submit button reports its own busy state rather than going quiet.",
+  guidance: {
+    useWhen: ["a sign-in page with email and password, social providers and errors"],
+    alternatives: ["signup", "forgot-password"],
+  },
 });

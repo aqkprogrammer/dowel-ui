@@ -16,4 +16,10 @@ export const meta = defineMeta({
     "below). The cells are a list. The analytics panel states its figure and change in text; its " +
     "bars are decorative and aria-hidden. Only a grid starting below the fold is hidden before it " +
     "scrolls in, and never under reduced motion.",
+  guidance: {
+    useWhen: [
+      "a features section with one large lead cell carrying a visual among smaller cells",
+    ],
+    alternatives: ["features-icon-grid", "features-alternating"],
+  },
 });

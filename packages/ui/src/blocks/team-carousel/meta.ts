@@ -19,4 +19,8 @@ export const meta = defineMeta({
     "right-to-left pages and visible at every width. The source's five-second autoplay is " +
     "removed (WCAG 2.2.2); a button press announces the new position politely. Portraits have " +
     "empty alt because the name is read next.",
+  guidance: {
+    useWhen: ["a swipeable carousel of team members with previous and next buttons"],
+    alternatives: ["team-grid"],
+  },
 });

@@ -21,4 +21,13 @@ export const meta = defineMeta({
     "label and its own keyboard behaviour are untouched — there is no shortcut hijacked from a " +
     "select or a date field. The id and ARIA a FormControl passes down are forwarded to the " +
     "control, and an existing aria-describedby is merged rather than replaced.",
+  guidance: {
+    useWhen: [
+      "an AI-proposed value beside any form control, pending until the person accepts it",
+      "AI autofill where the record must tell model values from typed ones",
+    ],
+    avoidWhen: ["completing text as the person types — use ai-inline-completion"],
+    alternatives: ["ai-inline-completion", "agent-form"],
+  },
+  composesWith: ["form"],
 });

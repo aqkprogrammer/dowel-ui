@@ -16,4 +16,14 @@ export const meta = defineMeta({
     "never carried by row colour alone — every row states added, removed or changed in text for " +
     "screen readers, satisfying WCAG 1.4.1. The unchanged-field toggle is a real button with " +
     "aria-expanded. Redacted values never reach the DOM at all.",
+  guidance: {
+    useWhen: [
+      "field-by-field before and after of a record: audit entries, settings history, revisions",
+    ],
+    avoidWhen: [
+      "changes to a file's text or code — use diff-viewer",
+      "an agent's edits to prose awaiting review — use ai-suggest-mode",
+    ],
+    alternatives: ["diff-viewer", "ai-suggest-mode"],
+  },
 });

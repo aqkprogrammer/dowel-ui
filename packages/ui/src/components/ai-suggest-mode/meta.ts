@@ -19,4 +19,14 @@ export const meta = defineMeta({
     "review never drops to the page. A and R decide the focused suggestion (aria-keyshortcuts). The waiting count " +
     "is a polite status present from first paint. Colour marks insertions and deletions but never carries them " +
     "alone.",
+  guidance: {
+    useWhen: [
+      "reviewing an agent's edits to prose as tracked changes, accepted or rejected one by one",
+    ],
+    avoidWhen: [
+      "changes to code or files — use diff-viewer",
+      "field values on a record — use record-diff",
+    ],
+    alternatives: ["diff-viewer", "record-diff", "provenance-text"],
+  },
 });

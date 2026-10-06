@@ -17,4 +17,14 @@ export const meta = defineMeta({
     "RTL, Up/Down when vertical), Home and End, and chosen with Enter or Space. The content area is a group " +
     "labelled by the current step. Horizontal labels collapse to screen-reader-only text on narrow screens. " +
     "All motion is CSS decoration and stops under reduced motion.",
+  guidance: {
+    useWhen: [
+      "a multi-step wizard, such as checkout or setup, showing which step is current and which are done",
+    ],
+    avoidWhen: [
+      "an agent's plan that changes while it runs — use ai-agent-plan",
+      "alternate views of one subject — use tabs",
+    ],
+    alternatives: ["ai-agent-plan", "tabs", "progress"],
+  },
 });

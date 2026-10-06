@@ -16,4 +16,8 @@ export const meta = defineMeta({
     "with a visible underline, not colour alone, and its arrow mirrors in right-to-left text. " +
     "The fade and letter-spacing entrance play once, on first scroll into view, and settle " +
     "instantly under reduced motion.",
+  guidance: {
+    useWhen: ["a quiet hero: a headline, one line of copy and a text link"],
+    alternatives: ["hero-grid", "hero-product"],
+  },
 });

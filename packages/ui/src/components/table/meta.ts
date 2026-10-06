@@ -14,4 +14,12 @@ export const meta = defineMeta({
     "announced without ARIA. Give it a name with TableCaption or aria-label. The scrolling " +
     "wrapper is focusable so an overflowing table can be scrolled by keyboard — without that, " +
     'columns past the edge are unreachable. Use scope="row" on th elements inside tbody.',
+  guidance: {
+    useWhen: [
+      "static tabular data with no sorting or paging",
+      "a small table of figures or a comparison",
+    ],
+    avoidWhen: ["sorting, filtering, selection or pagination — use data-table"],
+    alternatives: ["data-table"],
+  },
 });

@@ -16,4 +16,10 @@ export const meta = defineMeta({
     'what is happening — and to "Thought for 4.2s" when given a duration. autoOpen and ' +
     "autoCollapse are opt-in; auto-collapse never closes the trace while focus or the pointer is " +
     "inside it. The optional shimmer is decoration and stops under reduced motion.",
+  guidance: {
+    useWhen: ["the model's reasoning, collapsed beside its answer and opened on request"],
+    avoidWhen: ["a tool call and its result — use ai-tool"],
+    alternatives: ["ai-tool", "collapsible"],
+  },
+  composesWith: ["ai-response"],
 });

@@ -15,4 +15,11 @@ export const meta = defineMeta({
     "with a visible focus ring (missing in the source) and a hidden input inside forms. It has no visible " +
     "label, so name it with aria-label or a <label>. Dragging the knob is a pointer convenience; releasing " +
     "a drag never also counts as a click. Under reduced motion the knob jumps and never deforms.",
+  guidance: {
+    useWhen: [
+      "an immediate on/off setting where a draggable, squashing knob suits the product",
+    ],
+    avoidWhen: ["a standard settings switch — use switch"],
+    alternatives: ["switch"],
+  },
 });

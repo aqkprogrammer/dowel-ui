@@ -22,4 +22,14 @@ export const meta = defineMeta({
     'with their kind in words and a share, "Claude (agent) 31%". Agent and source marks differ in underline ' +
     "shape, solid and heavy against dashed, so they stay apart in monochrome and forced colours. No live " +
     "region: the only change the component makes is the one the person just asked for.",
+  guidance: {
+    useWhen: [
+      "text edited by a person and an agent, showing on request who wrote each part and each author's share",
+    ],
+    avoidWhen: [
+      "labelling a whole piece as AI-generated — use ai-disclosure",
+      "reviewing an agent's pending edits — use ai-suggest-mode",
+    ],
+    alternatives: ["ai-disclosure", "ai-suggest-mode", "ai-sources"],
+  },
 });

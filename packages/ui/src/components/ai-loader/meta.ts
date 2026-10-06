@@ -15,4 +15,12 @@ export const meta = defineMeta({
     "loader inside it and the elapsed counter are aria-hidden — a counter ticking ten times a second inside a " +
     "live region would announce continuously. The loaders are indicators: under reduced motion they slow rather " +
     "than stop. None fakes determinate progress.",
+  guidance: {
+    useWhen: ["a labelled wait while a model thinks, with an optional elapsed-seconds counter"],
+    avoidWhen: [
+      "a busy button or panel unrelated to AI — use spinner",
+      "waiting for a generated image — use grid-reveal",
+    ],
+    alternatives: ["spinner", "grid-reveal", "ai-agent-status"],
+  },
 });

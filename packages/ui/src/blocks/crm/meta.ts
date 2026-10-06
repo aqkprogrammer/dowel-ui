@@ -31,4 +31,10 @@ export const meta = defineMeta({
     "legend names every stage. Sales cycle is declared lower-is-better, so a slowing pipeline is not painted " +
     "green. The deal filter has a real label and announces the matching count politely, and " +
     "each Open button is named after its deal rather than being one of ten identical buttons.",
+  guidance: {
+    useWhen: [
+      "a sales pipeline page: value by stage, a deals table, win rate and recent touches",
+    ],
+    alternatives: ["admin-users", "analytics"],
+  },
 });

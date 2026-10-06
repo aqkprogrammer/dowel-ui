@@ -16,4 +16,8 @@ export const meta = defineMeta({
     "aria-hidden decoration with no focusable parts. Calls to action are real links. Under " +
     "reduced motion the entrance and the tile fade settle instantly and the plane lies flat " +
     "instead of tilting in perspective.",
+  guidance: {
+    useWhen: ["a centred landing hero over a tilted 3D plane of tiles"],
+    alternatives: ["hero-grid", "hero-spotlight"],
+  },
 });

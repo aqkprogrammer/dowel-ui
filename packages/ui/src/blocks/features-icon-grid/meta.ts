@@ -17,4 +17,8 @@ export const meta = defineMeta({
     "list, and icons are decorative (aria-hidden) — the title carries the meaning. Only a grid " +
     "that starts below the fold is hidden before it scrolls in, so nothing on screen flashes, and " +
     "under reduced motion or without IntersectionObserver nothing is hidden at all.",
+  guidance: {
+    useWhen: ["a grid of features, each an icon, a title and a sentence"],
+    alternatives: ["features-bento", "features-alternating"],
+  },
 });

@@ -19,4 +19,10 @@ export const meta = defineMeta({
     "one polite live region summarises the whole queue rather than six per-file regions talking " +
     "over each other." +
     " The optional dropzone icon is aria-hidden. With animateExit, a removed row lingers only as an aria-hidden, inert copy with no buttons while it animates out.",
+  guidance: {
+    useWhen: [
+      "choosing or dropping files, with an upload queue that shows progress, cancel and retry",
+      "uploads over any transport, such as a presigned PUT or a multipart POST",
+    ],
+  },
 });
