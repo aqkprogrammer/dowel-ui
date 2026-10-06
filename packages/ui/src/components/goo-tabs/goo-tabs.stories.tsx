@@ -45,13 +45,18 @@ function IconBar({
           </GooTabsTrigger>
         ))}
       </GooTabsList>
-      {panels
-        ? ITEMS.map((item) => (
-            <GooTabsContent key={item.value} value={item.value} className="mt-0 text-sm">
-              {item.label}
-            </GooTabsContent>
-          ))
-        : null}
+      {/* Always rendered: each trigger's aria-controls names its panel, and a
+          panel that does not exist makes that reference invalid. Where the
+          story is about the bar alone, the panels are only visually hidden. */}
+      {ITEMS.map((item) => (
+        <GooTabsContent
+          key={item.value}
+          value={item.value}
+          className={panels ? "mt-0 text-sm" : "sr-only"}
+        >
+          {item.label}
+        </GooTabsContent>
+      ))}
     </GooTabs>
   );
 }
