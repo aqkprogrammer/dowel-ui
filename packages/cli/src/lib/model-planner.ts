@@ -62,6 +62,7 @@ function catalogueLine(entry: RegistryIndexEntry): string {
 export function systemPrompt(index: RegistryIndex): string {
   const entries = index.items
     .filter((entry) => entry.type === "registry:ui" || entry.type === "registry:block")
+    .filter((entry) => entry.deprecated === undefined)
     .sort((a, b) => a.name.localeCompare(b.name));
 
   return [

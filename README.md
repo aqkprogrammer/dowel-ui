@@ -371,7 +371,11 @@ const result = await buildCustomRegistry(
 ```
 
 Point a project at the result and `add acme-callout` installs it, pulling in
-`badge` from upstream on the way.
+`badge` from upstream on the way. Put the directory behind anything that answers
+a missing key with `401`, and `login --registry <url>` signs a developer in; keys
+are stored per registry and only ever sent to their own. Items can name an
+`owner`, the version they shipped `since`, and a `deprecated` notice with a
+`replacement`, which the CLI, the MCP server and the agent docs all honour.
 
 **A local item replaces an upstream one of the same name**, and the build tells
 you which — overriding upstream's Button is a legitimate thing to want and a

@@ -19,13 +19,43 @@ import {
  * it caches, while the CLI runs once and does not. Sharing the code would mean
  * one of the two carrying machinery it does not want.
  */
+/**
+ * The key for a private registry, from the environment.
+ *
+ * The same pair the CLI reads in CI: `DOWEL_TOKEN`, and `DOWEL_TOKEN_REGISTRY`
+ * naming the registry it belongs to. Returned only when that registry is this
+ * one, over HTTPS or to this machine, so a key configured for one registry is
+ * never sent to another.
+ */
+export function keyFor(
+  baseUrl: string,
+  env: NodeJS.ProcessEnv = process.env,
+): string | undefined {
+  const token = env.DOWEL_TOKEN?.trim();
+  const owner = env.DOWEL_TOKEN_REGISTRY?.trim();
+  if (!token || !owner) return undefined;
+  let target: URL;
+  try {
+    target = new URL(baseUrl);
+    if (new URL(owner).origin !== target.origin) return undefined;
+  } catch {
+    return undefined;
+  }
+  const loopback = ["localhost", "127.0.0.1", "[::1]"].includes(target.hostname);
+  return target.protocol === "https:" || (target.protocol === "http:" && loopback)
+    ? token
+    : undefined;
+}
+
 export class RegistryClient {
   readonly baseUrl: string;
+  readonly #key: string | undefined;
   #index: Promise<RegistryIndex> | undefined;
   readonly #items = new Map<string, Promise<RegistryItem>>();
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, env: NodeJS.ProcessEnv = process.env) {
     this.baseUrl = baseUrl;
+    this.#key = keyFor(baseUrl, env);
   }
 
   get #isHttp(): boolean {
@@ -43,7 +73,17 @@ export class RegistryClient {
     }
 
     const url = `${this.baseUrl.replace(/\/$/, "")}/${file}`;
-    const response = await fetch(url);
+    let response = await fetch(url);
+    // A private registry answers 401; the key goes only in reply to that, so
+    // a public registry never receives it.
+    if (response.status === 401 && this.#key !== undefined) {
+      response = await fetch(url, { headers: { authorization: `Bearer ${this.#key}` } });
+    }
+    if (response.status === 401) {
+      throw new Error(
+        `The registry at ${this.baseUrl} requires a key. Set DOWEL_TOKEN, and DOWEL_TOKEN_REGISTRY=${this.baseUrl}, in this server's environment.`,
+      );
+    }
     if (response.status === 404) throw new Error(`Not found in the registry: ${file}`);
     if (!response.ok) {
       throw new Error(`Registry returned ${String(response.status)} for ${url}`);

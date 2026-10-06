@@ -19,6 +19,7 @@ import {
   configDirectory,
   credentialsFor,
   maskToken,
+  readCredentials,
   readToken,
   TOKEN_ENV,
   TOKEN_REGISTRY_ENV,
@@ -221,5 +222,50 @@ describe("credentialsFor", () => {
 
     env[TOKEN_REGISTRY_ENV] = "https://mirror.example/r";
     expect(credentialsFor("https://mirror.example/r", env)?.token).toBe("ci-key");
+  });
+});
+
+describe("one key per registry", () => {
+  it("keeps a key for each registry, and sends each only to its own", () => {
+    const env = scratchEnv();
+    writeToken("pro-key", env, branding.registryUrl);
+    writeToken("acme-key", env, "https://registry.acme.example/r");
+
+    expect(credentialsFor(branding.registryUrl, env)?.token).toBe("pro-key");
+    expect(credentialsFor("https://registry.acme.example/r", env)?.token).toBe("acme-key");
+    expect(() => credentialsFor("https://elsewhere.example/r", env)).toThrow(
+      /Keys on this machine are for/,
+    );
+  });
+
+  it("replaces the key for a registry rather than adding a second", () => {
+    const env = scratchEnv();
+    writeToken("first", env, "https://registry.acme.example/r");
+    writeToken("second", env, "https://registry.acme.example/r");
+    expect(readCredentials(env).map((entry) => entry.token)).toEqual(["second"]);
+  });
+
+  it("signs out of one registry without signing out of the others", () => {
+    const env = scratchEnv();
+    writeToken("pro-key", env, branding.registryUrl);
+    writeToken("acme-key", env, "https://registry.acme.example/r");
+
+    expect(clearToken(env, "https://registry.acme.example/r")).toBe(true);
+    expect(readCredentials(env).map((entry) => entry.token)).toEqual(["pro-key"]);
+    expect(clearToken(env, "https://registry.acme.example/r")).toBe(false);
+  });
+
+  it("still reads a key stored in the original single-key format", () => {
+    const env = scratchEnv();
+    mkdirSync(join(env.XDG_CONFIG_HOME ?? "", "dowel"), { recursive: true });
+    writeFileSync(
+      authPath(env),
+      JSON.stringify({ token: "old", registry: "https://old.example/r" }),
+    );
+
+    expect(readToken(env, "https://old.example/r")?.token).toBe("old");
+    // Writing a second key upgrades the file without losing the first.
+    writeToken("new", env, "https://new.example/r");
+    expect(readCredentials(env).map((entry) => entry.token)).toEqual(["old", "new"]);
   });
 });

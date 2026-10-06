@@ -83,6 +83,9 @@ function buildSourceItem(meta: ComponentMeta): RegistryItem {
     capabilities: capabilitiesOf(files.map((file) => file.content)),
     props: props.length > 0 ? props : undefined,
     quality,
+    deprecated: meta.deprecated,
+    since: meta.since,
+    owner: meta.owner,
   });
 }
 
@@ -186,6 +189,9 @@ export function buildIndex(items: RegistryItem[]) {
     guidance: item.guidance,
     composesWith: item.composesWith,
     capabilities: item.capabilities,
+    deprecated: item.deprecated,
+    since: item.since,
+    owner: item.owner,
     fileCount: item.files.length,
   }));
 

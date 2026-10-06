@@ -372,14 +372,21 @@ Found on the way, not fixed here (component work): status text on its own
 `Select` labels nothing; the calendar's month navigation is positioned
 against the nearest positioned ancestor rather than the calendar. See ADR 18.
 
-### Phase 7 — Enterprise foundations
+### Phase 7 — Enterprise foundations ✅
 
-Design, not infrastructure. Governance metadata (`owner`, `deprecated` with a
-replacement, `since`) added to the genome and honoured by the CLI (a
-deprecation warning on `add`, a pointer on `update`). Private-registry
-authentication generalised from the Pro licence check so a self-hosted registry
-can require a token. RBAC, organisations and analytics are written up as
-interfaces only.
+See ADR 19.
+
+1. ✅ **Private registries.** Any registry that answers `401` is private: the
+   CLI asks without a key, then once with the key stored for that registry and
+   no other. Keys are stored per registry; `login --registry` verifies against
+   the index when there is no licence endpoint; the MCP server reads
+   `DOWEL_TOKEN` / `DOWEL_TOKEN_REGISTRY`.
+2. ✅ **Governance metadata** — `owner`, `since`, `deprecated` (with a
+   replacement), honoured by `add`, `update`, `list`, `doctor`, MCP, the agent
+   docs and the planners. Deprecation never removes. Custom registries can
+   declare guidance too, and the build rejects names that do not exist.
+3. ✅ **Organisations, roles, audit events and usage reports** written down as
+   interfaces in ADR 19, with the decisions they encode. Not built.
 
 ### Phase 8 — Cloud
 

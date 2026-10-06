@@ -66,6 +66,11 @@ function summarise(entry: RegistryIndexEntry): string {
   // Pro is marked where the item is first seen, so an agent choosing between
   // two candidates knows one of them needs a licence before it commits to it.
   const notes = [
+    ...(entry.deprecated
+      ? [
+          `deprecated${entry.deprecated.replacement ? `, use ${entry.deprecated.replacement}` : ""}`,
+        ]
+      : []),
     ...(entry.status === "stable" ? [] : [entry.status]),
     ...(entry.access === "pro" ? ["Pro"] : []),
   ];
@@ -81,7 +86,18 @@ function summarise(entry: RegistryIndexEntry): string {
  */
 function genomeLines(entry: RegistryIndexEntry): string[] {
   const lines: string[] = [];
-  const { guidance, composesWith, capabilities } = entry;
+  const { guidance, composesWith, capabilities, deprecated, owner } = entry;
+
+  if (deprecated) {
+    lines.push(
+      `**Deprecated** since ${deprecated.since}: ${deprecated.reason}` +
+        (deprecated.replacement
+          ? ` Use \`${deprecated.replacement}\` instead — call get_component for it.`
+          : " Do not use it in new code."),
+      "",
+    );
+  }
+  if (owner) lines.push(`Maintained by: ${owner}`, "");
 
   if (guidance) {
     lines.push("## When to use it", "");

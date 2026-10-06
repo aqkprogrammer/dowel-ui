@@ -77,6 +77,13 @@ As flags, they go after the package name in `args`:
 The registry index, and every item read from it, is cached for the life of the
 process. Restart the server to see a new release of the registry.
 
+### A private registry
+
+If the registry answers `401`, the server retries once with `DOWEL_TOKEN`, but
+only when `DOWEL_TOKEN_REGISTRY` names that same registry, and only over HTTPS
+or to `localhost`. Set both in the server's `env` block. A public registry never
+receives the key.
+
 ## Tools
 
 Every tool returns text. A call that names something the registry does not
