@@ -16,4 +16,12 @@ export const meta = defineMeta({
     "state, since aria-pressed already reports on or off. The fill layer is aria-hidden and the " +
     "state is never carried by colour alone — the pressed state is announced. Nothing animates on " +
     "first paint, and under reduced motion the squish, fill and icon pop all resolve instantly.",
+  guidance: {
+    useWhen: ["a button that stays pressed or unpressed, such as bold or mute in a toolbar"],
+    avoidWhen: [
+      "a labelled setting that applies at once — use switch",
+      "one of several mutually exclusive buttons — use toggle-group",
+    ],
+    alternatives: ["switch", "toggle-group", "checkbox"],
+  },
 });

@@ -18,4 +18,13 @@ export const meta = defineMeta({
     "and the errors the agent is told are the ones on screen. A field the agent fills is outlined while it " +
     "works, and focus never moves. Passwords, one-time codes, card numbers and anything inside " +
     "[data-agent-private] are never read or filled.",
+  guidance: {
+    useWhen: [
+      "a form an agent can fill in, read back and submit through its own handler",
+      "agent-assisted forms where passwords, codes and card numbers stay the person's",
+    ],
+    avoidWhen: ["proposing values for a person to accept one by one — use ai-suggested-value"],
+    alternatives: ["ai-suggested-value", "form"],
+  },
+  composesWith: ["agent-approvals"],
 });

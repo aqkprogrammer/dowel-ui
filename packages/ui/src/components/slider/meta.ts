@@ -16,4 +16,14 @@ export const meta = defineMeta({
     "unnamed. Pass aria-valuetext when the raw number is not meaningful on its own " +
     "(a price, a duration). Show the current value on screen too — a slider is imprecise, so " +
     "pair it with a numeric input when exactness matters.",
+  guidance: {
+    useWhen: [
+      "choosing an approximate value or a range from a continuous span, such as volume or a price range",
+    ],
+    avoidWhen: [
+      "a value that must be exact — use input or quantity-input",
+      "a design-tool number dragged across its label — use scrubber",
+    ],
+    alternatives: ["quantity-input", "scrubber", "input", "slosh-slider"],
+  },
 });

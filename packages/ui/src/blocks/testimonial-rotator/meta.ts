@@ -19,4 +19,8 @@ export const meta = defineMeta({
     'default — and carries aria-roledescription="carousel"; the quote is a labelled slide. ' +
     "Indicators are named buttons with aria-current and arrow keys (mirrored in RTL), Home and End. " +
     "The avatar is hidden, since the name is beside it.",
+  guidance: {
+    useWhen: ["one large quotation at a time, rotating on a timer with a stop control"],
+    alternatives: ["testimonial-spotlight", "testimonial-star-grid"],
+  },
 });

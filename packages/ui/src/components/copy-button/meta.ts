@@ -16,4 +16,14 @@ export const meta = defineMeta({
     'the hidden one is aria-hidden. Icon-only buttons are named "Copy" unless given an aria-label. ' +
     "A refused clipboard write is announced as a failure and never shows the check. The button " +
     "is never disabled while confirming, so keyboard focus stays put.",
+  guidance: {
+    useWhen: [
+      "copying a value to the clipboard with a confirmation, such as an ID, link or command",
+    ],
+    avoidWhen: [
+      "a block of code — use code-block, which includes a copy control",
+      "an API key that should stay hidden — use secret-field",
+    ],
+    alternatives: ["code-block", "secret-field", "morph-button"],
+  },
 });

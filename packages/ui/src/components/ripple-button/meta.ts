@@ -15,4 +15,9 @@ export const meta = defineMeta({
     "pointer-transparent spans that remove themselves when they finish, so they never reach the accessibility " +
     "tree or block a click. Keyboard presses (Enter, Space) ripple from the centre, so the feedback does not " +
     "depend on a pointer. Under reduced motion the ripple is collapsed to an instant and disappears.",
+  guidance: {
+    useWhen: ["an action button whose press feedback should show where it landed"],
+    avoidWhen: ["ordinary actions in forms and dense UI — use button"],
+    alternatives: ["button", "effect-button"],
+  },
 });

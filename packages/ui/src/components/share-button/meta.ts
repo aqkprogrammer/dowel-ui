@@ -17,4 +17,11 @@ export const meta = defineMeta({
     "trigger; focus leaving closes it. Touch and keyboard press toggle it, so nothing depends on hover. " +
     'Copying the link is announced through a polite role="status" region and the check only appears once the ' +
     "clipboard write has resolved. Icons are aria-hidden. Under reduced motion the springs become instant.",
+  guidance: {
+    useWhen: [
+      "sharing a page or item to a row of targets, with copy link and the native share sheet",
+    ],
+    avoidWhen: ["copying one value — use copy-button"],
+    alternatives: ["copy-button", "dropdown-menu"],
+  },
 });

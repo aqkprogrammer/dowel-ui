@@ -21,4 +21,16 @@ export const meta = defineMeta({
     "outcome (tabindex -1, never a Tab stop), Deny… moves it into the reason field and Back " +
     "returns it — but only when focus was already inside, so a replayed or remote decision " +
     "never steals it (manageFocus={false} opts out).",
+  guidance: {
+    useWhen: [
+      "asking the person to approve a model's tool call, with editable arguments, before it runs",
+    ],
+    avoidWhen: [
+      "approvals for tools on an agent-surface — use agent-approvals",
+      "granting a capability that covers many calls — use permission-prompt",
+      "a generic yes or no confirmation — use alert-dialog",
+    ],
+    alternatives: ["agent-approvals", "permission-prompt", "alert-dialog"],
+  },
+  composesWith: ["blast-radius"],
 });

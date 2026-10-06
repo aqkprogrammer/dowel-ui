@@ -16,4 +16,9 @@ export const meta = defineMeta({
     "keyboard and touch users get the same feedback. Both label colours are paired tokens (tone on background, " +
     "tone-foreground on tone), and the outline keeps the button visible at rest. Under reduced motion the waves " +
     "stop, the fill swaps instantly and the press does not slosh.",
+  guidance: {
+    useWhen: ["a standout outlined call to action on a landing page"],
+    avoidWhen: ["actions in forms, tables and dense UI — use button"],
+    alternatives: ["button", "effect-button"],
+  },
 });

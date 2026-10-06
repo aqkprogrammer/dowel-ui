@@ -22,4 +22,19 @@ export const meta = defineMeta({
     "the person can see what the agent touched, and focus is never moved by a tool call. While the person " +
     "holds control every call is refused, reads included, because taking over is often done to type " +
     "something the agent should not see.",
+  guidance: {
+    useWhen: [
+      "letting an agent operate part of the page through tools, with the person able to take over at any time",
+      "offering a page's actions to a browser agent through WebMCP",
+    ],
+    avoidWhen: ["a chat that only answers questions — use ai-conversation"],
+    alternatives: ["ai-conversation"],
+  },
+  composesWith: [
+    "agent-approvals",
+    "agent-ledger",
+    "control-baton",
+    "agent-form",
+    "agent-data-table",
+  ],
 });

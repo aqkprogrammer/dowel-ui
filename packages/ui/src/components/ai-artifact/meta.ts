@@ -15,4 +15,12 @@ export const meta = defineMeta({
     "each panel focusable and named by its tab); with one code pane, the scrolling source is a focusable region " +
     "named by the title. Copying announces success and failure through Copy Button. The pane slide mirrors in " +
     "right-to-left layouts, never plays on mount, and stops under reduced motion.",
+  guidance: {
+    useWhen: [
+      "framing something the model produced, with preview and code panes and a copy action",
+    ],
+    avoidWhen: ["a plain code snippet — use code-block"],
+    alternatives: ["code-block", "code-tabs"],
+  },
+  composesWith: ["ai-message"],
 });

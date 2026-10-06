@@ -16,4 +16,8 @@ export const meta = defineMeta({
     "list. Each entry is named by its organisation and the graphic is aria-hidden; the tooltip " +
     "only repeats that name, so nothing depends on it. The source's hover state and tooltip were " +
     "pointer-only — here linked logos show both on keyboard focus too, with the shared focus ring.",
+  guidance: {
+    useWhen: ["a panel of grayscale logos that name themselves on hover or focus"],
+    alternatives: ["logo-cloud-simple", "logo-marquee"],
+  },
 });

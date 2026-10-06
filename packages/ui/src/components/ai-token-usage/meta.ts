@@ -17,4 +17,9 @@ export const meta = defineMeta({
     "full numbers and percent. Its breakdown trigger is a real, never-disabled button: click, " +
     "Enter or Space open it and Escape closes it; a mouse hover also opens it without moving " +
     "focus, and focus alone never does.",
+  guidance: {
+    useWhen: ["how much of the model's context window a conversation has used"],
+    avoidWhen: ["general quota or capacity, such as storage — use meter"],
+    alternatives: ["meter", "progress"],
+  },
 });

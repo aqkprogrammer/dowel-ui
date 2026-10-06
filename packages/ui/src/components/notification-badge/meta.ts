@@ -16,4 +16,11 @@ export const meta = defineMeta({
     "A hidden count badge (zero, without showZero) is aria-hidden and empty. Changes are only announced when " +
     "`live` is set. The text follows the wrapped element in reading order, so a wrapped icon button should still " +
     "have its own name. The ping ring is not rendered under reduced motion, and the pop-in snaps.",
+  guidance: {
+    useWhen: [
+      "a dot, unread count or presence indicator pinned to the corner of an icon, button or avatar",
+    ],
+    avoidWhen: ["an inline status or category label — use badge"],
+    alternatives: ["badge", "notification-bell"],
+  },
 });

@@ -15,4 +15,16 @@ export const meta = defineMeta({
     "rather than three fragments: the visible number and delta are aria-hidden and a single " +
     "screen-reader description carries value, direction, comparison and, where given, sample " +
     "size. A zero baseline is announced as having no percentage rather than as an infinite one.",
+  guidance: {
+    useWhen: [
+      "a headline number with its change against a previous period",
+      "KPIs where a rise can be bad news, such as churn, latency or cost",
+    ],
+    avoidWhen: [
+      "a level against a capacity — use meter",
+      "a number that rolls to each new value — use number-flow",
+    ],
+    alternatives: ["meter", "number-flow"],
+  },
+  composesWith: ["card"],
 });

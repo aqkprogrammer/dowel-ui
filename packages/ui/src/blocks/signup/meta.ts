@@ -15,4 +15,8 @@ export const meta = defineMeta({
     'announced twice. autoComplete="new-password" tells password managers to offer a generated ' +
     "password rather than an existing one. Strength is a hint, never a gate: the form is validated " +
     "on length alone.",
+  guidance: {
+    useWhen: ["an account creation page with a password strength hint and terms acceptance"],
+    alternatives: ["login"],
+  },
 });

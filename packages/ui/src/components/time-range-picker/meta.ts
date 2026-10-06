@@ -19,4 +19,13 @@ export const meta = defineMeta({
     "through one aria-describedby element that the preview and the error share, so a reader " +
     "hears the error replace the preview rather than both at once; an invalid expression is " +
     "never applied, because a chart silently re-scoping itself is worse than one that refuses.",
+  guidance: {
+    useWhen: [
+      "the time window of a dashboard, chart or log view, such as the last 6 hours",
+      "a range that must stay relative when the page is bookmarked or reloaded",
+    ],
+    avoidWhen: ["a calendar date or date range in a form — use date-picker"],
+    alternatives: ["date-picker", "calendar"],
+  },
+  composesWith: ["log-viewer"],
 });

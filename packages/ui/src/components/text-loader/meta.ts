@@ -14,4 +14,14 @@ export const meta = defineMeta({
     "Renders aria-hidden by default so it does not announce inside controls that already " +
     'expose a busy state; the words it shows are decoration. Pass `label` to announce it standalone via role="status". ' +
     "Under reduced motion it slows rather than stopping, because a frozen loader reads as a hang.",
+  guidance: {
+    useWhen: [
+      "a decorative indeterminate wait drawn as words or interface shapes, such as typing or a terminal",
+    ],
+    avoidWhen: [
+      "placeholders that hold the real layout — use skeleton",
+      "a standard wait in a button or panel — use spinner",
+    ],
+    alternatives: ["skeleton", "spinner", "ai-loader"],
+  },
 });

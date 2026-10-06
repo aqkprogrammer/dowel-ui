@@ -17,4 +17,11 @@ export const meta = defineMeta({
     "The rolling digits are aria-hidden and each figure's settled, locale-formatted value is " +
     "read once, so a screen reader never hears the zero the roll starts from. Only a row below " +
     "the fold is held back to animate; under reduced motion values appear at once.",
+  guidance: {
+    useWhen: [
+      "a marketing row of big figures with labels, rolling up as they scroll into view",
+    ],
+    avoidWhen: ["metrics in an app with change against a previous period — use metric-delta"],
+    alternatives: ["stats-trend-cards", "metric-delta"],
+  },
 });

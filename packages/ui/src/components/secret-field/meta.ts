@@ -18,4 +18,12 @@ export const meta = defineMeta({
     "the clipboard can be refused. Every button carries the field's label in its name, so a " +
     "settings page with several keys has several distinct Copy buttons. Regenerating is confirmed " +
     "inline in a named group that states the consequence, since it revokes the current key.",
+  guidance: {
+    useWhen: [
+      "showing a new API key or token once at creation",
+      "a settings page listing keys that are hidden, revealable or gone",
+    ],
+    avoidWhen: ["entering a password the person knows — use input with type password"],
+    alternatives: ["input", "copy-button"],
+  },
 });

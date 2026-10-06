@@ -17,4 +17,9 @@ export const meta = defineMeta({
     '"Shutting down…") is announced through a polite status region. The grip travels toward the inline end ' +
     "and its arrow mirrors in right-to-left layouts. Under reduced motion the springs are instant, the " +
     "shimmer stops and the hold still works.",
+  guidance: {
+    useWhen: ["confirming an action by sliding a grip along a track, such as a power-off"],
+    avoidWhen: ["a confirmation that needs explaining — use alert-dialog"],
+    alternatives: ["hold-button", "alert-dialog"],
+  },
 });

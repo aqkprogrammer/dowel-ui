@@ -15,4 +15,8 @@ export const meta = defineMeta({
     "One section landmark named by its headline, whose level is a prop (default 2). The action is " +
     "a real link whose arrow mirrors in right-to-left text. The banner settles in once, on first " +
     "scroll into view, and instantly under reduced motion.",
+  guidance: {
+    useWhen: ["a compact call to action with one line of copy and a single action"],
+    alternatives: ["cta-centered", "cta-split-image"],
+  },
 });
