@@ -34,6 +34,9 @@ Fixes for the accessibility problems the real-browser suite found in 0.13.0.
   pass every label check and still fail as text on its own tint, as the shipped
   presets did; the studio now lists primary on the soft button's tints, light
   and dark, alongside the solid states.
+- `ai-suggest-mode`: removed text is full-strength, marked by its strike-through
+  and tint. Muted text on the darker destructive tint measured 4.4:1 — found by
+  the browser suite after the palette change above.
 - **`Select` inside `FormControl` had no accessible name.** `FormControl`
   passes the field's id, description and invalid state to its child, and
   `Select`'s root renders no element, so they were dropped and the label
