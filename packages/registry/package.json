@@ -39,6 +39,10 @@
     "./generate": {
       "types": "./dist/generate.d.ts",
       "default": "./dist/generate.js"
+    },
+    "./analysis": {
+      "types": "./dist/analysis/index.d.ts",
+      "default": "./dist/analysis/index.js"
     }
   },
   "bin": {
