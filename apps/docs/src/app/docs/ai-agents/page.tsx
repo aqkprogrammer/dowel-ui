@@ -72,11 +72,11 @@ const MCP_CONFIG = `{
 const MCP_TOOLS = [
   {
     tool: "search_components",
-    what: "Find what already exists, by name, description or category.",
+    what: "Find what already exists, by name, what it is for, description or category.",
   },
   {
     tool: "get_component",
-    what: "One component in full — accessibility notes, what it installs alongside, and optionally its source.",
+    what: "One component in full — when to use it and what it is confused with, its props read from its type, accessibility notes, and optionally its source.",
   },
   {
     tool: "get_guide",
@@ -85,6 +85,14 @@ const MCP_TOOLS = [
   {
     tool: "install_command",
     what: "The exact command, and everything it will write.",
+  },
+  {
+    tool: "plan_ui",
+    what: "Describe a screen, get the blocks and components that build it — only ones that exist.",
+  },
+  {
+    tool: "audit_code",
+    what: "Check code the agent wrote for hardcoded colours, off-scale sizes, physical directions and bypassed components.",
   },
 ];
 
