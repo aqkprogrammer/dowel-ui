@@ -158,6 +158,14 @@ export default function CliPage() {
           anything stored, which is also what <code>logout</code> will tell you if it is still
           set.
         </p>
+        <p>
+          A key is only ever sent to the registry it belongs to, and only over HTTPS. A stored
+          key belongs to the registry <code>login</code> checked it against; one in{" "}
+          <code>DOWEL_TOKEN</code> belongs to the default registry unless{" "}
+          <code>DOWEL_TOKEN_REGISTRY</code> names another. The registry an install reads comes
+          from <code>components.json</code>, which is part of whatever repository you are in, so
+          the CLI refuses rather than send your key to a server that repository chose.
+        </p>
 
         <h2 id="private-registries">Private registries</h2>
         <p>

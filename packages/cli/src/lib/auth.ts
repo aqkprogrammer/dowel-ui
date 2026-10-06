@@ -3,6 +3,7 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { z } from "zod";
 
+import { branding } from "../branding";
 import { CliError } from "./errors";
 
 /**
@@ -21,11 +22,25 @@ import { CliError } from "./errors";
 
 export const TOKEN_ENV = "DOWEL_TOKEN";
 
+/**
+ * Which registry `DOWEL_TOKEN` is for, when it is not the default one.
+ *
+ * A stored key remembers the registry it was verified against; a key in the
+ * environment has nowhere to record that, so this says it instead.
+ */
+export const TOKEN_REGISTRY_ENV = "DOWEL_TOKEN_REGISTRY";
+
 const authFileSchema = z.object({
   /** The licence key, as issued. */
   token: z.string().min(1),
   /** When it was stored, for the benefit of a human reading the file. */
   storedAt: z.string().optional(),
+  /**
+   * The registry the key was verified against, and the only one it is sent
+   * to. Absent in files written before keys were scoped, which were all
+   * verified against the default registry.
+   */
+  registry: z.string().optional(),
 });
 
 export type AuthFile = z.infer<typeof authFileSchema>;
@@ -51,12 +66,19 @@ export interface ResolvedToken {
   token: string;
   /** Where it came from, so `whoami` can say and errors can be specific. */
   source: "env" | "file";
+  /** The registry the key belongs to. It is never sent anywhere else. */
+  registry: string;
 }
 
 export function readToken(env: NodeJS.ProcessEnv = process.env): ResolvedToken | undefined {
   const fromEnv = env[TOKEN_ENV];
   if (fromEnv && fromEnv.trim().length > 0) {
-    return { token: fromEnv.trim(), source: "env" };
+    const registry = env[TOKEN_REGISTRY_ENV]?.trim();
+    return {
+      token: fromEnv.trim(),
+      source: "env",
+      registry: registry && registry.length > 0 ? registry : branding.registryUrl,
+    };
   }
 
   const path = authPath(env);
@@ -80,14 +102,22 @@ export function readToken(env: NodeJS.ProcessEnv = process.env): ResolvedToken |
     );
   }
 
-  return { token: parsed.data.token, source: "file" };
+  return {
+    token: parsed.data.token,
+    source: "file",
+    registry: parsed.data.registry ?? branding.registryUrl,
+  };
 }
 
-export function writeToken(token: string, env: NodeJS.ProcessEnv = process.env): string {
+export function writeToken(
+  token: string,
+  env: NodeJS.ProcessEnv = process.env,
+  registry: string = branding.registryUrl,
+): string {
   const path = authPath(env);
   mkdirSync(dirname(path), { recursive: true });
 
-  const contents: AuthFile = { token, storedAt: new Date().toISOString() };
+  const contents: AuthFile = { token, storedAt: new Date().toISOString(), registry };
   writeFileSync(path, `${JSON.stringify(contents, null, 2)}\n`, { mode: 0o600 });
 
   // Set explicitly as well as passed to writeFileSync: the mode argument only
@@ -116,4 +146,68 @@ export function clearToken(env: NodeJS.ProcessEnv = process.env): boolean {
 export function maskToken(token: string): string {
   if (token.length <= 4) return "•".repeat(token.length);
   return `${"•".repeat(Math.min(12, token.length - 4))}${token.slice(-4)}`;
+}
+
+/**
+ * Whether a key may travel to this URL at all.
+ *
+ * HTTPS, or plain HTTP to this machine for a registry under development.
+ * Anything else sends the key across the network in the clear.
+ */
+export function canCarryCredentials(url: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  if (parsed.protocol === "https:") return true;
+  return (
+    parsed.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname)
+  );
+}
+
+function originOf(url: string): string | undefined {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The key to send to a registry, or nothing when there is no key.
+ *
+ * Throws, rather than quietly sending nothing, when there is a key and this
+ * registry is not the one it belongs to. The registry comes from
+ * `components.json`, which is part of whatever repository the command runs
+ * in. Without this check, a cloned repository could name its own server, mark
+ * an item as licensed, and collect the key of everyone who installs it.
+ */
+export function credentialsFor(
+  registryUrl: string,
+  env: NodeJS.ProcessEnv = process.env,
+): ResolvedToken | undefined {
+  const credentials = readToken(env);
+  if (!credentials) return undefined;
+
+  if (!canCarryCredentials(registryUrl)) {
+    throw new CliError(
+      `Not sending your licence key to ${registryUrl}: it is not an HTTPS address.`,
+      "Use the registry's https:// URL.",
+    );
+  }
+
+  const target = originOf(registryUrl);
+  const owner = originOf(credentials.registry);
+  if (target === undefined || target !== owner) {
+    throw new CliError(
+      `Not sending your licence key to ${target ?? registryUrl}. It was issued for ${owner ?? credentials.registry}.`,
+      credentials.source === "env"
+        ? `If you trust this registry, set ${TOKEN_REGISTRY_ENV}=${registryUrl}.`
+        : `If you trust this registry, sign in to it: login --registry ${registryUrl}`,
+    );
+  }
+
+  return credentials;
 }

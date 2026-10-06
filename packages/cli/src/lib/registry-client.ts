@@ -4,12 +4,13 @@ import { fileURLToPath } from "node:url";
 
 import {
   registryIndexSchema,
+  registryItemNameSchema,
   registryItemSchema,
   type RegistryIndex,
   type RegistryItem,
 } from "@dowel-ui/registry";
 
-import { readToken } from "./auth";
+import { credentialsFor } from "./auth";
 import { CliError } from "./errors";
 
 /**
@@ -23,6 +24,13 @@ import { CliError } from "./errors";
 function isHttp(baseUrl: string): boolean {
   return baseUrl.startsWith("http://") || baseUrl.startsWith("https://");
 }
+
+/**
+ * How long a registry request may take. Long enough for a slow connection,
+ * short enough that a registry which has stopped answering produces an error
+ * rather than a CLI that sits there indefinitely.
+ */
+export const REQUEST_TIMEOUT_MS = 30_000;
 
 function localPath(baseUrl: string, file: string): string {
   const root = baseUrl.startsWith("file:") ? fileURLToPath(baseUrl) : baseUrl;
@@ -60,12 +68,13 @@ async function readJson(
   }
 
   const url = `${baseUrl.replace(/\/$/, "")}/${file}`;
-  const credentials = options.authenticated ? readToken() : undefined;
+  const credentials = options.authenticated ? credentialsFor(baseUrl) : undefined;
 
   let response: Response;
   try {
     response = await fetch(url, {
       headers: credentials ? { authorization: `Bearer ${credentials.token}` } : undefined,
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch (cause) {
     throw new CliError(
@@ -146,6 +155,16 @@ export async function fetchItem(
   name: string,
   options: FetchItemOptions = {},
 ): Promise<RegistryItem> {
+  // The name becomes part of a URL and, for a registry on disk, a file path.
+  // Most arrive from the command line, so a typo deserves a plain answer, and
+  // `../../somewhere` must never be read at all.
+  if (!registryItemNameSchema.safeParse(name).success) {
+    throw new CliError(
+      `"${name}" is not a valid component name.`,
+      "Names are lowercase letters, digits and hyphens, like `date-picker`.",
+    );
+  }
+
   const file = options.licensed ? licensedPath(name) : `${name}.json`;
   const raw = await readJson(baseUrl, file, `Component "${name}"`, {
     authenticated: options.licensed,
