@@ -4,8 +4,10 @@ import { fileURLToPath } from "node:url";
 
 import {
   registryIndexSchema,
+  registryItemNameSchema,
   registryItemSchema,
   type RegistryIndex,
+  type RegistryIndexEntry,
   type RegistryItem,
 } from "@dowel-ui/registry";
 
@@ -71,6 +73,14 @@ export class RegistryClient {
   }
 
   item(name: string): Promise<RegistryItem> {
+    // The name becomes a file path or a URL segment a few lines further down,
+    // so it is checked here, where it stops being a string and starts being an
+    // address. "../../etc/passwd" is not a component, and a tool that forgot to
+    // look the name up in the index first must not be able to read it as one.
+    if (!registryItemNameSchema.safeParse(name).success) {
+      return Promise.reject(new Error(`"${name}" is not a registry item name.`));
+    }
+
     let cached = this.#items.get(name);
     if (!cached) {
       cached = this.#readJson(`${name}.json`).then((raw) => {
@@ -88,27 +98,42 @@ export class RegistryClient {
     return cached;
   }
 
-  /** Items and everything they depend on, dependencies first. */
-  async resolve(names: string[]): Promise<RegistryItem[]> {
-    const ordered: RegistryItem[] = [];
+  /**
+   * Items and everything they depend on, dependencies first — from the index.
+   *
+   * The index alone, not the item bodies: it already carries every entry's
+   * registry and npm dependencies, and a licensed item has no public body to
+   * fetch. Walking the bodies made a Pro item read as "not found" when the
+   * truth is that it exists and needs a licence. A name missing from the index
+   * is an error here rather than a request for a file that is not there.
+   */
+  async resolve(names: string[]): Promise<RegistryIndexEntry[]> {
+    const index = await this.index();
+    const byName = new Map(index.items.map((entry) => [entry.name, entry]));
+    const ordered: RegistryIndexEntry[] = [];
     const placed = new Set<string>();
     const visiting = new Set<string>();
 
-    const visit = async (name: string): Promise<void> => {
+    const visit = (name: string, requiredBy?: string): void => {
       if (placed.has(name) || visiting.has(name)) return;
-      visiting.add(name);
 
-      const item = await this.item(name);
-      for (const dependency of item.registryDependencies) {
-        await visit(dependency);
+      const entry = byName.get(name);
+      if (!entry) {
+        throw new Error(
+          requiredBy === undefined
+            ? `"${name}" is not in the registry index.`
+            : `"${requiredBy}" depends on "${name}", which is not in the registry index.`,
+        );
       }
 
+      visiting.add(name);
+      for (const dependency of entry.registryDependencies) visit(dependency, name);
       visiting.delete(name);
       placed.add(name);
-      ordered.push(item);
+      ordered.push(entry);
     };
 
-    for (const name of names) await visit(name);
+    for (const name of names) visit(name);
     return ordered;
   }
 }

@@ -28,7 +28,8 @@
     "url": "https://github.com/aqkprogrammer/dowel-ui/issues"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "bin": {
     "dowel-mcp": "./dist/index.js"
