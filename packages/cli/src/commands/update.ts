@@ -90,6 +90,10 @@ export async function update(names: string[], options: UpdateOptions): Promise<v
 
   const reports: UpdateReport[] = [];
 
+  const retired = index.items.filter(
+    (entry) => targets.includes(entry.name) && entry.deprecated !== undefined,
+  );
+
   for (const name of targets) {
     const item = await fetchItem(registry, name, { licensed: licensed.has(name) });
     const recorded = config.installed[name]?.files ?? {};
@@ -117,6 +121,14 @@ export async function update(names: string[], options: UpdateOptions): Promise<v
   const conflicts = reports.filter(
     (report) => report.state === "conflict" || report.state === "modified",
   );
+
+  for (const entry of retired) {
+    const replacement = entry.deprecated?.replacement;
+    logger.warn(
+      `${entry.name} is deprecated since ${entry.deprecated?.since ?? "?"}: ${entry.deprecated?.reason ?? ""}` +
+        (replacement ? ` Migrate to ${replacement}: \`add ${replacement}\`.` : ""),
+    );
+  }
 
   logger.blank();
   for (const report of reports) {

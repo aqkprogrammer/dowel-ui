@@ -133,9 +133,10 @@ program
 
 program
   .command("logout")
-  .description("remove the stored licence key from this machine")
+  .description("remove stored keys: the one for --registry, or every one")
   .action(() => {
-    logout();
+    const { registry } = globals();
+    logout(registry);
   });
 
 program

@@ -584,6 +584,8 @@ export function planUi(
 
   const scored = index.items
     .filter((entry) => entry.type === "registry:ui" || entry.type === "registry:block")
+    // A deprecated item still installs, but a new screen should not start on it.
+    .filter((entry) => entry.deprecated === undefined)
     .map((entry) => scoreEntry(entry, terms, synonyms))
     .filter((candidate): candidate is Scored => candidate !== undefined)
     // A description-only brush (8) or a bare category hit (12) is not enough on

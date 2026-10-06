@@ -156,6 +156,14 @@ individual primitives when \`add dashboard\` exists is wasted work.
  * two hundred options — which a one-line description does not.
  */
 function guidanceLines(entry: RegistryIndexEntry): string[] {
+  if (entry.deprecated) {
+    const instead = entry.deprecated.replacement
+      ? `Use ${entry.deprecated.replacement} instead.`
+      : "Do not use it in new code.";
+    return [
+      `  - **Deprecated** since ${entry.deprecated.since}: ${entry.deprecated.reason} ${instead}`,
+    ];
+  }
   const guidance = entry.guidance;
   if (!guidance) return [];
   const lines = [`  - Use for: ${guidance.useWhen.join("; ")}`];

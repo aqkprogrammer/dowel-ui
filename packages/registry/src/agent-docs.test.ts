@@ -78,6 +78,21 @@ describe("componentsDoc", () => {
     expect(doc).not.toMatch(/separator\*\* — [^\n]*\n {2}- Use for/);
   });
 
+  it("tells an agent not to start on a deprecated component, and what to use", () => {
+    const doc = componentsDoc(
+      context([
+        entry({
+          name: "badge",
+          deprecated: { since: "2.0.0", reason: "Merged into Tag.", replacement: "tag" },
+          guidance: { useWhen: ["a status"], avoidWhen: [], alternatives: [] },
+        }),
+      ]),
+    );
+    expect(doc).toContain("  - **Deprecated** since 2.0.0: Merged into Tag. Use tag instead.");
+    // Its guidance is not offered as though it were still the right choice.
+    expect(doc).not.toContain("Use for: a status");
+  });
+
   it("marks what is installed only when the caller knows", () => {
     const items = [entry(), entry({ name: "card" })];
 
