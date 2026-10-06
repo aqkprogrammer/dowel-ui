@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -457,6 +458,92 @@ describe("remove", () => {
     const root = await setup();
     await expect(removeFrom(root, [])).rejects.toThrow(/Name at least one component/);
   });
+
+  it("never deletes the project stylesheet, even when forced", async () => {
+    const root = await setup();
+    const stylesheet = join(root, "src/index.css");
+    expect(existsSync(stylesheet)).toBe(true);
+
+    // init records the stylesheet under `theme`; it holds the project's own
+    // CSS as well as the tokens, so deleting it is never the right removal.
+    await removeFrom(root, ["theme"], true);
+    expect(existsSync(stylesheet)).toBe(true);
+  });
+
+  it("refuses a config that names files outside the install directories", async () => {
+    const root = await setup();
+    const config = readConfig(root);
+    const badge = config.installed.badge;
+    if (!badge) throw new Error("badge should be installed");
+    badge.files["package.json"] = badge.files["src/components/ui/badge.tsx"] ?? "";
+    badge.files["../outside.tsx"] = "sha256:0";
+    writeFileSync(join(root, "components.json"), `${JSON.stringify(config, null, 2)}\n`);
+
+    await expect(removeFrom(root, ["badge"], true)).rejects.toThrow(/Nothing was removed/);
+    expect(existsSync(join(root, "package.json"))).toBe(true);
+    // Refused outright, so the legitimate file is not deleted either.
+    expect(existsSync(join(root, "src/components/ui/badge.tsx"))).toBe(true);
+  });
+});
+
+describe("a registry that cannot be trusted", () => {
+  function hostileRegistry(edit: (item: Record<string, unknown>) => void): string {
+    const dir = mkdtempSync(join(tmpdir(), "dowel-hostile-"));
+    created.push(dir);
+    cpSync(LOCAL_REGISTRY, dir, { recursive: true });
+    const path = join(dir, "badge.json");
+    const item = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
+    edit(item);
+    writeFileSync(path, JSON.stringify(item));
+    return dir;
+  }
+
+  function addFrom(root: string, registry: string, names = ["badge"]) {
+    return add(names, { cwd: root, registry, yes: true, overwrite: false, skipInstall: true });
+  }
+
+  it("refuses a file path that climbs out of the project", async () => {
+    const root = project();
+    await initialise(root);
+    const registry = hostileRegistry((item) => {
+      const [file] = item.files as { path: string }[];
+      if (file) file.path = "ui/../../../../escaped.tsx";
+    });
+
+    await expect(addFrom(root, registry)).rejects.toThrow(CliError);
+    expect(existsSync(join(root, "..", "escaped.tsx"))).toBe(false);
+    expect(existsSync(join(root, "..", "..", "escaped.tsx"))).toBe(false);
+    expect(existsSync(join(root, "src/components/ui/badge.tsx"))).toBe(false);
+  });
+
+  it("refuses a dependency that is not an npm package", async () => {
+    const root = project();
+    await initialise(root);
+    const registry = hostileRegistry((item) => {
+      item.dependencies = ["git+https://example.com/payload.git"];
+    });
+
+    await expect(addFrom(root, registry)).rejects.toThrow(/does not match the format/);
+  });
+
+  it("refuses a dependency name that climbs out of the registry", async () => {
+    const root = project();
+    await initialise(root);
+    const registry = hostileRegistry((item) => {
+      item.registryDependencies = ["../../secrets"];
+    });
+
+    await expect(addFrom(root, registry)).rejects.toThrow(/does not match the format/);
+  });
+
+  it("refuses a component name that is not one", async () => {
+    const root = project();
+    await initialise(root);
+
+    await expect(addFrom(root, LOCAL_REGISTRY, ["../badge"])).rejects.toThrow(
+      /not a valid component name/,
+    );
+  });
 });
 
 describe("update", () => {
@@ -490,6 +577,14 @@ describe("update", () => {
 
     await update([], { cwd: root, registry: LOCAL_REGISTRY, overwrite: false, yes: true });
     expect(existsSync(path)).toBe(true);
+  });
+
+  it("restores a file whose whole directory was deleted", async () => {
+    const root = await setup();
+    rmSync(join(root, "src/components/ui"), { recursive: true });
+
+    await update([], { cwd: root, registry: LOCAL_REGISTRY, overwrite: false, yes: true });
+    expect(existsSync(join(root, "src/components/ui/badge.tsx"))).toBe(true);
   });
 
   it("leaves a locally modified file alone", async () => {

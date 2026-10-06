@@ -1,5 +1,7 @@
 import { join } from "node:path";
 
+import { isSafeRegistryPath } from "@dowel-ui/registry";
+
 import { blocksAlias, type Config } from "./config";
 import { CliError } from "./errors";
 
@@ -12,6 +14,16 @@ import { CliError } from "./errors";
  * through the project's own tsconfig prefix.
  */
 export function resolveDestination(config: Config, registryPath: string): string {
+  // Checked here as well as by the schema, because this is where the path
+  // meets the filesystem: whatever reaches this function by some other route
+  // in future is still held to it.
+  if (!isSafeRegistryPath(registryPath)) {
+    throw new CliError(
+      `Registry path "${registryPath}" points outside the directory it belongs in.`,
+      "Nothing was written. The registry is serving a file it should not; report it to whoever runs it.",
+    );
+  }
+
   const [group, ...rest] = registryPath.split("/");
   const relative = rest.join("/");
 

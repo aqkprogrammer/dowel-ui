@@ -39,12 +39,15 @@ export {
 } from "./agent-docs";
 export { hashContent } from "./hash";
 export {
+  isSafeRegistryPath,
+  npmDependencySchema,
   REGISTRY_VERSION,
   registryAccessSchema,
   registryFileSchema,
   registryFileTypeSchema,
   registryIndexEntrySchema,
   registryIndexSchema,
+  registryItemNameSchema,
   registryItemSchema,
   registryItemTypeSchema,
   type RegistryAccess,
