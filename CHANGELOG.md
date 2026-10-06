@@ -26,6 +26,11 @@ Fixes for the accessibility problems the real-browser suite found in 0.13.0.
 - `reviews-carousel`: each pagination dot is a 24 × 24 target instead of 16 × 24; the dot itself is unchanged.
 - `command-center` block: a resolved incident shows an outline severity badge and muted title instead of fading the row, which took the warning badge to 2.8:1.
 - `onboarding` block: a blocked step is no longer faded, so its warning badge has the solid fill instead of a lighter one (3.95:1).
+- `selection-list`: item descriptions were the foreground at 45% (2.9:1); they use `text-muted-foreground` (5.3:1 light, 7.4:1 dark), and full-strength text on the inverted fill.
+- `slide-to-confirm`: the track label, the control's only visible instruction, was `text-foreground/45` (2.9:1); it is `text-muted-foreground` (5.3:1 light, 7.4:1 dark), and the power shimmer only ever brightens it.
+- `confirm-typed`: the action was faded to `opacity-55` (2.2–2.5:1) until the text matched; it stays reachable but is now `aria-disabled` and drawn in the outline style, with a full-contrast label, until it takes its real variant on a match.
+- `animated-checklist`: the "Add new task" button was faded to `opacity-34` (2.1:1) and done tasks to `opacity-42` (2.7:1); both use `text-muted-foreground` (5.3:1), and a done task is shown by its tick and strike-through.
+- `calendar`: days outside the month, which are selectable, were muted at 50% opacity (2.0:1); they are plain `text-muted-foreground` (5.3:1). The root is now `relative`, so the month navigation sits on the calendar rather than at the edges of the page.
 - Stories: the `agent-data-table` selection column has a header name, the
   skeleton loading stories give their label a role to belong to, and the tabs
   stories render the panels their triggers point at.

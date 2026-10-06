@@ -382,7 +382,10 @@ export function SlideToConfirm({
           data-slot="slide-to-confirm-label"
           className={cn(
             "pointer-events-none absolute inset-y-0 flex items-center justify-center text-sm font-medium tracking-tight",
-            kind === "confirm" ? "inset-x-0 text-foreground/45" : "inset-x-0 ps-8",
+            // The track's only visible instruction, so it is read, not faded:
+            // muted-foreground at full strength. The power shimmer runs from
+            // that same token up to foreground, so it only ever brightens.
+            kind === "confirm" ? "inset-x-0 text-muted-foreground" : "inset-x-0 ps-8",
           )}
           style={{
             opacity:

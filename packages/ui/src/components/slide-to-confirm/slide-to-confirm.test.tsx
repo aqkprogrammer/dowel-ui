@@ -88,6 +88,26 @@ describe("SlideToConfirm", () => {
     expect(screen.getByText("Slide to confirm")).toBeInTheDocument();
   });
 
+  it("draws the track label, its only visible instruction, in full-strength muted text", () => {
+    const label = () =>
+      document.querySelector<HTMLElement>('[data-slot="slide-to-confirm-label"]');
+    const { unmount } = render(<SlideToConfirm />);
+    expect(label()).toHaveTextContent("Slide to confirm");
+    expect(label()).toHaveClass("text-muted-foreground");
+    expect(label()?.className).not.toMatch(/text-foreground\/\d+/);
+    unmount();
+
+    // The power shimmer only brightens: every stop is muted-foreground or foreground.
+    render(<SlideToConfirm variant="power" />);
+    const sheet = document.querySelector(
+      'style[data-href="dowel-slide-to-confirm"]',
+    )?.textContent;
+    const rule = sheet?.split("[data-slot=slide-to-confirm-shimmer]{")[1]?.split("}")[0] ?? "";
+    const stops = [...rule.matchAll(/var\((--color-[\w-]+)\)/g)].map((match) => match[1]);
+    expect(stops.length).toBeGreaterThan(0);
+    expect(new Set(stops)).toEqual(new Set(["--color-muted-foreground", "--color-foreground"]));
+  });
+
   it("confirms when Enter is held for holdDuration, announces it and resets", () => {
     const onConfirm = vi.fn();
     render(<SlideToConfirm onConfirm={onConfirm} />);
