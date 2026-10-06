@@ -249,28 +249,28 @@ _Value:_ this is what makes the MCP server and agent files materially better
 than reading the source — the difference between an agent picking `Dialog` and
 picking it for the right reason.
 
-### Phase 3 — Developer tooling
+### Phase 3 — Developer tooling ✅
 
-1. **`dowel doctor`** — read-only. Checks the project shape (React, TS,
-   Tailwind 4, aliases, the CSS entry), `components.json` validity, registry
-   reachability, each installed item's state (current / modified / outdated /
-   missing — the data `update` already computes), and whether the agent files
-   are stale. Output is a checklist, not a score: a pass/fail list is
-   defensible; a "91/100" invites the question of what the other 9 points are.
-2. **`dowel diff <name>`** — the content diff `update` currently withholds.
-3. **`dowel audit`** — the existing `scripts/audit` rules, refactored into a
-   library that takes a root directory, so the repository and a consumer
-   project run the same code. First rules: raw colours and palette scales
-   (tokens), physical direction utilities (RTL), focus-ring bypass (API), and
-   **drift** — native `<button>`, `<input>`, `<dialog>` and hand-rolled modals
-   in files outside the components directory when the Dowel equivalent is
-   installed. Each finding names the file, line, rule and the suggested
-   replacement. A `--fix` mode, where a rewrite is mechanical, shows the diff
-   and asks first.
-4. **The verification standard.** Write down what `/quality` already measures,
-   as a checklist with each check's evidence (axe test, motion audit, RTL
-   audit, story exists, SSR-safe, under the size budget). Publish it at
-   `/quality` as the definition. Third-party verification waits for Phase 7.
+See ADR 16 for the decisions.
+
+1. ✅ **`dowel doctor`** — read-only checklist: project shape, alias against
+   `tsconfig.json`, tokens in the stylesheet, installed files present (local
+   edits counted, not flagged), npm packages and component dependencies,
+   licence for Pro items, updates available, stale agent docs. Pass, warn,
+   fail or skip; non-zero exit only on a failure. No score.
+2. ✅ **`dowel diff [names…]`** — unified diff from the local file to the
+   registry's.
+3. ✅ **`dowel audit [paths…]`** — six rules, each matching only what is wrong
+   wherever it appears: palette colours, literal colours in classes and inline
+   styles, off-scale arbitrary sizes, physical direction utilities, and native
+   elements when the replacing Dowel component is installed. The rules live in
+   `@dowel-ui/registry` and `audit:rtl` / `audit:tokens` import them, so the
+   library and a project run the same code. Moving them found and fixed an
+   over-broad exemption in the old RTL audit. `--fix` rewrites only the
+   physical utilities and asks first.
+4. ✅ **The verification standard** is written down in ADR 16: the ten
+   per-component checks the genome carries, plus the repository-wide audits.
+   A third-party "Verified" mark waits for phase 6's browser checks.
 
 _Value:_ doctor and audit are what make Dowel useful _after_ install, which is
 where retention is decided. Audit is also the first feature a team lead, rather

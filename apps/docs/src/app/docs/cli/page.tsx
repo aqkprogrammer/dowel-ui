@@ -38,6 +38,18 @@ const COMMANDS = [
     what: "Compares installed components against the registry.",
   },
   {
+    command: "diff [names…]",
+    what: "Shows how installed files differ from the registry's current ones.",
+  },
+  {
+    command: "doctor",
+    what: "Checks the setup, installed components, updates and agent docs.",
+  },
+  {
+    command: "audit [paths…]",
+    what: "Finds hardcoded colours, off-scale sizes, physical directions and bypassed components.",
+  },
+  {
     command: "agents [targets…]",
     what: "Writes the catalogue for the coding agents working in this project.",
   },
@@ -143,6 +155,31 @@ export default function CliPage() {
       </div>
 
       <Prose>
+        <h2 id="doctor-and-audit">Checking a project</h2>
+        <p>
+          <code>doctor</code> checks a project&rsquo;s setup and prints a checklist: React,
+          TypeScript and Tailwind 4; the import alias still matching <code>tsconfig.json</code>;
+          the tokens still in the stylesheet; every installed file still present; the npm
+          packages they import; updates available; and whether the agent docs are stale. It
+          reports what it finds rather than a score, writes nothing, and exits non-zero only
+          when something fails. <code>--offline</code> skips the checks that need the registry.
+        </p>
+        <p>
+          <code>audit</code> reads the project&rsquo;s own code for the ways a design system
+          erodes: Tailwind palette colours, literal colours in classes or inline styles,
+          arbitrary sizes off the spacing scale, physical utilities like <code>ml-4</code> that
+          break right-to-left layouts, and a native <code>&lt;button&gt;</code>,{" "}
+          <code>&lt;input&gt;</code> or <code>&lt;dialog&gt;</code> where the Dowel component is
+          installed. It skips the files Dowel wrote, and runs the same rules as the
+          library&rsquo;s own CI. <code>--fix</code> rewrites only the physical utilities, whose
+          logical form is exact, and asks first. <code>--json</code> is for CI.
+        </p>
+        <p>
+          <code>diff</code> shows the change behind an &ldquo;update available&rdquo;: a unified
+          diff from your file to the registry&rsquo;s, so an upstream fix can be read before it
+          is applied, or carried across by hand into a file you have edited.
+        </p>
+
         <h2 id="licensed-components">Licensed components</h2>
         <p>
           Components that require a licence are listed in the registry like any other — with

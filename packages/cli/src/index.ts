@@ -6,7 +6,10 @@ import { Command } from "commander";
 import { branding } from "./branding";
 import { add } from "./commands/add";
 import { agents } from "./commands/agents";
+import { audit } from "./commands/audit";
 import { login, logout, whoami } from "./commands/auth";
+import { diff } from "./commands/diff";
+import { doctor } from "./commands/doctor";
 import { init } from "./commands/init";
 import { list } from "./commands/list";
 import { remove } from "./commands/remove";
@@ -158,6 +161,63 @@ program
       overwrite: options.overwrite,
     });
   });
+
+program
+  .command("doctor")
+  .description("check the project's setup, installed components and agent docs")
+  .option("--offline", "skip the checks that need the registry", false)
+  .option("--json", "print the checks as JSON", false)
+  .action(async (options: { offline: boolean; json: boolean }) => {
+    const { cwd, registry } = globals();
+    await doctor({ cwd, registry, offline: options.offline, json: options.json });
+  });
+
+program
+  .command("diff")
+  .description("show how installed files differ from the registry's current ones")
+  .argument("[components...]", "component names; defaults to everything installed")
+  .action(async (components: string[]) => {
+    const { cwd, registry } = globals();
+    await diff(components, { cwd, registry });
+  });
+
+program
+  .command("audit")
+  .description(
+    "find hardcoded colours, off-scale sizes, physical directions and bypassed components",
+  )
+  .argument(
+    "[paths...]",
+    "files or directories to scan (default: src, app, components, pages, lib)",
+  )
+  .option("--rule <ids>", "only these rules, comma-separated")
+  .option("--json", "print the findings as JSON", false)
+  .option("--fix", "rewrite the findings that have one exact fix, after asking", false)
+  .option("-y, --yes", "with --fix, do not ask first", false)
+  .option("--include-installed", "also scan the files Dowel installed", false)
+  .action(
+    async (
+      paths: string[],
+      options: {
+        rule?: string;
+        json: boolean;
+        fix: boolean;
+        yes: boolean;
+        includeInstalled: boolean;
+      },
+    ) => {
+      const { cwd } = globals();
+      await audit({
+        cwd,
+        paths,
+        rules: options.rule ? options.rule.split(",").map((rule) => rule.trim()) : [],
+        json: options.json,
+        fix: options.fix,
+        yes: options.yes,
+        includeInstalled: options.includeInstalled,
+      });
+    },
+  );
 
 /**
  * A CliError is a message for the person running the command; anything else is
