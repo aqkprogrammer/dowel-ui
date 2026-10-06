@@ -3,7 +3,6 @@
 import { cn } from "@dowel-ui/react";
 import { CopyButton } from "@dowel-ui/react/copy-button";
 import { ArrowUpRight, Code2, Layers, Lock } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ViewTransition, type CSSProperties } from "react";
 
@@ -11,10 +10,7 @@ import { branding } from "~/lib/branding";
 
 import { usePackageRunner } from "../install-command";
 import { LiveStage } from "../live-stage";
-
-const StoryPreview = dynamic(() => import("../story-preview").then((mod) => mod.StoryPreview), {
-  ssr: false,
-});
+import { StoryPreview } from "../story-preview";
 
 export interface BlockCardItem {
   name: string;

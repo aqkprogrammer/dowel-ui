@@ -76,7 +76,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * including the default example on 25 component pages.
  *
  * A function or an array is not a story; anything else in a story file is one,
- * and `getStoryNames` excludes the meta by name rather than by shape.
+ * and the meta is excluded by being the default export rather than by shape.
+ * `storyExports` in scripts/stories.ts applies the same rule to source, so a
+ * page can list the stories before it has loaded them; the two must agree.
  */
 export function asStory(value: unknown): Story | undefined {
   // `isRecord` already excludes functions; an array is an object, so it does not.
