@@ -11,6 +11,7 @@ import type { Metadata } from "next";
 import { Prose } from "~/components/prose";
 import { CodePanel } from "~/components/site/code-panel";
 import { PageHeader } from "~/components/site/page-header";
+import { UnreleasedBadge, UnreleasedNote } from "~/components/site/unreleased";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
 
@@ -23,7 +24,7 @@ export const metadata: Metadata = pageMetadata({
   type: "article",
 });
 
-const COMMANDS = [
+const COMMANDS: { command: string; what: string; since?: string }[] = [
   {
     command: "init",
     what: "Writes components.json, the cn() utility and the design tokens.",
@@ -39,18 +40,22 @@ const COMMANDS = [
   },
   {
     command: "plan <prompt>",
+    since: "0.13.0",
     what: "Chooses the blocks and components for a screen you describe; --model asks Claude.",
   },
   {
     command: "diff [names…]",
+    since: "0.13.0",
     what: "Shows how installed files differ from the registry's current ones.",
   },
   {
     command: "doctor",
+    since: "0.13.0",
     what: "Checks the setup, installed components, updates and agent docs.",
   },
   {
     command: "audit [paths…]",
+    since: "0.13.0",
     what: "Finds hardcoded colours, off-scale sizes, physical directions and bypassed components.",
   },
   {
@@ -63,6 +68,7 @@ const COMMANDS = [
   },
   {
     command: "logout",
+    since: "0.13.0",
     what: "Removes the stored key for --registry, or every stored key.",
   },
   { command: "whoami [--check]", what: "Reports whether this machine is signed in." },
@@ -111,6 +117,7 @@ export default function CliPage() {
               <TableRow key={row.command}>
                 <TableHead scope="row" className="font-mono text-xs text-foreground">
                   {row.command}
+                  {row.since ? <UnreleasedBadge since={row.since} /> : null}
                 </TableHead>
                 <TableCell>{row.what}</TableCell>
               </TableRow>
@@ -163,6 +170,10 @@ export default function CliPage() {
 
       <Prose>
         <h2 id="doctor-and-audit">Checking a project</h2>
+        <UnreleasedNote since="0.13.0">
+          <code>doctor</code>, <code>diff</code>, <code>audit</code> and <code>plan</code> are
+          new.
+        </UnreleasedNote>
         <p>
           <code>doctor</code> checks a project&rsquo;s setup and prints a checklist: React,
           TypeScript and Tailwind 4; the import alias still matching <code>tsconfig.json</code>;
@@ -202,6 +213,9 @@ export default function CliPage() {
           anything stored, which is also what <code>logout</code> will tell you if it is still
           set.
         </p>
+        <UnreleasedNote since="0.13.0">
+          Scoping keys to their registry, and keeping one per registry, is new.
+        </UnreleasedNote>
         <p>
           A key is only ever sent to the registry it belongs to, and only over HTTPS. A stored
           key belongs to the registry <code>login</code> checked it against; one in{" "}
