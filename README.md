@@ -209,6 +209,10 @@ await toast.promise(save(), {
 
 ## CLI
 
+> **On `main`, not yet on npm:** `doctor`, `diff`, `audit`, `plan`, private
+> registries with per-registry keys, governance metadata, and the MCP
+> server's `audit_code` ship in **0.13.0**. The published packages are 0.12.0.
+
 Set a project up once, then add components as source you own:
 
 ```bash
@@ -565,6 +569,23 @@ Decisions that constrain future work are recorded in
     revealed about them
 12. [Audits](docs/architecture/0012-audits.md) — the 88 contrast failures, and
     what fixing them revealed about the palette
+13. [The paid catalogue](docs/architecture/0013-paid-catalogue.md) — what
+    "withheld" means, and why Pro is only ever new things
+14. [The motion catalogue](docs/architecture/0014-motion-catalogue.md) —
+    keyframes that ship with the component
+15. [Agent-operable UI](docs/architecture/0015-agent-operable-ui.md) — control
+    as state, and failing closed
+16. [Doctor, audit, and the verification standard](docs/architecture/0016-doctor-and-audit.md)
+    — a checklist, not a score
+17. [What agents are told, and where a model fits](docs/architecture/0017-agents-and-models.md)
+    — the model chooses, the registry decides what is real
+18. [Browser CI](docs/architecture/0018-browser-ci.md) — a curated visual
+    subset, a pinned container, and a baseline that only shrinks
+19. [Enterprise foundations](docs/architecture/0019-enterprise-foundations.md) —
+    private registries, governance, and what is not built
+
+The plan these came out of, with what is done and what is not, is
+[the roadmap](docs/architecture/dowel-roadmap.md).
 
 ## Requirements
 
