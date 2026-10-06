@@ -29,7 +29,7 @@ const meta: Meta<typeof Island> = {
       expanded: (
         <span className="flex w-64 flex-col gap-1 px-5 py-4">
           <span className="text-sm font-medium">Lofi Chill Beats</span>
-          <span className="text-xs opacity-70">DJ Smooth · 2:14 / 3:40</span>
+          <span className="text-xs">DJ Smooth · 2:14 / 3:40</span>
         </span>
       ),
     },
@@ -76,7 +76,7 @@ function RingView() {
       <Phone className="size-5 text-success" aria-hidden="true" />
       <span className="flex-1">
         <span className="block text-sm font-medium">Incoming Call</span>
-        <span className="block text-xs opacity-70">Guillermo Rauch</span>
+        <span className="block text-xs">Guillermo Rauch</span>
       </span>
       <span className="size-2 animate-pulse rounded-full bg-success" aria-hidden="true" />
     </span>
@@ -109,7 +109,7 @@ function NotificationView() {
       <Bell className="size-5 text-warning" aria-hidden="true" />
       <span className="flex-1">
         <span className="block text-sm font-medium">New Message</span>
-        <span className="block text-xs opacity-70">You have a new notification!</span>
+        <span className="block text-xs">You have a new notification!</span>
       </span>
       <span className="rounded-full bg-warning/40 px-2 py-0.5 text-xs text-warning">1</span>
     </span>
@@ -124,7 +124,7 @@ function MusicView() {
       <Music2 className="size-5 text-primary" aria-hidden="true" />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">Lofi Chill Beats</span>
-        <span className="block truncate text-xs opacity-70">DJ Smooth</span>
+        <span className="block truncate text-xs">DJ Smooth</span>
       </span>
       <button type="button" aria-label="Previous" className={control}>
         <SkipBack className="size-4" />

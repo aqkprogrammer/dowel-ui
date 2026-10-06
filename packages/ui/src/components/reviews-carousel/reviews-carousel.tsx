@@ -264,7 +264,12 @@ export function ReviewsCarousel({
                     type="button"
                     aria-label={labels.indicator(position, count)}
                     aria-current={current ? "true" : undefined}
-                    className={cn("group flex h-6 items-center rounded-full px-1", focusRing)}
+                    // The dot stays small; the button around it is a full 24px
+                    // square target (WCAG 2.5.8), so the dots sit 24px apart.
+                    className={cn(
+                      "group flex h-6 min-w-6 items-center justify-center rounded-full px-1",
+                      focusRing,
+                    )}
                     onClick={() => {
                       goTo(position);
                     }}
