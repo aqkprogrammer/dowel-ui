@@ -211,8 +211,8 @@ export function ThemeStudio() {
           <div>
             <p className="font-medium">
               {failures.length === 0
-                ? "Every state passes WCAG AA."
-                : `${String(failures.length)} of ${String(checks.length)} states fail WCAG AA.`}
+                ? "Every pair passes WCAG AA."
+                : `${String(failures.length)} of ${String(checks.length)} pairs fail WCAG AA.`}
             </p>
             <p className="mt-0.5 text-muted-foreground">
               {failures.length === 0

@@ -30,6 +30,10 @@ Fixes for the accessibility problems the real-browser suite found in 0.13.0.
   paint them (on gamma-encoded channels). It previously blended in linear
   light, which reads a 10% tint as darker than it renders and would have
   passed these pairs by ~0.3:1. `pnpm audit:contrast --verbose` lists them.
+- **The theme studio checks text on tints too.** A colour derived there could
+  pass every label check and still fail as text on its own tint, as the shipped
+  presets did; the studio now lists primary on the soft button's tints, light
+  and dark, alongside the solid states.
 - **`Select` inside `FormControl` had no accessible name.** `FormControl`
   passes the field's id, description and invalid state to its child, and
   `Select`'s root renders no element, so they were dropped and the label
