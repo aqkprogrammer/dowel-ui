@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import type { RunResult } from "./run";
@@ -14,11 +14,14 @@ import {
 /** Every result.json under a run directory. */
 export function loadResults(runDir: string): RunResult[] {
   const found: RunResult[] = [];
+  // The directory entry says what each path is, so nothing is checked with
+  // one call and then read with another — the file a check approved is the
+  // file that gets read.
   const walk = (dir: string): void => {
-    for (const entry of readdirSync(dir)) {
-      const path = join(dir, entry);
-      if (statSync(path).isDirectory()) walk(path);
-      else if (entry === "result.json") {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (entry.isFile() && entry.name === "result.json") {
         found.push(JSON.parse(readFileSync(path, "utf8")) as RunResult);
       }
     }
