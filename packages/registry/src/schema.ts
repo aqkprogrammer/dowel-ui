@@ -188,6 +188,25 @@ export const registryQualitySchema = z.object({
 
 export type RegistryQuality = z.infer<typeof registryQualitySchema>;
 
+/**
+ * An item that should no longer be used for new work.
+ *
+ * Deprecating is the only honest way to retire something people have already
+ * installed: removing it breaks their next `update` in a repository nobody
+ * here can see. A deprecated item still installs; the CLI, the MCP server and
+ * the agent docs say what to use instead, and the planners stop suggesting it.
+ */
+export const registryDeprecationSchema = z.object({
+  /** The version it was deprecated in. */
+  since: z.string().min(1),
+  /** Why, in a sentence a person deciding whether to migrate can act on. */
+  reason: z.string().min(1),
+  /** What to use instead, when there is one. */
+  replacement: registryItemNameSchema.optional(),
+});
+
+export type RegistryDeprecation = z.infer<typeof registryDeprecationSchema>;
+
 export const registryItemSchema = z.object({
   $schema: z.string().optional(),
   registryVersion: z.literal(REGISTRY_VERSION),
@@ -214,6 +233,15 @@ export const registryItemSchema = z.object({
   capabilities: registryCapabilitiesSchema.optional(),
   props: z.array(registryPropsGroupSchema).optional(),
   quality: registryQualitySchema.optional(),
+  /*
+   * Governance. Optional for the same reason; mostly of use to an
+   * organisation's own registry, where someone owns each item.
+   */
+  deprecated: registryDeprecationSchema.optional(),
+  /** The version it first shipped in. */
+  since: z.string().min(1).optional(),
+  /** Who maintains it: a team, a person, an address to ask. */
+  owner: z.string().min(1).optional(),
 });
 
 export type RegistryItem = z.infer<typeof registryItemSchema>;
@@ -243,6 +271,9 @@ export const registryIndexEntrySchema = registryItemSchema
     guidance: true,
     composesWith: true,
     capabilities: true,
+    deprecated: true,
+    since: true,
+    owner: true,
   })
   .extend({ fileCount: z.number().int().positive() });
 

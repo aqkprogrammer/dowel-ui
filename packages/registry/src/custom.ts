@@ -7,12 +7,14 @@ import { hashContent } from "./hash";
 import {
   REGISTRY_VERSION,
   registryAccessSchema,
-  registryIndexSchema,
-  registryItemSchema,
-  registryItemTypeSchema,
+  registryDeprecationSchema,
   type RegistryFile,
   type RegistryFileType,
+  registryGuidanceSchema,
+  registryIndexSchema,
   type RegistryItem,
+  registryItemSchema,
+  registryItemTypeSchema,
 } from "./schema";
 
 /**
@@ -57,6 +59,13 @@ export const itemSourceSchema = z.object({
   files: z.array(z.string().min(1)).min(1),
   a11y: z.string().optional(),
   access: registryAccessSchema,
+  /** When to use it, and what it is confused with. Names may be upstream items. */
+  guidance: registryGuidanceSchema.optional(),
+  composesWith: z.array(z.string()).optional(),
+  deprecated: registryDeprecationSchema.optional(),
+  since: z.string().min(1).optional(),
+  /** Who maintains it. */
+  owner: z.string().min(1).optional(),
   /**
    * Overrides where the item's directory is, relative to the registry root.
    * Defaults to `<group>/<name>`, which is the layout this repository uses.
@@ -217,6 +226,11 @@ function toItem(root: string, source: z.infer<typeof itemSourceSchema>): Registr
     files,
     a11y: source.a11y,
     access: source.access,
+    guidance: source.guidance,
+    composesWith: source.composesWith,
+    deprecated: source.deprecated,
+    since: source.since,
+    owner: source.owner,
   });
 }
 
@@ -260,19 +274,68 @@ async function readUpstream(base: string): Promise<RegistryItem[]> {
  * into a name nothing serves. This is the single most common way a
  * hand-assembled registry is broken, and it is invisible until someone installs.
  */
-export function assertResolvable(items: RegistryItem[]): void {
+/** Names an item recommends rather than imports: guidance, composition, a replacement. */
+function advisoryNames(item: RegistryItem): string[] {
+  return [
+    ...(item.deprecated?.replacement ? [item.deprecated.replacement] : []),
+    ...(item.guidance?.alternatives ?? []),
+    ...(item.composesWith ?? []),
+  ];
+}
+
+/**
+ * Drops recommended names an inherited item makes that this registry cannot
+ * serve.
+ *
+ * Upstream's guidance can point at its own Pro items, which a registry built
+ * from upstream's public files does not contain. Left in, an agent reading
+ * this registry would be sent to look up a name that is not there. They are
+ * pruned from inherited items only; an organisation's own items are held to
+ * every name they mention.
+ */
+function pruneAdvisoryNames(item: RegistryItem, known: ReadonlySet<string>): RegistryItem {
+  const keep = (names: string[] | undefined) => names?.filter((name) => known.has(name));
+  return {
+    ...item,
+    guidance: item.guidance && {
+      ...item.guidance,
+      alternatives: keep(item.guidance.alternatives) ?? [],
+    },
+    composesWith: keep(item.composesWith),
+    deprecated: item.deprecated && {
+      ...item.deprecated,
+      replacement:
+        item.deprecated.replacement && known.has(item.deprecated.replacement)
+          ? item.deprecated.replacement
+          : undefined,
+    },
+  };
+}
+
+export function assertResolvable(
+  items: RegistryItem[],
+  /** Items whose recommended names must also exist. Defaults to all of them. */
+  strict: ReadonlySet<string> = new Set(items.map((item) => item.name)),
+): void {
   const known = new Set(items.map((item) => item.name));
   const missing: string[] = [];
 
   for (const item of items) {
-    for (const dependency of item.registryDependencies) {
+    // A replacement is a name an agent will be told to install instead, and
+    // guidance names are ones it will be told to consider: each must exist,
+    // or the advice is a dead end.
+    const named = [
+      ...item.registryDependencies,
+      ...(strict.has(item.name) ? advisoryNames(item) : []),
+    ];
+    for (const dependency of named) {
       if (!known.has(dependency)) missing.push(`${item.name} → ${dependency}`);
     }
   }
 
   if (missing.length > 0) {
     throw new Error(
-      `These registry dependencies are not in the registry:\n  ${missing.join("\n  ")}\n` +
+      `These names are not in the registry:\n  ${missing.join("\n  ")}\n` +
         "Add them, or extend a registry that has them.",
     );
   }
@@ -303,10 +366,12 @@ export async function buildCustomRegistry(config: RegistryConfig): Promise<Build
   // Local wins. That is the point of extending rather than mirroring: an
   // organisation replaces the components it has opinions about and inherits the
   // rest.
-  const inherited = upstream.filter((item) => !localNames.has(item.name));
+  const kept = upstream.filter((item) => !localNames.has(item.name));
+  const known = new Set([...kept, ...local].map((item) => item.name));
+  const inherited = kept.map((item) => pruneAdvisoryNames(item, known));
   const items = [...inherited, ...local].sort((a, b) => a.name.localeCompare(b.name));
 
-  assertResolvable(items);
+  assertResolvable(items, localNames);
 
   return { items, overridden, inherited: inherited.length };
 }

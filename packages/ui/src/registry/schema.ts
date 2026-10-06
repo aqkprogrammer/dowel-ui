@@ -75,6 +75,23 @@ export interface ComponentMeta {
    * `registryDependencies`, but ones a screen built with it tends to need.
    */
   composesWith?: string[];
+  /**
+   * Set when this should no longer be used for new work. It still installs —
+   * removing a component breaks every project that has it — but the CLI, the
+   * MCP server and the agent docs say what to use instead, and the planners
+   * stop suggesting it.
+   */
+  deprecated?: {
+    /** The version it was deprecated in. */
+    since: string;
+    reason: string;
+    /** What to use instead, when there is one. */
+    replacement?: string;
+  };
+  /** The version it first shipped in. */
+  since?: string;
+  /** Who maintains it. */
+  owner?: string;
 }
 
 export interface ComponentGuidance {

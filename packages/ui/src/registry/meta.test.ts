@@ -225,6 +225,17 @@ describe("registry metadata", () => {
       }
     });
 
+    it("deprecates only towards something that exists and is not deprecated itself", () => {
+      const replacement = meta.deprecated?.replacement;
+      if (replacement === undefined) return;
+      const target = metaEntries.find(([, entry]) => entry.meta.name === replacement)?.[1].meta;
+      expect(target, `${meta.name} is replaced by missing "${replacement}"`).toBeDefined();
+      expect(
+        target?.deprecated,
+        `${meta.name} is replaced by deprecated "${replacement}"`,
+      ).toBeUndefined();
+    });
+
     it("declares dependencies that are actually installed in this workspace", () => {
       for (const dependency of meta.dependencies) {
         expect(

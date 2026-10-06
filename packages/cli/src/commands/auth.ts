@@ -6,6 +6,7 @@ import {
   canCarryCredentials,
   clearToken,
   maskToken,
+  readCredentials,
   readToken,
   TOKEN_ENV,
   writeToken,
@@ -81,17 +82,19 @@ export async function verify(registry: string, token: string): Promise<LicenseRe
     );
   }
 
-  if (response.status === 404) {
-    throw new CliError(
-      "This registry does not issue licences.",
-      "Only the official registry does. Check --registry.",
-    );
-  }
+  // No licence endpoint: a private registry, most likely static files behind
+  // something that checks a key. The key is good if it opens the index.
+  if (response.status === 404) return verifyByIndex(registry, token);
 
   let body: unknown;
   try {
     body = await response.json();
   } catch {
+    // A private registry behind a proxy that checks the key answers a bad one
+    // with a bare 401 before any route is reached.
+    if (response.status === 401 || response.status === 403) {
+      return { valid: false, reason: "The registry did not accept this key." };
+    }
     throw new CliError(`${url} did not return a licence answer this CLI understands.`);
   }
 
@@ -101,6 +104,34 @@ export async function verify(registry: string, token: string): Promise<LicenseRe
   }
 
   return answer;
+}
+
+/**
+ * Checks a key against a registry that has no licence endpoint, by asking for
+ * its index with the key.
+ */
+async function verifyByIndex(registry: string, token: string): Promise<LicenseResponse> {
+  const url = `${registry.replace(/\/$/, "")}/index.json`;
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      headers: { authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch (cause) {
+    throw new CliError(
+      `Could not reach ${url} to check the key.`,
+      cause instanceof Error ? cause.message : undefined,
+    );
+  }
+  if (response.ok) return { valid: true };
+  if (response.status === 401 || response.status === 403) {
+    return { valid: false, reason: "The registry did not accept this key." };
+  }
+  throw new CliError(
+    `${registry} has no licence endpoint, and its index answered ${String(response.status)}.`,
+    "Check the registry URL.",
+  );
 }
 
 export async function login(options: LoginOptions): Promise<void> {
@@ -143,18 +174,21 @@ export async function login(options: LoginOptions): Promise<void> {
   if (answer.holder) logger.info(pc.dim(`  Licensed to ${answer.holder}`));
   if (answer.expiresAt) logger.info(pc.dim(`  Active until ${answer.expiresAt}`));
   logger.blank();
+  logger.info(pc.dim(`  For ${options.registry}`));
   logger.info(pc.dim(`Stored in ${path}, readable only by you.`));
   logger.info(pc.dim(`For CI, set ${TOKEN_ENV} instead of committing anything.`));
 }
 
-export function logout(): void {
-  const removed = clearToken();
+export function logout(registry?: string): void {
+  const removed = clearToken(process.env, registry);
 
   logger.blank();
   if (removed) {
-    logger.success("Signed out.");
+    logger.success(registry ? `Signed out of ${registry}.` : "Signed out of every registry.");
   } else {
-    logger.info("Not signed in — nothing to remove.");
+    logger.info(
+      registry ? `No key is stored for ${registry}.` : "Not signed in — nothing to remove.",
+    );
   }
 
   // Said whether or not a file was removed: an environment variable outranks
@@ -175,9 +209,18 @@ export interface WhoamiOptions {
 }
 
 export async function whoami(options: WhoamiOptions): Promise<void> {
-  const credentials = readToken();
+  const all = readCredentials();
+  const credentials = options.registry ? readToken(process.env, options.registry) : all[0];
 
   logger.blank();
+  if (all.length > 1) {
+    logger.info(pc.dim("Keys on this machine:"));
+    for (const entry of all) {
+      const from = entry.source === "env" ? TOKEN_ENV : "stored";
+      logger.info(`  ${maskToken(entry.token)}  ${entry.registry}  ${pc.dim(`(${from})`)}`);
+    }
+    logger.blank();
+  }
   if (!credentials) {
     logger.info("Not signed in.");
     logger.blank();

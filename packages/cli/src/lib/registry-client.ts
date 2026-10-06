@@ -10,7 +10,7 @@ import {
   type RegistryItem,
 } from "@dowel-ui/registry";
 
-import { credentialsFor } from "./auth";
+import { credentialsFor, TOKEN_ENV, TOKEN_REGISTRY_ENV } from "./auth";
 import { CliError } from "./errors";
 
 /**
@@ -70,17 +70,41 @@ async function readJson(
   const url = `${baseUrl.replace(/\/$/, "")}/${file}`;
   const credentials = options.authenticated ? credentialsFor(baseUrl) : undefined;
 
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      headers: credentials ? { authorization: `Bearer ${credentials.token}` } : undefined,
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    });
-  } catch (cause) {
-    throw new CliError(
-      `Could not reach the registry at ${url}.`,
-      cause instanceof Error ? cause.message : undefined,
-    );
+  async function request(token: string | undefined): Promise<Response> {
+    try {
+      return await fetch(url, {
+        headers: token ? { authorization: `Bearer ${token}` } : undefined,
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+    } catch (cause) {
+      throw new CliError(
+        `Could not reach the registry at ${url}.`,
+        cause instanceof Error ? cause.message : undefined,
+      );
+    }
+  }
+
+  let response = await request(credentials?.token);
+
+  // A private registry asks for a key on everything, the index included. The
+  // first request goes without one, so a public registry never receives a key
+  // it did not ask for; a 401 is answered once, with the key for this registry
+  // and no other — `credentialsFor` refuses to send one that belongs elsewhere.
+  if (response.status === 401 && !options.authenticated) {
+    const challenge = credentialsFor(baseUrl);
+    if (challenge === undefined) {
+      throw new CliError(
+        `The registry at ${baseUrl} requires a key, and this machine has none.`,
+        `Run \`login --registry ${baseUrl}\` with the key it issued you, or in CI set ${TOKEN_ENV} and ${TOKEN_REGISTRY_ENV}.`,
+      );
+    }
+    response = await request(challenge.token);
+    if (response.status === 401 || response.status === 403) {
+      throw new CliError(
+        `The registry at ${baseUrl} did not accept the key stored for it.`,
+        `Sign in again with \`login --registry ${baseUrl}\`.`,
+      );
+    }
   }
 
   if (response.status === 404) {
