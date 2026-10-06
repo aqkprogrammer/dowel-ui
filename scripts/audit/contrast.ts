@@ -6,13 +6,16 @@
  * instead: every semantic pair, in light and dark, across every theme preset.
  *
  *   pnpm audit:contrast
+ *   pnpm audit:contrast --verbose   # also lists every tint pair's ratio
  */
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { THEME_PRESETS } from "../../packages/themes/src/index";
-import { contrastRatio, resolveColour } from "./colour";
+import { composite, contrastRatio, resolveColour } from "./colour";
+
+const verbose = process.argv.includes("--verbose");
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const themesSrc = join(repoRoot, "packages", "themes", "src");
@@ -38,7 +41,59 @@ interface Pair {
    * is the only thing saying it is a field.
    */
   advisory?: boolean;
+  /**
+   * The background is `background` at this opacity over `surface` — a tint, as
+   * `bg-destructive/10` or `color-mix(in oklab, var(--color-primary) 12%,
+   * transparent)` paints it. Without this a tint can only be measured as the
+   * solid colour, which says nothing about text sitting on it.
+   */
+  tint?: { alpha: number; surface: string };
 }
+
+/**
+ * Coloured text on a tint of its own colour: a status pill, a soft button, a
+ * highlighted destructive menu item.
+ *
+ * This is the pair the solid-colour pairs cannot see. The text and the tint
+ * move together — darken the token and the tint darkens with it — so it has to
+ * be measured as the composite the browser paints. Checked on both surfaces a
+ * tint sits on, because in dark mode the card is lighter than the page.
+ *
+ * The strengths are the ones components put text on, and the strongest of each
+ * is what is checked, since a weaker tint of the same colour only reads better.
+ * Status text sits on at most /10 (agent status, tags, permission prompts,
+ * destructive menu items); stronger status tints carry only icons. Primary
+ * text sits on 12% at rest (the soft button, the soft share button, the current
+ * onboarding step) and on 18% and 20% while the soft button is hovered and
+ * pressed, where its text steps to `primary-hover` — the shade that moves away
+ * from the page in both modes, darker in light and lighter in dark.
+ * `primary-active` would not do: it is darker in both modes, which in dark mode
+ * is towards the page and fails on the pressed tint (as low as 3.1:1).
+ */
+function tinted(
+  text: string,
+  tint: string,
+  alpha: number,
+  surface: "background" | "card",
+): Pair {
+  return {
+    label: `${text} on ${tint}/${String(Math.round(alpha * 100))} over ${surface}`,
+    foreground: text,
+    background: tint,
+    minimum: TEXT_MINIMUM,
+    tint: { alpha, surface },
+  };
+}
+
+const TINT_PAIRS: Pair[] = (["background", "card"] as const).flatMap((surface) => [
+  tinted("destructive", "destructive", 0.1, surface),
+  tinted("success", "success", 0.1, surface),
+  tinted("warning", "warning", 0.1, surface),
+  tinted("info", "info", 0.1, surface),
+  tinted("primary", "primary", 0.12, surface),
+  tinted("primary-hover", "primary", 0.18, surface),
+  tinted("primary-hover", "primary", 0.2, surface),
+]);
 
 /**
  * The pairs that actually appear on screen.
@@ -190,6 +245,7 @@ const PAIRS: Pair[] = [
     background: "background",
     minimum: UI_MINIMUM,
   },
+  ...TINT_PAIRS,
 ];
 
 type Tokens = Map<string, string>;
@@ -237,20 +293,34 @@ interface Finding {
 function auditScheme(theme: string, mode: string, scales: Tokens, semantic: Tokens): Finding[] {
   const findings: Finding[] = [];
 
+  // The page background is opaque, so a translucent token composites over it.
+  const pageValue = resolveToken("background", scales, semantic);
+  const page = pageValue ? resolveColour(pageValue) : undefined;
+
   for (const pair of PAIRS) {
     const backgroundValue = resolveToken(pair.background, scales, semantic);
     const foregroundValue = resolveToken(pair.foreground, scales, semantic);
     if (!backgroundValue || !foregroundValue) continue;
 
-    // The page background is opaque, so a translucent token composites over it.
-    const pageValue = resolveToken("background", scales, semantic);
-    const page = pageValue ? resolveColour(pageValue) : undefined;
+    let background = resolveColour(backgroundValue, page);
+    if (pair.tint) {
+      const surfaceValue = resolveToken(pair.tint.surface, scales, semantic);
+      const surface = surfaceValue ? resolveColour(surfaceValue, page) : undefined;
+      if (!surface || !background) {
+        throw new Error(`${theme}/${mode}: cannot resolve the tint for "${pair.label}"`);
+      }
+      background = composite(background, pair.tint.alpha, surface);
+    }
 
-    const background = resolveColour(backgroundValue, page);
     const foreground = resolveColour(foregroundValue, background ?? page);
     if (!background || !foreground) continue;
 
     const ratio = contrastRatio(foreground, background);
+    if (verbose && pair.tint) {
+      console.log(
+        `  ${theme}/${mode}`.padEnd(24) + pair.label.padEnd(48) + `${ratio.toFixed(2)}:1`,
+      );
+    }
     if (ratio + 0.005 < pair.minimum) {
       findings.push({
         theme,
@@ -309,7 +379,7 @@ function report(entries: Finding[]) {
   for (const finding of entries) {
     console.log(
       `  ${finding.theme}/${finding.mode}`.padEnd(24) +
-        finding.pair.padEnd(42) +
+        finding.pair.padEnd(48) +
         `${finding.ratio.toFixed(2)}:1  (target ${String(finding.minimum)}:1)`,
     );
   }

@@ -17,9 +17,9 @@
      4.5:1 for both, and at that lightness sRGB holds only 0.15 chroma, so that
      is what is written — the value the screen can show. Hover and the
      secondary are capped the same way, at 0.14 and 0.145. */
-  --primary: oklch(0.565 0.15 47.65);
-  --primary-hover: oklch(0.52 0.14 47.65);
-  --primary-active: oklch(0.482 0.145 40.59);
+  --primary: oklch(0.54 0.15 47.65);
+  --primary-hover: oklch(0.495 0.14 47.65);
+  --primary-active: oklch(0.457 0.145 40.59);
   --primary-foreground: oklch(0.985 0.002 265);
 }
 

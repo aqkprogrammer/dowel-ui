@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   contrastRatio,
+  encodeSrgb,
   formatOklch,
   hexToOklch,
   linearRgbToOklch,
@@ -85,8 +86,24 @@ describe("resolveColour", () => {
     const white = oklchToLinearRgb(1, 0, 0);
     const halfBlack = resolveColour("oklch(0 0 0 / 0.5)", white);
 
-    // Half black over white sits halfway in linear light.
-    expect(halfBlack?.r).toBeCloseTo(0.5, 2);
+    // Browsers blend gamma-encoded channels: half black over white paints at
+    // half of 255 (~#808080), which is ~0.214 in linear light — not 0.5.
+    expect(halfBlack?.r).toBeCloseTo(0.214, 3);
+  });
+
+  it("blends a 10% tint the way the browser paints it", () => {
+    // `bg-destructive/10` over white: each 8-bit channel is 10% of the colour's
+    // encoded value plus 90% of 255, which is what Chrome paints and axe samples.
+    const white = oklchToLinearRgb(1, 0, 0);
+    const solid = encodeSrgb(oklchToLinearRgb(0.577, 0.22, 27));
+    const tint = resolveColour("oklch(0.577 0.22 27 / 0.1)", white);
+    const expected = (channel: number) => Math.round(channel * 0.1 + 255 * 0.9);
+
+    expect(tint && encodeSrgb(tint)).toEqual({
+      r: expected(solid.r),
+      g: expected(solid.g),
+      b: expected(solid.b),
+    });
   });
 
   it("leaves an opaque colour alone", () => {

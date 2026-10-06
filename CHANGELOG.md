@@ -9,6 +9,27 @@ Fixes for the accessibility problems the real-browser suite found in 0.13.0.
 
 ### Fixed
 
+- **Status and primary text on their own tints reach 4.5:1 in light mode.**
+  `text-destructive` on `bg-destructive/10` (and the same for success, warning
+  and info) measured 4.14–4.32:1, and primary text on the soft button's 12%
+  tint 3.97–4.48:1 in ten of the thirteen presets. The status colours are
+  darker in light mode (`red-500` 0.577→0.55, `green-500` 0.53→0.515,
+  `amber-500` 0.55→0.535, `blue-500` 0.545→0.525), as is the light-mode primary
+  of the default theme and of `amber`, `blue`, `candy`, `emerald`, `green`,
+  `indigo`, `ocean`, `orange` and `red` (by 0.005–0.035, with hover and active
+  moved by the same step). Dark mode is unchanged. Every such pair now measures
+  4.52:1 or better in every preset.
+- **The soft button stays readable while hovered and pressed.** Its label now
+  steps to `primary-hover` as the tint deepens, and the pressed tint is 20%
+  rather than 24%; primary text on the old hover and pressed tints fell to
+  3.3–4.4:1. The onboarding block's current-step marker uses a 12% tint, like
+  the soft button, instead of 15%.
+- **`audit:contrast` checks text on tints.** It now measures each status colour
+  on its own 10% tint and primary text on the soft button's tints, over both
+  the page and the card, and composites translucent colours the way browsers
+  paint them (on gamma-encoded channels). It previously blended in linear
+  light, which reads a 10% tint as darker than it renders and would have
+  passed these pairs by ~0.3:1. `pnpm audit:contrast --verbose` lists them.
 - **`Select` inside `FormControl` had no accessible name.** `FormControl`
   passes the field's id, description and invalid state to its child, and
   `Select`'s root renders no element, so they were dropped and the label
