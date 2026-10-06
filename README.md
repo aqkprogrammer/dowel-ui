@@ -209,10 +209,6 @@ await toast.promise(save(), {
 
 ## CLI
 
-> **On `main`, not yet on npm:** `doctor`, `diff`, `audit`, `plan`, private
-> registries with per-registry keys, governance metadata, and the MCP
-> server's `audit_code` ship in **0.13.0**. The published packages are 0.12.0.
-
 Set a project up once, then add components as source you own:
 
 ```bash

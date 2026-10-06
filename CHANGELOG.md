@@ -3,11 +3,24 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
-## Unreleased
+## 0.13.0
 
-Security hardening for the CLI. A source-first library is exactly as
-trustworthy as its installer, and the installer trusted its registry with the
-filesystem.
+The CLI and the MCP server now work after the install as well as during it,
+and coding agents are told which component is right, not only which exist.
+
+- **Security.** The CLI no longer trusts its registry with the filesystem or
+  its licence key: paths are confined, keys go only to the registry they were
+  issued for, and registry dependencies must be npm packages.
+- **The component genome.** Every registry item carries its props, whether it
+  needs a client boundary, whether it animates, and its quality checks; 188
+  carry guidance on when to use them and what they are confused with.
+- **`dowel doctor`, `diff`, `audit` and `plan`**, and the MCP server's
+  `audit_code`. `plan --model` asks Claude, with your own credentials.
+- **Private registries** with per-registry keys, and governance metadata
+  (`owner`, `since`, `deprecated`).
+- **In the repository:** real-browser accessibility over every story, visual
+  regression, a fresh-app install of every item in CI, and AgentBench, a
+  harness for measuring whether agent support helps.
 
 ### Added
 

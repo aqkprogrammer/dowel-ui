@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/browser-tests",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "private": true,
   "type": "module",
   "description": "Every Storybook story in a real browser: axe with the colour-contrast and target-size rules jsdom cannot evaluate, and screenshot comparison for a curated subset. Runs against a static Storybook build.",
