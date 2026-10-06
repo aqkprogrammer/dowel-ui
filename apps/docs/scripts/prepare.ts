@@ -41,7 +41,7 @@ import { fileURLToPath } from "node:url";
  *    for a preset of your own — from the same CSS the components use.
  */
 
-import { buildRegistry, proItems, writeLicensedModule } from "@dowel-ui/registry/build";
+import { buildRegistry, writeLicensedModule } from "@dowel-ui/registry/build";
 import {
   parseTokenCss,
   THEME_PRESETS,
@@ -49,10 +49,10 @@ import {
   type Declarations,
 } from "@dowel-ui/themes";
 
-import { extractProps, type PropsGroup } from "./props";
-import { assess, type ComponentQuality } from "./quality";
+import { extractVariants, type VariantAxis } from "@dowel-ui/registry/analysis";
+import type { RegistryItem, RegistryPropsGroup, RegistryQuality } from "@dowel-ui/registry";
+
 import { storyExports } from "./stories";
-import { extractVariants, type VariantAxis } from "./variants";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const docsRoot = join(here, "..");
@@ -191,16 +191,13 @@ ${names}
  * the API, and the copy is what goes stale. This one cannot describe a prop the
  * component does not take, or miss one it does.
  */
-function generateProps(): number {
-  const groups: Record<string, PropsGroup[]> = {};
-
-  for (const { name, group } of [
-    ...storiesIn(componentsDir, "components"),
-    ...storiesIn(blocksDir, "blocks"),
-  ]) {
-    const root = group === "blocks" ? blocksDir : componentsDir;
-    const found = extractProps(join(root, name, `${name}.tsx`));
-    if (found.length > 0) groups[name] = found;
+function generateProps(items: RegistryItem[]): number {
+  // Read from the registry's genome, which extracts them from the source once
+  // for every consumer: this page, the MCP server and the agent docs all read
+  // the same table, so none of them can disagree about a component's props.
+  const groups: Record<string, RegistryPropsGroup[]> = {};
+  for (const item of items) {
+    if (item.props && item.props.length > 0) groups[item.name] = item.props;
   }
 
   writeFileSync(
@@ -279,33 +276,15 @@ export const componentVariants: Record<string, VariantAxis[]> = ${JSON.stringify
  * would be a claim; this one can be checked by reading the file it was
  * computed from.
  */
-function generateQuality(): { count: number; average: number } {
-  const quality: Record<string, ComponentQuality> = {};
-
-  // The published accessibility note is part of the assessment, and it lives in
-  // the registry rather than in the source.
-  const index = JSON.parse(
-    readFileSync(join(docsRoot, "public", "r", "index.json"), "utf8"),
-  ) as { items: { name: string }[] };
-
-  // A licensed item has no public file, by design. Its note is read from the
-  // same build the gated route serves, so a Pro block is measured against the
-  // same rules as a free one — a catalogue where only the free half has a
-  // quality score is a catalogue that looks like it is hiding something.
-  const licensed = new Map(proItems(buildRegistry()).map((item) => [item.name, item]));
-
-  for (const entry of index.items) {
-    const item =
-      licensed.get(entry.name) ??
-      (JSON.parse(
-        readFileSync(join(docsRoot, "public", "r", `${entry.name}.json`), "utf8"),
-      ) as { name: string; type: string; a11y?: string });
-
+function generateQuality(items: RegistryItem[]): { count: number; average: number } {
+  // The assessment is part of each item's genome, measured by the registry
+  // build, so the standard travels with the component. Licensed items are
+  // included: a catalogue where only the free half has a score is one that
+  // looks like it is hiding something.
+  const quality: Record<string, RegistryQuality> = {};
+  for (const item of items) {
     if (item.type !== "registry:ui" && item.type !== "registry:block") continue;
-
-    const root = item.type === "registry:block" ? blocksDir : componentsDir;
-    const assessed = assess(join(root, item.name), item.name, item.a11y);
-    if (assessed) quality[item.name] = assessed;
+    if (item.quality) quality[item.name] = item.quality;
   }
 
   const scores = Object.values(quality).map((entry) => entry.score);
@@ -477,18 +456,21 @@ function assertNoLicensedPreviews(licensedNames: ReadonlySet<string>): void {
 const files = publishRegistry();
 const licensed = writeLicensedModule(licensedModule);
 
+// Built once: it reads every component through the TypeScript compiler.
+const items = buildRegistry();
+
 // From the registry build, which is the one place that decides what is
 // licensed. A second list here would be a second answer.
 const licensedNames: ReadonlySet<string> = new Set(
-  proItems(buildRegistry()).map((item) => item.name),
+  items.filter((item) => item.access === "pro").map((item) => item.name),
 );
 
 const previews = generatePreviews(licensedNames);
 assertNoLicensedPreviews(licensedNames);
 const proPreviews = generateProPreviews(licensedNames);
 const variants = generateVariants();
-const props = generateProps();
-const quality = generateQuality();
+const props = generateProps(items);
+const quality = generateQuality(items);
 const version = generateVersion();
 const figma = generateDesignTokens();
 

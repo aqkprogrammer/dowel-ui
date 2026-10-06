@@ -3,7 +3,7 @@ import { componentProps, type PropsGroup } from "~/lib/props.generated";
 /**
  * The API of every part a component exports.
  *
- * Generated from the component's own types by `scripts/props.ts`, so this is
+ * Generated from the component's own types by the registry build, so this is
  * not documentation about the component — it is the component's signature,
  * rendered. A prop cannot appear here without existing, and cannot exist
  * without appearing.
