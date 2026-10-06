@@ -18,4 +18,14 @@ export const meta = defineMeta({
     "already names; pass imageAlt when it carries information of its own. The shimmer is aria-hidden. " +
     "No network requests are made beyond loading the image you supply. The reveal, shimmer and " +
     "stagger stop under reduced motion.",
+  guidance: {
+    useWhen: [
+      "an inline link that previews its destination — image, heading, host — on hover or focus",
+    ],
+    avoidWhen: [
+      "previews of people or records — use hover-card",
+      "a card with an action to press — use rich-popover",
+    ],
+    alternatives: ["hover-card", "rich-popover", "tooltip"],
+  },
 });

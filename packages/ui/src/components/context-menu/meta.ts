@@ -16,4 +16,11 @@ export const meta = defineMeta({
     "returns focus, Right/Left open and close submenus (mirrored in RTL). Checkbox and radio items expose " +
     "aria-checked; shortcuts are aria-hidden hints. A context menu is invisible until summoned, so its " +
     "actions should also be reachable elsewhere. The pop and stagger stop under reduced motion.",
+  guidance: {
+    useWhen: [
+      "actions on an item opened by right-click or long press, as a shortcut to actions also shown elsewhere",
+    ],
+    avoidWhen: ["the only way to reach an action — use dropdown-menu on a visible trigger"],
+    alternatives: ["dropdown-menu"],
+  },
 });

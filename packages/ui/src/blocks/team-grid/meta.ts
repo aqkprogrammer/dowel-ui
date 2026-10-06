@@ -17,4 +17,8 @@ export const meta = defineMeta({
     "person. Portraits have empty alt text because the name is read next — a described photo " +
     "would say the name twice — and the initials fallback is aria-hidden for the same reason. " +
     "Only a grid starting below the fold is held back to animate, never under reduced motion.",
+  guidance: {
+    useWhen: ["a grid of team members with portrait, name, role, location and bio"],
+    alternatives: ["team-carousel"],
+  },
 });

@@ -18,4 +18,12 @@ export const meta = defineMeta({
     "talk over the reader continuously on a plan of any length. Drawn checks and crosses live " +
     "inside the hidden markers; quietCompleted dims finished steps with a contrast-audited token, " +
     "and the optional sweep is decoration that stops under reduced motion.",
+  guidance: {
+    useWhen: [
+      "an agent's plan and its progress, including steps added, dropped or reordered mid-run",
+    ],
+    avoidWhen: ["a fixed set of wizard steps — use stepper"],
+    alternatives: ["stepper", "ai-agent-status"],
+  },
+  composesWith: ["ai-agent-status", "ai-action-ledger"],
 });

@@ -19,4 +19,6 @@ export const meta = defineMeta({
     "stranded, and they ignore activation. If the bar closes with focus inside it, focus returns to where it came " +
     "from. Nothing animates on first paint, and the springs run through motion inside MotionConfig " +
     'reducedMotion="user", so under reduced motion the bar and labels appear without travel.',
+  guidance: { useWhen: ["bulk actions on selected rows, shown while something is selected"] },
+  composesWith: ["data-table"],
 });

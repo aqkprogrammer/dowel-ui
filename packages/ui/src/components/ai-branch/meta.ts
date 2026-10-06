@@ -15,4 +15,10 @@ export const meta = defineMeta({
     'layouts) and a polite, atomic "2 of 3" indicator, so paging says where it went. Inactive versions are hidden ' +
     "rather than unmounted, keeping their state. The pager disappears when there is only one version. The " +
     "entrance is decoration and stops under reduced motion.",
+  guidance: {
+    useWhen: [
+      "paging between versions of a turn after regenerating an answer or editing a prompt",
+    ],
+  },
+  composesWith: ["ai-message"],
 });

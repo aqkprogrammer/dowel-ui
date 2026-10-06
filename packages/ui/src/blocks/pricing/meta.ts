@@ -15,4 +15,9 @@ export const meta = defineMeta({
     "politely rather than happening silently. Each plan's call to action names the plan — three " +
     'buttons all reading "Choose" are indistinguishable out of context. Feature ticks are ' +
     "decorative; the feature text carries the meaning.",
+  guidance: {
+    useWhen: ["a pricing section with plan cards and a monthly/yearly toggle"],
+    avoidWhen: ["the account's current plan and invoices — use billing"],
+    alternatives: ["pricing-three-tier", "pricing-two-tier", "pricing-single-plan", "billing"],
+  },
 });

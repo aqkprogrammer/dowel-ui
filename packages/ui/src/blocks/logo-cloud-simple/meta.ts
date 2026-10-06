@@ -17,4 +17,8 @@ export const meta = defineMeta({
     "is aria-hidden so an SVG with no title or an image with a stray alt cannot double or " +
     "garble it. Linked entries are real links with the shared focus ring, and focus brightens " +
     "an entry exactly as hover does.",
+  guidance: {
+    useWhen: ["a still grid of customer logos under a heading"],
+    alternatives: ["logo-grid-tooltips", "logo-marquee"],
+  },
 });

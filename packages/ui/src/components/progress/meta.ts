@@ -15,4 +15,15 @@ export const meta = defineMeta({
     "from zero. Show the percentage in text as well — the bar alone is not readable at a glance " +
     "for everyone. The optional stripe and shine effects are decoration: they stop under " +
     "reduced motion and never apply to an indeterminate bar.",
+  guidance: {
+    useWhen: [
+      "how far along a task is, such as an upload or an import",
+      "that a task is running when its duration is unknown",
+    ],
+    avoidWhen: [
+      "a level against a capacity, such as storage used — use meter",
+      "the steps of a wizard — use stepper",
+    ],
+    alternatives: ["meter", "spinner", "stepper", "tick-progress"],
+  },
 });

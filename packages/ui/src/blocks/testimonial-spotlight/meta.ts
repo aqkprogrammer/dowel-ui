@@ -17,4 +17,10 @@ export const meta = defineMeta({
     "buttons and arrow keys (mirrored in RTL). The quote's word-by-word blur-in is decorative — an " +
     "sr-only copy reads it as one sentence — and settles at once under reduced motion. Avatars are " +
     "hidden, since the name is beside them.",
+  guidance: {
+    useWhen: [
+      "a heading beside one testimonial at a time, stepped through with previous and next",
+    ],
+    alternatives: ["testimonial-rotator", "testimonial-star-grid"],
+  },
 });

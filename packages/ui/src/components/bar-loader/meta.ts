@@ -15,4 +15,12 @@ export const meta = defineMeta({
     'expose a busy state. Pass `label` to announce it standalone via role="status". ' +
     "Under reduced motion it slows rather than stopping, because a frozen loader reads as a hang. " +
     "The indeterminate sweep never reports a value, so it cannot be mistaken for real progress.",
+  guidance: {
+    useWhen: ["a decorative indeterminate wait drawn as bars, such as an equalizer or sweep"],
+    avoidWhen: [
+      "a standard wait in a button or panel — use spinner",
+      "a task whose progress is known — use progress",
+    ],
+    alternatives: ["spinner", "progress", "ai-loader"],
+  },
 });

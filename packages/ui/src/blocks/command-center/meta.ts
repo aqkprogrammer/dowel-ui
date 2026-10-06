@@ -29,4 +29,10 @@ export const meta = defineMeta({
     "agreeing rather than replacing. ⌘K opens the palette but the Actions button is always " +
     "visible, so the shortcut is an accelerator and not the only way in. New log lines are not " +
     "read aloud unless asked.",
+  guidance: {
+    useWhen: [
+      "an operations page: service health, incidents, capacity and a log stream, with a command palette",
+    ],
+    alternatives: ["admin-dashboard", "analytics"],
+  },
 });

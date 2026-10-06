@@ -15,4 +15,15 @@ export const meta = defineMeta({
     "`transient` confirmations (Copied, Submitted) are announced through a polite live region and revert on a timer. " +
     '`trigger="hover"` activates on keyboard focus as well as hover. Icons are aria-hidden: an icon-only button must be ' +
     "named with aria-label or aria-labelledby, and warns in development when it is not. Motion stops under reduced motion.",
+  guidance: {
+    useWhen: [
+      "a button whose icon and label change after an action, such as Copy becoming Copied",
+      "a toggle whose active state should be visibly different",
+    ],
+    avoidWhen: [
+      "copying a value — use copy-button, which does this already",
+      "a plain pressed state in a toolbar — use toggle",
+    ],
+    alternatives: ["copy-button", "toggle", "button"],
+  },
 });

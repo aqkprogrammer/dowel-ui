@@ -15,4 +15,11 @@ export const meta = defineMeta({
     "layers are aria-hidden, and text-reveal's duplicate label is hidden so the name is read " +
     "once. Colour (tone) never carries meaning on its own: the label does. Effects stop under " +
     "reduced motion. Inherits Button's loading and disabled behaviour.",
+  guidance: {
+    useWhen: [
+      "a call to action with a hover and focus micro-interaction, such as a sliding arrow or glare",
+    ],
+    avoidWhen: ["routine actions in forms and tables — use button"],
+    alternatives: ["button", "ripple-button"],
+  },
 });

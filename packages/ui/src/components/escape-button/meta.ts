@@ -15,4 +15,9 @@ export const meta = defineMeta({
     "or while the button has focus, so keyboard users can Tab to it and press it at once. It gives up after " +
     "`patience` escapes (4 by default) and stays put, and a press always goes through in every state — the " +
     "movement is visual, never a lock. It is a real button with its visible label as its name.",
+  guidance: {
+    useWhen: ["a novelty button on a playful page that dodges the mouse before giving up"],
+    avoidWhen: ["any real action — use button"],
+    alternatives: ["button"],
+  },
 });

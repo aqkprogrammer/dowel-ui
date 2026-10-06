@@ -19,4 +19,13 @@ export const meta = defineMeta({
     "emphasis must also be explained in the surrounding text when it matters. An accent is mixed into " +
     "the theme's own foreground and background to hold contrast, but a very light or very dark accent " +
     "should still be checked.",
+  guidance: {
+    useWhen: ["a code snippet with a copy control, line numbers or highlighted lines"],
+    avoidWhen: [
+      "the same snippet for several package managers or languages — use code-tabs",
+      "streaming log output — use log-viewer",
+      "a diff — use diff-viewer",
+    ],
+    alternatives: ["code-tabs", "log-viewer", "diff-viewer", "ai-artifact"],
+  },
 });

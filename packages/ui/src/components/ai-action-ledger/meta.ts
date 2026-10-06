@@ -16,4 +16,16 @@ export const meta = defineMeta({
     "so it says what pressing it will do. The selection summary is an aria-live region because " +
     "the wording changes as the choice changes, and warns before the click when something can " +
     "only be offset rather than undone.",
+  guidance: {
+    useWhen: [
+      "listing what an agent did, stating what can be reverted, offset or not undone",
+      "choosing past agent actions to revert",
+    ],
+    avoidWhen: [
+      "inside an agent-surface — use agent-ledger, which wires the undo",
+      "a general history of events — use activity-feed",
+    ],
+    alternatives: ["agent-ledger", "activity-feed"],
+  },
+  composesWith: ["ai-agent-plan", "ai-approval-request"],
 });

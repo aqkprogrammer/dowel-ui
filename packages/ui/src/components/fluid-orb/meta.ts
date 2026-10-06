@@ -15,4 +15,11 @@ export const meta = defineMeta({
     "no state, so pair it with a text status wherever it stands for an assistant. Under reduced motion (or " +
     "--motion-scale at zero) it holds a still frame. Rendering pauses off screen and in hidden tabs. Without " +
     "WebGL, or after a lost context, a static CSS gradient orb stands in.",
+  guidance: {
+    useWhen: ["an ambient, decorative orb standing for an assistant"],
+    avoidWhen: [
+      "showing what the assistant is doing — it reports no state; use matrix-orb, orb-face or ai-agent-status",
+    ],
+    alternatives: ["matrix-orb", "orb-face", "gradient-orb", "ai-agent-status"],
+  },
 });

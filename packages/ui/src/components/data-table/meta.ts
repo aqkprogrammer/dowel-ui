@@ -16,4 +16,13 @@ export const meta = defineMeta({
     "column and its direction. The pagination status is a polite live region, because paging " +
     "swaps the rows in place with no other signal. A column that cannot be sorted renders as " +
     "text, not as a button that does nothing.",
+  guidance: {
+    useWhen: [
+      "a list of records that needs sorting, column visibility, selection or pagination",
+      "admin lists such as users, deals or invoices",
+    ],
+    avoidWhen: ["a few rows that never change order — use table"],
+    alternatives: ["table", "agent-data-table"],
+  },
+  composesWith: ["empty-state", "management-bar", "nl-filter"],
 });

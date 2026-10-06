@@ -14,4 +14,12 @@ export const meta = defineMeta({
     "ends of a week. Selection is announced through aria-selected, and the month caption is a " +
     "live region so moving between months is announced. Give the calendar an accessible name " +
     "when more than one is on the page.",
+  guidance: {
+    useWhen: ["an always-visible date grid for selecting a day, several days or a range"],
+    avoidWhen: [
+      "a date field in a form — use date-picker",
+      "relative dashboard ranges — use time-range-picker",
+    ],
+    alternatives: ["date-picker", "time-range-picker"],
+  },
 });

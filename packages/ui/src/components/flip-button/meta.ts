@@ -15,4 +15,14 @@ export const meta = defineMeta({
     'screen reader. With trigger="press" the button is a toggle exposed through aria-pressed; with ' +
     'trigger="hover" it also turns on keyboard focus-visible, and the turn is purely decorative. Pass ' +
     "aria-label when the front face has no text. Under reduced motion the turn becomes an instant swap.",
+  guidance: {
+    useWhen: [
+      "a call to action that turns over to show a second face on hover or focus",
+      "a two-state button that flips on each press",
+    ],
+    avoidWhen: [
+      "back-face text that carries information — it is hidden from screen readers; use button",
+    ],
+    alternatives: ["button", "morph-button"],
+  },
 });

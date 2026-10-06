@@ -15,4 +15,9 @@ export const meta = defineMeta({
     "unchanged. It never runs for touch or coarse pointers, or under prefers-reduced-motion, " +
     "and a disabled or loading button stays put. The `radius` option listens on the window " +
     "rather than widening the hit area, so it never steals clicks from neighbouring controls.",
+  guidance: {
+    useWhen: ["a hero or landing-page call to action that drifts toward the pointer"],
+    avoidWhen: ["actions in forms and dense UI — use button"],
+    alternatives: ["button"],
+  },
 });

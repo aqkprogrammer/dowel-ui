@@ -18,4 +18,8 @@ export const meta = defineMeta({
     "rolling digits are aria-hidden and the settled value is read once; icons are decorative. " +
     "The trend slides in from the inline start, mirrored on right-to-left pages; under reduced " +
     "motion everything appears at once.",
+  guidance: {
+    useWhen: ["metric cards with an icon, a figure and a trend stated in words"],
+    alternatives: ["stats-grid", "metric-delta"],
+  },
 });

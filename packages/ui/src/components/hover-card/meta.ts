@@ -17,4 +17,15 @@ export const meta = defineMeta({
     "an action; the trigger (usually a link) has to make sense on its own. The open and close delays " +
     "stop a card flashing up as the pointer passes. The grow, blur and stagger collapse under reduced " +
     "motion, so the card simply appears.",
+  guidance: {
+    useWhen: [
+      "a visual preview of a person, link or record while its trigger is hovered or focused",
+    ],
+    avoidWhen: [
+      "content with buttons or links, or the only copy of information — use popover",
+      "a one-line label — use tooltip",
+      "previewing a URL with an image and its host — use preview-link-card",
+    ],
+    alternatives: ["popover", "tooltip", "preview-link-card"],
+  },
 });

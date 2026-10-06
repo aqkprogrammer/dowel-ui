@@ -16,4 +16,12 @@ export const meta = defineMeta({
     'only changes client state. The optional sliding pill (indicator="slide") is an ' +
     "aria-hidden list item, so the list's item count stays the number of pages, and it " +
     "stops sliding under reduced motion.",
+  guidance: {
+    useWhen: [
+      "moving between pages of results that each have their own URL",
+      "a paged list outside a data table",
+    ],
+    avoidWhen: ["paging a TanStack table — data-table ships its own pagination"],
+    alternatives: ["data-table"],
+  },
 });

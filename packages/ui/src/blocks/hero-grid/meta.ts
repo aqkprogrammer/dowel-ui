@@ -15,4 +15,8 @@ export const meta = defineMeta({
     "page outline. The hover grid is aria-hidden decoration made of plain elements, not buttons, " +
     "so it adds no tab stops. Calls to action are real links. The entrance and the hover fade run " +
     "on the motion scale and settle at rest under reduced motion.",
+  guidance: {
+    useWhen: ["a centred landing hero over a grid of squares that light up under the pointer"],
+    alternatives: ["hero-perspective-grid", "hero-minimal", "hero-product"],
+  },
 });
