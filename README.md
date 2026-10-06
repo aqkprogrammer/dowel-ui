@@ -306,7 +306,9 @@ npx @dowel-ui/cli add crm
 The key is checked against the registry the moment it is pasted, so a bad key
 fails then rather than during an install a week later. It is stored in your own
 config directory, never in the project; CI sets `DOWEL_TOKEN` from its secrets
-store instead. The registry lists every Pro item — title, description, what it
+store instead. The key is only ever sent over HTTPS to the registry it was
+issued for, so a repository whose `components.json` names some other server
+cannot collect it. The registry lists every Pro item — title, description, what it
 is built from — and serves the source only to a licence holder, so a Pro block
 still shows up in `list`, in the agent docs and in the MCP server, with what it
 is and how to get it.

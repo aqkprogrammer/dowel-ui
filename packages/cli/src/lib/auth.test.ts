@@ -11,13 +11,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { branding } from "../branding";
 import {
   authPath,
+  canCarryCredentials,
   clearToken,
   configDirectory,
+  credentialsFor,
   maskToken,
   readToken,
   TOKEN_ENV,
+  TOKEN_REGISTRY_ENV,
   writeToken,
 } from "./auth";
 import { CliError } from "./errors";
@@ -54,7 +58,11 @@ describe("readToken", () => {
     const env = scratchEnv();
     writeToken("licence-key", env);
 
-    expect(readToken(env)).toEqual({ token: "licence-key", source: "file" });
+    expect(readToken(env)).toEqual({
+      token: "licence-key",
+      source: "file",
+      registry: branding.registryUrl,
+    });
   });
 
   it("lets the environment win, because CI has no interactive login", () => {
@@ -62,7 +70,11 @@ describe("readToken", () => {
     writeToken("from-file", env);
     env[TOKEN_ENV] = "from-env";
 
-    expect(readToken(env)).toEqual({ token: "from-env", source: "env" });
+    expect(readToken(env)).toEqual({
+      token: "from-env",
+      source: "env",
+      registry: branding.registryUrl,
+    });
   });
 
   it("ignores an environment variable that is only whitespace", () => {
@@ -148,5 +160,66 @@ describe("maskToken", () => {
   it("never grows a long key into a hint about its length", () => {
     const long = "x".repeat(200);
     expect(maskToken(long).length).toBeLessThanOrEqual(16);
+  });
+});
+
+describe("canCarryCredentials", () => {
+  it("allows HTTPS, and plain HTTP only to this machine", () => {
+    expect(canCarryCredentials("https://registry.example/r")).toBe(true);
+    expect(canCarryCredentials("http://localhost:3333/r")).toBe(true);
+    expect(canCarryCredentials("http://127.0.0.1/r")).toBe(true);
+    expect(canCarryCredentials("http://registry.example/r")).toBe(false);
+    expect(canCarryCredentials("not a url")).toBe(false);
+  });
+});
+
+describe("credentialsFor", () => {
+  it("sends nothing when there is nothing to send", () => {
+    expect(credentialsFor(branding.registryUrl, scratchEnv())).toBeUndefined();
+  });
+
+  it("sends a stored key to the registry it was verified against", () => {
+    const env = scratchEnv();
+    writeToken("k", env, "https://acme.example/r");
+
+    expect(credentialsFor("https://acme.example/r", env)?.token).toBe("k");
+  });
+
+  it("treats a key stored before scoping as belonging to the default registry", () => {
+    const env = scratchEnv();
+    mkdirSync(join(env.XDG_CONFIG_HOME ?? "", "dowel"), { recursive: true });
+    writeFileSync(authPath(env), JSON.stringify({ token: "legacy" }));
+
+    expect(credentialsFor(branding.registryUrl, env)?.token).toBe("legacy");
+    expect(() => credentialsFor("https://elsewhere.example/r", env)).toThrow(CliError);
+  });
+
+  it("refuses to send a key to a registry a repository chose", () => {
+    // components.json is part of the repository. One that names its own
+    // server must not receive the key of whoever runs `add` in it.
+    const env = scratchEnv();
+    writeToken("k", env);
+
+    expect(() => credentialsFor("https://attacker.example/r", env)).toThrow(
+      /Not sending your licence key/,
+    );
+  });
+
+  it("refuses plain HTTP, even to the right host", () => {
+    const env = scratchEnv();
+    writeToken("k", env, "https://acme.example/r");
+
+    expect(() => credentialsFor("http://acme.example/r", env)).toThrow(/not an HTTPS address/);
+  });
+
+  it("scopes an environment key to the default registry unless told otherwise", () => {
+    const env: NodeJS.ProcessEnv = { ...scratchEnv(), [TOKEN_ENV]: "ci-key" };
+    expect(credentialsFor(branding.registryUrl, env)?.token).toBe("ci-key");
+    expect(() => credentialsFor("https://mirror.example/r", env)).toThrow(
+      expect.objectContaining({ hint: expect.stringContaining(TOKEN_REGISTRY_ENV) as string }),
+    );
+
+    env[TOKEN_REGISTRY_ENV] = "https://mirror.example/r";
+    expect(credentialsFor("https://mirror.example/r", env)?.token).toBe("ci-key");
   });
 });

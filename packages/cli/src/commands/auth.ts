@@ -1,9 +1,18 @@
 import * as prompts from "@clack/prompts";
 
 import { branding } from "../branding";
-import { authPath, clearToken, maskToken, readToken, TOKEN_ENV, writeToken } from "../lib/auth";
+import {
+  authPath,
+  canCarryCredentials,
+  clearToken,
+  maskToken,
+  readToken,
+  TOKEN_ENV,
+  writeToken,
+} from "../lib/auth";
 import { CliError } from "../lib/errors";
 import { logger, pc } from "../lib/logger";
+import { REQUEST_TIMEOUT_MS } from "../lib/registry-client";
 
 /**
  * Signing in, out, and asking who you are.
@@ -47,6 +56,13 @@ function licenseEndpoint(registry: string): string {
 export async function verify(registry: string, token: string): Promise<LicenseResponse> {
   const url = licenseEndpoint(registry);
 
+  if (!canCarryCredentials(url)) {
+    throw new CliError(
+      `Not sending a licence key to ${url}: it is not an HTTPS address.`,
+      "Use the registry's https:// URL.",
+    );
+  }
+
   let response: Response;
   try {
     response = await fetch(url, {
@@ -56,6 +72,7 @@ export async function verify(registry: string, token: string): Promise<LicenseRe
         "content-type": "application/json",
       },
       body: JSON.stringify({}),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch (cause) {
     throw new CliError(
@@ -119,7 +136,7 @@ export async function login(options: LoginOptions): Promise<void> {
     );
   }
 
-  const path = writeToken(token);
+  const path = writeToken(token, process.env, options.registry);
 
   logger.blank();
   logger.success(`Signed in${answer.plan ? ` on ${answer.plan}` : ""}.`);
@@ -151,7 +168,8 @@ export function logout(): void {
 }
 
 export interface WhoamiOptions {
-  registry: string;
+  /** Defaults to the registry the key belongs to. */
+  registry?: string;
   /** Ask the registry, rather than only reporting what is stored. */
   check: boolean;
 }
@@ -170,6 +188,7 @@ export async function whoami(options: WhoamiOptions): Promise<void> {
   const from = credentials.source === "env" ? `${TOKEN_ENV} (this shell)` : authPath();
   logger.success(`Signed in with ${maskToken(credentials.token)}`);
   logger.info(pc.dim(`  from ${from}`));
+  logger.info(pc.dim(`  for ${credentials.registry}`));
 
   if (!options.check) {
     logger.blank();
@@ -177,7 +196,7 @@ export async function whoami(options: WhoamiOptions): Promise<void> {
     return;
   }
 
-  const answer = await verify(options.registry, credentials.token);
+  const answer = await verify(options.registry ?? credentials.registry, credentials.token);
 
   logger.blank();
   if (!answer.valid) {

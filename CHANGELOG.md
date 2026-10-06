@@ -3,6 +3,45 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+Security hardening for the CLI. A source-first library is exactly as
+trustworthy as its installer, and the installer trusted its registry with the
+filesystem.
+
+### Security
+
+- **Registry file paths are confined to their directory.** A path such as
+  `ui/../../.bashrc` used to be written outside the project. The registry
+  schema now refuses absolute paths, `..`, `.` and empty segments,
+  backslashes, colons and NUL, and the CLI checks again where the path meets
+  the disk.
+- **`remove` only deletes what the CLI could have written.** It used to delete
+  any path `components.json` listed. It now refuses, deleting nothing, when an
+  entry names a file outside the directories components are installed into.
+  Alias directories outside the project, as in a monorepo, still work.
+- **The licence key goes only to the registry it was issued for, over HTTPS.**
+  The registry an install reads comes from `components.json`, so a cloned
+  repository could name its own server, mark an item as licensed, and collect
+  the key. `login` now records which registry it verified the key against, and
+  the CLI refuses to send the key anywhere else. Keys stored before this change
+  belong to the default registry. `DOWEL_TOKEN` belongs to the default registry
+  unless the new `DOWEL_TOKEN_REGISTRY` names another.
+- **Registry dependencies must be npm package names**, optionally with a
+  version range. A `git+https:` URL, a tarball or a local path is refused
+  instead of being handed to the package manager.
+- **Item names are validated** wherever they arrive from, including the
+  command line, before they become a URL or a file path.
+
+### Fixed
+
+- `remove theme --force` deleted the project's whole stylesheet, because
+  `init` records it under `theme`. The stylesheet is now never deleted.
+- `update` failed with ENOENT restoring a file whose directory had been
+  deleted.
+- Registry and licence requests time out after 30 seconds instead of waiting
+  indefinitely.
+
 ## 0.12.0
 
 Twenty-four animated components from Animate UI's patterns, 244 in all (up
