@@ -1,0 +1,24 @@
+{
+  "name": "@dowel-ui/browser-tests",
+  "version": "0.12.0",
+  "private": true,
+  "type": "module",
+  "description": "Every Storybook story in a real browser: axe with the colour-contrast and target-size rules jsdom cannot evaluate, and screenshot comparison for a curated subset. Runs against a static Storybook build.",
+  "scripts": {
+    "test:a11y": "playwright test --project=a11y",
+    "test:a11y:docker": "node scripts/in-container.ts test:a11y",
+    "a11y:baseline": "tsx scripts/update-baseline.ts",
+    "test:visual": "playwright test --project=visual --project=visual-mobile",
+    "test:visual:docker": "node scripts/in-container.ts test:visual",
+    "test:visual:update": "node scripts/in-container.ts test:visual --update-snapshots",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@dowel-ui/config": "workspace:*",
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.4.0",
+    "axe-core": "4.13.0",
+    "tsx": "4.23.13",
+    "typescript": "6.0.3"
+  }
+}

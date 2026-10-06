@@ -27,3 +27,6 @@ apps/docs/next-env.d.ts
 packages/screen-reader-tests/test-results/
 packages/screen-reader-tests/playwright-report/
 packages/screen-reader-tests/recordings/
+# Browser test output: reports, traces, failure diffs, per-run axe observations.
+packages/browser-tests/test-results/
+packages/browser-tests/playwright-report/

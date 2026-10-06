@@ -52,6 +52,28 @@ filesystem.
   `r/schema/registry-item.json` and `r/schema/registry-index.json`.
 - The MCP server has contract tests for every tool, and a README.
 
+### Continuous integration
+
+- **Every Storybook story is checked by axe in a real browser**, light and dark,
+  with the `color-contrast` and `target-size` rules the jsdom tests cannot
+  run (`packages/browser-tests`, ADR 18). It found 140 violations across 82
+  stories, recorded as 83 entries in `known-violations.json`, each with a
+  reason — 70 of them "to fix". The suite fails on anything new and on any
+  entry that no longer occurs, so the list can only shrink. The largest group
+  is status text on its own 10% tint (4.1–4.5:1), a pair the palette audit
+  never checked.
+- **Visual regression** for 42 curated stories — forms, open overlays, data,
+  feedback, AI and five blocks — in light and dark, LTR and RTL, compared
+  pixel-for-pixel inside the pinned Playwright container (188 images). It
+  found the calendar's month navigation anchored to the wrong ancestor.
+- Storybook has a **Direction** toolbar global that sets `dir` and wraps the
+  story in `DirectionProvider`, so RTL previews mirror the primitives too.
+- **Coverage thresholds are enforced** in CI (measured: 97.3% statements,
+  93.4% branches, against floors of 85% and 80%).
+- **Every free item is installed into a fresh app on every pull request**
+  (`scripts/smoke/install-all.mjs`): scaffold, `init`, `add` all of them,
+  `tsc --noEmit`, `next build` — the release check that used to be manual.
+
 ### Security
 
 - **Registry file paths are confined to their directory.** A path such as

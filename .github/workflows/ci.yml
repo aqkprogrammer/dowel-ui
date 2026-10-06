@@ -49,8 +49,15 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # Every package but the components through turbo; the components once,
+      # with coverage, so the thresholds in packages/ui/vitest.config.ts are a
+      # gate rather than a comment. Running them twice would double the
+      # longest suite for nothing.
       - name: Test
-        run: pnpm test
+        run: pnpm turbo run test --filter=!@dowel-ui/react
+
+      - name: Test the components, with coverage thresholds
+        run: pnpm --filter @dowel-ui/react test:coverage
 
       - name: Test the audit scripts
         run: pnpm test:scripts
@@ -116,6 +123,33 @@ jobs:
           package-manager-cache: false
       - name: Run them
         run: node scripts/smoke/binaries.mjs
+
+  # The release check RELEASING.md used to ask for by hand: every free item,
+  # installed by the local CLI from the local registry into a fresh app, then
+  # `tsc` and `next build`. On every pull request rather than only on main:
+  # it took 9 minutes locally (2 of them npm), it runs alongside `verify`
+  # rather than after it, so it adds no wall-clock time, and it is the check
+  # that has caught the most bugs nothing else saw.
+  install-all:
+    name: Install every item into a fresh app
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build the scaffolder, the CLI and the registry
+        run: >-
+          pnpm turbo run build --filter=@dowel-ui/cli --filter=create-dowel-app
+          --filter=@dowel-ui/registry
+      - name: Install everything and build the app
+        run: node scripts/smoke/install-all.mjs
 
   branding:
     name: Branding placeholder report

@@ -270,7 +270,8 @@ See ADR 16 for the decisions.
    physical utilities and asks first.
 4. ✅ **The verification standard** is written down in ADR 16: the ten
    per-component checks the genome carries, plus the repository-wide audits.
-   A third-party "Verified" mark waits for phase 6's browser checks.
+   A third-party "Verified" mark waits for phase 6's browser checks, which
+   now exist (ADR 18) but still carry a baseline of known violations.
 
 _Value:_ doctor and audit are what make Dowel useful _after_ install, which is
 where retention is decided. Audit is also the first feature a team lead, rather
@@ -335,15 +336,41 @@ as a regression test for the agent files.
 
 ### Phase 6 — Visual and browser CI
 
-1. Playwright over the Storybook stories already written (295 of them): a
-   pinned browser in a container, fonts bundled, animations disabled via
-   `--motion-scale: 0`, light and dark, LTR and RTL, two viewports.
-2. Run axe in the real browser too, enabling the `color-contrast` and
-   `target-size` rules jsdom cannot evaluate.
-3. Enforce the coverage thresholds that are already configured.
-4. A real install check in CI: create an app, install every free item, run
-   `tsc` and `next build`. It is manual today (RELEASING.md); it is the check
-   that has caught the most real bugs.
+See ADR 18. Everything below is in CI (`.github/workflows/browser.yml` and
+`ci.yml`); what has and has not been run is stated per item.
+
+1. ✅ **Visual regression** — `toHaveScreenshot` for a curated 42 stories rather
+   than all 295 files (1,346 stories): foundations, forms, seven overlays open,
+   data, feedback, AI and five blocks; light and dark, LTR and RTL, 1280 px,
+   and the blocks again at 390 px — 188 images. Generated and compared only in
+   the Playwright image matching `@playwright/test`, forced to `linux/amd64`;
+   reduced motion, `--motion-scale: 0`, a fixed clock, a seeded
+   `Math.random`, no external network, zero pixel tolerance. The system font
+   stack resolves to the container's fonts, so "fonts bundled" means the
+   image's fonts, pinned with it. RTL needed a `direction` toolbar global that
+   also wraps the story in `DirectionProvider`. The 188 baselines were written in that
+   container (emulated x86-64 on Apple silicon) and a second run matched all
+   188 with zero differing pixels; they have not yet been compared on a
+   GitHub runner. The `Browser` workflow's manual dispatch rewrites them there
+   if the first CI run disagrees.
+2. ✅ **axe in the real browser** over every story, light and dark, with
+   `color-contrast` and `target-size` on. 140 violations on 82 stories, each
+   in `known-violations.json` with a reason (70 "to fix"); the suite fails on
+   anything new and on any entry that stops occurring, so the list only
+   shrinks. macOS and the container found the identical 140.
+3. ✅ **Coverage thresholds enforced.** CI runs the component suite once, with
+   coverage. Measured: statements 97.3%, branches 93.4%, functions 97.5%,
+   lines 98.7%, against floors of 85/80/85/85.
+4. ✅ **Install check in CI** (`scripts/smoke/install-all.mjs`): the local
+   scaffolder, CLI and registry put all 291 free items into a fresh Next.js
+   app, then `tsc --noEmit` and `next build`, with a page importing all 354
+   installed modules so every one is compiled. Passed locally in 9 minutes;
+   runs on every pull request, alongside `verify`.
+
+Found on the way, not fixed here (component work): status text on its own
+10% tint fails 4.5:1 across every soft status badge; `FormControl` wrapping a
+`Select` labels nothing; the calendar's month navigation is positioned
+against the nearest positioned ancestor rather than the calendar. See ADR 18.
 
 ### Phase 7 — Enterprise foundations
 
