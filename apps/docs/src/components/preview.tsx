@@ -3,12 +3,13 @@
 import { cn } from "@dowel-ui/react";
 import { Code2, Eye, Layers, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState, ViewTransition, type ReactNode } from "react";
+import { Suspense, useRef, useState, ViewTransition, type ReactNode } from "react";
 
 import type { ProPreviewStory } from "~/lib/pro-previews.generated";
 
 import { PartsOverlay, partColour, useParts, type PartSpec } from "./parts-overlay";
 import { CodePanel } from "./site/code-panel";
+import { CosmicLoader } from "./site/cosmic-loader";
 import { FilterChips } from "./site/filter-chips";
 import { StoryPreview, getStoryNames } from "./story-preview";
 
@@ -286,7 +287,13 @@ export function Preview({
                   (still ? (
                     <Still html={still.html} label={prerenderedLabel ?? component} />
                   ) : (
-                    <StoryPreview component={component} story={story} />
+                    // Seen only after a client-side navigation: a page loaded
+                    // directly arrives with the story already rendered. The
+                    // stage's minimum height is what keeps the page from
+                    // moving, so the loader needs no size of its own.
+                    <Suspense fallback={<CosmicLoader size="sm" label="Loading the example" />}>
+                      <StoryPreview component={component} story={story} />
+                    </Suspense>
                   ))}
                 {showingParts ? <PartsOverlay parts={found} specs={specs} focus={lit} /> : null}
               </div>

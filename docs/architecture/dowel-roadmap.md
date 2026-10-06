@@ -106,14 +106,24 @@ is exactly as trustworthy as its installer.
 block page and the playground downloads every story (≈600 kB gzipped). This is
 the same failure ADR 13 fixed for the Pro previews, on the free side.
 
-### 4. The hero keeps rendering when nobody can see it
+### 4. The hero keeps rendering when nobody can see it — checked, not changed
 
 `FrameCoordinator.setActive` is documented as false while the tab is hidden but
 is only set false on unmount, and the scheduler falls back to a 33 ms timer when
-`requestAnimationFrame` stalls — so a background tab keeps ticking. The scene is
-also set active on every measure, so on tier 2+ devices it renders under the
-opaque veil below the hero. (Read from source; confirm in a browser before
-fixing.)
+`requestAnimationFrame` stalls. Reading it closely changes the conclusion:
+
+- In a hidden tab, rAF stops, the 250 ms watchdog hands over to the timer, and
+  browsers throttle background timers to about once a second (Chrome: once a
+  minute after five minutes hidden). The cost is roughly a frame a second, not
+  an animation running at full rate.
+- The timer fallback exists for webviews that report the document hidden while
+  still painting it. Pausing on `document.hidden` would freeze the hero in
+  exactly those hosts, which is the bug the fallback was written to fix.
+- Rendering below the hero is deliberate: the field is the site's background,
+  and it lifts through the veil where cues form.
+
+So the trade is a known visible bug for a negligible saving, and it is not
+made. The doc comment on `setActive` now says what it actually does.
 
 ### 5. Smaller debt
 
@@ -185,11 +195,19 @@ The installer and the site have to be sound before anything is built on them.
 5. **Preview code-splitting.** Generate one lazy import per story so a page
    loads only its own previews; add a build check that fails if any single
    client chunk exceeds a budget.
-6. **Hero visibility.** Pause on `visibilitychange` and when scrolled out of
-   view; verify with a performance trace.
+6. ✅ **Hero visibility** — investigated and deliberately left alone; see
+   finding 4.
 7. **MCP contract tests** for every tool, against a fixture registry.
-8. **Release hygiene.** Resolve the changesets contradiction, add npm
-   provenance to the documented publish, add Dependabot.
+8. ✅ **Release hygiene.** `CONTRIBUTING.md` and the PR template now ask for a
+   `CHANGELOG.md` entry instead of a changeset, matching `RELEASING.md`.
+   Dependabot (with a 7-day cooldown, the same reasoning as pnpm's
+   `minimumReleaseAge`) and CodeQL are added. A CI matrix runs the built CLI,
+   MCP server and scaffolder on Node 20 and 22, because `engines` promised 20
+   and nothing ran there. The floor is now stated accurately as 20.12, which
+   `@clack/prompts` requires, and the root scripts are type-checked. npm
+   provenance needs publishing from CI with trusted publishing configured on
+   npmjs.com; the release is deliberately manual today, so that is left as a
+   decision rather than a dormant workflow.
 
 _Value:_ trust is the adoption bottleneck for any tool that writes into
 someone's repository. Phase 1 items 1–3 are prerequisites for an enterprise

@@ -4,6 +4,7 @@ import {
   componentsDoc,
   conventionsDoc,
   planUi,
+  registryItemNameSchema,
   renderBrief,
   renderPlan,
   themesDoc,
@@ -35,6 +36,17 @@ function text(value: string) {
   return { content: [{ type: "text" as const, text: value }] };
 }
 
+/**
+ * A result the agent should treat as a failed call.
+ *
+ * Still text the model reads — the suggestions in it are the useful part — but
+ * flagged, so a client can tell "here is the answer" from "that name is wrong"
+ * without parsing prose.
+ */
+function failure(value: string) {
+  return { ...text(value), isError: true };
+}
+
 function docsContext(options: ServerOptions, index: RegistryIndex): AgentDocsContext {
   return {
     index,
@@ -48,8 +60,23 @@ function docsContext(options: ServerOptions, index: RegistryIndex): AgentDocsCon
 
 function summarise(entry: RegistryIndexEntry): string {
   const kind = entry.type === "registry:block" ? "block" : "component";
-  const status = entry.status === "stable" ? "" : ` (${entry.status})`;
-  return `${entry.name} — ${kind}, ${entry.category}${status}\n  ${entry.description}`;
+  // Pro is marked where the item is first seen, so an agent choosing between
+  // two candidates knows one of them needs a licence before it commits to it.
+  const notes = [
+    ...(entry.status === "stable" ? [] : [entry.status]),
+    ...(entry.access === "pro" ? ["Pro"] : []),
+  ];
+  const suffix = notes.length > 0 ? ` (${notes.join(", ")})` : "";
+  return `${entry.name} — ${kind}, ${entry.category}${suffix}\n  ${entry.description}`;
+}
+
+/** The licence condition for one or more Pro items, worded the same everywhere. */
+function licenceNote(entries: RegistryIndexEntry[], cliPackage: string): string {
+  return (
+    `**Requires a licence:** ${entries.map((entry) => entry.name).join(", ")} ` +
+    `${entries.length === 1 ? "is a Pro item" : "are Pro items"}. ` +
+    `Sign in once with \`npx ${cliPackage} login\`, or set DOWEL_TOKEN in CI, before installing.`
+  );
 }
 
 /**
@@ -125,6 +152,48 @@ function score(entry: RegistryIndexEntry, query: string): number {
   if (entry.category.toLowerCase() === needle) return 15;
   if (entry.description.toLowerCase().includes(needle)) return 10;
   return 0;
+}
+
+/**
+ * What to offer for a name the index does not have.
+ *
+ * Substring matches first, because "table" asked for as a component name most
+ * likely means one of the tables; edit distance only when nothing contains it,
+ * which is the typo case. An empty name matches everything by substring, so it
+ * gets nothing rather than five arbitrary items.
+ */
+function suggestionsFor(index: RegistryIndex, name: string): string[] {
+  if (name.trim().length === 0) return [];
+
+  const substring = index.items
+    .map((item) => ({ item, rank: score(item, name) }))
+    .filter(({ rank }) => rank > 0)
+    .sort((a, b) => b.rank - a.rank)
+    .slice(0, 5)
+    .map(({ item }) => item.name);
+
+  return substring.length > 0
+    ? substring
+    : nearest(
+        index.items.map((item) => item.name),
+        name,
+      );
+}
+
+/**
+ * One line about one unknown name.
+ *
+ * Says when the name could never have matched — "Button", "data table" — since
+ * the fix there is the spelling rules, not a different component.
+ */
+function describeUnknown(index: RegistryIndex, name: string): string {
+  const near = suggestionsFor(index, name);
+  const malformed = !registryItemNameSchema.safeParse(name).success;
+  return (
+    `"${name}"` +
+    (malformed ? " is not a valid registry name (lowercase letters, digits and hyphens)" : "") +
+    (near.length > 0 ? ` — did you mean: ${near.join(", ")}?` : " — nothing similar exists.")
+  );
 }
 
 export function createServer(options: ServerOptions): McpServer {
@@ -226,24 +295,16 @@ export function createServer(options: ServerOptions): McpServer {
       const index = await registry.index();
       const entry = index.items.find((item) => item.name === name);
 
+      // The index is the only list of what exists, so a name is looked up there
+      // before anything is fetched: a miss costs no request, and a name that is
+      // not in the index never becomes a path.
       if (!entry) {
-        const substring = index.items
-          .map((item) => ({ item, rank: score(item, name) }))
-          .filter(({ rank }) => rank > 0)
-          .sort((a, b) => b.rank - a.rank)
-          .slice(0, 5)
-          .map(({ item }) => item.name);
+        const near = suggestionsFor(index, name);
+        const malformed = !registryItemNameSchema.safeParse(name).success;
 
-        const near =
-          substring.length > 0
-            ? substring
-            : nearest(
-                index.items.map((item) => item.name),
-                name,
-              );
-
-        return text(
+        return failure(
           `No component named "${name}".` +
+            (malformed ? " Registry names are lowercase letters, digits and hyphens." : "") +
             (near.length > 0 ? ` Did you mean: ${near.join(", ")}?` : "") +
             ` Call search_components to see what exists — do not assume it does.`,
         );
@@ -355,37 +416,64 @@ export function createServer(options: ServerOptions): McpServer {
         names: z.array(z.string()).min(1).describe("Registry names to install"),
       },
     },
-    async ({ names }) => {
-      let resolved;
-      try {
-        resolved = await registry.resolve(names);
-      } catch (error) {
-        return text(
-          `${error instanceof Error ? error.message : String(error)}\n\n` +
-            "Call search_components to check the name.",
+    async ({ names: requested }) => {
+      const index = await registry.index();
+      const names = [...new Set(requested)];
+
+      // Every name is checked against the index before anything is resolved,
+      // and every miss is reported at once. Stopping at the first leaves an
+      // agent that asked for three wrong names fixing them one round trip at a
+      // time — and the old behaviour, a file lookup per name, turned a bad name
+      // into "Not found: <name>.json", which says nothing about what to do.
+      const known = new Set(index.items.map((entry) => entry.name));
+      const unknown = names.filter((name) => !known.has(name));
+      if (unknown.length > 0) {
+        return failure(
+          [
+            `Not in the registry: ${unknown.map((name) => `"${name}"`).join(", ")}.`,
+            "",
+            ...unknown.map((name) => `- ${describeUnknown(index, name)}`),
+            "",
+            "No command was produced: installing a name the registry does not have fails. " +
+              "Call search_components to check the names.",
+          ].join("\n"),
         );
       }
 
-      const extra = resolved.filter((item) => !names.includes(item.name));
-      const npm = [...new Set(resolved.flatMap((item) => item.dependencies))];
+      const resolved = await registry.resolve(names);
+      const extra = resolved.filter((entry) => !names.includes(entry.name));
+      const npm = [...new Set(resolved.flatMap((entry) => entry.dependencies))];
+      const licensed = resolved.filter((entry) => entry.access === "pro");
 
-      return text(
-        [
-          `\`\`\`bash`,
-          `npx ${options.cliPackage} add ${names.join(" ")}`,
-          `\`\`\``,
+      const lines = [
+        "```bash",
+        `npx ${options.cliPackage} add ${names.join(" ")}`,
+        "```",
+        "",
+        `Writes ${String(resolved.length)} registry item(s): ${resolved.map((entry) => entry.name).join(", ")}.`,
+        extra.length > 0
+          ? `${String(extra.length)} of those are dependencies pulled in automatically: ${extra.map((entry) => entry.name).join(", ")}.`
+          : "Nothing extra is pulled in.",
+      ];
+      if (npm.length > 0) lines.push(`npm packages installed alongside: ${npm.join(", ")}.`);
+
+      // A licensed item still gets its command — it exists, and this is how it
+      // is installed — but with the condition stated up front, so the first the
+      // user hears of the licence is not an error from the CLI.
+      if (licensed.length > 0) {
+        lines.push(
           "",
-          `Writes ${String(resolved.length)} registry item(s): ${resolved.map((item) => item.name).join(", ")}.`,
-          extra.length > 0
-            ? `${String(extra.length)} of those are dependencies pulled in automatically: ${extra.map((item) => item.name).join(", ")}.`
-            : "Nothing extra is pulled in.",
-          npm.length > 0 ? `npm packages installed alongside: ${npm.join(", ")}.` : "",
-          "",
-          "Safe to re-run. A file the user has edited is never overwritten without `--overwrite`.",
-        ]
-          .filter(Boolean)
-          .join("\n"),
+          `${licenceNote(licensed, options.cliPackage)} ` +
+            "The source is served only to a licence holder.",
+        );
+      }
+
+      lines.push(
+        "",
+        "Safe to re-run. A file the user has edited is never overwritten without `--overwrite`.",
       );
+
+      return text(lines.join("\n"));
     },
   );
 
@@ -449,6 +537,20 @@ export function createServer(options: ServerOptions): McpServer {
           "```tsx",
           renderPlan(plan, { importFrom: options.importFrom, docsUrl: options.docsUrl }).trim(),
           "```",
+        );
+      }
+
+      // The plan resolves against the whole index, Pro blocks included — "a CRM"
+      // plans `crm`. Its install line does not know about licences, so the
+      // condition is stated here rather than discovered when the CLI refuses.
+      const licensed = [...plan.blocks, ...plan.components]
+        .map((item) => item.entry)
+        .filter((entry) => entry.access === "pro");
+      if (licensed.length > 0) {
+        parts.push(
+          "",
+          `${licenceNote(licensed, options.cliPackage)} ` +
+            "get_component describes a Pro item but cannot show its source.",
         );
       }
 
