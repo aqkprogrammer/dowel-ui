@@ -1,0 +1,19 @@
+{
+  "id": "admin-users",
+  "title": "Admin users table with bulk actions",
+  "prompt": "Create an admin page at /admin/users that lists users with their role and status, where an admin can select several users at once and either deactivate them or change their role in one go.",
+  "route": "src/app/admin/users/page.tsx",
+  "install": [
+    "data-table",
+    "table",
+    "checkbox",
+    "dropdown-menu",
+    "select",
+    "button",
+    "badge",
+    "avatar",
+    "alert-dialog",
+    "dialog"
+  ],
+  "expect": ["data-table", "button"]
+}

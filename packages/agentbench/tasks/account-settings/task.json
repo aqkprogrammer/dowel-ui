@@ -1,0 +1,19 @@
+{
+  "id": "account-settings",
+  "title": "Account settings",
+  "prompt": "Build an account settings page at /settings where people can change their display name and email address, choose which emails they get (product updates, security alerts, weekly summary), and save their changes.",
+  "route": "src/app/settings/page.tsx",
+  "install": [
+    "button",
+    "card",
+    "input",
+    "label",
+    "switch",
+    "checkbox",
+    "tabs",
+    "separator",
+    "avatar",
+    "form"
+  ],
+  "expect": ["input", "label", "button"]
+}

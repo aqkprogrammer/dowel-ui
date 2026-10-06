@@ -1,0 +1,17 @@
+{
+  "id": "ai-chat",
+  "title": "AI chat",
+  "prompt": "Add an AI assistant chat page at /assistant where people type a question, see the reply appear as it streams in, and can stop a reply that is still being generated. Fake the model's replies for now.",
+  "route": "src/app/assistant/page.tsx",
+  "install": [
+    "ai-conversation",
+    "ai-message",
+    "ai-prompt-input",
+    "ai-response",
+    "button",
+    "card",
+    "textarea",
+    "empty-state"
+  ],
+  "expect": ["ai-conversation", "ai-message", "ai-prompt-input"]
+}
