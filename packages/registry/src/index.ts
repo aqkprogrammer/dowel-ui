@@ -46,6 +46,16 @@ export {
 } from "./categories";
 export { hashContent } from "./hash";
 export {
+  AUDIT_RULES,
+  auditSource,
+  findPhysicalProperties,
+  fixPhysicalProperties,
+  type AuditContext,
+  type AuditFinding,
+  type AuditRuleId,
+  type PhysicalProperty,
+} from "./rules";
+export {
   isSafeRegistryPath,
   npmDependencySchema,
   REGISTRY_VERSION,

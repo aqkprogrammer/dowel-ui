@@ -226,6 +226,9 @@ rewrites imports to your project's own path alias.
 | `add <names…>` | Installs components and everything they depend on                  |
 | `list`         | Shows the registry, marking what you already have                  |
 | `update`       | Compares installed components against the registry                 |
+| `diff`         | Shows how installed files differ from the registry's               |
+| `doctor`       | Checks the setup, installed components and agent docs              |
+| `audit`        | Finds hardcoded colours, off-scale sizes and bypassed components   |
 | `agents`       | Writes the catalogue for the coding agents in this project         |
 | `login`        | Stores a licence key, for components that need one                 |
 | `whoami`       | Reports whether this machine is signed in                          |
@@ -239,6 +242,18 @@ it already matches; a file you _have_ edited is never overwritten without
 `--overwrite`, which is the whole point of owning the source. This works because
 `add` records a hash of what it wrote, so `update` can tell your changes apart
 from upstream ones.
+
+**`doctor` and `audit` are for after the install.** `doctor` checks the
+project: Tailwind 4 and the alias, the tokens in the stylesheet, every installed
+file still present, the npm packages they import, updates available, and
+whether the agent docs are stale. It prints a checklist rather than a score,
+and exits non-zero only on a failure. `audit` reads the project's own code for
+the ways a design system erodes: Tailwind palette colours and literal colours
+in classes or inline styles, arbitrary sizes off the spacing scale, physical
+`ml-`/`text-left` utilities that break right-to-left, and native `<button>`,
+`<input>` or `<dialog>` elements where the Dowel component is installed. It
+skips the files Dowel wrote, uses the same rules as the library's own audits,
+and `--fix` rewrites only the findings with one exact fix, after asking.
 
 The CLI refuses, loudly, to install into a project it cannot support correctly:
 Tailwind v3 (the tokens use `@theme`), a JavaScript project (the published
