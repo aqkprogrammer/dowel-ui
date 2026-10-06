@@ -9,6 +9,30 @@ Security hardening for the CLI. A source-first library is exactly as
 trustworthy as its installer, and the installer trusted its registry with the
 filesystem.
 
+### Added
+
+- **`dowel doctor`** checks a project's setup and prints a checklist: the
+  project shape, the import alias against `tsconfig.json`, the tokens in the
+  stylesheet, installed files present, npm packages and component dependencies
+  installed, a licence for any Pro item, updates available, and stale agent
+  docs. It is a checklist, not a score, and it writes nothing.
+- **`dowel diff [names…]`** shows how installed files differ from the
+  registry's current ones, as a unified diff.
+- **`dowel audit [paths…]`** finds Tailwind palette colours, literal colours in
+  classes and inline styles, arbitrary sizes off the scale, physical direction
+  utilities, and native elements where the Dowel component is installed. It
+  skips the files Dowel wrote. `--fix` rewrites the physical utilities, the
+  only findings with one exact fix, after asking. `--json` is for CI.
+- **The component genome.** Every registry item now carries `capabilities`
+  (whether it needs a client boundary, whether it animates), `props` read from
+  its type, and the `quality` checks from `/quality`. Items may also declare
+  `guidance` (when to use it, when not, what it is confused with) and
+  `composesWith`. All optional: older registries parse, and older CLIs ignore
+  the new fields.
+- The registry now publishes the JSON Schemas its `$schema` fields pointed at:
+  `r/schema/registry-item.json` and `r/schema/registry-index.json`.
+- The MCP server has contract tests for every tool, and a README.
+
 ### Security
 
 - **Registry file paths are confined to their directory.** A path such as
@@ -41,6 +65,15 @@ filesystem.
   deleted.
 - Registry and licence requests time out after 30 seconds instead of waiting
   indefinitely.
+- The MCP server's `install_command` said a Pro item was "not found"; it now
+  resolves it from the index and says it needs a licence. Unknown names are
+  all reported together, with suggestions, and a name like `../package` is
+  refused rather than read from outside the registry.
+- `audit:rtl` skipped a physical utility whenever a class such as `bg-muted`
+  sat within a dozen characters before it. No component had such a bug hiding;
+  the check is now exact.
+- The CLI and scaffolder state Node 20.12 as their floor, which their prompts
+  library requires, and CI runs the built binaries on Node 20 and 22.
 
 ## 0.12.0
 

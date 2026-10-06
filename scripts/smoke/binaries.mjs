@@ -173,6 +173,15 @@ try {
     }
   });
 
+  await check("cli: doctor and audit run", () => {
+    run(cli, ["--registry", registry, "doctor", "--offline", "--json"], project);
+    writeFileSync(
+      join(project, "src", "page.tsx"),
+      'export const P = () => <p className="ms-2" />;\n',
+    );
+    run(cli, ["audit", "--json"], project);
+  });
+
   await check("create-dowel-app: --help", () => run(scaffolder, ["--help"], project));
 
   await check("mcp: answers tools/list", async () => {

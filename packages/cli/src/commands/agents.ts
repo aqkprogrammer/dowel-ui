@@ -11,6 +11,7 @@ import {
   themesDoc,
   upsertAgentsSection,
   type AgentDocsContext,
+  type RegistryIndex,
 } from "@dowel-ui/registry";
 
 import { branding } from "../branding";
@@ -45,12 +46,26 @@ interface Output {
  * do, which is the exact failure this command exists to prevent — so the docs
  * are regenerated rather than edited, and say so at the top of each file.
  */
-export async function agents(options: AgentsOptions): Promise<void> {
-  const { cwd } = options;
+/** One agent documentation file: where it goes, what is there, what should be. */
+export interface AgentDoc {
+  path: string;
+  existing: string | undefined;
+  next: string;
+}
 
+/**
+ * Renders the agent documentation for a project without writing anything.
+ *
+ * Shared by `agents`, which writes what differs, and `doctor`, which only
+ * reports it.
+ */
+export function renderAgentDocs(
+  cwd: string,
+  index: RegistryIndex,
+  registry: string,
+  targets: ReadonlySet<string> = new Set(AGENT_TARGETS),
+): AgentDoc[] {
   const config = configExists(cwd) ? readConfig(cwd) : undefined;
-  const registry = options.registry ?? config?.registry ?? branding.registryUrl;
-  const index = await fetchIndex(registry);
 
   /**
    * Source-first installs import from the project's own alias; a project
@@ -69,19 +84,6 @@ export async function agents(options: AgentsOptions): Promise<void> {
     installed: config ? Object.keys(config.installed) : undefined,
     importFrom,
   };
-
-  const targets = new Set<string>(
-    options.targets.length > 0 ? options.targets : [...AGENT_TARGETS],
-  );
-
-  for (const target of targets) {
-    if (!(AGENT_TARGETS as readonly string[]).includes(target)) {
-      throw new CliError(
-        `Unknown target "${target}".`,
-        `Choose from: ${AGENT_TARGETS.join(", ")}.`,
-      );
-    }
-  }
 
   const outputs: Output[] = [];
 
@@ -117,24 +119,59 @@ export async function agents(options: AgentsOptions): Promise<void> {
     });
   }
 
+  return outputs.map((output) => {
+    const absolute = join(cwd, output.path);
+    const existing = existsSync(absolute) ? readFileSync(absolute, "utf8") : undefined;
+    return { path: output.path, existing, next: output.render(existing) };
+  });
+}
+
+/**
+ * Writes documentation for the coding agents working in this project.
+ *
+ * The catalogue is generated from the registry the project actually installs
+ * from, not from a list maintained by hand. An agent working off a stale
+ * catalogue invents components that do not exist and re-implements ones that
+ * do, which is the exact failure this command exists to prevent — so the docs
+ * are regenerated rather than edited, and say so at the top of each file.
+ */
+export async function agents(options: AgentsOptions): Promise<void> {
+  const { cwd } = options;
+
+  const config = configExists(cwd) ? readConfig(cwd) : undefined;
+  const registry = options.registry ?? config?.registry ?? branding.registryUrl;
+  const index = await fetchIndex(registry);
+
+  const targets = new Set<string>(
+    options.targets.length > 0 ? options.targets : [...AGENT_TARGETS],
+  );
+
+  for (const target of targets) {
+    if (!(AGENT_TARGETS as readonly string[]).includes(target)) {
+      throw new CliError(
+        `Unknown target "${target}".`,
+        `Choose from: ${AGENT_TARGETS.join(", ")}.`,
+      );
+    }
+  }
+
+  const docs = renderAgentDocs(cwd, index, registry, targets);
+
   const changed: string[] = [];
   const unchanged: string[] = [];
 
-  for (const output of outputs) {
-    const absolute = join(cwd, output.path);
-    const existing = existsSync(absolute) ? readFileSync(absolute, "utf8") : undefined;
-    const next = output.render(existing);
-
-    if (existing === next) {
-      unchanged.push(output.path);
+  for (const doc of docs) {
+    if (doc.existing === doc.next) {
+      unchanged.push(doc.path);
       continue;
     }
 
-    changed.push(output.path);
+    changed.push(doc.path);
     if (options.check) continue;
 
+    const absolute = join(cwd, doc.path);
     mkdirSync(dirname(absolute), { recursive: true });
-    writeFileSync(absolute, next);
+    writeFileSync(absolute, doc.next);
   }
 
   logger.blank();

@@ -12,21 +12,15 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { LITERAL_COLOUR, PALETTE_CLASS } from "../../packages/registry/src/rules";
+
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const uiSrc = join(repoRoot, "packages", "ui", "src");
 
-/** Tailwind utilities that take a colour. */
-const COLOUR_UTILITIES =
-  "bg|text|border|ring|fill|stroke|from|via|to|outline|divide|decoration|shadow|accent|caret|placeholder";
-
-/** Raw scales are Tier 1 — components must go through the semantic layer. */
-const RAW_SCALE = new RegExp(
-  `\\b(?:${COLOUR_UTILITIES})-(neutral|red|green|amber|blue|slate|gray|grey|zinc|stone|orange|yellow|lime|emerald|teal|cyan|sky|indigo|violet|purple|fuchsia|pink|rose)-\\d{2,3}\\b`,
-  "g",
-);
-
-/** A literal colour anywhere in a component is a theme that cannot move. */
-const LITERAL_COLOUR = /(#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|\boklch\()/g;
+// Shared with `dowel audit`. Component source is held to the strict form —
+// any literal colour at all — where a project is only told about literals in
+// classes and inline styles, because a component has no business owning one.
+const RAW_SCALE = PALETTE_CLASS;
 
 interface Finding {
   file: string;
