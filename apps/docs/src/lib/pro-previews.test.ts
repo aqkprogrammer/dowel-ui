@@ -46,8 +46,8 @@ describe("the preview paywall", () => {
   it("imports no licensed block into the client preview map", () => {
     // previews.generated.ts is imported by story-preview.tsx, a client
     // component. Every module named in it is compiled into a chunk the browser
-    // downloads, whatever the page then decides to render — so a name here is
-    // published source, not a rendering detail.
+    // can download, whatever the page then decides to render — loaded on
+    // demand or not, a name here is published source, not a rendering detail.
     const previews = generated("previews.generated.ts");
 
     for (const name of licensedNames) {

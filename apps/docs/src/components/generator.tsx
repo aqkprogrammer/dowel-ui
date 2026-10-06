@@ -21,16 +21,12 @@ import {
   Lock,
   Sparkles,
 } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useId, useMemo, useState } from "react";
 
 import { LiveStage } from "./live-stage";
 import { CodePanel } from "./site/code-panel";
-
-const StoryPreview = dynamic(() => import("./story-preview").then((mod) => mod.StoryPreview), {
-  ssr: false,
-});
+import { StoryPreview } from "./story-preview";
 
 const EXAMPLES = [
   "an AI customer support dashboard with a ticket table and an assistant",

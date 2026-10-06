@@ -3,7 +3,6 @@
 import { cn } from "@dowel-ui/react";
 import { CopyButton } from "@dowel-ui/react/copy-button";
 import { ArrowUpRight } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ViewTransition, type CSSProperties, type PointerEvent } from "react";
 
@@ -12,15 +11,7 @@ import { branding } from "~/lib/branding";
 
 import { usePackageRunner } from "../install-command";
 import { LiveStage } from "../live-stage";
-
-/**
- * Every story in the library is one chunk, loaded after the page is
- * interactive. The card itself is server-rendered, so the link and the text
- * are there for anyone — and anything — that never runs this.
- */
-const StoryPreview = dynamic(() => import("../story-preview").then((mod) => mod.StoryPreview), {
-  ssr: false,
-});
+import { StoryPreview } from "../story-preview";
 
 export interface CardItem {
   name: string;
