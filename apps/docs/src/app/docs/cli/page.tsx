@@ -38,6 +38,10 @@ const COMMANDS = [
     what: "Compares installed components against the registry.",
   },
   {
+    command: "plan <prompt>",
+    what: "Chooses the blocks and components for a screen you describe; --model asks Claude.",
+  },
+  {
     command: "diff [names…]",
     what: "Shows how installed files differ from the registry's current ones.",
   },

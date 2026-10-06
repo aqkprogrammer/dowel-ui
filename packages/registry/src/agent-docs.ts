@@ -148,6 +148,25 @@ individual primitives when \`add dashboard\` exists is wasted work.
 `;
 }
 
+/**
+ * When to use an item and when not to, indented under its entry.
+ *
+ * The part of the catalogue that stops an agent reaching for the right family
+ * and the wrong member — a Dialog for a destructive confirmation, a Select for
+ * two hundred options — which a one-line description does not.
+ */
+function guidanceLines(entry: RegistryIndexEntry): string[] {
+  const guidance = entry.guidance;
+  if (!guidance) return [];
+  const lines = [`  - Use for: ${guidance.useWhen.join("; ")}`];
+  if (guidance.avoidWhen.length > 0)
+    lines.push(`  - Not for: ${guidance.avoidWhen.join("; ")}`);
+  if (entry.composesWith && entry.composesWith.length > 0) {
+    lines.push(`  - Often with: ${entry.composesWith.join(", ")}`);
+  }
+  return lines;
+}
+
 export function componentsDoc(context: AgentDocsContext): string {
   const { index, libraryName, cliPackage, installed } = context;
   const have = new Set(installed ?? []);
@@ -179,6 +198,7 @@ export function componentsDoc(context: AgentDocsContext): string {
     for (const entry of ui.filter((item) => item.category === category)) {
       const status = entry.status === "stable" ? "" : ` _(${entry.status})_`;
       lines.push(`- ${mark(entry)}**${entry.name}** — ${entry.description}${status}`);
+      lines.push(...guidanceLines(entry));
     }
     lines.push("");
   }
@@ -193,6 +213,7 @@ export function componentsDoc(context: AgentDocsContext): string {
     const deps = entry.registryDependencies.length;
     const resolves = deps > 0 ? ` _(resolves ${String(deps)} components)_` : "";
     lines.push(`- ${mark(entry)}**${entry.name}** — ${entry.description}${resolves}`);
+    lines.push(...guidanceLines(entry));
   }
   lines.push("");
 
@@ -212,7 +233,7 @@ Most component sets ship a chat transcript and stop. Real AI features are
 extraction, enrichment, autofill and agents that *change things* — so the parts
 that matter are the ones around the transcript, not the transcript itself.
 
-${ai.map((entry) => `- **${entry.name}** — ${entry.description}`).join("\n")}
+${ai.map((entry) => [`- **${entry.name}** — ${entry.description}`, ...guidanceLines(entry)].join("\n")).join("\n")}
 
 ## Choosing between them
 

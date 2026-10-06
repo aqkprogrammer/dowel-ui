@@ -86,9 +86,10 @@ way, before the tool runs.
 
 ### `search_components`
 
-Searches the components and blocks by name, title, category and description.
-Exact names rank first, then names that start with the query, then names that
-contain it, then titles, categories and descriptions.
+Searches the components and blocks by name, title, guidance, category and
+description. Exact names rank first, then names that start with the query, then
+names that contain it, then titles, then the situations an item's guidance says
+it is for, then categories and descriptions.
 
 | Input      | Type                                  | Notes                                                                                                                                   |
 | ---------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
@@ -97,8 +98,9 @@ contain it, then titles, categories and descriptions.
 | `kind`     | `"component"` \| `"block"` \| `"any"` | Blocks are whole sections assembled from components. Default `any`.                                                                     |
 
 Returns one entry per match — name, whether it is a component or a block, its
-category, its status when it is not stable, `Pro` when it needs a licence, and
-its description — followed by the install command pattern. With no match, it
+category, its status when it is not stable, `Pro` when it needs a licence, its
+description, and what it is for when its guidance says — followed by the
+install command pattern. With no match, it
 says so and how many items the registry has. Utility and theme entries are
 never listed; they are installed as dependencies.
 
@@ -112,9 +114,20 @@ One component or block in full.
 | `include_source` | boolean, optional | Include the full source of every file. Large. Default `false`.    |
 
 Returns the title, description, type, category, status, install command, import
-line, the registry items it installs alongside, its npm packages, its
-accessibility notes, and either its file paths or — with `include_source` — the
-contents of each file.
+line, the registry items it installs alongside, and its npm packages; then the
+component genome:
+
+- **When to use it** — the situations it is for, the ones it is not (naming
+  what to use instead), and what it is easily confused with.
+- **Often used with** — components a screen built with it tends to need.
+- Whether it is a **client component**, and whether it **animates**, both read
+  from its source by the registry build.
+- **Props** — every prop each exported component declares, with its type,
+  default and description, read from the component's own type (cva variants
+  included), and the element whose attributes also pass through.
+
+Then its accessibility notes, and either its file paths or — with
+`include_source` — the contents of each file.
 
 The name is looked up in the registry index before anything is fetched. An
 unknown name returns an error with the closest names (`datatabel` suggests
@@ -168,9 +181,26 @@ Describe a screen; get the registry items that build it.
 - `both` — the two together.
 
 Every item in a plan is one the registry has. The plan does not include prop
-shapes; it ends by telling the agent to call `get_component` for each item
-before writing props. When nothing matches, it says so rather than suggesting
+shapes; it ends by telling the agent to call `get_component` for each item,
+which lists them, before writing props, and `audit_code` afterwards. When nothing matches, it says so rather than suggesting
 something that does not exist.
+
+### `audit_code`
+
+Checks code the agent has written against the design system, before it is
+presented. The same rules as `dowel audit`.
+
+| Input       | Type                   | Notes                                                                                 |
+| ----------- | ---------------------- | ------------------------------------------------------------------------------------- |
+| `code`      | string                 | The source to check, e.g. one `.tsx` file.                                            |
+| `installed` | string array, optional | Registry names installed in the project. Native elements are only reported for these. |
+
+Returns each finding with its line, what matched, the rule, and the replacement
+when there is exactly one: a Tailwind palette or literal colour instead of a
+semantic token, an arbitrary size off the scale (`p-[12px]` → `p-3`), a
+physical direction utility (`ml-2` → `ms-2`), or a native `<button>`,
+`<input>`, `<dialog>` and so on when the project has the component. Without
+`installed`, native elements are not checked, and the reply says so.
 
 ## Pro items
 

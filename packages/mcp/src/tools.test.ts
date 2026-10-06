@@ -36,6 +36,7 @@ const IMPORT_FROM = "@dowel-ui/react";
 const DOCS = "https://docs.example.test";
 
 const TOOLS = [
+  "audit_code",
   "get_component",
   "get_guide",
   "install_command",
@@ -118,7 +119,7 @@ afterAll(async () => {
 });
 
 describe("tool registration", () => {
-  it("lists exactly the five tools", async () => {
+  it("lists exactly the six tools", async () => {
     const { tools } = await client.listTools();
     expect(tools.map((tool) => tool.name).sort()).toEqual([...TOOLS]);
     for (const tool of tools) {
@@ -574,5 +575,76 @@ describe("RegistryClient", () => {
     await expect(registry.resolve(["kanban-wombat"])).rejects.toThrow(
       '"kanban-wombat" is not in the registry index.',
     );
+  });
+});
+
+describe("the genome, through the tools", () => {
+  it("get_component says when to use a component, what it is confused with, and its props", async () => {
+    const select = entry("select");
+    const { text } = await call("get_component", { name: "select" });
+
+    expect(text).toContain("## When to use it");
+    for (const phrase of select.guidance?.useWhen ?? []) expect(text).toContain(phrase);
+    for (const name of select.guidance?.alternatives ?? []) expect(text).toContain(name);
+    expect(text).toContain("## Props");
+    expect(text).toMatch(/Client component|No client directive/);
+  });
+
+  it("get_component lists props read from the type, cva variants included", async () => {
+    const { text } = await call("get_component", { name: "button" });
+    expect(text).toContain("`variant`");
+    expect(text).toContain("`asChild`");
+  });
+
+  it("get_component gives a Pro item's guidance from the index", async () => {
+    const pro = proBlock();
+    const { text } = await call("get_component", { name: pro.name });
+    if (pro.guidance) expect(text).toContain(pro.guidance.useWhen[0] ?? "");
+    expect(text).not.toContain("## Props");
+  });
+
+  it("search_components shows what each result is for", async () => {
+    const { text } = await call("search_components", { query: "alert-dialog" });
+    const use = entry("alert-dialog").guidance?.useWhen[0] ?? "";
+    expect(text).toContain(`Use for: ${use}`);
+  });
+
+  it("search_components finds a component by a situation in its guidance", async () => {
+    const phrase = entry("alert-dialog").guidance?.useWhen[0] ?? "";
+    const word = phrase.split(" ").find((part) => part.length > 8) ?? phrase;
+    const { text } = await call("search_components", { query: word });
+    expect(text).toContain("alert-dialog");
+  });
+});
+
+describe("audit_code", () => {
+  it("reports what the project audit would, line by line", async () => {
+    const code = [
+      "export function Save() {",
+      '  return <button className="bg-blue-600 ml-2 p-[12px]">Save</button>;',
+      "}",
+    ].join("\n");
+    const { text, isError } = await call("audit_code", { code, installed: ["button"] });
+
+    expect(isError).toBe(false);
+    expect(text).toContain("4 finding(s)");
+    expect(text).toContain("`bg-blue-600`");
+    expect(text).toContain("→ use ms-2");
+    expect(text).toContain("→ use p-3");
+    expect(text).toContain("→ use <Button>");
+  });
+
+  it("says when native elements were not checked", async () => {
+    const { text } = await call("audit_code", { code: "<button>Go</button>" });
+    expect(text).toContain("No findings.");
+    expect(text).toContain("pass `installed`");
+  });
+
+  it("is quiet about clean code", async () => {
+    const { text } = await call("audit_code", {
+      code: '<Button className="ms-2 bg-primary">Go</Button>',
+      installed: ["button"],
+    });
+    expect(text).toBe("No findings.");
   });
 });

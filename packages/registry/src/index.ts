@@ -1,10 +1,13 @@
 export {
   blocksPathFor,
+  planFromPicks,
   planUi,
   renderBrief,
   renderPlan,
   type PlanEntry,
+  type PicksResult,
   type PlanOptions,
+  type PlanPick,
   type RenderOptions,
   type UiPlan,
 } from "./generate";

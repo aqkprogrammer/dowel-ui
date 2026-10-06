@@ -1,6 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
   aiDoc,
+  AUDIT_RULES,
+  auditSource,
   componentsDoc,
   conventionsDoc,
   planUi,
@@ -11,6 +13,7 @@ import {
   type AgentDocsContext,
   type RegistryIndex,
   type RegistryIndexEntry,
+  type RegistryItem,
 } from "@dowel-ui/registry";
 import { z } from "zod";
 
@@ -67,7 +70,70 @@ function summarise(entry: RegistryIndexEntry): string {
     ...(entry.access === "pro" ? ["Pro"] : []),
   ];
   const suffix = notes.length > 0 ? ` (${notes.join(", ")})` : "";
-  return `${entry.name} — ${kind}, ${entry.category}${suffix}\n  ${entry.description}`;
+  const use = entry.guidance ? `\n  Use for: ${entry.guidance.useWhen.join("; ")}` : "";
+  return `${entry.name} — ${kind}, ${entry.category}${suffix}\n  ${entry.description}${use}`;
+}
+
+/**
+ * The genome's account of an item: when to use it, what it is confused with,
+ * and the facts read from its source. Shared by free and Pro items, since the
+ * index carries all of it for both.
+ */
+function genomeLines(entry: RegistryIndexEntry): string[] {
+  const lines: string[] = [];
+  const { guidance, composesWith, capabilities } = entry;
+
+  if (guidance) {
+    lines.push("## When to use it", "");
+    for (const phrase of guidance.useWhen) lines.push(`- ${phrase}`);
+    if (guidance.avoidWhen.length > 0) {
+      lines.push("", "Not for:");
+      for (const phrase of guidance.avoidWhen) lines.push(`- ${phrase}`);
+    }
+    if (guidance.alternatives.length > 0) {
+      lines.push("", `Easily confused with: ${guidance.alternatives.join(", ")}`);
+    }
+    lines.push("");
+  }
+  if (composesWith && composesWith.length > 0) {
+    lines.push(`Often used with: ${composesWith.join(", ")}`, "");
+  }
+  if (capabilities) {
+    lines.push(
+      capabilities.client
+        ? 'Client component: it declares "use client", so a Server Component can render it but cannot pass it functions.'
+        : "No client directive: it renders in a Server Component as it is.",
+    );
+    if (capabilities.animated) {
+      lines.push(
+        "Animates. Motion follows the theme's --motion-scale, which reduced motion collapses.",
+      );
+    }
+    lines.push("");
+  }
+  return lines;
+}
+
+/** Each exported component's own props, read from its type by the registry build. */
+function propsLines(item: RegistryItem): string[] {
+  if (!item.props || item.props.length === 0) return [];
+  const lines = ["## Props", ""];
+  for (const group of item.props) {
+    lines.push(`### ${group.component}`, "");
+    if (group.forwards) lines.push(`Forwards every prop to \`${group.forwards}\`.`);
+    for (const prop of group.props) {
+      const required = prop.required ? " (required)" : "";
+      const fallback = prop.default === undefined ? "" : ` = ${prop.default}`;
+      const about = prop.description ? ` — ${prop.description}` : "";
+      lines.push(`- \`${prop.name}\`: \`${prop.type}\`${required}${fallback}${about}`);
+    }
+    if (group.element) {
+      const omitted = group.omitted.length > 0 ? ` except ${group.omitted.join(", ")}` : "";
+      lines.push(`- …and every \`<${group.element}>\` attribute${omitted}.`);
+    }
+    lines.push("");
+  }
+  return lines;
 }
 
 /** The licence condition for one or more Pro items, worded the same everywhere. */
@@ -149,6 +215,9 @@ function score(entry: RegistryIndexEntry, query: string): number {
   if (name.startsWith(needle)) return 50;
   if (name.includes(needle)) return 25;
   if (entry.title.toLowerCase().includes(needle)) return 20;
+  if ((entry.guidance?.useWhen ?? []).some((phrase) => phrase.toLowerCase().includes(needle))) {
+    return 18;
+  }
   if (entry.category.toLowerCase() === needle) return 15;
   if (entry.description.toLowerCase().includes(needle)) return 10;
   return 0;
@@ -208,7 +277,8 @@ export function createServer(options: ServerOptions): McpServer {
         `Before writing any React UI, call search_components to check whether a component ` +
         `already exists — hand-writing a second Button is the most common mistake here. ` +
         `Call get_guide("conventions") once per session for the styling and accessibility ` +
-        `rules, which differ from other libraries in ways worth knowing.`,
+        `rules, which differ from other libraries in ways worth knowing. After writing UI, ` +
+        `call audit_code on it to catch hardcoded colours and bypassed components.`,
     },
   );
 
@@ -328,6 +398,7 @@ export function createServer(options: ServerOptions): McpServer {
             entry.registryDependencies.length > 0
               ? `Also installs: ${entry.registryDependencies.join(", ")}\n`
               : "",
+            ...genomeLines(entry),
             `${String(entry.fileCount)} file(s). The source is served only to a licence holder, so this server cannot read it; once installed, read it from the project like any other file.`,
           ].join("\n"),
         );
@@ -352,9 +423,11 @@ export function createServer(options: ServerOptions): McpServer {
       if (item.dependencies.length > 0) {
         lines.push(`npm packages: ${item.dependencies.join(", ")}`, "");
       }
+      lines.push(...genomeLines(entry));
       if (item.a11y) {
         lines.push("## Accessibility", "", item.a11y, "");
       }
+      lines.push(...propsLines(item));
 
       if (include_source === true) {
         lines.push("## Source", "");
@@ -554,16 +627,64 @@ export function createServer(options: ServerOptions): McpServer {
         );
       }
 
-      // Deliberately not silent about the limit: the registry publishes what a
-      // component is, not the shape of its props, so the plan stops at the
-      // composition and the props come from get_component.
+      // The plan stops at the composition. Props are on each item, read from
+      // its type, and a plausible invented prop is worse than none.
       parts.push(
         "",
-        "Call get_component for each of these before writing props. This plan does not " +
-          "include prop shapes, and a plausible invented prop is worse than none.",
+        "Call get_component for each of these before writing props: it lists every prop " +
+          "the component's type declares. Then check what you wrote with audit_code.",
       );
 
       return text(parts.join("\n"));
+    },
+  );
+
+  server.registerTool(
+    "audit_code",
+    {
+      title: "Audit UI code",
+      description:
+        "Check React/TSX you have written against the design system's rules, before " +
+        "presenting it: Tailwind palette or literal colours instead of semantic tokens, " +
+        "off-scale arbitrary sizes, physical direction utilities that break right-to-left, " +
+        "and native elements where the project has the component installed. The same rules " +
+        "as `dowel audit`.",
+      inputSchema: {
+        code: z.string().min(1).describe("The source to check, e.g. one .tsx file"),
+        installed: z
+          .array(z.string())
+          .optional()
+          .describe(
+            'Registry names installed in the project, e.g. ["button","input"]. Native elements are only reported when their component is installed.',
+          ),
+      },
+    },
+    ({ code, installed }) => {
+      const findings = auditSource(code, { installed: new Set(installed ?? []) });
+
+      if (findings.length === 0) {
+        return text(
+          "No findings." +
+            (installed === undefined
+              ? " Native elements were not checked: pass `installed` to include them."
+              : ""),
+        );
+      }
+
+      const summary = new Map(AUDIT_RULES.map((rule) => [rule.id, rule.summary]));
+      const lines = [`${String(findings.length)} finding(s):`, ""];
+      for (const finding of findings) {
+        const instead = finding.suggestion ? ` → use ${finding.suggestion}` : "";
+        lines.push(
+          `- line ${String(finding.line)}: \`${finding.found}\` — ${summary.get(finding.rule) ?? finding.rule}${instead}`,
+        );
+      }
+      lines.push(
+        "",
+        "Fix these before presenting the code. For a colour, pick the semantic token that " +
+          'means what the colour meant (get_guide("theming") lists them), rather than the nearest hue.',
+      );
+      return text(lines.join("\n"));
     },
   );
 
