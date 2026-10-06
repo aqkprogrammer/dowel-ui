@@ -78,6 +78,40 @@ jobs:
           pnpm --filter @dowel-ui/registry exec tsx src/build.ts --out /tmp/registry-b
           diff -r /tmp/registry-a /tmp/registry-b
 
+  # The published CLI, MCP server and scaffolder promise Node 20 in `engines`;
+  # everything above runs on 24. This runs their built output on the floor
+  # and the version between, the way `npx` would start it.
+  binaries:
+    name: Binaries on Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+
+      # Built on the toolchain's own Node; tsdown needs 22.18 or later.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build the binaries and the registry they read
+        run: >-
+          pnpm turbo run build --filter=@dowel-ui/cli --filter=@dowel-ui/mcp
+          --filter=create-dowel-app --filter=@dowel-ui/registry
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Run them
+        run: node scripts/smoke/binaries.mjs
+
   branding:
     name: Branding placeholder report
     runs-on: ubuntu-latest
@@ -94,7 +128,7 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      # Informational until naming is settled. The release workflow runs this
-      # with --strict, which fails on any surviving placeholder.
+      # Informational until naming is settled. Releasing runs this with
+      # --strict (RELEASING.md, step 3), which fails on any surviving placeholder.
       - name: Report placeholders
         run: pnpm check:branding
