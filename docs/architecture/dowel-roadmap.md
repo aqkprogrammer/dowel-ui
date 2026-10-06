@@ -50,7 +50,7 @@ public API without a migration path. Nothing below is a commitment to a date.
 | Density token               | Missing     | Mentioned in a comment in `tokens.css`, never implemented                                                                            |
 | RTL                         | **Exists**  | `audit:rtl` enforces logical properties; `direction-provider` ships                                                                  |
 | ⌘K search                   | **Exists**  | Substring only; no ranking or typo tolerance                                                                                         |
-| AgentBench                  | Missing     | See Phase 5 for why it is scoped down                                                                                                |
+| AgentBench                  | **Partial** | Harness and ten tasks in `packages/agentbench`; no run published yet. Scope in Phase 5                                               |
 | Cloud / enterprise registry | Missing     | Self-hosted private registry is complete; hosted is a demand question                                                                |
 | Showcase / marketplace      | Missing     | Requires real submissions; there are none to show                                                                                    |
 
@@ -314,6 +314,20 @@ A benchmark is only worth publishing if anyone can rerun it. Start with:
 
 Visual quality and "time to completion" are left out until there is a way to
 measure them that two people would agree on.
+
+Progress:
+
+1. ✅ **Harness** — `packages/agentbench`: workspaces built from this commit's
+   scaffolder, CLI, MCP server and registry; the two conditions; the diff
+   against a committed baseline; `tsc`, `dowel audit`, invented and
+   uninstalled imports, recall, and the repository's jsx-a11y rules.
+2. ✅ **Ten tasks**, every registry name checked by a test.
+3. ✅ **One adapter**, Claude Code, with flags checked against its `--help`;
+   `noop` and `reference` validate the pipeline without spending anything.
+4. **`next build` and axe on the rendered page** — not yet; both need
+   installed dependencies, and axe a served page and a browser (phase 6).
+5. **A published run** — none. The first is a person's, with their own
+   account; `/agentbench` says so until then.
 
 _Value:_ a reproducible result that agent docs and MCP improve output is the
 strongest evidence the "AI-native" positioning can have, and the harness doubles

@@ -12,3 +12,7 @@ CHANGELOG.md
 packages/registry/r/
 apps/docs/public/r/
 *.generated.ts
+
+# AgentBench results are written by the harness, and published ones are kept
+# byte for byte as the run produced them.
+packages/agentbench/results/

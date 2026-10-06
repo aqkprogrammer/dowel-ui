@@ -43,7 +43,13 @@ export function primaryFor(pathname: string): string | undefined {
   if (pathname.startsWith("/docs/themes") || pathname.startsWith("/theme-studio")) {
     return "/docs/themes";
   }
-  if (pathname.startsWith("/docs") || pathname.startsWith("/quality")) return "/docs";
+  if (
+    pathname.startsWith("/docs") ||
+    pathname.startsWith("/quality") ||
+    pathname.startsWith("/agentbench")
+  ) {
+    return "/docs";
+  }
   if (pathname.startsWith("/playground")) return "/playground";
   if (pathname.startsWith("/generate")) return "/generate";
   if (pathname.startsWith("/pricing")) return "/pricing";
@@ -106,6 +112,11 @@ export const TOOLS: NavSection = {
       description: "Build a preset from one colour, contrast-checked",
     },
     { title: "Quality", href: "/quality", description: "Per-component quality scores" },
+    {
+      title: "AgentBench",
+      href: "/agentbench",
+      description: "Whether the agent files and MCP server change what an agent builds",
+    },
   ],
 };
 
@@ -136,6 +147,7 @@ export const FOOTER_NAV: NavSection[] = [
       { title: "Generate", href: "/generate" },
       { title: "Theme Studio", href: "/theme-studio" },
       { title: "Quality", href: "/quality" },
+      { title: "AgentBench", href: "/agentbench" },
       { title: "Accessibility", href: "/docs/accessibility" },
       { title: "Private registries", href: "/docs/private-registry" },
     ],
