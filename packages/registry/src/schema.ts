@@ -50,6 +50,49 @@ export const registryAccessSchema = z.enum(["free", "pro"]).default("free");
 
 export type RegistryAccess = z.infer<typeof registryAccessSchema>;
 
+/**
+ * A registry item's name. It becomes a URL segment and a file name, so it is
+ * the one piece of a registry that reaches a path without passing through
+ * anything else first.
+ */
+export const registryItemNameSchema = z.string().regex(/^[a-z][a-z0-9-]*$/);
+
+/**
+ * Whether a registry file path stays inside the alias directory it names.
+ *
+ * The registry chooses where a file goes within the consumer's project, which
+ * makes the path the most dangerous string it serves: `ui/../../.bashrc` is a
+ * write outside the project, and nothing else in the pipeline would notice.
+ * Absolute paths, `..` and `.` segments, empty segments, backslashes (a
+ * separator on Windows), colons (a drive letter) and NUL are all refused,
+ * rather than normalised into something that might be safe.
+ */
+export function isSafeRegistryPath(path: string): boolean {
+  if (path.length === 0 || path.startsWith("/")) return false;
+  if (/[\\:\0]/.test(path)) return false;
+  return path
+    .split("/")
+    .every((segment) => segment !== "" && segment !== "." && segment !== "..");
+}
+
+/**
+ * An npm package the item needs: a name, optionally scoped, optionally with a
+ * version range.
+ *
+ * Handed straight to the package manager, which also accepts git URLs,
+ * tarballs and local paths in the same position. A registry asking for any of
+ * those is asking to run code from somewhere other than npm, so they are
+ * refused at the boundary rather than installed.
+ */
+export const npmDependencySchema = z
+  .string()
+  .regex(
+    /^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-zA-Z0-9][a-zA-Z0-9._-]*(?:@[0-9A-Za-z.^~<>=*+|-]+)?$/,
+    {
+      message: "must be an npm package name, optionally with a version range",
+    },
+  );
+
 export const registryFileSchema = z.object({
   /**
    * Logical path within the registry, e.g. `ui/button.tsx`, `lib/utils.ts`.
@@ -58,7 +101,9 @@ export const registryFileSchema = z.object({
    * written under. The registry deliberately does not know the destination —
    * that depends on a project layout it has never seen.
    */
-  path: z.string().min(1),
+  path: z.string().refine(isSafeRegistryPath, {
+    message: "must be a relative path with no '..', '.', or empty segments",
+  }),
   type: registryFileTypeSchema,
   content: z.string(),
   /**
@@ -76,16 +121,16 @@ export type RegistryFile = z.infer<typeof registryFileSchema>;
 export const registryItemSchema = z.object({
   $schema: z.string().optional(),
   registryVersion: z.literal(REGISTRY_VERSION),
-  name: z.string().regex(/^[a-z][a-z0-9-]*$/),
+  name: registryItemNameSchema,
   type: registryItemTypeSchema,
   title: z.string().min(1),
   description: z.string().min(10),
   category: z.string().min(1),
   status: z.enum(["stable", "beta", "experimental"]),
   /** npm packages to install alongside the files. */
-  dependencies: z.array(z.string()),
+  dependencies: z.array(npmDependencySchema),
   /** Other registry items to install first. */
-  registryDependencies: z.array(z.string()),
+  registryDependencies: z.array(registryItemNameSchema),
   files: z.array(registryFileSchema).min(1),
   a11y: z.string().optional(),
   access: registryAccessSchema,

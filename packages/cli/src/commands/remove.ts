@@ -1,12 +1,13 @@
 import * as prompts from "@clack/prompts";
 import { existsSync, readFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join, normalize, relative } from "node:path";
 
 import { hashContent } from "@dowel-ui/registry";
 
-import { readConfig, writeConfig } from "../lib/config";
+import { blocksAlias, CONFIG_FILE, readConfig, writeConfig, type Config } from "../lib/config";
 import { CliError } from "../lib/errors";
 import { logger, pc } from "../lib/logger";
+import { aliasToDirectory } from "../lib/paths";
 
 export interface RemoveOptions {
   cwd: string;
@@ -66,6 +67,34 @@ export function findDependents(
   return blockers;
 }
 
+/**
+ * Whether a recorded path is one this CLI could have written, and so one it
+ * may delete.
+ *
+ * The paths come from `components.json`, which is part of the repository and
+ * may have been written by anyone. Only files inside the directories `add`
+ * installs into qualify; anything else is refused outright rather than
+ * skipped, because a config naming files elsewhere is one that should not be
+ * trusted for the rest of the removal either.
+ */
+export function isRemovablePath(config: Config, path: string): boolean {
+  if (isAbsolute(path)) return false;
+
+  const target = normalize(path);
+  const roots = [
+    config.aliases.components,
+    config.aliases.ui,
+    config.aliases.lib,
+    config.aliases.hooks,
+    blocksAlias(config),
+  ].map((alias) => normalize(aliasToDirectory(config, alias)));
+
+  return roots.some((root) => {
+    const inside = relative(root, target);
+    return inside !== "" && !inside.startsWith("..") && !isAbsolute(inside);
+  });
+}
+
 export async function remove(names: string[], options: RemoveOptions): Promise<void> {
   if (names.length === 0) {
     throw new CliError("Name at least one component to remove.");
@@ -100,11 +129,45 @@ export async function remove(names: string[], options: RemoveOptions): Promise<v
     throw new CliError("Nothing was removed.", "Remove the dependents first, or keep these.");
   }
 
+  // The stylesheet `init` added the tokens to is the project's own file, with
+  // the project's own CSS in it. Deleting it to remove the tokens would take
+  // everything else with it, so it is never deleted, forced or not.
+  const stylesheet = normalize(config.tailwind.css);
+
   const planned: PlannedRemoval[] = [];
+  const outside: string[] = [];
+  let keptStylesheet = false;
   for (const name of names) {
     for (const [path, hash] of Object.entries(config.installed[name]?.files ?? {})) {
+      if (normalize(path) === stylesheet) {
+        keptStylesheet = true;
+        continue;
+      }
+      if (!isRemovablePath(config, path)) {
+        outside.push(path);
+        continue;
+      }
       planned.push({ component: name, path, state: classifyRemoval(join(cwd, path), hash) });
     }
+  }
+
+  if (outside.length > 0) {
+    logger.error(
+      `${CONFIG_FILE} lists files outside the directories components are installed in:`,
+    );
+    for (const path of outside) logger.info(`  ${path}`);
+    throw new CliError(
+      "Nothing was removed.",
+      `Check the "installed" entries in ${CONFIG_FILE}; they should only name files the CLI wrote.`,
+    );
+  }
+
+  if (keptStylesheet) {
+    logger.info(
+      pc.dim(
+        `${config.tailwind.css} is your stylesheet, so it was kept. Remove the tokens from it by hand if you want them gone.`,
+      ),
+    );
   }
 
   const modified = planned.filter((file) => file.state === "modified");

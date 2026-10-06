@@ -1,6 +1,6 @@
 import * as prompts from "@clack/prompts";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 
 import { hashContent } from "@dowel-ui/registry";
 
@@ -156,7 +156,10 @@ export async function update(names: string[], options: UpdateOptions): Promise<v
   }
 
   for (const report of writable) {
-    writeFileSync(join(cwd, report.destination), report.content);
+    // A missing file may be missing because its whole directory was deleted.
+    const absolute = join(cwd, report.destination);
+    mkdirSync(dirname(absolute), { recursive: true });
+    writeFileSync(absolute, report.content);
 
     const entry = config.installed[report.component];
     if (entry) entry.files[report.destination] = report.hash;

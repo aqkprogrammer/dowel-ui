@@ -140,7 +140,7 @@ program
   .option("--check", "ask the registry whether the licence is still active", false)
   .action(async (options: { check: boolean }) => {
     const { registry } = globals();
-    await whoami({ registry: registry ?? branding.registryUrl, check: options.check });
+    await whoami({ registry, check: options.check });
   });
 
 program
