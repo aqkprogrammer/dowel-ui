@@ -22,9 +22,9 @@
     "@dowel-ui/cli": "workspace:*",
     "@dowel-ui/mcp": "workspace:*",
     "@dowel-ui/registry": "workspace:*",
-    "@types/node": "26.4.0",
+    "@types/node": "26.6.3",
     "create-dowel-app": "workspace:*",
-    "tsx": "4.23.13",
+    "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   }
