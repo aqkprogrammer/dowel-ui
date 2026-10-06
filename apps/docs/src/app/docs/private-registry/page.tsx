@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Prose } from "~/components/prose";
 import { CodePanel } from "~/components/site/code-panel";
 import { PageHeader } from "~/components/site/page-header";
+import { UnreleasedNote } from "~/components/site/unreleased";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
 
@@ -134,6 +135,10 @@ export default function PrivateRegistryPage() {
 
       <Prose>
         <h2 id="keys">Require a key</h2>
+        <UnreleasedNote since="0.13.0">
+          Private registries, per-registry keys and the governance fields below are new in the
+          CLI, the MCP server and <code>{branding.packageScope}/registry</code>.
+        </UnreleasedNote>
         <p>
           Put the directory behind anything that checks a bearer token — a reverse proxy, an
           edge function, your VPN&rsquo;s gateway — and answer a missing or wrong key with{" "}
