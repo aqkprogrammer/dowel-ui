@@ -35,9 +35,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -48,7 +48,7 @@ jobs:
         run: |
           pnpm --filter "@dowel-ui/react^..." build
           pnpm --filter @dowel-ui/react build-storybook
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: storybook-static
           path: packages/ui/storybook-static
@@ -73,19 +73,19 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       options: --ipc=host
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: storybook-static
           path: packages/ui/storybook-static
       - run: pnpm --filter @dowel-ui/browser-tests test:a11y --shard=${{ matrix.shard }}/3
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: a11y-report-${{ matrix.shard }}
@@ -103,14 +103,14 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       options: --ipc=host
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: storybook-static
           path: packages/ui/storybook-static
@@ -125,13 +125,13 @@ jobs:
       - name: Rewrite the baselines
         if: ${{ inputs.update-snapshots }}
         run: pnpm --filter @dowel-ui/browser-tests test:visual --update-snapshots=all
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ inputs.update-snapshots }}
         with:
           name: visual-baselines
           path: packages/browser-tests/tests/__screenshots__/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: visual-report
