@@ -24,7 +24,7 @@ export default function AgentDemoPage() {
   return (
     <div className="flex min-h-dvh flex-col">
       <AstraHeaderShell>
-        <SiteHeader searchEntries={[]} />
+        <SiteHeader />
       </AstraHeaderShell>
       <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Agents" />
 
