@@ -1,0 +1,4 @@
+# Runs stay local until someone decides to publish one. A published run is
+# copied into results/published/ and committed, failures included.
+results/*
+!results/published/

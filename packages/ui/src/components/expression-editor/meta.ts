@@ -33,4 +33,15 @@ export const meta = defineMeta({
     "and the list is closed, after a pause in typing, so a page of formulas recalculating does not " +
     "talk over itself. Formulas are laid out left to right in every locale, because the bidi " +
     "algorithm would otherwise move parentheses in a right-to-left page.",
+  guidance: {
+    useWhen: [
+      "a formula field over named variables and functions, with suggestions and a live result",
+      "user-defined calculated fields or conditions, evaluated without eval",
+    ],
+    avoidWhen: [
+      "filtering a list by typing what to see — use nl-filter",
+      "displaying code — use code-block",
+    ],
+    alternatives: ["nl-filter", "input", "code-block"],
+  },
 });

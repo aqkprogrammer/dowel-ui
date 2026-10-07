@@ -17,4 +17,14 @@ export const meta = defineMeta({
     "double-click opens a text field for an exact value (advertised with aria-keyshortcuts); Enter or blur commits, " +
     "Escape cancels, and focus returns to the slider. Ticks, fill and thumb are aria-hidden. The thumb's " +
     "transitions stop under reduced motion.",
+  guidance: {
+    useWhen: [
+      "a design-tool number field changed by dragging across its label, such as opacity or radius",
+    ],
+    avoidWhen: [
+      "a range or an approximate value on a track — use slider",
+      "a number with a unit — use quantity-input",
+    ],
+    alternatives: ["slider", "quantity-input", "drag-stepper"],
+  },
 });

@@ -16,4 +16,15 @@ export const meta = defineMeta({
     "PageUp/PageDown five, Home/End the ends, and keys commit immediately as the APG slider pattern requires. " +
     "Hover preview and click-to-commit are pointer conveniences over that. The ticks and the figure are " +
     "aria-hidden because the role already carries the value; name it with aria-label or aria-labelledby.",
+  guidance: {
+    useWhen: [
+      "a percentage shown as a large figure over a row of waveform ticks",
+      "a percentage picked by clicking or keying along the ticks",
+    ],
+    avoidWhen: [
+      "a standard progress bar — use progress",
+      "a standard value slider — use slider",
+    ],
+    alternatives: ["progress", "slider"],
+  },
 });

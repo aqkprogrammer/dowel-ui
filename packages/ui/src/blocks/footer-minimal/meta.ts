@@ -16,4 +16,8 @@ export const meta = defineMeta({
     "their name as text; external ones say they open a new tab. The separator between logo and " +
     "copyright is decorative. The entrance only hides a footer below the fold, never under reduced " +
     "motion.",
+  guidance: {
+    useWhen: ["a one-row footer with logo, copyright, a few links and social links"],
+    alternatives: ["footer-simple", "footer-mega"],
+  },
 });

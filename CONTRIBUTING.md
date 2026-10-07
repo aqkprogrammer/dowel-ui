@@ -2,7 +2,7 @@
 
 ## Setup
 
-Requires Node ≥ 20 (developed on 26) and pnpm 11.
+Requires Node ≥ 22.18 (developed on 26) and pnpm 11. The published packages run on Node 20.12 or later; developing them needs the newer Node `tsdown` builds with.
 
 ```bash
 pnpm install
@@ -44,7 +44,9 @@ first. Then:
 2. Export it from `packages/ui/src/index.ts`.
 3. Run `pnpm test`. The registry integrity suite will tell you if `meta.ts`
    disagrees with what your source actually imports.
-4. Add a changeset: `pnpm changeset`.
+4. Add an entry under `## Unreleased` in the root `CHANGELOG.md`. There is one
+   changelog for the whole repository; changesets is not used (see
+   `RELEASING.md`).
 
 ### What a component must do
 

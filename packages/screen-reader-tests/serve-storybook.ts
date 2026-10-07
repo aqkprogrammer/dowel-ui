@@ -17,9 +17,12 @@ import { readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, normalize, resolve, sep } from "node:path";
 
-const root = process.env.STORYBOOK_DIR
-  ? resolve(process.env.STORYBOOK_DIR)
-  : join(import.meta.dirname, "..", "ui", "storybook-static");
+// Overridable from outside: browser-tests' container runs set
+// STORYBOOK_STATIC_DIR (they copy the build off the bind mount first, since
+// served from there each page's chunks took seconds), and the visual
+// regression tests point STORYBOOK_DIR at the build they are screenshotting.
+const dir = process.env.STORYBOOK_STATIC_DIR ?? process.env.STORYBOOK_DIR;
+const root = dir ? resolve(dir) : join(import.meta.dirname, "..", "ui", "storybook-static");
 const port = Number(process.env.PORT ?? 6007);
 
 const TYPES: Record<string, string> = {

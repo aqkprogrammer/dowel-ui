@@ -47,12 +47,20 @@ export { CopyButton, type CopyButtonProps } from "@/components/copy-button";
  * a turn as well as a scale, on the overshoot curve, and reverts after 1.5s.
  * (Accent theming, the line features and the springing check were inspired
  * by the Rare UI Code Block pattern; no code referenced.)
+ *
+ * The highlight band sits under syntax colours it does not control, so it is
+ * kept barely darker than the surface: in light mode a 4% primary tint of the
+ * page background, which leaves `text-info` at 4.59:1 and `text-success` at
+ * 4.67:1 on it (measured in Chromium; a 10% wash had info at 4.08:1). Dark
+ * mode keeps the 10% wash, which lightens a dark surface (info 5.93:1). The
+ * 2px edge is what marks the line; the band only has to be visible.
  */
 
 const PREFIX = "dowel-code-block";
 
 const STYLES = `
-[data-slot=code-block]{--code-block-highlight:color-mix(in oklab,var(--color-primary) 10%,transparent);--code-block-highlight-edge:color-mix(in oklab,var(--color-primary) 60%,transparent);--code-block-line-number:color-mix(in oklab,var(--color-muted-foreground) 75%,transparent)}
+[data-slot=code-block]{--code-block-highlight:color-mix(in oklab,var(--color-primary) 4%,var(--color-background));--code-block-highlight-edge:color-mix(in oklab,var(--color-primary) 60%,transparent);--code-block-line-number:color-mix(in oklab,var(--color-muted-foreground) 75%,transparent)}
+.dark [data-slot=code-block]{--code-block-highlight:color-mix(in oklab,var(--color-primary) 10%,transparent)}
 [data-slot=code-block][data-accent]{--code-block-surface:color-mix(in oklab,var(--code-block-accent) 5%,var(--color-background));--code-block-header:color-mix(in oklab,var(--code-block-accent) 10%,var(--color-background));--code-block-border:color-mix(in oklab,var(--code-block-accent) 24%,var(--color-background));--code-block-text:color-mix(in oklab,var(--code-block-accent) 15%,var(--color-foreground));--code-block-muted:color-mix(in oklab,var(--code-block-accent) 40%,var(--color-foreground));--code-block-line-number:color-mix(in oklab,var(--code-block-muted) 70%,transparent);--code-block-highlight:color-mix(in oklab,var(--code-block-accent) 13%,transparent);--code-block-highlight-edge:var(--code-block-accent)}
 .dark [data-slot=code-block][data-accent]{--code-block-surface:color-mix(in oklab,var(--code-block-accent) 13%,var(--color-background));--code-block-header:color-mix(in oklab,var(--code-block-accent) 19%,var(--color-background));--code-block-border:color-mix(in oklab,var(--code-block-accent) 30%,var(--color-background));--code-block-highlight:color-mix(in oklab,var(--code-block-accent) 22%,transparent)}
 `;

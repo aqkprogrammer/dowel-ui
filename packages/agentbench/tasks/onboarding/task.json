@@ -1,0 +1,20 @@
+{
+  "id": "onboarding",
+  "title": "Multi-step onboarding form",
+  "prompt": "Build a three-step onboarding flow at /onboarding: first the person's name and role, then their team's name and size, then which features they want to try. Show which step they are on and let them go back to a previous step.",
+  "route": "src/app/onboarding/page.tsx",
+  "install": [
+    "stepper",
+    "progress",
+    "tabs",
+    "input",
+    "label",
+    "select",
+    "radio-group",
+    "checkbox",
+    "button",
+    "card",
+    "form"
+  ],
+  "expect": ["stepper", "input", "label", "button"]
+}

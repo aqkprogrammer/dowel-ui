@@ -18,4 +18,8 @@ export const meta = defineMeta({
     "A visible Pause button stops it outright (WCAG 2.2.2); under reduced motion the row stops " +
     "and becomes a scrollable region, and the button is hidden because there is nothing to " +
     "pause. Each entry is named by its organisation; the graphic is aria-hidden.",
+  guidance: {
+    useWhen: ["an endless row of large logos that each link somewhere"],
+    alternatives: ["logo-marquee", "logo-grid-tooltips"],
+  },
 });

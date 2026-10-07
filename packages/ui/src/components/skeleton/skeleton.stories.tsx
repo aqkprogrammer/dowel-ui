@@ -32,7 +32,7 @@ export const Shapes: Story = {
 /** aria-busy belongs on the region that owns the data, not on each placeholder. */
 export const LoadingCard: Story = {
   render: () => (
-    <Card className="w-80" aria-busy="true" aria-label="Loading project">
+    <Card className="w-80" role="status" aria-busy="true" aria-label="Loading project">
       <CardHeader className="gap-3">
         <Skeleton className="h-5 w-40" />
         <Skeleton className="h-4 w-56" />
@@ -53,7 +53,12 @@ export const LoadingCard: Story = {
  */
 export const Shimmer: Story = {
   render: () => (
-    <div className="flex w-80 items-center gap-4" aria-busy="true" aria-label="Loading">
+    <div
+      role="status"
+      className="flex w-80 items-center gap-4"
+      aria-busy="true"
+      aria-label="Loading"
+    >
       <Skeleton variant="shimmer" className="size-10 shrink-0 rounded-full" />
       <div className="w-full space-y-2">
         <Skeleton variant="shimmer" className="h-4 w-full" />

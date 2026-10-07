@@ -280,6 +280,22 @@ describe("CodeBlock", () => {
       expect(container.querySelector('[data-slot="code-block-gutter"]')).toBeNull();
       expect(bands(container)).toHaveLength(1);
     });
+
+    it("keeps the light-mode band faint enough for syntax colours on it", () => {
+      // A 10% primary wash had text-info on the band at 4.08:1 in light mode.
+      // The band is now a 4% tint of the page (info 4.59:1, measured in
+      // Chromium); only dark mode, where the wash lightens, keeps 10%.
+      render(<CodeBlock highlightLines={[1]} code={SAMPLE} />);
+      const css = [...document.querySelectorAll("style")]
+        .map((style) => style.textContent)
+        .find((text) => text.includes("--code-block-highlight:"));
+      expect(css).toContain(
+        "[data-slot=code-block]{--code-block-highlight:color-mix(in oklab,var(--color-primary) 4%,var(--color-background))",
+      );
+      expect(css).toContain(
+        ".dark [data-slot=code-block]{--code-block-highlight:color-mix(in oklab,var(--color-primary) 10%,transparent)}",
+      );
+    });
   });
 
   describe("header and frame", () => {

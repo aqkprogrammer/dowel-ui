@@ -17,6 +17,7 @@ apps/docs/src/lib/props.generated.ts
 apps/docs/src/lib/quality.generated.ts
 apps/docs/src/lib/licensed-registry.generated.ts
 apps/docs/src/lib/version.generated.ts
+apps/docs/src/lib/agentbench.generated.ts
 # Next rewrites this on every dev/build, flipping between the two variants.
 apps/docs/next-env.d.ts
 .next/
@@ -26,6 +27,10 @@ apps/docs/next-env.d.ts
 packages/screen-reader-tests/test-results/
 packages/screen-reader-tests/playwright-report/
 packages/screen-reader-tests/recordings/
+# Browser test output: reports, traces, failure diffs, per-run axe observations.
+packages/browser-tests/test-results/
+packages/browser-tests/playwright-report/
+
 # Visual regression output: the baseline images, reports and failure diffs.
 # The baseline is captured from a build each time and never committed.
 packages/visual-tests/baseline/

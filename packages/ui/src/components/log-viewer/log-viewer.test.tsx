@@ -388,6 +388,21 @@ describe("LogViewerRow", () => {
     expect(screen.getByText("db-1")).toBeInTheDocument();
   });
 
+  it("gives the Fields toggle a 24px hit area without taller plain rows", () => {
+    // jsdom cannot measure; these are the classes that, in Chromium, make the
+    // toggle 24px tall (it was 16px) and its row exactly 24px (a plain row is 22px).
+    const { container, rerender } = render(
+      <LogViewerRow line={line({ fields: { host: "db-1" } })} onToggle={vi.fn()} />,
+    );
+    const toggle = screen.getByRole("button", { name: "Fields" });
+    expect(toggle).toHaveClass("py-1", "-my-1");
+    expect(container.firstElementChild).toHaveClass("min-h-6");
+
+    rerender(<LogViewerRow line={line()} />);
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(container.firstElementChild).not.toHaveClass("min-h-6");
+  });
+
   it("renders a non-string field value readably", () => {
     render(<LogViewerRow line={line({ fields: { attempt: 3, ok: false } })} expanded />);
     expect(screen.getByText("3")).toBeInTheDocument();

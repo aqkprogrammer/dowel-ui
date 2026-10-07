@@ -15,4 +15,8 @@ export const meta = defineMeta({
     "had buttons with role=tab and no panels. Each question is an accordion button inside a heading. " +
     "Changing topic closes the open answer, since it belongs to the topic being left. The staggered " +
     "entrance collapses to nothing under reduced motion.",
+  guidance: {
+    useWhen: ["an FAQ grouped into topic tabs, each an accordion of answers"],
+    alternatives: ["faq-tabbed-grid", "faq-accordion", "faq-searchable"],
+  },
 });

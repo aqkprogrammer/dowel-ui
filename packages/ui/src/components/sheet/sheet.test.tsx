@@ -59,6 +59,26 @@ describe("Sheet", () => {
     expect(await screen.findByRole("dialog")).toHaveClass(expectedClass);
   });
 
+  it("stacks the panel above its own overlay", async () => {
+    // The overlay and the panel share a layer, and the overlay comes first in
+    // the document, so the panel paints over it. They were once on separate
+    // layers with the overlay's higher, which dimmed every open sheet.
+    const user = userEvent.setup();
+    render(<Example />);
+
+    await user.click(screen.getByRole("button", { name: "Open" }));
+    const panel = await screen.findByRole("dialog");
+    const overlay = document.querySelector("[data-slot='sheet-overlay']");
+    if (!overlay) throw new Error("sheet overlay not rendered");
+
+    const layer = (element: Element) => /z-\[var\(--z-[a-z]+\)\]/.exec(element.className)?.[0];
+    expect(layer(panel)).toBe("z-[var(--z-drawer)]");
+    expect(layer(overlay)).toBe(layer(panel));
+    expect(
+      overlay.compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("defaults to the right edge", async () => {
     const user = userEvent.setup();
     render(<Example />);

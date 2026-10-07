@@ -24,4 +24,14 @@ export const meta = defineMeta({
     "focus. usePermissionPrompt shows one request at a time, states how many are waiting, and when the person " +
     "answers from inside the prompt, moves focus to the next request rather than letting it fall to the page. " +
     "The root is data-agent-ui, so answering never counts as taking over an agent surface.",
+  guidance: {
+    useWhen: [
+      "asking for a capability when an agent first needs it, such as reading a calendar, allowed once, for the session or always",
+    ],
+    avoidWhen: [
+      "approving one call and its arguments — use ai-approval-request",
+      "editing role permissions in an admin page — use permission-matrix",
+    ],
+    alternatives: ["ai-approval-request", "permission-matrix"],
+  },
 });

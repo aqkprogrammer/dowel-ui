@@ -18,4 +18,15 @@ export const meta = defineMeta({
     "A tool's dry run appears inside the request as a blast-radius, whose summary sentence is announced " +
     "when it arrives. The whole region is data-agent-ui, so deciding never counts as taking over the surface. If it unmounts " +
     "with requests waiting, they are refused rather than left hanging.",
+  guidance: {
+    useWhen: [
+      "approving an agent's tool calls inside an agent-surface, with argument corrections and a blast radius",
+    ],
+    avoidWhen: [
+      "one approval outside an agent surface — use ai-approval-request",
+      "granting a capability rather than one call — use permission-prompt",
+    ],
+    alternatives: ["ai-approval-request", "permission-prompt"],
+  },
+  composesWith: ["agent-ledger", "control-baton"],
 });

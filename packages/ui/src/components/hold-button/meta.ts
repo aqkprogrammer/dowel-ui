@@ -18,4 +18,12 @@ export const meta = defineMeta({
     "mode, or long-press on touch. Once confirmed the button is aria-disabled (without dimming) until resetAfter. " +
     "The ink copy, icon, tick and changing labels are aria-hidden. Under reduced motion the full hold is still " +
     "required, the ink moves in quarter steps without a sweep and the label shows the percentage held.",
+  guidance: {
+    useWhen: ["confirming an action by pressing and holding, without opening a dialog"],
+    avoidWhen: [
+      "a confirmation that needs explaining — use alert-dialog",
+      "a quick delete with an undo — use inline-confirm",
+    ],
+    alternatives: ["slide-to-confirm", "inline-confirm", "alert-dialog"],
+  },
 });

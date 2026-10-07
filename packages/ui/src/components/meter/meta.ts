@@ -17,4 +17,15 @@ export const meta = defineMeta({
     "unlabelled meters in the tab order to describe one quantity. aria-valuetext carries the " +
     'unit and the capacity, because a bare "4" says nothing about 4 of what. Per-segment detail ' +
     "lives in MeterLegend as text, where it can be read.",
+  guidance: {
+    useWhen: [
+      "a level against a capacity: storage, seats, spend, quota",
+      "usage split into categories with a legend",
+    ],
+    avoidWhen: [
+      "how far a task has got — use progress",
+      "a model's context window — use ai-token-usage",
+    ],
+    alternatives: ["progress", "ai-token-usage", "dither-meter"],
+  },
 });

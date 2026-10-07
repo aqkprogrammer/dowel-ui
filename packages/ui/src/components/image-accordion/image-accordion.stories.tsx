@@ -26,6 +26,10 @@ const items: ImageAccordionItem[] = places.map((place, index) => ({
   media: <div className={`size-full bg-linear-to-br ${gradients[index] ?? ""}`} />,
 }));
 
+// The wrappers take a width rather than `w-full`: Storybook centres the story
+// in a box that is only as wide as its content, so `w-full` resolved to the
+// narrowest the accordion could be and every panel, the open one included,
+// sat at its minimum.
 const meta = {
   title: "Display/Image Accordion",
   component: ImageAccordion,
@@ -42,7 +46,7 @@ const meta = {
     orientation: { control: "inline-radio", options: ["horizontal", "vertical"] },
   },
   render: (args) => (
-    <div className="w-full max-w-3xl">
+    <div className="w-3xl max-w-full">
       <ImageAccordion {...args} />
     </div>
   ),
@@ -66,7 +70,7 @@ export const Default: Story = {};
 export const Gallery: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <figure className="flex w-full max-w-3xl flex-col gap-2">
+    <figure className="flex w-3xl max-w-full flex-col gap-2">
       <ImageAccordion items={items} />
       <figcaption className="text-xs text-muted-foreground">bencho Image accordion</figcaption>
     </figure>
@@ -91,7 +95,7 @@ export const ClickToOpen: Story = {
 export const Vertical: Story = {
   args: { orientation: "vertical" },
   render: (args) => (
-    <div className="w-full max-w-sm">
+    <div className="w-sm max-w-full">
       <ImageAccordion {...args} />
     </div>
   ),
@@ -102,7 +106,7 @@ export const Controlled: Story = {
   render: function Render() {
     const [active, setActive] = useState(2);
     return (
-      <div className="flex w-full max-w-3xl flex-col gap-2">
+      <div className="flex w-3xl max-w-full flex-col gap-2">
         <ImageAccordion items={items} activeIndex={active} onActiveIndexChange={setActive} />
         <p className="text-sm text-muted-foreground">Open: {places[active]?.title}</p>
       </div>
@@ -113,7 +117,7 @@ export const Controlled: Story = {
 export const RightToLeft: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div dir="rtl" className="w-full max-w-3xl">
+    <div dir="rtl" className="w-3xl max-w-full">
       <ImageAccordion items={items} />
     </div>
   ),

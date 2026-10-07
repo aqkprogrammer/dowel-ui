@@ -16,4 +16,16 @@ export const meta = defineMeta({
     "expensive, so arrowing past it does not load it. The optional sliding indicator " +
     '(indicator="slide") is aria-hidden decoration; selection is still conveyed by ' +
     "aria-selected, and the slide stops under reduced motion.",
+  guidance: {
+    useWhen: [
+      "switching between alternate views of the same subject",
+      "grouping details or settings into panels where nothing is lost on leaving one",
+    ],
+    avoidWhen: [
+      "steps in a process — use stepper",
+      "picking a value rather than showing a panel — use toggle-group",
+      "sections that can be open together — use accordion",
+    ],
+    alternatives: ["toggle-group", "stepper", "accordion"],
+  },
 });

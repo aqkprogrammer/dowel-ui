@@ -12,4 +12,12 @@ export const meta = defineMeta({
   a11y:
     "The badge label must convey the meaning on its own; variant colour is decoration. " +
     "Use asChild to render an interactive badge as a link or button rather than adding handlers.",
+  guidance: {
+    useWhen: ["a compact status, count or category label beside content"],
+    avoidWhen: [
+      "an unread count pinned to an icon or avatar — use notification-badge",
+      "what an agent is doing — use ai-agent-status",
+    ],
+    alternatives: ["notification-badge", "ai-agent-status"],
+  },
 });

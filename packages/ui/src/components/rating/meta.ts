@@ -18,4 +18,10 @@ export const meta = defineMeta({
     "whole star. Filled stars are solid and empty ones outlined, so the value never rests on colour alone. " +
     'readOnly renders a role="img" named "3.5 out of 5". Glyphs, the preview pop and the burst are aria-hidden ' +
     "and stop under reduced motion. Half-star hit zones at size sm are narrow; prefer md or lg for touch.",
+  guidance: {
+    useWhen: [
+      "collecting a star rating, with half stars if needed",
+      "showing a read-only average rating",
+    ],
+  },
 });

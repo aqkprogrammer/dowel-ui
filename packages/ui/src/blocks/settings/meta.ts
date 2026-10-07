@@ -26,4 +26,8 @@ export const meta = defineMeta({
     "promise, so staged changes live in the form instead. The delete confirmation names what will " +
     "be destroyed and requires typing the account's email, so the destructive button cannot be " +
     "reached by muscle memory.",
+  guidance: {
+    useWhen: ["a settings page with a profile form, immediate toggles and a danger zone"],
+    alternatives: ["billing"],
+  },
 });

@@ -16,4 +16,15 @@ export const meta = defineMeta({
     "and an unfocusable scroll box is unreachable by keyboard. The optional ring indicator is " +
     "decorative and hidden; the status word stays visible, and the ring stops moving under " +
     "reduced motion. A summary note is part of the trigger's name, so keep it short.",
+  guidance: {
+    useWhen: [
+      "a collapsible record of a tool the model called, with its arguments, result and status",
+    ],
+    avoidWhen: [
+      "asking for approval before the call runs — use ai-approval-request",
+      "the model's reasoning — use ai-reasoning",
+    ],
+    alternatives: ["ai-approval-request", "ai-reasoning"],
+  },
+  composesWith: ["ai-message"],
 });

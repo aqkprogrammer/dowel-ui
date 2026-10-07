@@ -17,4 +17,8 @@ export const meta = defineMeta({
     'once as its settled value. The call to action names the plan ("Get started, Pro plan") and ' +
     "is a real link. The accent stripe and feature ticks are decorative. The entrance and the " +
     "rolling digits settle instantly under reduced motion.",
+  guidance: {
+    useWhen: ["one plan with every feature listed, under a monthly/annual switch"],
+    alternatives: ["pricing-two-tier", "pricing-three-tier", "pricing"],
+  },
 });

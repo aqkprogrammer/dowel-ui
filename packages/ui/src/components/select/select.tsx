@@ -3,7 +3,14 @@
 // Motion from SmoothUI Select (MIT, © 2024 Eduardo Calvo). See THIRD_PARTY_NOTICES.md.
 import { cva, type VariantProps } from "class-variance-authority";
 import { Select as SelectPrimitive } from "radix-ui";
-import type { ComponentPropsWithRef, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  type AriaAttributes,
+  type ComponentProps,
+  type ComponentPropsWithRef,
+  type ReactNode,
+} from "react";
 
 import { focusRing, invalidStyles } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -20,7 +27,53 @@ import { cn } from "@/lib/utils";
  * and the selected option's tick pops in. All of it is decoration and stops
  * under reduced motion.
  */
-export const Select = SelectPrimitive.Root;
+/**
+ * The attributes that name and describe a field, as `FormControl` hands them
+ * to its child.
+ */
+interface FieldAttributes {
+  id?: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: AriaAttributes["aria-invalid"];
+  "aria-labelledby"?: string;
+  "aria-label"?: string;
+}
+
+const SelectFieldContext = createContext<FieldAttributes>({});
+
+export interface SelectProps
+  extends ComponentProps<typeof SelectPrimitive.Root>, FieldAttributes {}
+
+/**
+ * The root renders no element of its own, so attributes given to it would
+ * land nowhere — and `<FormControl><Select>` is the natural way to write a
+ * select inside a form field. The id the label points at, the description
+ * and the invalid state are passed on to the trigger, which is what receives
+ * focus and what a screen reader announces. The trigger's own props win.
+ */
+export function Select({
+  id,
+  "aria-describedby": describedBy,
+  "aria-invalid": invalid,
+  "aria-labelledby": labelledBy,
+  "aria-label": label,
+  ...props
+}: SelectProps) {
+  return (
+    <SelectFieldContext.Provider
+      value={{
+        id,
+        "aria-describedby": describedBy,
+        "aria-invalid": invalid,
+        "aria-labelledby": labelledBy,
+        "aria-label": label,
+      }}
+    >
+      <SelectPrimitive.Root {...props} />
+    </SelectFieldContext.Provider>
+  );
+}
+
 export const SelectGroup = SelectPrimitive.Group;
 export const SelectValue = SelectPrimitive.Value;
 
@@ -62,10 +115,16 @@ export function SelectTrigger({
   children,
   ...props
 }: SelectTriggerProps) {
+  const field = useContext(SelectFieldContext);
+  const inherited = Object.fromEntries(
+    Object.entries(field).filter(([, value]) => value !== undefined),
+  ) as FieldAttributes;
+
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(selectTriggerVariants({ triggerSize }), className)}
+      {...inherited}
       {...props}
     >
       {children}

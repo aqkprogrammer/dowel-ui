@@ -15,4 +15,17 @@ export const meta = defineMeta({
     "in the input while arrow keys move aria-activedescendant, so typing is never interrupted. " +
     "Arrow navigation wraps, Home/End jump, Enter selects the active option and Escape closes." +
     " With loading set, the listbox is aria-busy, ComboboxLoading is a status and the empty state waits for the answer. The optional clear button is a named button that returns focus to the input.",
+  guidance: {
+    useWhen: [
+      "picking one value from a long list by typing",
+      "options fetched from a server as the person searches",
+    ],
+    avoidWhen: [
+      "a short list with no need to search — use select",
+      "picking several options — use checkbox, or assignee-picker for people",
+      "running commands rather than choosing a value — use command",
+    ],
+    alternatives: ["select", "command", "checkbox", "assignee-picker", "tags-input"],
+  },
+  composesWith: ["form"],
 });

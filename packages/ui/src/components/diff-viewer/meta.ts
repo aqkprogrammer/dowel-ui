@@ -20,4 +20,15 @@ export const meta = defineMeta({
     "is visual only — every row is in the DOM and its kind text is never clipped from assistive " +
     "technology. With collapseRejected, a rejected hunk's lines are inert and hidden, its header " +
     "says so in words, and Accept stays available so the decision can be reversed.",
+  guidance: {
+    useWhen: [
+      "a line diff of a file or code",
+      "accepting or rejecting a proposed change hunk by hunk, such as an agent's edit",
+    ],
+    avoidWhen: [
+      "what changed on a record, field by field — use record-diff",
+      "suggested edits to prose — use ai-suggest-mode",
+    ],
+    alternatives: ["record-diff", "ai-suggest-mode", "code-block"],
+  },
 });

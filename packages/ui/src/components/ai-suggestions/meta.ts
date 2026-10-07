@@ -14,4 +14,10 @@ export const meta = defineMeta({
     'A list of real buttons, named by the visible heading (aria-labelledby) or "Suggestions". Every chip is in ' +
     "the tab order with the shared focus ring. The entrance stagger is decoration and does not run under reduced " +
     "motion. Selecting hands the suggestion back; filling the composer rather than sending keeps it editable.",
+  guidance: {
+    useWhen: ["prompt suggestion chips in a chat's empty state or as follow-ups"],
+    avoidWhen: ["completing what the person is typing — use ai-inline-completion"],
+    alternatives: ["ai-inline-completion"],
+  },
+  composesWith: ["ai-prompt-input"],
 });

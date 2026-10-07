@@ -16,4 +16,10 @@ export const meta = defineMeta({
     "positions in it. The optional citation preview is a Radix Tooltip: it opens on hover and on " +
     "keyboard focus, Escape closes it, and it describes the link (host and excerpt) only while " +
     'open. Favicon stacks and marks are decorative and hidden; give an <img> favicon alt="".',
+  guidance: {
+    useWhen: ["inline citation markers in a response and the list of sources they refer to"],
+    avoidWhen: ["marking content as AI-generated — use ai-disclosure"],
+    alternatives: ["ai-disclosure", "provenance-text"],
+  },
+  composesWith: ["ai-response"],
 });

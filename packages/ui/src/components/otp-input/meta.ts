@@ -21,4 +21,9 @@ export const meta = defineMeta({
     "is never the only signal, since the error also shakes the row and the message says what happened. " +
     "The slots stay left-to-right in RTL, as codes are read. Slot, character, caret and verdict motion is " +
     "decoration and stops under reduced motion, leaving the caret visible and the verdict rings drawn.",
+  guidance: {
+    useWhen: ["entering a one-time code from SMS, email or an authenticator app"],
+    avoidWhen: ["any other short text — use input"],
+    alternatives: ["input"],
+  },
 });

@@ -20,4 +20,11 @@ export const meta = defineMeta({
     "convenience with no keyboard-only behaviour behind it. The fill is aria-hidden, and the sweep's stretch and " +
     "swell are CSS transitions that stop under reduced motion. A development warning fires when the value is " +
     "unnamed.",
+  guidance: {
+    useWhen: [
+      "stepping a small count up and down, such as guests, with hold-to-scrub for big jumps",
+    ],
+    avoidWhen: ["a number with a unit — use quantity-input"],
+    alternatives: ["quantity-input", "scrubber"],
+  },
 });

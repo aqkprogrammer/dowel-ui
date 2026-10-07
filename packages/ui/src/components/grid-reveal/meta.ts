@@ -16,4 +16,11 @@ export const meta = defineMeta({
     "decorative and hidden from assistive technology. The caption is plain text, not a live region — announce " +
     "completion yourself from onRevealComplete if the page needs it. Under reduced motion the shimmer stops, splits " +
     'happen without the spring (MotionConfig reducedMotion="user") and the reveal completes almost at once.',
+  guidance: {
+    useWhen: [
+      "a loading frame while a generated image is on its way, resolving into the picture",
+    ],
+    avoidWhen: ["placeholders for text or layout — use skeleton"],
+    alternatives: ["skeleton", "ai-loader"],
+  },
 });

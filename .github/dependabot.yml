@@ -1,0 +1,32 @@
+# Dependency updates.
+#
+# A cooldown, because a release that is a day old has had a day for anyone to
+# notice it was compromised. The same reasoning as pnpm's minimumReleaseAge;
+# security updates are not delayed by it.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    groups:
+      # Tooling moves together and is rarely worth a PR each.
+      dev-tooling:
+        dependency-type: development
+        update-types: [minor, patch]
+      runtime:
+        dependency-type: production
+        update-types: [patch]

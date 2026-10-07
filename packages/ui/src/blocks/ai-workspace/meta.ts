@@ -35,4 +35,11 @@ export const meta = defineMeta({
     "Each attachment's remove button is named after its file. On a narrow screen the " +
     "conversation list becomes a sheet with a focus trap and an Escape key, not a div slid " +
     "over content that stays reachable by Tab.",
+  guidance: {
+    useWhen: [
+      "a whole AI application: conversation list, transcript, and a panel for context usage, attachments and results",
+    ],
+    avoidWhen: ["a single chat surface — use ai-chat"],
+    alternatives: ["ai-chat"],
+  },
 });

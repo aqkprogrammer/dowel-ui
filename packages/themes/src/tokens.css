@@ -24,13 +24,13 @@
   --color-neutral-950: oklch(0.145 0.01 265);
 
   /* --- Status hues ---------------------------------------------------------- */
-  --color-red-500: oklch(0.577 0.22 27);
+  --color-red-500: oklch(0.55 0.22 27);
   --color-red-400: oklch(0.66 0.2 27);
-  --color-green-500: oklch(0.53 0.14 152);
+  --color-green-500: oklch(0.515 0.14 152);
   --color-green-400: oklch(0.68 0.135 152);
-  --color-amber-500: oklch(0.55 0.15 78);
+  --color-amber-500: oklch(0.535 0.15 78);
   --color-amber-400: oklch(0.82 0.14 82);
-  --color-blue-500: oklch(0.545 0.13 240);
+  --color-blue-500: oklch(0.525 0.13 240);
   --color-blue-400: oklch(0.685 0.125 240);
 
   /* --- Radius ---------------------------------------------------------------

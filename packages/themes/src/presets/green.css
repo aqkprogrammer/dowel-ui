@@ -18,9 +18,9 @@
      narrowest at that lightness: it holds 0.115 chroma, not SmoothUI's 0.15,
      so that is what is written — the value the screen can show. Hover and
      the secondary are capped the same way, at 0.105 and 0.095. */
-  --primary: oklch(0.54 0.115 162.48);
-  --primary-hover: oklch(0.495 0.105 162.48);
-  --primary-active: oklch(0.457 0.095 163.23);
+  --primary: oklch(0.51 0.115 162.48);
+  --primary-hover: oklch(0.465 0.105 162.48);
+  --primary-active: oklch(0.427 0.095 163.23);
   --primary-foreground: oklch(0.985 0.002 265);
 }
 

@@ -17,4 +17,10 @@ export const meta = defineMeta({
     "punctuation leaking into the content. The ellipsis is the exception and is named, because " +
     "it is content: it says levels have been left out. The optional entrance stagger stops " +
     "under reduced motion.",
+  guidance: {
+    useWhen: ["showing where a page sits in a hierarchy, with links back up it"],
+    avoidWhen: ["steps in a process — use stepper", "the app's main navigation — use sidebar"],
+    alternatives: ["stepper", "sidebar"],
+  },
+  composesWith: ["sidebar"],
 });

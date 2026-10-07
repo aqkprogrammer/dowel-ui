@@ -48,6 +48,30 @@ their source was not available for redistribution; no code was taken from them.
   published behaviour descriptions alone. Rare UI's source was not read,
   fetched or copied. No licence terms apply; the credit is given as courtesy.
 
+## Animate UI (patterns only — no code)
+
+- Site: https://animate-ui.com
+- Copyright (c) 2025 Elliot Sutton
+- Licence: MIT with the Commons Clause, which forbids selling or
+  redistributing its components. A registry is redistribution, so nothing
+  from Animate UI is ported.
+- Every Dowel component inspired by an Animate UI pattern — `alert-dialog`,
+  `hover-card`, `preview-link-card`, `toggle`, `toggle-group`, `file-tree`,
+  `code-tabs`, `pin-list`, `notification-list`, `flip-button`,
+  `ripple-button`, `liquid-button`, `share-button`, `flip-card`,
+  `management-bar`, `radial-nav`, `radial-intro`, `stars-background`,
+  `gravity-stars-background`, `fireworks-background`, `hole-background`,
+  `bubble-background`, `gradient-background` and `hexagon-background` — is an
+  _original_ implementation written from the published behaviour alone.
+  Animate UI's source was not read, fetched or copied. No licence terms
+  apply; the credit is given as courtesy.
+- Animate UI items Dowel already covered were not added again: its tabs,
+  tooltip, accordion, checkbox, dialog, dropdown menu, popover, progress,
+  radio group, sheet, sidebar, switch, button, copy, icon, theme toggler and
+  GitHub stars buttons, avatar group, code, cursor, GitHub stars wheel,
+  motion carousel, playful todolist, radial menu and user presence avatar
+  map to existing components.
+
 ---
 
 ## MIT License

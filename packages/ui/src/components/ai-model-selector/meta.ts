@@ -14,4 +14,12 @@ export const meta = defineMeta({
     "typeahead matches the name rather than the description. A disabled model shows and " +
     "announces why it is unavailable — a disabled option with no reason reads as a broken " +
     "interface.",
+  guidance: {
+    useWhen: [
+      "choosing the model a conversation runs on, saying why unavailable models cannot be picked",
+    ],
+    avoidWhen: ["any other short list of options — use select"],
+    alternatives: ["select"],
+  },
+  composesWith: ["ai-prompt-input"],
 });

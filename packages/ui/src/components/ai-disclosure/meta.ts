@@ -20,4 +20,14 @@ export const meta = defineMeta({
     "Scope: this renders the human-visible disclosures of EU AI Act Article 50(1) and 50(4). " +
     "It cannot satisfy 50(2), which requires machine-readable marking inside the artifact by " +
     "whoever generated it, and no React component can. Not legal advice.",
+  guidance: {
+    useWhen: [
+      "telling a reader that content is AI-generated, manipulated or assisted, or that they are talking to a machine",
+    ],
+    avoidWhen: [
+      "showing which words an agent wrote — use provenance-text",
+      "citing sources for a claim — use ai-sources",
+    ],
+    alternatives: ["provenance-text", "ai-sources", "badge"],
+  },
 });

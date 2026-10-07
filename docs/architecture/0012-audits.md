@@ -52,6 +52,64 @@ so "amber" here is an ochre. That is a real aesthetic cost, accepted knowingly.
 The `amber` _preset_ had the same problem twice over: its primary is also the
 focus ring, which has its own 3:1 floor, and it was at 2.42:1.
 
+### Text on its own tint (added after 0.13.0)
+
+The real-browser suite ([ADR 0018](0018-browser-ci.md)) found a third role the
+audit never checked: status text on a tint of itself — `text-destructive` on
+`bg-destructive/10`, the pill in agent status, tags, permission prompts — and
+primary text on the soft button's 12% tint. In light mode these measured
+4.14–4.32:1 for the status colours and 3.97–4.48:1 for primary in ten of the
+thirteen presets. The text and its background move together, so neither
+solid-colour pair could see it.
+
+`audit:contrast` now checks each status colour on its own 10% tint, primary on
+12%, and the soft button's hover and pressed states, over both the page and the
+card: **962 pairs**. It composites the tint the way the browser paints it, on
+gamma-encoded channels. The previous `composite` blended in linear light, which
+reads a 10% tint as darker than it renders and would have passed every one of
+these pairs by about 0.3:1 — the audit would have agreed with itself and not
+with axe. Only the strongest tint that carries text is checked per colour: a
+weaker tint of the same colour only reads better, and stronger status tints
+(`/12`–`/15`) carry icons, not text.
+
+In light mode all three roles — text on the page, light text on the fill, text
+on the tint — improve as the colour darkens, so the band's floor at L≈0.53 was
+never a contrast limit. The tint brings the ceiling down:
+
+| Token / preset (light)         | Was   | Now   | Text on own tint       |
+| ------------------------------ | ----- | ----- | ---------------------- |
+| `red-500`                      | 0.577 | 0.55  | 4.14 → 4.57:1          |
+| `green-500`                    | 0.53  | 0.515 | 4.31 → 4.56:1          |
+| `amber-500`                    | 0.55  | 0.535 | 4.32 → 4.59:1          |
+| `blue-500`                     | 0.545 | 0.525 | 4.24 → 4.57:1          |
+| default `--primary`            | 0.545 | 0.54  | 4.48 → 4.57:1 (12%)    |
+| `amber`                        | 0.55  | 0.53  | 4.25 → 4.59:1          |
+| `blue`                         | 0.555 | 0.53  | 4.13 → 4.56:1          |
+| `candy`                        | 0.58  | 0.545 | 4.03 → 4.60:1          |
+| `emerald`                      | 0.53  | 0.505 | 4.13 → 4.53:1          |
+| `green`                        | 0.54  | 0.51  | 4.07 → 4.55:1          |
+| `indigo`                       | 0.58  | 0.55  | 4.06 → 4.57:1          |
+| `ocean`                        | 0.53  | 0.505 | 4.15 → 4.56:1          |
+| `orange`                       | 0.565 | 0.54  | 4.11 → 4.53:1          |
+| `red`                          | 0.58  | 0.545 | 3.97 → 4.52:1          |
+| `rose`, `violet`, `monochrome` | —     | —     | already 4.55:1 or more |
+
+Each preset's `--primary-hover` and `--primary-active` moved by the same step,
+so the states keep their spacing. Dark mode is untouched: every tint pair
+already passes there (4.65:1 or more), and the dark primaries are pinned to
+SmoothUI's brand lightness. `green-500` and `blue-500` now sit just below the
+old band, at 0.515 and 0.525; both still read as their hue.
+
+Tokens could not fix the soft button's hover (18%) and pressed (24%) states:
+primary text on 24% would need every primary at L≈0.46–0.50. Those are fixed in
+the component instead. The label steps to `primary-hover` — the shade that moves
+away from the page in both modes — and the pressed tint is 20%, the most that
+shade clears 4.5:1 on in every preset (emerald, 4.54:1). `primary-active` was
+the obvious choice and is wrong: it is darker in both modes, which in dark mode
+is towards the page, and it measured as low as 3.1:1 there. The onboarding
+block's current-step marker moved from a 15% tint to 12%, the strength the
+audit checks.
+
 ### Input borders
 
 `--input` was at 1.46:1. The input's background matches the page, so its border

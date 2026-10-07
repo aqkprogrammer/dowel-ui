@@ -6,8 +6,12 @@ import { Command } from "commander";
 import { branding } from "./branding";
 import { add } from "./commands/add";
 import { agents } from "./commands/agents";
+import { audit } from "./commands/audit";
 import { login, logout, whoami } from "./commands/auth";
+import { diff } from "./commands/diff";
+import { doctor } from "./commands/doctor";
 import { init } from "./commands/init";
+import { plan } from "./commands/plan";
 import { list } from "./commands/list";
 import { remove } from "./commands/remove";
 import { update } from "./commands/update";
@@ -129,9 +133,10 @@ program
 
 program
   .command("logout")
-  .description("remove the stored licence key from this machine")
+  .description("remove stored keys: the one for --registry, or every one")
   .action(() => {
-    logout();
+    const { registry } = globals();
+    logout(registry);
   });
 
 program
@@ -140,7 +145,7 @@ program
   .option("--check", "ask the registry whether the licence is still active", false)
   .action(async (options: { check: boolean }) => {
     const { registry } = globals();
-    await whoami({ registry: registry ?? branding.registryUrl, check: options.check });
+    await whoami({ registry, check: options.check });
   });
 
 program
@@ -158,6 +163,82 @@ program
       overwrite: options.overwrite,
     });
   });
+
+program
+  .command("plan")
+  .description("choose the components and blocks for a screen you describe")
+  .argument("<prompt>", 'what to build, e.g. "a billing page with usage and invoices"')
+  .option("--model [id]", "plan with a Claude model, using your own Anthropic credentials")
+  .option("--format <format>", "brief, code or both", "both")
+  .action(async (prompt: string, options: { model?: string | boolean; format: string }) => {
+    const { cwd, registry } = globals();
+    if (!["brief", "code", "both"].includes(options.format)) {
+      throw new CliError(`Unknown format "${options.format}".`, "Choose brief, code or both.");
+    }
+    await plan(prompt, {
+      cwd,
+      registry,
+      model: options.model,
+      format: options.format as "brief" | "code" | "both",
+    });
+  });
+
+program
+  .command("doctor")
+  .description("check the project's setup, installed components and agent docs")
+  .option("--offline", "skip the checks that need the registry", false)
+  .option("--json", "print the checks as JSON", false)
+  .action(async (options: { offline: boolean; json: boolean }) => {
+    const { cwd, registry } = globals();
+    await doctor({ cwd, registry, offline: options.offline, json: options.json });
+  });
+
+program
+  .command("diff")
+  .description("show how installed files differ from the registry's current ones")
+  .argument("[components...]", "component names; defaults to everything installed")
+  .action(async (components: string[]) => {
+    const { cwd, registry } = globals();
+    await diff(components, { cwd, registry });
+  });
+
+program
+  .command("audit")
+  .description(
+    "find hardcoded colours, off-scale sizes, physical directions and bypassed components",
+  )
+  .argument(
+    "[paths...]",
+    "files or directories to scan (default: src, app, components, pages, lib)",
+  )
+  .option("--rule <ids>", "only these rules, comma-separated")
+  .option("--json", "print the findings as JSON", false)
+  .option("--fix", "rewrite the findings that have one exact fix, after asking", false)
+  .option("-y, --yes", "with --fix, do not ask first", false)
+  .option("--include-installed", "also scan the files Dowel installed", false)
+  .action(
+    async (
+      paths: string[],
+      options: {
+        rule?: string;
+        json: boolean;
+        fix: boolean;
+        yes: boolean;
+        includeInstalled: boolean;
+      },
+    ) => {
+      const { cwd } = globals();
+      await audit({
+        cwd,
+        paths,
+        rules: options.rule ? options.rule.split(",").map((rule) => rule.trim()) : [],
+        json: options.json,
+        fix: options.fix,
+        yes: options.yes,
+        includeInstalled: options.includeInstalled,
+      });
+    },
+  );
 
 /**
  * A CliError is a message for the person running the command; anything else is

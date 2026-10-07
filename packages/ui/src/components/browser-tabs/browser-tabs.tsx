@@ -50,17 +50,26 @@ const SPRING_MS = 460;
 
 const STYLES = `@supports (transition-timing-function: linear(0, 1)){[data-slot="${PREFIX}-leaf"],[data-slot="${PREFIX}-ear"],[data-slot="${PREFIX}-tab"],[data-slot="${PREFIX}-body"]{transition-timing-function:var(--${PREFIX}-spring)}}`;
 
-/** Surface and ink as variables, so every colour mix follows the tone. */
+/**
+ * Surface, ink and strip as variables, so every colour mix follows the tone.
+ *
+ * The strip is the band the inactive tabs sit on. It has to follow the tone
+ * too: an inverted window on the default muted strip put light inactive
+ * titles on a light band at 2.1:1. Each tone's strip is its surface shaded a
+ * step toward the ink, so the idle titles (ink mixed 67% toward the surface)
+ * read at 4.5:1 or more on it in both modes, while the active tab still
+ * stands out by its full-strength ink and the surface-coloured leaf behind it.
+ */
 const browserTabsVariants = cva(
-  "relative flex w-[var(--browser-tabs-width)] max-w-full flex-col bg-muted text-[var(--browser-tabs-ink)]",
+  "relative flex w-[var(--browser-tabs-width)] max-w-full flex-col bg-[var(--browser-tabs-strip)] text-[var(--browser-tabs-ink)]",
   {
     variants: {
       /** `default` is a card-coloured window; `inverted` swaps surface and ink. */
       tone: {
         default:
-          "[--browser-tabs-ink:var(--color-foreground)] [--browser-tabs-surface:var(--color-card)]",
+          "[--browser-tabs-ink:var(--color-foreground)] [--browser-tabs-strip:var(--color-muted)] [--browser-tabs-surface:var(--color-card)]",
         inverted:
-          "[--browser-tabs-ink:var(--color-background)] [--browser-tabs-surface:var(--color-foreground)]",
+          "[--browser-tabs-ink:var(--color-background)] [--browser-tabs-strip:color-mix(in_oklab,var(--color-foreground)_88%,var(--color-background))] [--browser-tabs-surface:var(--color-foreground)]",
       },
     },
     defaultVariants: { tone: "default" },

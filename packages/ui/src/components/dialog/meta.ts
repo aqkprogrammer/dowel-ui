@@ -14,4 +14,17 @@ export const meta = defineMeta({
     "click dismiss. Always render a DialogTitle — it names the dialog for screen readers. " +
     "Use DialogDescription, or aria-describedby, to explain consequential actions. The " +
     "optional spring entrance and section stagger stop under reduced motion.",
+  guidance: {
+    useWhen: [
+      "asking for input or a decision that must be answered before returning to the page",
+      "a short, focused task such as editing one record",
+    ],
+    avoidWhen: [
+      "confirming a destructive or irreversible action — use alert-dialog",
+      "secondary content beside the page, such as filters or details — use sheet",
+      "a bottom sheet on touch screens — use drawer",
+    ],
+    alternatives: ["alert-dialog", "sheet", "drawer", "popover"],
+  },
+  composesWith: ["form", "button"],
 });

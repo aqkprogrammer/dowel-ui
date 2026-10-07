@@ -427,41 +427,61 @@ export function CommandCenterBlock({
                 </EmptyState>
               ) : (
                 <ul className="grid gap-2">
-                  {[...open, ...resolved].map((incident) => (
-                    <li
-                      key={incident.id}
-                      data-resolved={incident.status === "resolved" || undefined}
-                      className="rounded-lg border border-border px-3 py-2 data-[resolved]:opacity-70"
-                    >
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge size="sm" variant={SEVERITY_VARIANT[incident.severity]}>
-                          {incident.severity}
-                        </Badge>
-                        <p className="min-w-0 flex-1 truncate text-sm font-medium">
-                          {incident.href ? (
-                            <a
-                              href={incident.href}
-                              className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/55"
-                            >
-                              {incident.title}
-                            </a>
-                          ) : (
-                            incident.title
-                          )}
+                  {[...open, ...resolved].map((incident) => {
+                    const isResolved = incident.status === "resolved";
+                    return (
+                      <li
+                        key={incident.id}
+                        data-resolved={isResolved || undefined}
+                        // Resolved recedes by tone, never by opacity: a faded
+                        // warning badge put light text on ochre at 2.8:1. The
+                        // severity becomes an outline badge and the title takes
+                        // the audited secondary-text colour, so every word on
+                        // the row still reads at 4.5:1.
+                        className="rounded-lg border border-border px-3 py-2"
+                      >
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge
+                            size="sm"
+                            variant={
+                              isResolved ? "outline" : SEVERITY_VARIANT[incident.severity]
+                            }
+                          >
+                            {incident.severity}
+                          </Badge>
+                          <p
+                            className={cn(
+                              "min-w-0 flex-1 truncate text-sm font-medium",
+                              isResolved && "text-muted-foreground",
+                            )}
+                          >
+                            {incident.href ? (
+                              <a
+                                href={incident.href}
+                                className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/55"
+                              >
+                                {incident.title}
+                              </a>
+                            ) : (
+                              incident.title
+                            )}
+                          </p>
+                          <span className="text-xs text-muted-foreground">
+                            {STATUS_LABEL[incident.status]}
+                          </span>
+                        </div>
+                        {incident.detail ? (
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {incident.detail}
+                          </p>
+                        ) : null}
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Started{" "}
+                          <time dateTime={incident.startedAt}>{incident.startedLabel}</time>
                         </p>
-                        <span className="text-xs text-muted-foreground">
-                          {STATUS_LABEL[incident.status]}
-                        </span>
-                      </div>
-                      {incident.detail ? (
-                        <p className="mt-1 text-xs text-muted-foreground">{incident.detail}</p>
-                      ) : null}
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Started{" "}
-                        <time dateTime={incident.startedAt}>{incident.startedLabel}</time>
-                      </p>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </CardContent>

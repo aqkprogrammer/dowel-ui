@@ -15,11 +15,10 @@ export type { RegistryIndex, RegistryIndexEntry } from "./schema";
  * that is not installable, because it only ever repeats names the registry
  * gave it.
  *
- * It does not guess at props. The registry publishes what a component *is* and
- * what it depends on, not the shape of its arguments, so the output stops at
- * the composition and points at the page where the props are documented.
- * Emitting a plausible prop is worse than emitting none — one is a gap, the
- * other is a bug that looks like working code.
+ * It does not write props. Each item's props are in the registry, read from its
+ * type, so the output stops at the composition and points at them. Emitting a
+ * plausible prop is worse than emitting none — one is a gap, the other is a
+ * bug that looks like working code.
  */
 
 /** Words that carry no signal about which component is wanted. */
@@ -144,7 +143,7 @@ const SYNONYMS: Record<string, string[]> = {
     "notify-button",
     "notification-bell",
   ],
-  notifications: ["toast", "settings"],
+  notifications: ["toast", "settings", "notification-list", "notification-bell"],
   upload: ["file-upload"],
   file: ["file-upload"],
   date: ["date-picker", "calendar"],
@@ -256,10 +255,16 @@ const SYNONYMS: Record<string, string[]> = {
   drag: ["reorder-list", "goo-ball", "swipe-carousel"],
   dock: ["magnify-dock"],
   toolbar: ["canvas-toolbar", "magnify-dock"],
-  confirm: ["slide-to-confirm", "inline-confirm", "confirm-typed", "hold-button"],
-  delete: ["inline-confirm", "confirm-typed", "hold-button"],
-  toggle: ["switch", "liquid-toggle", "theme-toggle"],
-  copy: ["copy-button"],
+  confirm: [
+    "slide-to-confirm",
+    "inline-confirm",
+    "confirm-typed",
+    "hold-button",
+    "alert-dialog",
+  ],
+  delete: ["inline-confirm", "confirm-typed", "hold-button", "alert-dialog"],
+  toggle: ["toggle", "toggle-group", "switch", "liquid-toggle", "theme-toggle"],
+  copy: ["copy-button", "code-tabs"],
   clipboard: ["copy-button"],
   refresh: ["pull-to-refresh"],
   music: ["now-playing"],
@@ -267,20 +272,21 @@ const SYNONYMS: Record<string, string[]> = {
   orb: ["gradient-orb", "orb-face", "matrix-orb", "fluid-orb"],
   transition: ["shader-transition", "text-swap"],
   badge: ["badge", "notification-badge"],
-  avatar: ["avatar", "avatar-group", "pixel-avatar"],
+  avatar: ["avatar", "avatar-group", "pixel-avatar", "radial-intro"],
   tweet: ["tweet-card"],
   dial: ["dial", "range-dial"],
   knob: ["dial"],
   timer: ["countdown", "step-player"],
   duration: ["duration-picker"],
   rating: ["rating"],
-  stars: ["rating", "star-count"],
+  stars: ["rating", "star-count", "stars-background"],
   review: ["rating", "reviews-carousel"],
   like: ["like-button", "emoji-reaction"],
   heart: ["like-button"],
   reaction: ["emoji-reaction", "like-button"],
   emoji: ["emoji-reaction"],
   bell: ["notification-bell", "notify-button"],
+  inbox: ["notification-list", "pin-list"],
   "dark mode": ["theme-toggle"],
   theme: ["theme-toggle"],
   "hold to confirm": ["hold-button"],
@@ -293,10 +299,10 @@ const SYNONYMS: Record<string, string[]> = {
   minimap: ["minimap-nav"],
   "table of contents": ["minimap-nav", "rail-nav"],
   toc: ["minimap-nav"],
-  nav: ["rail-nav", "gooey-nav", "sidebar"],
-  navigation: ["rail-nav", "gooey-nav", "sidebar"],
+  nav: ["rail-nav", "gooey-nav", "sidebar", "radial-nav"],
+  navigation: ["rail-nav", "gooey-nav", "sidebar", "radial-nav"],
   "side nav": ["rail-nav", "sidebar"],
-  "segmented control": ["gooey-nav"],
+  "segmented control": ["gooey-nav", "toggle-group"],
   voice: ["matrix-orb", "fluid-orb", "gradient-orb"],
   "image generation": ["grid-reveal"],
   "generated image": ["grid-reveal"],
@@ -372,6 +378,59 @@ const SYNONYMS: Record<string, string[]> = {
   "hear chart": ["chart-sonifier"],
   "accessible chart": ["chart-sonifier"],
   "data to sound": ["chart-sonifier"],
+  "are you sure": ["alert-dialog", "confirm-typed"],
+  "confirmation dialog": ["alert-dialog"],
+  "hover card": ["hover-card", "preview-link-card"],
+  "link preview": ["preview-link-card"],
+  "preview card": ["preview-link-card", "hover-card"],
+  "button group": ["toggle-group"],
+  "file tree": ["file-tree"],
+  "file explorer": ["file-tree"],
+  "tree view": ["file-tree"],
+  files: ["file-tree", "file-upload"],
+  "install command": ["code-tabs", "code-block"],
+  "package manager": ["code-tabs"],
+  "code tabs": ["code-tabs"],
+  pin: ["pin-list"],
+  favourites: ["pin-list"],
+  favorites: ["pin-list"],
+  "bulk actions": ["management-bar"],
+  "selection toolbar": ["management-bar"],
+  "action bar": ["management-bar"],
+  share: ["share-button"],
+  "social share": ["share-button"],
+  flip: ["flip-card", "flip-button"],
+  "flip card": ["flip-card"],
+  ripple: ["ripple-button"],
+  liquid: ["liquid-button", "liquid-toggle", "slosh-slider"],
+  radial: ["radial-nav", "radial-menu", "radial-intro"],
+  orbit: ["radial-intro"],
+  background: [
+    "gradient-background",
+    "bubble-background",
+    "stars-background",
+    "hexagon-background",
+  ],
+  backdrop: ["gradient-background", "bubble-background"],
+  "hero background": ["gradient-background", "stars-background", "hole-background"],
+  "animated background": ["gradient-background", "bubble-background", "hexagon-background"],
+  starfield: ["stars-background", "gravity-stars-background"],
+  "night sky": ["stars-background"],
+  space: ["stars-background", "hole-background"],
+  particles: ["gravity-stars-background", "fireworks-background"],
+  fireworks: ["fireworks-background"],
+  celebration: ["fireworks-background"],
+  celebrate: ["fireworks-background"],
+  "black hole": ["hole-background"],
+  tunnel: ["hole-background"],
+  warp: ["hole-background"],
+  bubbles: ["bubble-background"],
+  blobs: ["bubble-background"],
+  aurora: ["gradient-background"],
+  "mesh gradient": ["gradient-background"],
+  gradient: ["gradient-background", "gradient-orb"],
+  hexagon: ["hexagon-background"],
+  honeycomb: ["hexagon-background"],
 };
 
 export interface PlanEntry {
@@ -456,6 +515,9 @@ function scoreEntry(
   const name = entry.name.toLowerCase();
   const title = entry.title.toLowerCase();
   const description = entry.description.toLowerCase();
+  // Curated situations from the genome. Weighted above a category or a
+  // description, because someone wrote them to answer exactly this question.
+  const useWhen = (entry.guidance?.useWhen ?? []).join(" ").toLowerCase();
 
   let score = 0;
   const reasons: string[] = [];
@@ -476,6 +538,9 @@ function scoreEntry(
     } else if (title.includes(term)) {
       score += 20;
       reasons.push(`"${term}" in its title`);
+    } else if (useWhen.includes(term)) {
+      score += 15;
+      reasons.push(`"${term}" in when to use it`);
     } else if (entry.category === term) {
       score += 12;
       reasons.push(`the ${term} category`);
@@ -519,6 +584,8 @@ export function planUi(
 
   const scored = index.items
     .filter((entry) => entry.type === "registry:ui" || entry.type === "registry:block")
+    // A deprecated item still installs, but a new screen should not start on it.
+    .filter((entry) => entry.deprecated === undefined)
     .map((entry) => scoreEntry(entry, terms, synonyms))
     .filter((candidate): candidate is Scored => candidate !== undefined)
     // A description-only brush (8) or a bare category hit (12) is not enough on
@@ -560,6 +627,68 @@ export function planUi(
     components: components.map(toEntry),
     install: [...blocks, ...components].map((candidate) => candidate.entry.name),
     empty: blocks.length === 0 && components.length === 0,
+  };
+}
+
+/** A pick made by something other than this planner, such as a model. */
+export interface PlanPick {
+  name: string;
+  because: string;
+}
+
+export interface PicksResult {
+  plan: UiPlan;
+  /** Names that are not in the registry, and were dropped. */
+  unknown: string[];
+}
+
+/**
+ * Builds a plan from picks made elsewhere, holding them to the registry.
+ *
+ * The guarantee every plan carries — it cannot name a component that does not
+ * exist — has to survive a model making the choice, so this is where it is
+ * enforced: unknown names are dropped and reported rather than rendered, and
+ * a component a chosen block already installs is folded into the block, as
+ * `planUi` does.
+ */
+export function planFromPicks(
+  prompt: string,
+  index: RegistryIndex,
+  picks: PlanPick[],
+): PicksResult {
+  const byName = new Map(index.items.map((entry) => [entry.name, entry]));
+  const unknown: string[] = [];
+  const seen = new Set<string>();
+  const chosen: PlanEntry[] = [];
+
+  for (const pick of picks) {
+    const entry = byName.get(pick.name);
+    if (!entry || (entry.type !== "registry:ui" && entry.type !== "registry:block")) {
+      unknown.push(pick.name);
+      continue;
+    }
+    if (seen.has(entry.name)) continue;
+    seen.add(entry.name);
+    chosen.push({ entry, because: pick.because });
+  }
+
+  const blocks = chosen.filter((item) => item.entry.type === "registry:block");
+  const covered = new Set(
+    blocks.flatMap((item) => [item.entry.name, ...item.entry.registryDependencies]),
+  );
+  const components = chosen.filter(
+    (item) => item.entry.type === "registry:ui" && !covered.has(item.entry.name),
+  );
+
+  return {
+    plan: {
+      prompt,
+      blocks,
+      components,
+      install: [...blocks, ...components].map((item) => item.entry.name),
+      empty: blocks.length === 0 && components.length === 0,
+    },
+    unknown,
   };
 }
 
@@ -613,9 +742,9 @@ export function blocksPathFor(importFrom: string): string {
  * The plan as a starting file.
  *
  * Imports and composition only. Every element carries the page its props are
- * documented on, because the registry does not publish prop shapes and a
- * plausible invented prop is worse than an obvious gap — one is a TODO, the
- * other is a bug wearing the costume of working code.
+ * documented on rather than guessed props: a plausible invented prop is worse
+ * than an obvious gap — one is a TODO, the other is a bug wearing the costume
+ * of working code.
  */
 export function renderPlan(plan: UiPlan, options: RenderOptions = {}): string {
   const {

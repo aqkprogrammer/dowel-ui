@@ -17,4 +17,10 @@ export const meta = defineMeta({
     "it is not read twice. Reviewer avatars carry their names. The image is content and requires " +
     "alt text; the placeholder shown without one is aria-hidden. The entrance runs on the motion " +
     "scale and settles at rest under reduced motion.",
+  guidance: {
+    useWhen: [
+      "a two-column hero with social proof — reviewer avatars and a star rating — beside an image",
+    ],
+    alternatives: ["hero-product", "cta-split-image"],
+  },
 });
