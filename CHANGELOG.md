@@ -3,6 +3,21 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Changed
+
+- **The install check runs in CI.** `pnpm install-check` installs every
+  registry item into a new Next.js app with this checkout's CLI and builds it,
+  on pull requests that touch the library and nightly against the newest
+  Next.js.
+- **Releases publish from a tag.** Pushing `vX.Y.Z` runs a workflow that
+  refuses to continue until the live registry serves that version, publishes
+  to npm with trusted publishing, and opens the GitHub release from this
+  file. See `RELEASING.md`.
+- `audit:installed-imports` fails when two items ship different files under
+  one name, the cause of the carousel bug fixed in 0.12.0.
+
 ## 0.13.1
 
 Fixes for the accessibility problems the real-browser suite found in 0.13.0.
