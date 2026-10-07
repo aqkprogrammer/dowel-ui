@@ -12,6 +12,10 @@
 
 [**Documentation**](https://dowel-eight.vercel.app) · [**Components**](https://dowel-eight.vercel.app/docs/components) · [**CLI**](https://dowel-eight.vercel.app/docs/cli)
 
+<br>
+
+<img src="docs/screenshots/tour.webp" alt="Tour: the docs home, the component playground and the theme studio" width="100%">
+
 </div>
 
 ---
