@@ -40,6 +40,14 @@ describe("SuggestMode", () => {
     expect(change.querySelector("ins")).toHaveTextContent("The");
   });
 
+  it("keeps removed text readable, marking it by strike-through rather than fading", () => {
+    render(<SuggestMode value={TEXT} edits={EDITS} />);
+    for (const removed of document.querySelectorAll("del")) {
+      expect(removed).toHaveClass("text-foreground");
+      expect(removed).not.toHaveClass("text-muted-foreground");
+    }
+  });
+
   it("applies only what is accepted, and reports the text as it goes", async () => {
     const user = userEvent.setup();
     const onTextChange = vi.fn();

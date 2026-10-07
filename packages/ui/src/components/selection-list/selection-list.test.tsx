@@ -81,6 +81,21 @@ describe("SelectionList", () => {
     );
   });
 
+  it("draws descriptions in the muted token, not a faded foreground", () => {
+    const description = () =>
+      document.querySelector<HTMLElement>('[data-slot="selection-list-description"]');
+    const { rerender } = render(<Example />);
+    expect(description()).toHaveTextContent("@nadia");
+    expect(description()).toHaveClass("text-muted-foreground");
+    expect(description()?.className).not.toMatch(/\/\d+\b/);
+
+    // On the inverted fill, muted-foreground is the wrong surface's token.
+    rerender(<Example tone="inverted" />);
+    expect(description()).toHaveClass("text-current");
+    expect(description()).not.toHaveClass("text-muted-foreground");
+    expect(description()?.className).not.toMatch(/\/\d+\b/);
+  });
+
   it("tucks the action away, inert and hidden, while nothing is selected", () => {
     render(<Example />);
     expect(action()).toHaveAttribute("data-state", "tucked");

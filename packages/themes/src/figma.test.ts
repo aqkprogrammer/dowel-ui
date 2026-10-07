@@ -56,7 +56,7 @@ describe("parseTokenCss", () => {
     expect(parseTokenCss(tokensCss, "@theme")["color-neutral-500"]).toBe(
       "oklch(0.532 0.015 265)",
     );
-    expect(parseTokenCss(baseCss, ":root").primary).toBe("oklch(0.545 0.196 275)");
+    expect(parseTokenCss(baseCss, ":root").primary).toBe("oklch(0.54 0.196 275)");
     expect(parseTokenCss(baseCss, ".dark").background).toBe("var(--color-neutral-950)");
     expect(parseTokenCss(oceanCss, '[data-theme="ocean"]').primary).toBeDefined();
   });

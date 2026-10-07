@@ -3,9 +3,9 @@
  * tokens are reassigned; every neutral, radius and motion token is inherited. */
 
 [data-theme="ocean"] {
-  --primary: oklch(0.53 0.15 232);
-  --primary-hover: oklch(0.5 0.15 232);
-  --primary-active: oklch(0.447 0.15 232);
+  --primary: oklch(0.505 0.15 232);
+  --primary-hover: oklch(0.475 0.15 232);
+  --primary-active: oklch(0.422 0.15 232);
   --primary-foreground: oklch(0.985 0.002 265);
 }
 

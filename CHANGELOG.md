@@ -3,6 +3,66 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+Fixes for the accessibility problems the real-browser suite found in 0.13.0.
+
+### Fixed
+
+- **Status and primary text on their own tints reach 4.5:1 in light mode.**
+  `text-destructive` on `bg-destructive/10` (and the same for success, warning
+  and info) measured 4.14–4.32:1, and primary text on the soft button's 12%
+  tint 3.97–4.48:1 in ten of the thirteen presets. The status colours are
+  darker in light mode (`red-500` 0.577→0.55, `green-500` 0.53→0.515,
+  `amber-500` 0.55→0.535, `blue-500` 0.545→0.525), as is the light-mode primary
+  of the default theme and of `amber`, `blue`, `candy`, `emerald`, `green`,
+  `indigo`, `ocean`, `orange` and `red` (by 0.005–0.035, with hover and active
+  moved by the same step). Dark mode is unchanged. Every such pair now measures
+  4.52:1 or better in every preset.
+- **The soft button stays readable while hovered and pressed.** Its label now
+  steps to `primary-hover` as the tint deepens, and the pressed tint is 20%
+  rather than 24%; primary text on the old hover and pressed tints fell to
+  3.3–4.4:1. The onboarding block's current-step marker uses a 12% tint, like
+  the soft button, instead of 15%.
+- **`audit:contrast` checks text on tints.** It now measures each status colour
+  on its own 10% tint and primary text on the soft button's tints, over both
+  the page and the card, and composites translucent colours the way browsers
+  paint them (on gamma-encoded channels). It previously blended in linear
+  light, which reads a 10% tint as darker than it renders and would have
+  passed these pairs by ~0.3:1. `pnpm audit:contrast --verbose` lists them.
+- **The theme studio checks text on tints too.** A colour derived there could
+  pass every label check and still fail as text on its own tint, as the shipped
+  presets did; the studio now lists primary on the soft button's tints, light
+  and dark, alongside the solid states.
+- `ai-suggest-mode`: removed text is full-strength, marked by its strike-through
+  and tint. Muted text on the darker destructive tint measured 4.4:1 — found by
+  the browser suite after the palette change above.
+- **`Select` inside `FormControl` had no accessible name.** `FormControl`
+  passes the field's id, description and invalid state to its child, and
+  `Select`'s root renders no element, so they were dropped and the label
+  pointed at nothing. `Select` now passes them on to its trigger.
+- **`Conversation`'s transcript could not be scrolled by keyboard** when the
+  messages held nothing focusable. It is now a focusable, named region (`label`,
+  default "Conversation"), as `Table`'s scroll wrapper already is.
+- `ai-loader`: the elapsed-time counter is full-strength muted text instead of `opacity-60` on muted text (2.4:1).
+- `pull-to-refresh`: the demo's balance decimals and idle time windows use `text-muted-foreground` instead of a faded foreground (2.2:1).
+- `browser-tabs`: the tab strip follows the tone, so an inverted window's inactive tab titles read at 4.5:1 or more instead of 2.1:1.
+- `island`: secondary text in the demo views is full-strength, not `opacity-70`, which was 3.34:1 on the primary tone.
+- `code-block`: the light-mode highlighted-line band is a 4% tint of the page, so syntax colours on it stay at 4.5:1 or more (`text-info` was 4.08:1).
+- `log-viewer`: the Fields toggle is a 24px-tall target instead of 16px; only rows that have one grow, by 2px.
+- `image-accordion`: a collapsed panel, which is its own trigger, is never narrower than 24px (it could be 16px).
+- `reviews-carousel`: each pagination dot is a 24 × 24 target instead of 16 × 24; the dot itself is unchanged.
+- `command-center` block: a resolved incident shows an outline severity badge and muted title instead of fading the row, which took the warning badge to 2.8:1.
+- `onboarding` block: a blocked step is no longer faded, so its warning badge has the solid fill instead of a lighter one (3.95:1).
+- `selection-list`: item descriptions were the foreground at 45% (2.9:1); they use `text-muted-foreground` (5.3:1 light, 7.4:1 dark), and full-strength text on the inverted fill.
+- `slide-to-confirm`: the track label, the control's only visible instruction, was `text-foreground/45` (2.9:1); it is `text-muted-foreground` (5.3:1 light, 7.4:1 dark), and the power shimmer only ever brightens it.
+- `confirm-typed`: the action was faded to `opacity-55` (2.2–2.5:1) until the text matched; it stays reachable but is now `aria-disabled` and drawn in the outline style, with a full-contrast label, until it takes its real variant on a match.
+- `animated-checklist`: the "Add new task" button was faded to `opacity-34` (2.1:1) and done tasks to `opacity-42` (2.7:1); both use `text-muted-foreground` (5.3:1), and a done task is shown by its tick and strike-through.
+- `calendar`: days outside the month, which are selectable, were muted at 50% opacity (2.0:1); they are plain `text-muted-foreground` (5.3:1). The root is now `relative`, so the month navigation sits on the calendar rather than at the edges of the page.
+- Stories: the `agent-data-table` selection column has a header name, the
+  skeleton loading stories give their label a role to belong to, and the tabs
+  stories render the panels their triggers point at.
+
 ## 0.13.0
 
 The CLI and the MCP server now work after the install as well as during it,

@@ -73,7 +73,8 @@ function Deployments() {
     columns: [
       {
         id: "select",
-        header: "",
+        // A header cell with no text is a column a screen reader cannot name.
+        header: () => <span className="sr-only">Select</span>,
         cell: ({ row }) => (
           <input
             type="checkbox"

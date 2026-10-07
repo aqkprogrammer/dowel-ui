@@ -91,7 +91,7 @@ const WEEK: ChecklistItem[] = [
 
 /**
  * `sortDone`: tick a task and it plays its tick — the fill, the strike, the
- * fade — then glides to the bottom; untick it and it glides straight back.
+ * quietening — then glides to the bottom; untick it and it glides straight back.
  * Try it with Space: focus rides along with the task. Only the order on screen
  * changes; `onItemsChange` still reports the list in its own order.
  */

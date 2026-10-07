@@ -1,9 +1,15 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { hexToOklch, parseOklch, type Oklch } from "./colour";
 import type { PresetMode } from "./preset";
+
+const here = dirname(fileURLToPath(import.meta.url));
 import {
   checkPreset,
+  PAGE_BACKGROUND,
   derivePreset,
   foregroundFor,
   formatPreset,
@@ -84,12 +90,34 @@ describe("foregroundFor", () => {
 });
 
 describe("checkPreset", () => {
-  it("reports every state in both modes", () => {
-    expect(checkPreset(derivePreset(OCEAN))).toHaveLength(6);
+  it("reports every solid state and every soft tint, in both modes", () => {
+    expect(checkPreset(derivePreset(OCEAN))).toHaveLength(12);
+  });
+
+  it("fails a colour whose label passes on the fill but not as text on its tint", () => {
+    // The trap the shipped presets fell into: L≈0.58 carries white text at
+    // better than 4.5:1, and as text on a 12% tint of itself reads at ~4.0.
+    const checks = checkPreset(derivePreset({ l: 0.58, c: 0.2, h: 25 }));
+    expect(
+      checks.find((check) => check.label === "Light: primary-foreground on primary")?.passes,
+    ).toBe(true);
+    expect(
+      checks.find((check) => check.label === "Light: primary on the soft tint")?.passes,
+    ).toBe(false);
+  });
+
+  it("paints the tints over the page background base.css defines", () => {
+    const css = readFileSync(join(here, "base.css"), "utf8");
+    const light = /:root\s*{[\s\S]*?--background:\s*(oklch\([^)]*\))/.exec(css)?.[1];
+    expect(parseOklch(light ?? "")).toMatchObject(PAGE_BACKGROUND.light);
+    const tokens = readFileSync(join(here, "tokens.css"), "utf8");
+    const dark = /--color-neutral-950:\s*(oklch\([^)]*\))/.exec(tokens)?.[1];
+    expect(css).toMatch(/\.dark\s*{[\s\S]*?--background:\s*var\(--color-neutral-950\)/);
+    expect(parseOklch(dark ?? "")).toMatchObject(PAGE_BACKGROUND.dark);
   });
 
   it("passes for the colours the shipped presets are built on", () => {
-    for (const hex of ["#5b5bd6", "#0ea5e9", "#7c3aed"]) {
+    for (const hex of ["#5b5bd6", "#7c3aed"]) {
       const colour = hexToOklch(hex);
       expect(colour).toBeDefined();
 
@@ -97,6 +125,20 @@ describe("checkPreset", () => {
         expect(check.ratio, `${hex} — ${check.label}`).toBeGreaterThanOrEqual(TEXT_MINIMUM);
       }
     }
+  });
+
+  it("passes a light brand colour as a fill and flags it as text on its tint", () => {
+    // Ocean's brand sky blue carries dark text on its fill comfortably and is
+    // unreadable as text on a tint of itself — why the shipped `ocean` preset
+    // uses a darker primary than the brand colour. The studio says so rather
+    // than approving it.
+    const checks = checkPreset(derivePreset(hexToOklch("#0ea5e9")!));
+    const failing = checks.filter((check) => !check.passes).map((check) => check.label);
+    expect(failing).toEqual([
+      "Light: primary on the soft tint",
+      "Light: primary-hover on the soft hover tint",
+      "Light: primary-hover on the soft pressed tint",
+    ]);
   });
 
   it("fails, rather than quietly approving, a colour nothing can be read on", () => {

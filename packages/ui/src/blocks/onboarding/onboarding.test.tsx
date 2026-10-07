@@ -98,6 +98,15 @@ describe("OnboardingBlock", () => {
     ).toBeDisabled();
   });
 
+  it("shows a blocked step at full strength, with the solid warning badge", () => {
+    render(<OnboardingBlock steps={STEPS} />);
+
+    // Opacity on the row lightened the badge fill until its text was 3.95:1.
+    const badge = screen.getByText("Blocked");
+    expect(badge).toHaveClass("bg-warning", "text-warning-foreground");
+    expect(badge.closest("li")?.className).not.toMatch(/opacity/);
+  });
+
   it("offers no action on a step already done", () => {
     render(
       <OnboardingBlock

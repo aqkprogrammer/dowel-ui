@@ -51,6 +51,33 @@ describe("AnimatedChecklist", () => {
     expect(box).not.toBeChecked();
   });
 
+  it("keeps a done task readable: struck through and muted, never faded", () => {
+    render(<AnimatedChecklist defaultItems={TASKS} />);
+    const row = screen.getByRole("checkbox", { name: "Book the studio" }).closest("li");
+    expect(row).toHaveAttribute("data-done");
+    const text = row?.querySelector('[data-slot="animated-checklist-text"]');
+    expect(text).toHaveClass("group-data-[done]/row:text-muted-foreground");
+    expect(text?.className).not.toMatch(/opacity-\d/);
+    // The strike is what marks it done, alongside the tick.
+    expect(row?.querySelector('[data-slot="animated-checklist-rule"]')).toHaveClass(
+      "group-data-[done]/row:scale-x-100",
+    );
+  });
+
+  it("draws the add row readable at rest, not faded until hover or focus", async () => {
+    const user = userEvent.setup();
+    render(<AnimatedChecklist defaultItems={TASKS} />);
+    const add = screen.getByRole("button", { name: "Add new task" });
+    expect(add).toBeEnabled();
+    expect(add).toHaveClass("text-muted-foreground", "hover:text-foreground");
+    expect(add.className).not.toMatch(/opacity-\d/);
+
+    await user.click(add);
+    const field = screen.getByRole("textbox", { name: "New task" });
+    expect(field).toHaveClass("placeholder:text-muted-foreground");
+    expect(field.className).not.toMatch(/text-foreground\/\d+/);
+  });
+
   it("adds a task with Enter, announces it, and keeps the field open", async () => {
     const user = userEvent.setup();
     render(<AnimatedChecklist defaultItems={TASKS} />);
