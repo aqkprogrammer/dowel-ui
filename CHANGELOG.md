@@ -15,6 +15,21 @@ per-package changelogs, whatever an earlier version of this line claimed.
   set; without it the page plays a scripted run through the same surface. See
   `RELEASING.md` for the configuration and what bounds the cost.
 
+### Changed
+
+- **The install check runs in CI.** `pnpm install-check` installs every
+  registry item into a new Next.js app with this checkout's CLI and builds it,
+  on pull requests that touch the library and nightly against the newest
+  Next.js.
+- **Releases publish from a tag.** Pushing `vX.Y.Z` runs a workflow that
+  refuses to continue until the live registry serves that version, publishes
+  to npm with trusted publishing, and opens the GitHub release from this
+  file. See `RELEASING.md`.
+- `audit:installed-imports` fails when two items ship different files under
+  one name, the cause of the carousel bug fixed in 0.12.0.
+- **`blast-radius` says a single kind of change plainly:** "2 emails will be
+  created." where it said "2 emails will change: 2 created."
+
 ### Fixed
 
 Three things the demo showed within minutes of being used by hand, none of
@@ -27,8 +42,8 @@ which a unit test could see.
   and a controlled input was put back to its old value. The agent is still
   refused from the instant of the click, and the change now reaches React in
   the bubble phase, with the person's handler. jsdom cannot show this, so it
-  is checked in a browser (`agent-surface.browser.spec.ts`, and a `Browser`
-  workflow).
+  is checked in a browser (`agent-surface.browser.spec.ts`, run by a job in the
+  `Browser` workflow).
 - **`agent-surface`, `agent-approvals`: a question is withdrawn when the
   person takes over.** An approval stayed on screen after a take-over, though
   approving it could only be refused. The call now ends at once, told that the
@@ -37,11 +52,6 @@ which a unit test could see.
 - **`agent-replay` no longer takes the page from the agent.** Stepping through
   a replay inside a surface counted as taking over. Like the ledger, it is
   marked as the agent's own interface.
-
-### Changed
-
-- **`blast-radius` says a single kind of change plainly:** "2 emails will be
-  created." where it said "2 emails will change: 2 created."
 
 ## 0.13.1
 
