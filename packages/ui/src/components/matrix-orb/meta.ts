@@ -17,4 +17,11 @@ export const meta = defineMeta({
     "`announce` is set, which adds a polite status region that stays empty on first paint. Under reduced motion " +
     "(or --motion-scale at zero) the canvas draws one still frame per state; the state never depends on motion " +
     "or colour alone, because the name carries it.",
+  guidance: {
+    useWhen: [
+      "a voice assistant's idle, listening and thinking states, with a live audio level",
+    ],
+    avoidWhen: ["a text status for an agent's work — use ai-agent-status"],
+    alternatives: ["orb-face", "fluid-orb", "gradient-orb", "ai-agent-status"],
+  },
 });

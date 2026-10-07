@@ -1,0 +1,31 @@
+{
+  "name": "@dowel-ui/agentbench",
+  "version": "0.13.0",
+  "private": true,
+  "type": "module",
+  "description": "Measures whether Dowel's agent files and MCP server change what a coding agent builds.",
+  "license": "MIT",
+  "exports": {
+    "./published": "./src/published.ts"
+  },
+  "scripts": {
+    "bench": "tsx src/bench.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dowel-ui/config": "workspace:*",
+    "eslint": "10.9.1",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@dowel-ui/cli": "workspace:*",
+    "@dowel-ui/mcp": "workspace:*",
+    "@dowel-ui/registry": "workspace:*",
+    "@types/node": "26.4.0",
+    "create-dowel-app": "workspace:*",
+    "tsx": "4.23.13",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}

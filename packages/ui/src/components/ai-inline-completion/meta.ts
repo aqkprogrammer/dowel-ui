@@ -17,4 +17,12 @@ export const meta = defineMeta({
     "aria-hidden. Escape always dismisses and restores plain Tab, so the keyboard is never " +
     "trapped in the field. The ghost hides during IME composition and whenever the caret is not " +
     "at the end, rather than rendering somewhere it does not belong.",
+  guidance: {
+    useWhen: ["ghost-text completion at the end of a textarea or input, accepted with Tab"],
+    avoidWhen: [
+      "a proposed value for a select, date or other non-text control — use ai-suggested-value",
+      "rich-text or contenteditable editors — extend the editor instead",
+    ],
+    alternatives: ["ai-suggested-value", "ai-suggestions"],
+  },
 });

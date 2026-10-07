@@ -52,6 +52,21 @@ describe("ImageAccordion", () => {
     expect(item("Dunes")).toHaveAttribute("data-state", "open");
   });
 
+  it("keeps every closed strip at least a 24px target along the row", () => {
+    // jsdom cannot lay out flex-grow, so this checks the floor that holds the
+    // strips at 24px (1.5rem) however far the open panel grows.
+    const { rerender } = render(<ImageAccordion items={items} expandedSize={12} />);
+    for (const name of ["Dunes", "Harbour", "Meadow", "Ridge"]) {
+      expect(item(name)).toHaveClass("min-w-6");
+    }
+
+    rerender(<ImageAccordion items={items} expandedSize={12} orientation="vertical" />);
+    for (const name of ["Dunes", "Harbour", "Meadow", "Ridge"]) {
+      expect(item(name)).toHaveClass("min-h-6");
+      expect(item(name)).not.toHaveClass("min-w-6");
+    }
+  });
+
   it("renders images decoratively unless given alt text, or custom media", () => {
     const { container } = render(<ImageAccordion items={items} />);
     expect(container.querySelector('img[src="/dunes.jpg"]')).toHaveAttribute("alt", "");

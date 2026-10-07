@@ -13,4 +13,13 @@ export const meta = defineMeta({
     "A plain container with no implicit landmark or live region. When it replaces content after " +
     "a search, put aria-live on the results region so the change is announced. The icon is " +
     "decorative — the title has to carry the message on its own.",
+  guidance: {
+    useWhen: [
+      "a list, table or search with nothing in it, saying why and what to do next",
+      "a new account's first screen, with a call to action",
+    ],
+    avoidWhen: ["content that is still loading — use skeleton"],
+    alternatives: ["skeleton", "alert"],
+  },
+  composesWith: ["button"],
 });

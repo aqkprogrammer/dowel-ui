@@ -15,4 +15,10 @@ export const meta = defineMeta({
     "level is configurable. Social links are a named list and always carry their name as text — " +
     "visually hidden when an icon is shown — and external ones say they open a new tab. The " +
     "entrance only hides a footer that starts below the fold, and never under reduced motion.",
+  guidance: {
+    useWhen: [
+      "a site footer with the brand, social links and three link columns, without a sign-up",
+    ],
+    alternatives: ["footer-minimal", "footer-newsletter", "footer-mega"],
+  },
 });

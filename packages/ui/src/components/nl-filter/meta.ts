@@ -30,4 +30,16 @@ export const meta = defineMeta({
     'Status is Failed, Branch is main." — present and empty from first paint. Text the parser ' +
     "could not read stays in the field and is named in a notice the field is described by, so " +
     "nothing is dropped in silence.",
+  guidance: {
+    useWhen: [
+      "filtering a list or table by typing what to see, turned into editable chips",
+      "a filter bar whose parser may be a model call",
+    ],
+    avoidWhen: [
+      "a plain text search — use input",
+      "computing a value from a formula — use expression-editor",
+    ],
+    alternatives: ["input", "expression-editor", "command"],
+  },
+  composesWith: ["data-table"],
 });

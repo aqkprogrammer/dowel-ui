@@ -15,4 +15,15 @@ export const meta = defineMeta({
     'truncates the sentence mid-word. The submit control renames itself to "Stop generating" ' +
     "while busy, so its accessible name always matches what it does. The character counter stays " +
     "silent until it nears the limit; announcing every keystroke would be unusable.",
+  guidance: {
+    useWhen: [
+      "the composer of a chat: auto-growing field, send on Enter, stop while responding",
+    ],
+    avoidWhen: [
+      "a compact one-row prompt bar with dictation — use command-bar",
+      "a multi-line form field — use textarea",
+    ],
+    alternatives: ["command-bar", "textarea"],
+  },
+  composesWith: ["ai-conversation", "ai-suggestions", "ai-model-selector", "prompt-redactor"],
 });

@@ -18,4 +18,12 @@ export const meta = defineMeta({
     'words. When the list is a sample the counts say "at least" rather than passing a sample off as a ' +
     'total, and the rest is counted in "and N more". A failed dry run says why, and leaves the decision to ' +
     "the person.",
+  guidance: {
+    useWhen: [
+      "showing what an action will change before it runs: how many things, how, and which cannot be undone",
+    ],
+    avoidWhen: ["what has already been done — use ai-action-ledger"],
+    alternatives: ["ai-action-ledger", "record-diff"],
+  },
+  composesWith: ["ai-approval-request"],
 });

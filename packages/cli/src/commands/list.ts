@@ -54,7 +54,14 @@ export async function list(options: ListOptions): Promise<void> {
     logger.info(pc.bold(category));
     for (const item of categoryItems) {
       const mark = installed.has(item.name) ? pc.green("✓") : " ";
-      logger.info(`  ${mark} ${item.name.padEnd(width)}  ${pc.dim(item.description)}`);
+      const retired = item.deprecated
+        ? pc.yellow(
+            ` deprecated${item.deprecated.replacement ? `, use ${item.deprecated.replacement}` : ""}`,
+          )
+        : "";
+      logger.info(
+        `  ${mark} ${item.name.padEnd(width)}  ${pc.dim(item.description)}${retired}`,
+      );
     }
   }
 

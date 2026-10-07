@@ -72,6 +72,9 @@ importers:
         specifier: 0.185.1
         version: 0.185.1
     devDependencies:
+      '@dowel-ui/agentbench':
+        specifier: workspace:*
+        version: link:../../packages/agentbench
       '@dowel-ui/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -103,6 +106,64 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.4.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.0))
 
+  packages/agentbench:
+    dependencies:
+      '@dowel-ui/config':
+        specifier: workspace:*
+        version: link:../config
+      eslint:
+        specifier: 10.9.1
+        version: 10.9.1(jiti@2.7.0)
+      zod:
+        specifier: 4.5.4
+        version: 4.5.4
+    devDependencies:
+      '@dowel-ui/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@dowel-ui/mcp':
+        specifier: workspace:*
+        version: link:../mcp
+      '@dowel-ui/registry':
+        specifier: workspace:*
+        version: link:../registry
+      '@types/node':
+        specifier: 26.4.0
+        version: 26.4.0
+      create-dowel-app:
+        specifier: workspace:*
+        version: link:../create-dowel-app
+      tsx:
+        specifier: 4.23.13
+        version: 4.23.13
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.4.0)(@vitest/coverage-v8@4.1.10)(jsdom@30.0.1)(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.0))
+
+  packages/browser-tests:
+    devDependencies:
+      '@dowel-ui/config':
+        specifier: workspace:*
+        version: link:../config
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@types/node':
+        specifier: 26.4.0
+        version: 26.4.0
+      axe-core:
+        specifier: 4.13.0
+        version: 4.13.0
+      tsx:
+        specifier: 4.23.13
+        version: 4.23.13
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
   packages/cli:
     dependencies:
       '@clack/prompts':
@@ -111,6 +172,9 @@ importers:
       commander:
         specifier: 15.0.0
         version: 15.0.0
+      diff:
+        specifier: 9.0.0
+        version: 9.0.0
       picocolors:
         specifier: 1.1.1
         version: 1.1.1
@@ -118,6 +182,9 @@ importers:
         specifier: 4.5.4
         version: 4.5.4
     devDependencies:
+      '@anthropic-ai/sdk':
+        specifier: 0.131.0
+        version: 0.131.0(zod@4.5.4)
       '@dowel-ui/config':
         specifier: workspace:*
         version: link:../config

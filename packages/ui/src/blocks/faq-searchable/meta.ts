@@ -15,4 +15,8 @@ export const meta = defineMeta({
     "once someone types. Filtering replaces the list, so the number of matches — or the no-results " +
     "message — is a polite live region. Questions are accordion buttons inside headings; a new " +
     "search closes the open answer, since it may no longer be in the list.",
+  guidance: {
+    useWhen: ["a long FAQ that readers filter by typing"],
+    alternatives: ["faq-accordion", "faq-categorized"],
+  },
 });

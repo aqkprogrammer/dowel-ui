@@ -4,7 +4,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import { COMPONENT_CATEGORIES } from "@dowel-ui/react/registry";
+
 import { buildIndex, buildRegistry, freeItems, proItems, writeRegistry } from "./build";
+import { categoryLabel, REGISTRY_CATEGORIES } from "./categories";
 import { hashContent } from "./hash";
 import { registryIndexSchema, registryItemSchema, type RegistryItem } from "./schema";
 
@@ -61,6 +64,25 @@ describe("buildRegistry", () => {
     for (const item of items) {
       for (const file of item.files) {
         expect(file.hash).toBe(hashContent(file.content));
+      }
+    }
+  });
+
+  it("never ships two different files to the same place", () => {
+    // Files install flat, so items that share a file (the carousels'
+    // carousel-controls.tsx) must ship it identically. Otherwise whichever
+    // item is added last silently replaces the copy the others import from.
+    const shipped = new Map<string, { hash: string; item: string }>();
+    for (const item of items) {
+      for (const file of item.files) {
+        const first = shipped.get(file.path);
+        if (first) {
+          expect(file.hash, `${file.path}: ${first.item} and ${item.name} differ`).toBe(
+            first.hash,
+          );
+        } else {
+          shipped.set(file.path, { hash: file.hash, item: item.name });
+        }
       }
     }
   });
@@ -197,7 +219,9 @@ describe("access", () => {
       expect(result.licensed).toBe(proItems(all).length);
       // Every listed free item has a file and no licensed one does; the count
       // is the contract.
-      const written = readdirSync(outDir).filter((file) => file !== "index.json");
+      const written = readdirSync(outDir).filter(
+        (file) => file !== "index.json" && file !== "schema",
+      );
       expect(written).toHaveLength(freeItems(all).length);
       for (const item of proItems(all)) {
         expect(written).not.toContain(`${item.name}.json`);
@@ -230,6 +254,85 @@ describe("the paywall", () => {
       expect(entry?.access).toBe("pro");
       expect(entry?.fileCount).toBe(item.files.length);
       expect(entry).not.toHaveProperty("files");
+    }
+  });
+});
+
+describe("the genome", () => {
+  const sourceItems = items.filter(
+    (item) => item.type === "registry:ui" || item.type === "registry:block",
+  );
+
+  it("records capabilities and a quality assessment for every component and block", () => {
+    for (const item of sourceItems) {
+      expect(item.capabilities, `${item.name} has no capabilities`).toBeDefined();
+      expect(item.quality, `${item.name} has no quality assessment`).toBeDefined();
+    }
+  });
+
+  it("derives the client boundary from the directive, not a declaration", () => {
+    for (const item of sourceItems) {
+      const directive = item.files.some((file) => /^\s*["']use client["']/.test(file.content));
+      expect(item.capabilities?.client, item.name).toBe(directive);
+    }
+  });
+
+  it("reads props from the component's type, including its cva variants", () => {
+    const button = items.find((item) => item.name === "button");
+    const names = button?.props?.[0]?.props.map((prop) => prop.name) ?? [];
+    expect(names).toEqual(expect.arrayContaining(["variant", "size", "loading", "asChild"]));
+  });
+
+  it("puts what an agent chooses by in the index, and the rest only on the item", () => {
+    const index = buildIndex(items);
+    const button = index.items.find((entry) => entry.name === "button");
+    expect(button?.capabilities).toBeDefined();
+    expect(button).not.toHaveProperty("props");
+    expect(button).not.toHaveProperty("quality");
+  });
+
+  it("only ever names items that exist", () => {
+    const names = new Set(items.map((item) => item.name));
+    for (const item of items) {
+      for (const name of [
+        ...(item.guidance?.alternatives ?? []),
+        ...(item.composesWith ?? []),
+      ]) {
+        expect(names.has(name), `${item.name} names missing "${name}"`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("categories", () => {
+  it("are the same set the component package checks its metadata against", () => {
+    expect([...REGISTRY_CATEGORIES].sort()).toEqual([...COMPONENT_CATEGORIES].sort());
+  });
+
+  it("label every category any item uses", () => {
+    for (const item of items) {
+      expect(categoryLabel(item.category), item.name).not.toBe(item.category);
+    }
+  });
+});
+
+describe("JSON Schemas", () => {
+  it("are written beside the registry, where every $schema points", () => {
+    const outDir = mkdtempSync(join(tmpdir(), "dowel-schema-"));
+    try {
+      writeRegistry(outDir);
+      for (const file of ["registry-item.json", "registry-index.json"]) {
+        const schema = JSON.parse(readFileSync(join(outDir, "schema", file), "utf8")) as {
+          properties: Record<string, unknown>;
+        };
+        expect(schema.properties).toHaveProperty("registryVersion");
+      }
+      const button = JSON.parse(readFileSync(join(outDir, "button.json"), "utf8")) as {
+        $schema: string;
+      };
+      expect(button.$schema).toBe("./schema/registry-item.json");
+    } finally {
+      rmSync(outDir, { recursive: true, force: true });
     }
   });
 });

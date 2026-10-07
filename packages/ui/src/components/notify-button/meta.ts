@@ -14,4 +14,9 @@ export const meta = defineMeta({
     "A toggle button exposed with aria-pressed. Its accessible name stays the resting label — the " +
     "confirmation label is aria-hidden — and the confirmation is announced once through a polite live " +
     "region when it turns on. The bell is decorative; its ring and the width spring stop under reduced motion.",
+  guidance: {
+    useWhen: ["a notify-me toggle, such as following a launch or a restock"],
+    avoidWhen: ["a general on/off setting — use switch"],
+    alternatives: ["switch", "toggle", "morph-button"],
+  },
 });

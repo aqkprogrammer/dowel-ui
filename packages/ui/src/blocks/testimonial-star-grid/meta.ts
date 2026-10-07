@@ -16,4 +16,8 @@ export const meta = defineMeta({
     "rather than five unlabelled stars, and colour is not the only difference between filled and " +
     "empty stars. Avatars are hidden, since the name is beside them. The cascade collapses to " +
     "nothing under reduced motion, and the hover lift only happens when motion is allowed.",
+  guidance: {
+    useWhen: ["many short reviews in a grid, each with a star rating"],
+    alternatives: ["testimonial-rotator", "testimonial-spotlight"],
+  },
 });

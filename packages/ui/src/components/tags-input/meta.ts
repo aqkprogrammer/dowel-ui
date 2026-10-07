@@ -21,4 +21,12 @@ export const meta = defineMeta({
     "rather than behind a roving tabindex: it costs a tab stop per token, and buys a pattern every " +
     "assistive technology already understands." +
     " With animateExit, a removed token lingers only as an aria-hidden, inert copy while it animates out.",
+  guidance: {
+    useWhen: [
+      "a list of short free-form values: emails to invite, allowed domains, labels",
+      "values that need validation, where a bad entry should stay visible with its reason",
+    ],
+    avoidWhen: ["choosing from a known list of options — use combobox or checkbox"],
+    alternatives: ["combobox", "checkbox", "input"],
+  },
 });

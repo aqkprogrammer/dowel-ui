@@ -18,4 +18,16 @@ export const meta = defineMeta({
     "log. Levels are written in text as well as coloured, matches use mark elements rather than " +
     "a background colour, and an invalid pattern is announced instead of silently showing an " +
     'empty log that reads as "nothing matched".',
+  guidance: {
+    useWhen: [
+      "a streaming console of log lines with level filters, search and follow mode",
+      "build, deploy or service logs",
+    ],
+    avoidWhen: [
+      "a static code snippet — use code-block",
+      "a short history of events for people — use activity-feed",
+    ],
+    alternatives: ["code-block", "activity-feed"],
+  },
+  composesWith: ["time-range-picker"],
 });

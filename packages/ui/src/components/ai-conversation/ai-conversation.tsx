@@ -14,6 +14,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { focusRing } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 /**
@@ -74,11 +75,19 @@ export interface ConversationProps extends ComponentPropsWithRef<"div"> {
    * Turning this off never scrolls automatically; it does not pin the view.
    */
   autoScroll?: boolean;
+  /**
+   * The accessible name of the scrolling transcript.
+   *
+   * The transcript is a focusable region so it can be scrolled by keyboard
+   * whether or not anything inside it can take focus; a region needs a name.
+   */
+  label?: string;
 }
 
 export function Conversation({
   className,
   autoScroll = true,
+  label = "Conversation",
   children,
   ...props
 }: ConversationProps) {
@@ -143,10 +152,15 @@ export function Conversation({
         className={cn("relative flex min-h-0 flex-1 flex-col", className)}
         {...props}
       >
+        {/* Focusable, so a keyboard user can scroll back through a transcript of
+            plain text — which otherwise has nothing in it to Tab to. */}
         <div
           ref={viewportRef}
           data-slot="conversation-viewport"
-          className="flex-1 overflow-y-auto overscroll-contain"
+          role="region"
+          aria-label={label}
+          tabIndex={0}
+          className={cn("flex-1 overflow-y-auto overscroll-contain", focusRing)}
         >
           {children}
         </div>

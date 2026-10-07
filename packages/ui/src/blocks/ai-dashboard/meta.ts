@@ -25,4 +25,11 @@ export const meta = defineMeta({
     "as another model and there is no model called Total. Statuses in the run list do not " +
     "announce their own changes: several runs each doing that turns a list into a stream of " +
     "interruptions, and watching one run is the agent console's job.",
+  guidance: {
+    useWhen: [
+      "monitoring AI tokens, spend and failure rate by model, and the runs still going",
+    ],
+    avoidWhen: ["one run in detail — use agent-console"],
+    alternatives: ["agent-console", "analytics"],
+  },
 });

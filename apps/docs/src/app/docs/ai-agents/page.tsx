@@ -1,4 +1,3 @@
-import { CodeBlock } from "@dowel-ui/react/code-block";
 import {
   Table,
   TableBody,
@@ -11,6 +10,9 @@ import type { Metadata } from "next";
 
 import { InstallCommand } from "~/components/install-command";
 import { Prose } from "~/components/prose";
+import { CodePanel } from "~/components/site/code-panel";
+import { PageHeader } from "~/components/site/page-header";
+import { UnreleasedBadge } from "~/components/site/unreleased";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
 import { getBlocks, getComponents } from "~/lib/registry";
@@ -68,14 +70,15 @@ const MCP_CONFIG = `{
   }
 }`;
 
-const MCP_TOOLS = [
+const MCP_TOOLS: { tool: string; what: string; since?: string }[] = [
   {
     tool: "search_components",
-    what: "Find what already exists, by name, description or category.",
+    what: "Find what already exists, by name, what it is for, description or category.",
   },
   {
     tool: "get_component",
-    what: "One component in full — accessibility notes, what it installs alongside, and optionally its source.",
+    what: "One component in full — when to use it and what it is confused with, its props read from its type, accessibility notes, and optionally its source.",
+    since: "0.13.0",
   },
   {
     tool: "get_guide",
@@ -85,6 +88,15 @@ const MCP_TOOLS = [
     tool: "install_command",
     what: "The exact command, and everything it will write.",
   },
+  {
+    tool: "plan_ui",
+    what: "Describe a screen, get the blocks and components that build it — only ones that exist.",
+  },
+  {
+    tool: "audit_code",
+    since: "0.13.0",
+    what: "Check code the agent wrote for hardcoded colours, off-scale sizes, physical directions and bypassed components.",
+  },
 ];
 
 export default function AiAgentsPage() {
@@ -93,7 +105,7 @@ export default function AiAgentsPage() {
 
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">AI agents</h1>
+      <PageHeader eyebrow="Docs" title="AI agents" cosmic="subtle" className="pb-2 sm:pb-4" />
 
       <Prose>
         <p>
@@ -163,9 +175,7 @@ export default function AiAgentsPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="json" title=".mcp.json" code={MCP_CONFIG}>
-          {MCP_CONFIG}
-        </CodeBlock>
+        <CodePanel language="json" title=".mcp.json" code={MCP_CONFIG} />
       </div>
 
       <Prose>
@@ -190,6 +200,7 @@ export default function AiAgentsPage() {
               <TableRow key={row.tool}>
                 <TableHead scope="row" className="font-mono text-xs text-foreground">
                   {row.tool}
+                  {row.since ? <UnreleasedBadge since={row.since} /> : null}
                 </TableHead>
                 <TableCell>{row.what}</TableCell>
               </TableRow>

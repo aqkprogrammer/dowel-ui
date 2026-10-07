@@ -4,7 +4,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { blockMetas, componentMetas, type ComponentMeta } from "@dowel-ui/react/registry";
 
+import { assess, capabilitiesOf, extractProps } from "./analysis";
 import { hashContent } from "./hash";
+import { z } from "zod";
+
 import {
   REGISTRY_VERSION,
   registryIndexSchema,
@@ -55,6 +58,12 @@ function buildSourceItem(meta: ComponentMeta): RegistryItem {
     };
   });
 
+  // The genome: what the source says about the item, read from it here so no
+  // consumer has to read the source again, and none can disagree about it.
+  const mainFile = join(sourceDir, `${meta.name}.tsx`);
+  const props = extractProps(mainFile);
+  const quality = assess(sourceDir, meta.name, meta.a11y);
+
   return registryItemSchema.parse({
     $schema: "./schema/registry-item.json",
     registryVersion: REGISTRY_VERSION,
@@ -69,6 +78,14 @@ function buildSourceItem(meta: ComponentMeta): RegistryItem {
     files,
     a11y: meta.a11y,
     access: meta.access ?? "free",
+    guidance: meta.guidance,
+    composesWith: meta.composesWith,
+    capabilities: capabilitiesOf(files.map((file) => file.content)),
+    props: props.length > 0 ? props : undefined,
+    quality,
+    deprecated: meta.deprecated,
+    since: meta.since,
+    owner: meta.owner,
   });
 }
 
@@ -169,6 +186,12 @@ export function buildIndex(items: RegistryItem[]) {
     dependencies: item.dependencies,
     registryDependencies: item.registryDependencies,
     access: item.access,
+    guidance: item.guidance,
+    composesWith: item.composesWith,
+    capabilities: item.capabilities,
+    deprecated: item.deprecated,
+    since: item.since,
+    owner: item.owner,
     fileCount: item.files.length,
   }));
 
@@ -208,6 +231,7 @@ export function writeRegistry(outDir: string): WriteResult {
   mkdirSync(outDir, { recursive: true });
 
   writeFileSync(join(outDir, "index.json"), `${JSON.stringify(index, null, 2)}\n`);
+  writeSchemas(outDir);
   for (const item of free) {
     writeFileSync(join(outDir, `${item.name}.json`), `${JSON.stringify(item, null, 2)}\n`);
   }
@@ -217,6 +241,26 @@ export function writeRegistry(outDir: string): WriteResult {
     files: free.reduce((total, item) => total + item.files.length, 0),
     licensed: items.length - free.length,
   };
+}
+
+/**
+ * The JSON Schemas every item's and the index's `$schema` points at.
+ *
+ * Generated from the same zod schemas the build validates against and the CLI
+ * parses with, so an editor, a third-party tool or another registry's author
+ * reads the contract this code actually enforces. Described as input, which is
+ * what a registry author writes: defaulted fields are optional there.
+ */
+function writeSchemas(outDir: string): void {
+  const dir = join(outDir, "schema");
+  mkdirSync(dir, { recursive: true });
+  for (const [file, schema] of [
+    ["registry-item.json", registryItemSchema],
+    ["registry-index.json", registryIndexSchema],
+  ] as const) {
+    const json = z.toJSONSchema(schema, { io: "input", unrepresentable: "any" });
+    writeFileSync(join(dir, file), `${JSON.stringify(json, null, 2)}\n`);
+  }
 }
 
 /**

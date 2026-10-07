@@ -23,4 +23,16 @@ export const meta = defineMeta({
     "one. The message is text with an icon, never colour alone, and arrives in a polite live region that is " +
     "present and empty from the start, so it is announced once on blur or Enter rather than while typing. " +
     "Escape discards the text. A development warning fires when the field has no accessible name.",
+  guidance: {
+    useWhen: [
+      "a number with a unit, such as weight, length, data size or duration",
+      "switching units with the amount converted",
+    ],
+    avoidWhen: [
+      "a plain number with no unit — use input with type number",
+      "an approximate value chosen by dragging — use slider",
+    ],
+    alternatives: ["input", "slider", "scrubber", "drag-stepper"],
+  },
+  composesWith: ["form"],
 });

@@ -107,6 +107,16 @@ export async function add(names: string[], options: AddOptions): Promise<void> {
 
   const items = await resolveItems(registry, names, licensed);
   const requested = new Set(names);
+
+  // Still installed — a deprecated item has users, and refusing would break
+  // them — but said before anything is written, with what to use instead.
+  for (const item of items.filter((candidate) => candidate.deprecated)) {
+    const { since, reason, replacement } = item.deprecated ?? { since: "", reason: "" };
+    logger.warn(
+      `${item.name} is deprecated since ${since}: ${reason}` +
+        (replacement ? ` Use ${replacement} instead.` : ""),
+    );
+  }
   const pulledIn = items.filter((item) => !requested.has(item.name));
 
   const planned = planFiles(cwd, config, items);

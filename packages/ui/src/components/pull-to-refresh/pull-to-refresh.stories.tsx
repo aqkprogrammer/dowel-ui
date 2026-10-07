@@ -7,8 +7,10 @@ import { PullToRefresh, type PullToRefreshProps } from "./pull-to-refresh";
 
 /*
  * bencho's portfolio card is demo content, so it lives here rather than in the
- * component: a balance with faded decimals, the day's change, a sparkline and a
- * 1H / 4H / 1D window. Every refresh draws new numbers.
+ * component: a balance with quieter decimals, the day's change, a sparkline and a
+ * 1H / 4H / 1D window. Every refresh draws new numbers. The quiet parts use
+ * `text-muted-foreground`, never an opacity: the decimals and the idle windows
+ * are text someone reads, and a faded foreground fell to 2.2:1.
  */
 
 const WINDOWS = ["1H", "4H", "1D"] as const;
@@ -89,7 +91,7 @@ function Portfolio({ data }: { data: Snapshot }) {
       <p className="px-2.5 text-[2.0625rem] leading-none font-medium tracking-tight tabular-nums">
         <span className="me-0.5">$</span>
         {whole}
-        <span className="text-2xl opacity-35">.{decimals}</span>
+        <span className="text-2xl text-muted-foreground">.{decimals}</span>
       </p>
       <p
         className={cn(
@@ -99,7 +101,7 @@ function Portfolio({ data }: { data: Snapshot }) {
       >
         {up ? "+" : "−"}
         {money(change)} · {((Math.abs(change) / data.balance) * 100).toFixed(1)}%{" "}
-        <span className="text-foreground/45">{WHEN[range]}</span>
+        <span className="text-muted-foreground">{WHEN[range]}</span>
       </p>
       <Sparkline points={points} up={up} />
       <div role="group" aria-label="Time window" className="relative mt-2 flex">
@@ -116,7 +118,7 @@ function Portfolio({ data }: { data: Snapshot }) {
             onClick={() => setRange(item)}
             className={cn(
               "relative h-7 flex-1 rounded-[0.875rem] text-[0.72rem] font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring/55",
-              item === range ? "text-foreground" : "text-foreground/45",
+              item === range ? "text-foreground" : "text-muted-foreground",
             )}
           >
             {item}

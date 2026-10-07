@@ -20,4 +20,11 @@ export const meta = defineMeta({
     "hidden copy is the one that goes stale. The range selector is a select rather than a tab " +
     "set: tabs promise panels, and a range selector has none — it changes the data behind the " +
     "whole page, so styled-as-tabs it points every tab at a panel that does not exist.",
+  guidance: {
+    useWhen: [
+      "an analytics page: headline metrics against the previous period, a series over time and its breakdown",
+    ],
+    avoidWhen: ["a simple overview with recent activity — use dashboard"],
+    alternatives: ["dashboard", "ai-dashboard"],
+  },
 });

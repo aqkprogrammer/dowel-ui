@@ -102,7 +102,9 @@ function pack(dir: string): PackReport {
     stdio: ["ignore", "pipe", "ignore"],
     maxBuffer: 32 * 1024 * 1024,
   });
-  return (JSON.parse(raw) as PackReport[])[0];
+  const [report] = JSON.parse(raw) as PackReport[];
+  if (!report) throw new Error(`npm pack reported nothing for ${dir}.`);
+  return report;
 }
 
 function kb(bytes: number): string {

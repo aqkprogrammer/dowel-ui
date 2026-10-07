@@ -32,4 +32,12 @@ export const meta = defineMeta({
     "aria-current, a count beside a nav item says what it counts, the account menu is named " +
     "after its owner, and each Open button is named after its account. Every status is a word, " +
     "with colour agreeing rather than replacing.",
+  guidance: {
+    useWhen: [
+      "the shell and front page of an admin area: navigation, breadcrumb, account menu",
+      "an admin overview that leads with what needs attention",
+    ],
+    avoidWhen: ["a simple overview of metrics and recent activity — use dashboard"],
+    alternatives: ["dashboard", "analytics", "command-center"],
+  },
 });

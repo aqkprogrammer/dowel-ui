@@ -143,7 +143,10 @@ export function ImageAccordion({
             data-slot="image-accordion-item"
             data-state={isOpen ? "open" : "closed"}
             className={cn(
-              "group/item relative min-h-0 min-w-0 basis-0 overflow-hidden rounded-xl bg-muted",
+              "group/item relative basis-0 overflow-hidden rounded-xl bg-muted",
+              // Each strip is its own trigger, so a closed one never narrows
+              // below a 24px target (WCAG 2.5.8) however many panels share the row.
+              horizontal ? "min-h-0 min-w-6" : "min-h-6 min-w-0",
               "transition-[flex-grow] duration-[var(--duration-slower)] ease-[var(--ease-out-quint)]",
             )}
             style={{ flexGrow: isOpen ? expandedSize : 1 }}

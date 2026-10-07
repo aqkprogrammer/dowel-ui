@@ -1,8 +1,10 @@
-import { CodeBlock } from "@dowel-ui/react/code-block";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Prose } from "~/components/prose";
+import { CodePanel } from "~/components/site/code-panel";
+import { PageHeader } from "~/components/site/page-header";
+import { UnreleasedNote } from "~/components/site/unreleased";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
 
@@ -55,7 +57,12 @@ const CONFIG = `{
 export default function PrivateRegistryPage() {
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Private registries</h1>
+      <PageHeader
+        eyebrow="Docs"
+        title="Private registries"
+        cosmic="subtle"
+        className="pb-2 sm:pb-4"
+      />
 
       <Prose>
         <p>
@@ -78,9 +85,7 @@ export default function PrivateRegistryPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="ts" title="registry.build.ts" code={BUILD}>
-          {BUILD}
-        </CodeBlock>
+        <CodePanel language="ts" title="registry.build.ts" code={BUILD} />
       </div>
 
       <Prose>
@@ -125,12 +130,55 @@ export default function PrivateRegistryPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="json" title="components.json" code={CONFIG}>
-          {CONFIG}
-        </CodeBlock>
+        <CodePanel language="json" title="components.json" code={CONFIG} />
       </div>
 
       <Prose>
+        <h2 id="keys">Require a key</h2>
+        <UnreleasedNote since="0.13.0">
+          Private registries, per-registry keys and the governance fields below are new in the
+          CLI, the MCP server and <code>{branding.packageScope}/registry</code>.
+        </UnreleasedNote>
+        <p>
+          Put the directory behind anything that checks a bearer token — a reverse proxy, an
+          edge function, your VPN&rsquo;s gateway — and answer a missing or wrong key with{" "}
+          <code>401</code>. The CLI asks without a key first, so a public registry never
+          receives one, and answers a <code>401</code> once, with the key stored for that
+          registry and no other.
+        </p>
+        <p>
+          Each developer signs in once:{" "}
+          <code>
+            npx {branding.cliPackage} login --registry https://registry.acme.example/r
+          </code>
+          . The key is checked against your index before it is stored, and is kept per registry,
+          so a Pro licence and your company&rsquo;s key live side by side; <code>logout</code>{" "}
+          with <code>--registry</code> removes one, without it every one. In CI, set{" "}
+          <code>DOWEL_TOKEN</code> and <code>DOWEL_TOKEN_REGISTRY</code> to the registry it is
+          for. The MCP server reads the same two variables.
+        </p>
+        <p>
+          A key goes only over HTTPS (or to <code>localhost</code>), and only to the registry it
+          was issued for: a repository whose <code>components.json</code> names some other
+          server gets a refusal, not your key.
+        </p>
+
+        <h2 id="governance">Owners, versions and retirement</h2>
+        <p>
+          An item can say who maintains it (<code>owner</code>), which version it first shipped
+          in (<code>since</code>), and that it is retired (<code>deprecated</code>, with the
+          version, a reason, and a <code>replacement</code>). A deprecated item still installs —
+          removing one breaks every project that has it — but <code>add</code> and{" "}
+          <code>update</code> say what replaced it, <code>list</code> and <code>doctor</code>{" "}
+          mark it, the MCP server and the agent docs tell agents not to start on it, and the
+          planners stop suggesting it. The build refuses a replacement, an alternative or a{" "}
+          <code>composesWith</code> that names an item the registry does not have.
+        </p>
+        <p>
+          Items can also carry the guidance that tells an agent when to use them and what they
+          are confused with — the same fields this registry&rsquo;s components use.
+        </p>
+
         <h2 id="agents">Your agents see it too</h2>
         <p>
           <code>{branding.cliName} agents</code> and the MCP server generate from whichever
@@ -142,7 +190,7 @@ export default function PrivateRegistryPage() {
         <p>
           Everything on this page is self-hosted and free. Teams is for organisations that would
           rather not run it: a hosted private registry, Pro licences for every developer in one
-          agreement, and — on the roadmap — SSO and version governance across several products
+          agreement, and — on the roadmap — SSO, roles, and a view across every product
           consuming one design system. It is priced by conversation, not by a table; see{" "}
           <Link href="/pricing">pricing</Link>.
         </p>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { blocksPathFor, planUi, renderBrief, renderPlan } from "./generate";
+import { blocksPathFor, planFromPicks, planUi, renderBrief, renderPlan } from "./generate";
 import { registryIndexSchema, type RegistryIndex } from "./schema";
 import { buildIndex, buildRegistry } from "./build";
 
@@ -21,6 +21,16 @@ describe("planUi", () => {
     expect(names(planUi("sign in screen", index))).toContain("login");
     expect(names(planUi("let people register", index))).toContain("signup");
     expect(names(planUi("reset password flow", index))).toContain("forgot-password");
+  });
+
+  it("finds the motion components by the words people use for them", () => {
+    expect(names(planUi("a file explorer", index))).toContain("file-tree");
+    expect(names(planUi("link preview on hover", index))).toContain("preview-link-card");
+    expect(names(planUi("are you sure before deleting", index))).toContain("alert-dialog");
+    expect(names(planUi("fireworks to celebrate", index))).toContain("fireworks-background");
+    expect(names(planUi("a toolbar for bulk actions", index))).toContain("management-bar");
+    expect(names(planUi("pnpm and npm install command", index))).toContain("code-tabs");
+    expect(names(planUi("a honeycomb backdrop", index))).toContain("hexagon-background");
   });
 
   it("does not suggest a component a chosen block already installs", () => {
@@ -65,6 +75,8 @@ describe("planUi", () => {
       "settings with notifications and an API key",
       "a table of users with roles and permissions",
       "onboarding checklist",
+      "a landing page with a starfield hero background and a share button",
+      "a file explorer with bulk actions and pinned favourites",
     ]) {
       for (const name of names(planUi(prompt, index))) {
         expect(known.has(name), `${prompt} → ${name}`).toBe(true);
@@ -173,5 +185,64 @@ describe("blocksPathFor", () => {
     // ever installed as source — so `@dowel-ui/react/blocks/billing` is an
     // import that resolves nowhere.
     expect(blocksPathFor("@dowel-ui/react")).toBe("@/components/blocks");
+  });
+});
+
+describe("planUi and the genome", () => {
+  const entry = (name: string, description: string, useWhen?: string[]) => ({
+    name,
+    type: "registry:ui" as const,
+    title: name,
+    description,
+    category: "overlay",
+    status: "stable" as const,
+    dependencies: [],
+    registryDependencies: [],
+    access: "free" as const,
+    fileCount: 1,
+    ...(useWhen ? { guidance: { useWhen, avoidWhen: [], alternatives: [] } } : {}),
+  });
+
+  const fixture: RegistryIndex = registryIndexSchema.parse({
+    registryVersion: 1,
+    generatedFrom: "fixture@0",
+    items: [
+      entry("modal-a", "A window over the page."),
+      entry("modal-b", "A window over the page.", ["confirming an irreversible deletion"]),
+    ],
+  });
+
+  it("matches on the situations written in guidance", () => {
+    const plan = planUi("confirm an irreversible deletion", fixture);
+    expect(names(plan)).toEqual(["modal-b"]);
+    expect(plan.components[0]?.because).toContain("when to use it");
+  });
+});
+
+describe("planFromPicks", () => {
+  it("drops and reports names the registry does not have", () => {
+    const { plan, unknown } = planFromPicks("x", index, [
+      { name: "button", because: "the action" },
+      { name: "fancy-button-pro", because: "invented" },
+    ]);
+    expect(names(plan)).toEqual(["button"]);
+    expect(unknown).toEqual(["fancy-button-pro"]);
+  });
+
+  it("folds a component into a chosen block that installs it", () => {
+    const login = index.items.find((item) => item.name === "login");
+    const inside = login?.registryDependencies[0] ?? "";
+    const { plan } = planFromPicks("x", index, [
+      { name: "login", because: "the screen" },
+      { name: inside, because: "a part of it" },
+    ]);
+    expect(plan.blocks.map((item) => item.entry.name)).toEqual(["login"]);
+    expect(plan.components).toEqual([]);
+  });
+
+  it("refuses the items init installs, which are not things to plan with", () => {
+    expect(planFromPicks("x", index, [{ name: "utils", because: "?" }]).unknown).toEqual([
+      "utils",
+    ]);
   });
 });

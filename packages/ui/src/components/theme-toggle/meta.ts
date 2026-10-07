@@ -17,4 +17,9 @@ export const meta = defineMeta({
     "says what is true now, where a pressed sun or moon is ambiguous. The glyph is aria-hidden. It never " +
     "changes the document itself; the consumer applies the theme from onThemeChange. Under reduced motion " +
     "the sun and moon swap instantly.",
+  guidance: {
+    useWhen: ["switching between light and dark theme"],
+    avoidWhen: ["any other on/off setting — use switch"],
+    alternatives: ["switch"],
+  },
 });

@@ -15,4 +15,12 @@ export const meta = defineMeta({
     "announces nothing and is flagged by axe. aria-invalid follows the error. FormMessage is a " +
     "polite live region, so a late validation message is announced without interrupting." +
     " With animateExit, a cleared message lingers only as an aria-hidden copy with no id, which the control no longer references.",
+  guidance: {
+    useWhen: [
+      "wiring labels, descriptions and errors to fields, with any form library or none",
+      "any form whose errors must be announced and tied to their fields",
+    ],
+    alternatives: ["label", "agent-form"],
+  },
+  composesWith: ["input", "label", "textarea", "select", "checkbox", "button"],
 });

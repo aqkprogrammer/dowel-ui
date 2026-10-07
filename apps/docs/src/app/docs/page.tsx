@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Prose } from "~/components/prose";
+import { PageHeader } from "~/components/site/page-header";
 import { branding } from "~/lib/branding";
 import { getComponents } from "~/lib/registry";
 
@@ -23,7 +24,12 @@ export default function DocsPage() {
 
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">Introduction</h1>
+      <PageHeader
+        eyebrow="Docs"
+        title="Introduction"
+        cosmic="subtle"
+        className="pb-2 sm:pb-4"
+      />
 
       <Prose>
         <p>

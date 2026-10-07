@@ -16,4 +16,10 @@ export const meta = defineMeta({
     "calls to action are real links. The screenshot is content and requires alt text; the " +
     "placeholder shown without one is aria-hidden. The staged entrance runs on the motion scale " +
     "and the hover lift and tilt are motion-safe only, so under reduced motion nothing moves.",
+  guidance: {
+    useWhen: [
+      "a hero with an announcement, two calls to action and a large product screenshot",
+    ],
+    alternatives: ["hero-split-image", "hero-minimal"],
+  },
 });

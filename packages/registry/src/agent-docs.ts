@@ -1,3 +1,4 @@
+import { categoryLabel, categoryRank } from "./categories";
 import type { RegistryIndex, RegistryIndexEntry, RegistryItem } from "./schema";
 
 /**
@@ -43,42 +44,10 @@ export interface AgentDocsContext {
   importFrom: string;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  foundation: "Foundation",
-  form: "Forms",
-  overlay: "Overlays",
-  navigation: "Navigation",
-  display: "Display",
-  data: "Data",
-  feedback: "Feedback",
-  layout: "Layout",
-  ai: "AI",
-  effects: "Effects",
-};
-
-const CATEGORY_ORDER = [
-  "foundation",
-  "form",
-  "overlay",
-  "navigation",
-  "display",
-  "data",
-  "feedback",
-  "layout",
-  "ai",
-  "effects",
-];
-
-function label(category: string): string {
-  return CATEGORY_LABELS[category] ?? category;
-}
-
 /** Ordered by curation where curated, alphabetical for anything new. */
 function categoriesOf(entries: RegistryIndexEntry[]): string[] {
   const present = new Set(entries.map((entry) => entry.category));
-  const known = CATEGORY_ORDER.filter((category) => present.has(category));
-  const rest = [...present].filter((category) => !CATEGORY_ORDER.includes(category)).sort();
-  return [...known, ...rest];
+  return [...present].sort((a, b) => categoryRank(a) - categoryRank(b) || a.localeCompare(b));
 }
 
 function byType(index: RegistryIndex, type: RegistryIndexEntry["type"]): RegistryIndexEntry[] {
@@ -179,6 +148,33 @@ individual primitives when \`add dashboard\` exists is wasted work.
 `;
 }
 
+/**
+ * When to use an item and when not to, indented under its entry.
+ *
+ * The part of the catalogue that stops an agent reaching for the right family
+ * and the wrong member — a Dialog for a destructive confirmation, a Select for
+ * two hundred options — which a one-line description does not.
+ */
+function guidanceLines(entry: RegistryIndexEntry): string[] {
+  if (entry.deprecated) {
+    const instead = entry.deprecated.replacement
+      ? `Use ${entry.deprecated.replacement} instead.`
+      : "Do not use it in new code.";
+    return [
+      `  - **Deprecated** since ${entry.deprecated.since}: ${entry.deprecated.reason} ${instead}`,
+    ];
+  }
+  const guidance = entry.guidance;
+  if (!guidance) return [];
+  const lines = [`  - Use for: ${guidance.useWhen.join("; ")}`];
+  if (guidance.avoidWhen.length > 0)
+    lines.push(`  - Not for: ${guidance.avoidWhen.join("; ")}`);
+  if (entry.composesWith && entry.composesWith.length > 0) {
+    lines.push(`  - Often with: ${entry.composesWith.join(", ")}`);
+  }
+  return lines;
+}
+
 export function componentsDoc(context: AgentDocsContext): string {
   const { index, libraryName, cliPackage, installed } = context;
   const have = new Set(installed ?? []);
@@ -206,10 +202,11 @@ export function componentsDoc(context: AgentDocsContext): string {
     known ? (have.has(entry.name) ? "✓ " : "  ") : "";
 
   for (const category of categoriesOf(ui)) {
-    lines.push(`## ${label(category)}`, "");
+    lines.push(`## ${categoryLabel(category)}`, "");
     for (const entry of ui.filter((item) => item.category === category)) {
       const status = entry.status === "stable" ? "" : ` _(${entry.status})_`;
       lines.push(`- ${mark(entry)}**${entry.name}** — ${entry.description}${status}`);
+      lines.push(...guidanceLines(entry));
     }
     lines.push("");
   }
@@ -224,6 +221,7 @@ export function componentsDoc(context: AgentDocsContext): string {
     const deps = entry.registryDependencies.length;
     const resolves = deps > 0 ? ` _(resolves ${String(deps)} components)_` : "";
     lines.push(`- ${mark(entry)}**${entry.name}** — ${entry.description}${resolves}`);
+    lines.push(...guidanceLines(entry));
   }
   lines.push("");
 
@@ -243,7 +241,7 @@ Most component sets ship a chat transcript and stop. Real AI features are
 extraction, enrichment, autofill and agents that *change things* — so the parts
 that matter are the ones around the transcript, not the transcript itself.
 
-${ai.map((entry) => `- **${entry.name}** — ${entry.description}`).join("\n")}
+${ai.map((entry) => [`- **${entry.name}** — ${entry.description}`, ...guidanceLines(entry)].join("\n")).join("\n")}
 
 ## Choosing between them
 
@@ -497,7 +495,7 @@ export function llmsTxt(context: AgentDocsContext): string {
   ];
 
   for (const category of categoriesOf(ui)) {
-    lines.push(`## ${label(category)}`, "");
+    lines.push(`## ${categoryLabel(category)}`, "");
     for (const entry of ui.filter((item) => item.category === category)) {
       lines.push(
         `- [${entry.name}](${docsUrl}/docs/components/${entry.name}): ${entry.description}`,
@@ -544,7 +542,7 @@ export function llmsFullTxt(context: AgentDocsContext): string {
       const item = detail.get(entry.name);
       lines.push(`## ${entry.title} \`${entry.name}\``, "", entry.description, "");
       lines.push(
-        `- Category: ${label(entry.category)} · Status: ${entry.status}`,
+        `- Category: ${categoryLabel(entry.category)} · Status: ${entry.status}`,
         `- Install: \`add ${entry.name}\``,
       );
       if (entry.registryDependencies.length > 0) {

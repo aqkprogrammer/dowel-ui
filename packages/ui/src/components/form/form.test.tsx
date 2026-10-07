@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
 import { Input } from "../input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../select";
 import { Form, FormControl, FormDescription, FormField, FormLabel, FormMessage } from "./form";
 
 function Example({
@@ -194,6 +195,32 @@ describe("FormField", () => {
       new RegExp(`${name} must be rendered inside <FormField>`),
     );
     consoleError.mockRestore();
+  });
+
+  it("names and describes a Select wrapped in FormControl", () => {
+    // Select's root renders no element, so the attributes FormControl hands
+    // it must reach the trigger — otherwise the label points at nothing.
+    render(
+      <FormField name="region" error="Pick a region">
+        <FormLabel>Region</FormLabel>
+        <FormControl>
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a region" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="eu">Europe</SelectItem>
+            </SelectContent>
+          </Select>
+        </FormControl>
+        <FormDescription>Where your data is stored.</FormDescription>
+        <FormMessage />
+      </FormField>,
+    );
+
+    const trigger = screen.getByRole("combobox", { name: "Region" });
+    expect(trigger).toHaveAttribute("aria-invalid", "true");
+    expect(trigger).toHaveAccessibleDescription(/Where your data is stored\..*Pick a region/);
   });
 
   it("has no accessibility violations", async () => {

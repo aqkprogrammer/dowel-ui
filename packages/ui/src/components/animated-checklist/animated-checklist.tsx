@@ -19,7 +19,8 @@ import { cn } from "@/lib/utils";
 
 /*
  * A small task list whose boxes fill with a bounce, whose ticks draw in, and
- * whose done tasks fade and are struck through.
+ * whose done tasks are struck through and quieten to the muted foreground —
+ * still readable, since done is a state and not a reason to stop reading.
  *
  * Every row is Dowel's Checkbox inside a <label>, so the whole row toggles and
  * the checkbox semantics, focus ring and tick-drawing are the Checkbox's own.
@@ -33,7 +34,7 @@ import { cn } from "@/lib/utils";
  *
  * `sortDone` and `size` are Dowel additions; `sortDone` is inspired by the
  * Rare UI task-list pattern (no code referenced). A ticked task first finishes
- * its tick — the fill, the strike, the fade — and only then glides to the
+ * its tick — the fill, the strike, the quietening — and only then glides to the
  * bottom; unticked, it glides straight back to its place. Only the displayed
  * order changes: `items` and `onItemsChange` keep the order they were given.
  * The glide is a `motion` layout animation, the shared-layout case ADR 0014
@@ -72,7 +73,7 @@ const SIZES = {
   lg: { box: 20, row: "h-12", gap: "gap-3.5", text: "text-base", remove: "size-8" },
 } as const;
 
-/** How long a ticked task rests before it sinks: its fill, strike and fade, and a beat. */
+/** How long a ticked task rests before it sinks: its fill, strike and colour change, and a beat. */
 const SETTLE = 600;
 
 /** The glide to a new place. Just under-damped, so it lands softly rather than snapping. */
@@ -351,7 +352,9 @@ export function AnimatedChecklist({
                     // The size before the leading: a later font size would drop it.
                     scale.text,
                     "relative min-w-0 truncate leading-tight font-[450] tracking-[-0.01em]",
-                    "transition-opacity duration-[var(--duration-normal)] group-data-[done]/row:opacity-42",
+                    // Done is shown by the tick and the strike; the label only
+                    // quietens to the audited muted token, never below 4.5:1.
+                    "transition-colors duration-[var(--duration-normal)] group-data-[done]/row:text-muted-foreground",
                   )}
                 >
                   {item.label}
@@ -416,7 +419,7 @@ export function AnimatedChecklist({
                 value={draft}
                 data-slot="animated-checklist-input"
                 className={cn(
-                  "h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-foreground/34",
+                  "h-full min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
                   scale.text,
                 )}
                 onChange={(event) => {
@@ -433,10 +436,12 @@ export function AnimatedChecklist({
                 type="button"
                 data-slot="animated-checklist-new"
                 className={cn(
-                  "rounded-sm opacity-34 transition-opacity duration-[var(--duration-fast)] hover:opacity-62",
+                  // An enabled button, so readable at rest: muted text that
+                  // strengthens to foreground on hover and focus.
+                  "rounded-sm text-muted-foreground transition-colors duration-[var(--duration-fast)] hover:text-foreground",
                   scale.text,
                   focusRing,
-                  "focus-visible:opacity-62",
+                  "focus-visible:text-foreground",
                 )}
                 onClick={() => {
                   setAdding(true);

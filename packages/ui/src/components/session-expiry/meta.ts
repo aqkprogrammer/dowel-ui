@@ -20,4 +20,9 @@ export const meta = defineMeta({
     "clock is read in an effect, so the server renders nothing rather than a countdown from the " +
     "wrong instant. This satisfies the warn-and-extend half of WCAG 2.2.1 Timing Adjustable; the " +
     "twenty-second minimum is the default window's business and the application's.",
+  guidance: {
+    useWhen: ["warning before an idle session times out, with a way to stay signed in"],
+    avoidWhen: ["other confirmations — use alert-dialog"],
+    alternatives: ["alert-dialog", "toast"],
+  },
 });

@@ -27,4 +27,11 @@ export const meta = defineMeta({
     "be noise, which is why the underlying component makes it opt in. Every completed action " +
     "states whether it can be undone, offset or not taken back at all, in words, since " +
     "presenting all three behind one Undo is a lie discovered after the click.",
+  guidance: {
+    useWhen: [
+      "watching one agent run: its plan, the approval it is blocked on, and what it has done",
+    ],
+    avoidWhen: ["cost and failure rates across many runs — use ai-dashboard"],
+    alternatives: ["ai-dashboard", "ai-chat"],
+  },
 });

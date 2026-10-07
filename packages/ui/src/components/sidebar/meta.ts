@@ -22,4 +22,12 @@ export const meta = defineMeta({
     "overlay is mounted only on a narrow screen and has its own open state: a modal dialog that " +
     "CSS hides is still modal, and mounting it always made every wide screen aria-hidden and " +
     "unclickable whenever the rail was open.",
+  guidance: {
+    useWhen: [
+      "the application's main navigation, collapsing to a rail on wide screens and an overlay on narrow ones",
+    ],
+    avoidWhen: ["a temporary panel of details or filters — use sheet"],
+    alternatives: ["sheet", "rail-nav"],
+  },
+  composesWith: ["breadcrumb"],
 });

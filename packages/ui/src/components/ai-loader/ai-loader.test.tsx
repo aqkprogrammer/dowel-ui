@@ -50,6 +50,14 @@ describe("AILoader", () => {
     expect(elapsed).toHaveTextContent("2.5s");
   });
 
+  it("draws the counter at the full muted-foreground strength, never faded", () => {
+    // The counter is information: an opacity on muted text took it to 2.4:1.
+    const { container } = render(<AILoader label="Churning" showElapsed />);
+    const elapsed = container.querySelector('[data-slot="ai-loader-elapsed"]');
+    expect(elapsed?.className).not.toMatch(/opacity-/);
+    expect(screen.getByRole("status")).toHaveClass("text-muted-foreground");
+  });
+
   it("has no counter unless asked", () => {
     const { container } = render(<AILoader />);
     expect(container.querySelector('[data-slot="ai-loader-elapsed"]')).toBeNull();

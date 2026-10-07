@@ -1,4 +1,3 @@
-import { CodeBlock } from "@dowel-ui/react/code-block";
 import {
   Table,
   TableBody,
@@ -10,6 +9,9 @@ import {
 import type { Metadata } from "next";
 
 import { Prose } from "~/components/prose";
+import { CodePanel } from "~/components/site/code-panel";
+import { PageHeader } from "~/components/site/page-header";
+import { UnreleasedBadge, UnreleasedNote } from "~/components/site/unreleased";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
 
@@ -22,7 +24,7 @@ export const metadata: Metadata = pageMetadata({
   type: "article",
 });
 
-const COMMANDS = [
+const COMMANDS: { command: string; what: string; since?: string }[] = [
   {
     command: "init",
     what: "Writes components.json, the cn() utility and the design tokens.",
@@ -37,6 +39,26 @@ const COMMANDS = [
     what: "Compares installed components against the registry.",
   },
   {
+    command: "plan <prompt>",
+    since: "0.13.0",
+    what: "Chooses the blocks and components for a screen you describe; --model asks Claude.",
+  },
+  {
+    command: "diff [names…]",
+    since: "0.13.0",
+    what: "Shows how installed files differ from the registry's current ones.",
+  },
+  {
+    command: "doctor",
+    since: "0.13.0",
+    what: "Checks the setup, installed components, updates and agent docs.",
+  },
+  {
+    command: "audit [paths…]",
+    since: "0.13.0",
+    what: "Finds hardcoded colours, off-scale sizes, physical directions and bypassed components.",
+  },
+  {
     command: "agents [targets…]",
     what: "Writes the catalogue for the coding agents working in this project.",
   },
@@ -44,7 +66,11 @@ const COMMANDS = [
     command: "login [key]",
     what: "Stores a licence key, for components that require one.",
   },
-  { command: "logout", what: "Removes the stored licence key from this machine." },
+  {
+    command: "logout",
+    since: "0.13.0",
+    what: "Removes the stored key for --registry, or every stored key.",
+  },
   { command: "whoami [--check]", what: "Reports whether this machine is signed in." },
 ];
 
@@ -66,7 +92,7 @@ Re-run with --overwrite to replace them and lose those edits.`;
 export default function CliPage() {
   return (
     <article className="max-w-3xl">
-      <h1 className="text-2xl font-semibold tracking-tight">CLI</h1>
+      <PageHeader eyebrow="Docs" title="CLI" cosmic="subtle" className="pb-2 sm:pb-4" />
 
       <Prose>
         <p>
@@ -91,6 +117,7 @@ export default function CliPage() {
               <TableRow key={row.command}>
                 <TableHead scope="row" className="font-mono text-xs text-foreground">
                   {row.command}
+                  {row.since ? <UnreleasedBadge since={row.since} /> : null}
                 </TableHead>
                 <TableCell>{row.what}</TableCell>
               </TableRow>
@@ -138,12 +165,39 @@ export default function CliPage() {
       </Prose>
 
       <div className="not-prose my-4">
-        <CodeBlock language="text" title={`${branding.cliName} update`} code={UPDATE_OUTPUT}>
-          {UPDATE_OUTPUT}
-        </CodeBlock>
+        <CodePanel language="text" title={`${branding.cliName} update`} code={UPDATE_OUTPUT} />
       </div>
 
       <Prose>
+        <h2 id="doctor-and-audit">Checking a project</h2>
+        <UnreleasedNote since="0.13.0">
+          <code>doctor</code>, <code>diff</code>, <code>audit</code> and <code>plan</code> are
+          new.
+        </UnreleasedNote>
+        <p>
+          <code>doctor</code> checks a project&rsquo;s setup and prints a checklist: React,
+          TypeScript and Tailwind 4; the import alias still matching <code>tsconfig.json</code>;
+          the tokens still in the stylesheet; every installed file still present; the npm
+          packages they import; updates available; and whether the agent docs are stale. It
+          reports what it finds rather than a score, writes nothing, and exits non-zero only
+          when something fails. <code>--offline</code> skips the checks that need the registry.
+        </p>
+        <p>
+          <code>audit</code> reads the project&rsquo;s own code for the ways a design system
+          erodes: Tailwind palette colours, literal colours in classes or inline styles,
+          arbitrary sizes off the spacing scale, physical utilities like <code>ml-4</code> that
+          break right-to-left layouts, and a native <code>&lt;button&gt;</code>,{" "}
+          <code>&lt;input&gt;</code> or <code>&lt;dialog&gt;</code> where the Dowel component is
+          installed. It skips the files Dowel wrote, and runs the same rules as the
+          library&rsquo;s own CI. <code>--fix</code> rewrites only the physical utilities, whose
+          logical form is exact, and asks first. <code>--json</code> is for CI.
+        </p>
+        <p>
+          <code>diff</code> shows the change behind an &ldquo;update available&rdquo;: a unified
+          diff from your file to the registry&rsquo;s, so an upstream fix can be read before it
+          is applied, or carried across by hand into a file you have edited.
+        </p>
+
         <h2 id="licensed-components">Licensed components</h2>
         <p>
           Components that require a licence are listed in the registry like any other — with
@@ -158,6 +212,17 @@ export default function CliPage() {
           <code>DOWEL_TOKEN</code> from your secrets store instead — it takes precedence over
           anything stored, which is also what <code>logout</code> will tell you if it is still
           set.
+        </p>
+        <UnreleasedNote since="0.13.0">
+          Scoping keys to their registry, and keeping one per registry, is new.
+        </UnreleasedNote>
+        <p>
+          A key is only ever sent to the registry it belongs to, and only over HTTPS. A stored
+          key belongs to the registry <code>login</code> checked it against; one in{" "}
+          <code>DOWEL_TOKEN</code> belongs to the default registry unless{" "}
+          <code>DOWEL_TOKEN_REGISTRY</code> names another. The registry an install reads comes
+          from <code>components.json</code>, which is part of whatever repository you are in, so
+          the CLI refuses rather than send your key to a server that repository chose.
         </p>
 
         <h2 id="private-registries">Private registries</h2>

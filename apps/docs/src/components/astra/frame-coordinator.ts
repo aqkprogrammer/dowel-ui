@@ -10,7 +10,14 @@
 export interface FrameCoordinator {
   /** The page measurement run at the start of every frame. */
   setMeasure: (measure: ((deltaSeconds: number) => boolean) | null) => void;
-  /** Whether frames may run at all — false while the tab is hidden. */
+  /**
+   * Whether frames may run at all — false once the experience unmounts.
+   *
+   * Deliberately not tied to `document.hidden`: some webviews report the page
+   * hidden while still painting it, and the frame requester's timer fallback
+   * exists for exactly those. In a tab that really is hidden, the browser
+   * throttles that timer to about once a second, which costs little.
+   */
   setActive: (active: boolean) => void;
   /** Whether the scene wants a frame every tick regardless of input. */
   setSceneContinuous: (continuous: boolean) => void;

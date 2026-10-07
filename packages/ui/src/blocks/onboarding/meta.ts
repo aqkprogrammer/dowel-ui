@@ -19,4 +19,9 @@ export const meta = defineMeta({
     "twice. The current step carries aria-current, so it can be found rather than merely seen. " +
     "Blocked is a distinct state from not-started and says why. Each step's action is named " +
     'after its step, so six buttons are not six identical "Start" entries in a controls list.',
+  guidance: {
+    useWhen: ["a setup checklist showing what is done, what is next and what is blocked"],
+    avoidWhen: ["a multi-step form wizard — use stepper"],
+    alternatives: ["stepper"],
+  },
 });

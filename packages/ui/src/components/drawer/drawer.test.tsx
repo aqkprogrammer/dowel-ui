@@ -81,6 +81,21 @@ describe("Drawer", () => {
     expect(await screen.findByRole("dialog", { name: "Filters" })).toBeInTheDocument();
   });
 
+  it("stacks the panel above its own overlay", async () => {
+    // Same layer as the overlay, and after it in the document: the panel
+    // paints on top. With the overlay on a higher layer, it covered the panel.
+    const { dialog } = await open();
+    const overlay = document.querySelector("[data-slot='drawer-overlay']");
+    if (!overlay) throw new Error("drawer overlay not rendered");
+
+    const layer = (element: Element) => /z-\[var\(--z-[a-z]+\)\]/.exec(element.className)?.[0];
+    expect(layer(dialog)).toBe("z-[var(--z-drawer)]");
+    expect(layer(overlay)).toBe(layer(dialog));
+    expect(
+      overlay.compareDocumentPosition(dialog) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("hides the drag handle from assistive technology", async () => {
     const { handle } = await open();
     expect(handle).toHaveAttribute("aria-hidden", "true");

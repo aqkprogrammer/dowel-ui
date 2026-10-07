@@ -203,6 +203,39 @@ describe("registry metadata", () => {
       }
     });
 
+    it("points its guidance and composition only at entries that exist", () => {
+      // Guidance is the one hand-written part of the genome; this is the part
+      // of it a test can hold to account. A renamed component would otherwise
+      // leave an agent being told to use something that is not there.
+      const known = new Set(metaEntries.map(([, entry]) => entry.meta.name));
+      const named = [...(meta.guidance?.alternatives ?? []), ...(meta.composesWith ?? [])];
+      for (const name of named) {
+        expect(known.has(name), `${meta.name} names "${name}", which does not exist`).toBe(
+          true,
+        );
+        expect(name, `${meta.name} names itself`).not.toBe(meta.name);
+      }
+      if (meta.guidance) {
+        expect(
+          meta.guidance.useWhen.length,
+          `${meta.name} has guidance but no useWhen`,
+        ).toBeGreaterThan(0);
+        const phrases = [...meta.guidance.useWhen, ...(meta.guidance.avoidWhen ?? [])];
+        for (const phrase of phrases) expect(phrase.trim().length).toBeGreaterThan(0);
+      }
+    });
+
+    it("deprecates only towards something that exists and is not deprecated itself", () => {
+      const replacement = meta.deprecated?.replacement;
+      if (replacement === undefined) return;
+      const target = metaEntries.find(([, entry]) => entry.meta.name === replacement)?.[1].meta;
+      expect(target, `${meta.name} is replaced by missing "${replacement}"`).toBeDefined();
+      expect(
+        target?.deprecated,
+        `${meta.name} is replaced by deprecated "${replacement}"`,
+      ).toBeUndefined();
+    });
+
     it("declares dependencies that are actually installed in this workspace", () => {
       for (const dependency of meta.dependencies) {
         expect(

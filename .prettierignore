@@ -12,3 +12,15 @@ CHANGELOG.md
 packages/registry/r/
 apps/docs/public/r/
 *.generated.ts
+
+# AgentBench results are written by the harness, and published ones are kept
+# byte for byte as the run produced them.
+packages/agentbench/results/
+
+# Playwright output.
+playwright-report/
+test-results/
+
+# Claude Code agent worktrees: whole checkouts of other branches, not part of
+# this one.
+.claude/worktrees/
