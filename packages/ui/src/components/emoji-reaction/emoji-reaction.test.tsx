@@ -257,9 +257,15 @@ describe("EmojiReaction", () => {
     const real = window.getComputedStyle.bind(window);
     vi.spyOn(window, "getComputedStyle").mockImplementation((element, pseudo) => {
       const style = real(element, pseudo);
+      // Methods are bound to the real declaration: jsdom checks that
+      // getPropertyValue is called on a genuine CSSStyleDeclaration, and
+      // calling it through the proxy fails that check.
       return new Proxy(style, {
-        get: (target, key): unknown =>
-          key === "direction" ? "rtl" : (Reflect.get(target, key) as unknown),
+        get: (target, key): unknown => {
+          if (key === "direction") return "rtl";
+          const value = Reflect.get(target, key) as unknown;
+          return typeof value === "function" ? value.bind(target) : value;
+        },
       });
     });
     const user = userEvent.setup();
