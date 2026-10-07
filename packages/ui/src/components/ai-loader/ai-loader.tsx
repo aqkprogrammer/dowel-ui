@@ -97,11 +97,7 @@ export function AILoader({
       {variant === "bar" ? <BarLoader variant="indeterminate" size={loaderSize} /> : null}
       {variant === "grid" ? <GridLoader variant="thinking" size={loaderSize} /> : null}
       {showElapsed ? (
-        <span
-          data-slot="ai-loader-elapsed"
-          aria-hidden="true"
-          className="tabular-nums opacity-60"
-        >
+        <span data-slot="ai-loader-elapsed" aria-hidden="true" className="tabular-nums">
           {elapsed.toFixed(1)}s
         </span>
       ) : null}

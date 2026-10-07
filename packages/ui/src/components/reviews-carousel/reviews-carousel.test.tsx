@@ -119,6 +119,19 @@ describe("ReviewsCarousel", () => {
     );
   });
 
+  it("gives every indicator a 24px square target around its small dot", () => {
+    render(<ReviewsCarousel reviews={reviews} />);
+    for (const name of ["Review 1", "Review 2"]) {
+      const indicator = screen.getByRole("button", { name });
+      // h-6 and min-w-6: 24 × 24 CSS px at the default root size (WCAG 2.5.8).
+      expect(indicator).toHaveClass("h-6", "min-w-6", "justify-center");
+      expect(indicator.firstElementChild).toHaveClass("h-2");
+    }
+    expect(screen.getByRole("button", { name: "Review 2" }).firstElementChild).toHaveClass(
+      "w-2",
+    );
+  });
+
   it("moves with arrow keys, Home and End while focus is inside", async () => {
     const user = userEvent.setup();
     render(<ReviewsCarousel reviews={reviews} />);

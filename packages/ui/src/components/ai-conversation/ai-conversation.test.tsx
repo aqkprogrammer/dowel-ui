@@ -55,6 +55,21 @@ describe("Conversation", () => {
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
   });
 
+  it("makes the transcript a named region a keyboard user can focus and scroll", async () => {
+    const user = userEvent.setup();
+    render(
+      <Conversation label="Support chat">
+        <ConversationMessages>
+          <li>Only plain text, nothing to tab to.</li>
+        </ConversationMessages>
+      </Conversation>,
+    );
+
+    const region = screen.getByRole("region", { name: "Support chat" });
+    await user.tab();
+    expect(region).toHaveFocus();
+  });
+
   it("does NOT make the transcript a live region", () => {
     // The central accessibility decision of this component. A live region that
     // updates per streamed token is unusable with a screen reader.

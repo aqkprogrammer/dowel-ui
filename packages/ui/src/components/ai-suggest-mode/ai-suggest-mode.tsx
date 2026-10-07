@@ -307,7 +307,10 @@ export function SuggestMode({
               className={cn("rounded-sm no-underline", focusRing)}
             >
               {hunk.removed ? (
-                <del className="bg-destructive/10 text-muted-foreground decoration-destructive/70">
+                // Full-strength text: the strike-through, the tint and its place
+                // say "removed". Muted text on the destructive tint measured
+                // 4.4:1, under the 4.5 the words still need to be read.
+                <del className="bg-destructive/10 text-foreground decoration-destructive/70">
                   {hunk.removed}
                 </del>
               ) : null}

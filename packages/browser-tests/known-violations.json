@@ -1,159 +1,9 @@
 [
   {
-    "story": "ai-action-ledger--partial-failure",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (destructive) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "ai-agent-data-table--default",
-    "rule": "empty-table-header",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the selection column's header cell is empty; it needs a visually hidden label (e.g. 'Select')"
-  },
-  {
-    "story": "ai-agent-status--agent-fleet",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (warning, info) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "ai-agent-status--custom-wording",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (warning, info) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "ai-agent-status--states",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (warning, info) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "ai-ai-loader--gallery",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the elapsed-time counter is opacity-60 on muted text (2.4:1); it is information, not decoration"
-  },
-  {
-    "story": "ai-conversation--long-transcript",
-    "rule": "scrollable-region-focusable",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the transcript's scroll container is not focusable and holds no focusable content in this story, so a keyboard user cannot scroll it; tabIndex=0 with a label"
-  },
-  {
-    "story": "ai-permission-prompt--high-risk",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (destructive) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "ai-tool-call--failed",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (destructive) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "ai-tool-call--ring-indicator",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (destructive) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "ai-tool-call--statuses",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (destructive) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "blocks-agent-console--failed",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (destructive) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "blocks-agent-console--finished",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (success) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "blocks-agent-console--interactive",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (warning, info) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "blocks-agent-console--just-started",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (info) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "blocks-agent-console--waiting-for-approval",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (warning, info) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "blocks-ai-dashboard--default",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (warning, info) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "blocks-ai-dashboard--spend-up",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (warning, info) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "blocks-ai-dashboard--with-actions",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (warning, info) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "blocks-command-center--all-clear",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: a resolved incident's warning badge is dimmed with opacity, which takes light text on the ochre fill to 2.8:1; dim the row's text, not the badge fill"
-  },
-  {
-    "story": "blocks-command-center--outage",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: a resolved incident's warning badge is dimmed with opacity, which takes light text on the ochre fill to 2.8:1; dim the row's text, not the badge fill"
-  },
-  {
-    "story": "blocks-command-center--outage",
-    "rule": "target-size",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the log viewer's expand toggle is 16 px tall inside a dense row (log-viewer component)"
-  },
-  {
     "story": "blocks-faq-accordion--heading-level-one",
     "rule": "heading-order",
     "themes": ["light", "dark"],
     "reason": "demonstrates headingLevel=1, which the prop's docs warn against: the questions stay h3, so h1 → h3 skips a level. The default (2) passes"
-  },
-  {
-    "story": "blocks-onboarding--default",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: the warning badge fill is mixed lighter than --warning, so its light foreground is 3.95:1; use the solid token"
-  },
-  {
-    "story": "blocks-onboarding--with-skip",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: the warning badge fill is mixed lighter than --warning, so its light foreground is 3.95:1; use the solid token"
-  },
-  {
-    "story": "data-code-block--line-numbers-on-markup",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: the info-coloured syntax token sits on the highlighted-line accent at 4.08:1; the highlight needs a lighter mix or the token a darker light-mode value"
   },
   {
     "story": "data-code-tabs--synced",
@@ -162,142 +12,16 @@
     "reason": "story composition: the story shows two synced instances whose code regions share a label; one instance per page has unique labels"
   },
   {
-    "story": "data-dns-record--mail",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (destructive) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "display-image-accordion--controlled",
-    "rule": "target-size",
-    "themes": ["light", "dark"],
-    "reason": "to fix: collapsed panels are 16–21 px wide strips and each is the trigger; a 24 px minimum width for collapsed panels"
-  },
-  {
-    "story": "display-image-accordion--gallery",
-    "rule": "target-size",
-    "themes": ["light", "dark"],
-    "reason": "to fix: collapsed panels are 16–21 px wide strips and each is the trigger; a 24 px minimum width for collapsed panels"
-  },
-  {
-    "story": "display-island--tones",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: secondary text at opacity-70 on the primary-tone island is 3.34:1; use primary-foreground at full strength or a token pair"
-  },
-  {
     "story": "display-marquee--gallery",
     "rule": "landmark-unique",
     "themes": ["light", "dark"],
     "reason": "story composition: a gallery renders several instances of the component side by side, so their landmarks share a label; one instance per page does not"
   },
   {
-    "story": "display-reviews-carousel--controlled",
-    "rule": "target-size",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the pagination dots are 16×24 px; WCAG 2.5.8 needs 24×24 (or the spacing to make up for it) — widen the button, not the dot"
-  },
-  {
-    "story": "display-reviews-carousel--default",
-    "rule": "target-size",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the pagination dots are 16×24 px; WCAG 2.5.8 needs 24×24 (or the spacing to make up for it) — widen the button, not the dot"
-  },
-  {
-    "story": "display-reviews-carousel--gallery",
-    "rule": "target-size",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the pagination dots are 16×24 px; WCAG 2.5.8 needs 24×24 (or the spacing to make up for it) — widen the button, not the dot"
-  },
-  {
-    "story": "display-reviews-carousel--looping",
-    "rule": "target-size",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the pagination dots are 16×24 px; WCAG 2.5.8 needs 24×24 (or the spacing to make up for it) — widen the button, not the dot"
-  },
-  {
-    "story": "display-reviews-carousel--right-to-left",
-    "rule": "target-size",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the pagination dots are 16×24 px; WCAG 2.5.8 needs 24×24 (or the spacing to make up for it) — widen the button, not the dot"
-  },
-  {
-    "story": "display-reviews-carousel--with-avatars",
-    "rule": "target-size",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the pagination dots are 16×24 px; WCAG 2.5.8 needs 24×24 (or the spacing to make up for it) — widen the button, not the dot"
-  },
-  {
     "story": "effects-text-effect--in-view",
     "rule": "scrollable-region-focusable",
     "themes": ["light", "dark"],
     "reason": "story composition: the fixed-height scroll box is the story's own wrapper, used to demonstrate in-view triggering"
-  },
-  {
-    "story": "feedback-pull-to-refresh--default",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the counter digits are faded to opacity-35 (2.2:1) but are real text a sighted user reads; fade a decorative layer, not the number"
-  },
-  {
-    "story": "feedback-pull-to-refresh--gallery",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the counter digits are faded to opacity-35 (2.2:1) but are real text a sighted user reads; fade a decorative layer, not the number"
-  },
-  {
-    "story": "feedback-skeleton--loading-card",
-    "rule": "aria-prohibited-attr",
-    "themes": ["light", "dark"],
-    "reason": "to fix (story): aria-label on a div with no role is ignored by assistive technology; the story's wrapper needs role=\"status\""
-  },
-  {
-    "story": "feedback-skeleton--shimmer",
-    "rule": "aria-prohibited-attr",
-    "themes": ["light", "dark"],
-    "reason": "to fix (story): aria-label on a div with no role is ignored by assistive technology; the story's wrapper needs role=\"status\""
-  },
-  {
-    "story": "form-animated-checklist--default",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the 'add item' row is an enabled button faded to opacity-34 (2.1:1) until hover or focus"
-  },
-  {
-    "story": "form-animated-checklist--gallery",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the 'add item' row is an enabled button faded to opacity-34 (2.1:1) until hover or focus"
-  },
-  {
-    "story": "form-animated-checklist--sizes",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: completed items are faded to 2.7:1; done is a state, not a reason the label stops being readable — strike through and keep muted-foreground"
-  },
-  {
-    "story": "form-animated-checklist--sort-done",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the 'add item' row is an enabled button faded to opacity-34 (2.1:1) until hover or focus"
-  },
-  {
-    "story": "form-confirm-typed--case-insensitive",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the action is dimmed to opacity-55 (not disabled, deliberately, so it stays reachable) which takes it to 2.2–2.5:1; an enabled control has to meet 4.5:1 — use aria-disabled styling that keeps the label legible"
-  },
-  {
-    "story": "form-confirm-typed--default",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the action is dimmed to opacity-55 (not disabled, deliberately, so it stays reachable) which takes it to 2.2–2.5:1; an enabled control has to meet 4.5:1 — use aria-disabled styling that keeps the label legible"
-  },
-  {
-    "story": "form-confirm-typed--not-destructive",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the action is dimmed to opacity-55 (not disabled, deliberately, so it stays reachable) which takes it to 2.2–2.5:1; an enabled control has to meet 4.5:1 — use aria-disabled styling that keeps the label legible"
   },
   {
     "story": "form-duration-picker--disabled",
@@ -310,12 +34,6 @@
     "rule": "landmark-unique",
     "themes": ["light", "dark"],
     "reason": "story composition: a gallery renders several instances of the component side by side, so their landmarks share a label; one instance per page does not"
-  },
-  {
-    "story": "form-flip-button--surfaces",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: primary text on a 12% primary tint is 4.47:1 in light mode, just under 4.5; same missing audit pair as the status tints"
   },
   {
     "story": "form-liquid-button--default",
@@ -342,118 +60,10 @@
     "reason": "false positive: the second label is clipped away with clip-path until hover, when it sits on the fill; axe ignores clip-path and pairs it with the page background"
   },
   {
-    "story": "form-selection-list--async-action",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: item descriptions use text-foreground at reduced alpha (2.9:1); use text-muted-foreground, which is audited at 4.5:1"
-  },
-  {
-    "story": "form-selection-list--controlled",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: item descriptions use text-foreground at reduced alpha (2.9:1); use text-muted-foreground, which is audited at 4.5:1"
-  },
-  {
-    "story": "form-selection-list--custom-labels",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: item descriptions use text-foreground at reduced alpha (2.9:1); use text-muted-foreground, which is audited at 4.5:1"
-  },
-  {
-    "story": "form-selection-list--default",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: item descriptions use text-foreground at reduced alpha (2.9:1); use text-muted-foreground, which is audited at 4.5:1"
-  },
-  {
-    "story": "form-selection-list--gallery",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: item descriptions use text-foreground at reduced alpha (2.9:1); use text-muted-foreground, which is audited at 4.5:1"
-  },
-  {
-    "story": "form-selection-list--photos",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: item descriptions use text-foreground at reduced alpha (2.9:1); use text-muted-foreground, which is audited at 4.5:1"
-  },
-  {
-    "story": "form-selection-list--preselected",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: item descriptions use text-foreground at reduced alpha (2.9:1); use text-muted-foreground, which is audited at 4.5:1"
-  },
-  {
-    "story": "form-share-button--variants",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: primary text on a 12% primary tint is 4.47:1 in light mode, just under 4.5; same missing audit pair as the status tints"
-  },
-  {
-    "story": "form-slide-to-confirm--default",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the track label is text-foreground/45 (2.9:1) and is the control's only visible instruction"
-  },
-  {
-    "story": "form-slide-to-confirm--gallery",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the track label is text-foreground/45 (2.9:1) and is the control's only visible instruction"
-  },
-  {
-    "story": "form-slide-to-confirm--press-and-hold",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the track label is text-foreground/45 (2.9:1) and is the control's only visible instruction"
-  },
-  {
-    "story": "form-slide-to-confirm--stays-confirmed",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: the track label is text-foreground/45 (2.9:1) and is the control's only visible instruction"
-  },
-  {
-    "story": "forms-calendar--default",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: days outside the month are selectable buttons drawn at ~2:1 (muted foreground with opacity); raise them to muted-foreground or make them non-interactive"
-  },
-  {
-    "story": "forms-calendar--multiple",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: days outside the month are selectable buttons drawn at ~2:1 (muted foreground with opacity); raise them to muted-foreground or make them non-interactive"
-  },
-  {
-    "story": "forms-calendar--range",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: days outside the month are selectable buttons drawn at ~2:1 (muted foreground with opacity); raise them to muted-foreground or make them non-interactive"
-  },
-  {
-    "story": "forms-calendar--with-dropdown-navigation",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: days outside the month are selectable buttons drawn at ~2:1 (muted foreground with opacity); raise them to muted-foreground or make them non-interactive"
-  },
-  {
     "story": "forms-file-upload--disabled",
     "rule": "color-contrast",
     "themes": ["light", "dark"],
     "reason": "disabled state: WCAG 1.4.3 exempts inactive components, but the faded text is not itself a disabled form control, so axe cannot tell"
-  },
-  {
-    "story": "forms-form--mixed-controls",
-    "rule": "button-name",
-    "themes": ["light", "dark"],
-    "reason": "to fix: FormControl around <Select> labels nothing — Select's root renders no element, so the id and aria-* it is given go nowhere and the trigger has no name; FormControl must wrap the SelectTrigger (story and docs), or forward to it"
-  },
-  {
-    "story": "forms-tags-input--allowed-domains",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (destructive) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
   },
   {
     "story": "forms-tags-input--disabled",
@@ -462,39 +72,9 @@
     "reason": "disabled state: WCAG 1.4.3 exempts inactive components, but the faded text is not itself a disabled form control, so axe cannot tell"
   },
   {
-    "story": "forms-tags-input--invalid-stays-visible",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: status text on its own 10% tint (destructive) is 4.1–4.5:1 in light mode; audit:contrast checks status on the page background but not on the tint, so the token pair needs a darker light-mode status or a new audited pair"
-  },
-  {
-    "story": "foundation-button--smooth-button",
-    "rule": "color-contrast",
-    "themes": ["light"],
-    "reason": "to fix: primary text on a 12% primary tint is 4.47:1 in light mode, just under 4.5; same missing audit pair as the status tints"
-  },
-  {
-    "story": "navigation-browser-tabs--gallery",
-    "rule": "color-contrast",
-    "themes": ["light", "dark"],
-    "reason": "to fix: inactive tab titles are 2.1:1 on the tab strip; an inactive tab is still an enabled control"
-  },
-  {
-    "story": "navigation-goo-tabs--gallery",
-    "rule": "aria-valid-attr-value",
-    "themes": ["light", "dark"],
-    "reason": "to fix (story): the tab triggers' aria-controls name panels the story does not render (Radix always sets it); render a panel per tab, as an app would"
-  },
-  {
     "story": "navigation-rail-nav--right-to-left",
     "rule": "landmark-unique",
     "themes": ["light", "dark"],
     "reason": "story composition: two rail navs with the same label side by side, one per indicator style; an application has one"
-  },
-  {
-    "story": "navigation-tabs--smooth-tabs",
-    "rule": "aria-valid-attr-value",
-    "themes": ["light", "dark"],
-    "reason": "to fix (story): the tab triggers' aria-controls name panels the story does not render (Radix always sets it); render a panel per tab, as an app would"
   }
 ]

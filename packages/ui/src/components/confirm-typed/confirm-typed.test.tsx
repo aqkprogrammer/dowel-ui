@@ -37,6 +37,37 @@ describe("ConfirmTyped", () => {
     expect(button()).toHaveAccessibleDescription("Type it exactly as shown.");
   });
 
+  it("marks the action unavailable without fading its label, until the text matches", async () => {
+    const user = userEvent.setup();
+    render(<Example />);
+
+    // Reachable and pressable, but said to be unavailable, and drawn in the
+    // quieter outline style rather than dimmed below 4.5:1.
+    expect(button()).toBeEnabled();
+    expect(button()).toHaveAttribute("aria-disabled", "true");
+    expect(button()).toHaveClass("border-input", "bg-background", "text-foreground");
+    expect(button()).not.toHaveClass(
+      "bg-destructive",
+      "opacity-55",
+      "aria-disabled:opacity-55",
+    );
+    expect(button()).toHaveClass(
+      "aria-disabled:opacity-100",
+      "aria-disabled:pointer-events-auto",
+    );
+
+    await user.type(input(), "acme-api");
+
+    expect(button()).not.toHaveAttribute("aria-disabled");
+    expect(button()).toHaveClass("bg-destructive", "text-destructive-foreground");
+    expect(button()).not.toHaveClass("border-input", "aria-disabled:opacity-100");
+    expect(button()).toHaveAttribute("data-ready", "true");
+
+    await user.type(input(), "!");
+    expect(button()).toHaveAttribute("aria-disabled", "true");
+    expect(button()).not.toHaveClass("bg-destructive");
+  });
+
   describe("before the text matches", () => {
     it("does not confirm on the button", async () => {
       const onConfirm = vi.fn();
@@ -195,6 +226,7 @@ describe("ConfirmTyped", () => {
 
       expect(button()).toHaveTextContent("Delete project…");
       expect(button()).toHaveAttribute("aria-busy", "true");
+      expect(button()).toHaveAttribute("aria-disabled", "true");
       expect(button()).not.toBeDisabled();
 
       await user.click(button());
@@ -226,11 +258,14 @@ describe("ConfirmTyped", () => {
     expect(screen.getByText("acme", { selector: "output" })).toBeInTheDocument();
   });
 
-  it("offers a primary variant for an action that is not destructive", () => {
+  it("offers a primary variant for an action that is not destructive", async () => {
+    const user = userEvent.setup();
     render(<Example variant="primary" action="Transfer ownership" />);
-    expect(screen.getByRole("button", { name: "Transfer ownership" })).toHaveClass(
-      "bg-primary",
-    );
+    const transfer = screen.getByRole("button", { name: "Transfer ownership" });
+    expect(transfer).not.toHaveClass("bg-primary");
+
+    await user.type(input(), "acme-api");
+    expect(transfer).toHaveClass("bg-primary");
   });
 
   it("lets a className override win a conflict", () => {
