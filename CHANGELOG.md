@@ -3,9 +3,12 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
-## Unreleased
+## 0.13.1
 
 Fixes for the accessibility problems the real-browser suite found in 0.13.0.
+`@dowel-ui/react` and `@dowel-ui/themes` only; the CLI, the MCP server, the
+registry builder and `create-dowel-app` are unchanged at 0.13.0. Components
+installed as source get these through `dowel update`.
 
 ### Fixed
 
