@@ -14,4 +14,13 @@ export const meta = defineMeta({
     "htmlFor/id. Do not rely on colour alone to show state — position and the label carry it too. " +
     "Icons passed to `icons` are aria-hidden decoration; the press squash only runs without " +
     "a reduced-motion preference.",
+  guidance: {
+    useWhen: ["a setting that takes effect the moment it is flipped"],
+    avoidWhen: [
+      "a choice staged until the form is saved — use checkbox",
+      "a pressed state on a toolbar button, such as bold — use toggle",
+    ],
+    alternatives: ["checkbox", "toggle", "liquid-toggle", "theme-toggle"],
+  },
+  composesWith: ["label"],
 });

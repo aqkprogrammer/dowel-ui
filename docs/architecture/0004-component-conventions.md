@@ -61,6 +61,12 @@ installed it.
 - **Portal by default.** Every floating surface renders through a portal so it
   escapes `overflow: hidden` and stacking contexts. Layering is governed by the
   `--z-*` scale, never by ad-hoc numbers.
+- **A panel and its scrim share a layer.** A modal surface renders its overlay
+  and then its content in one portal, on the same `--z-*` value, so document
+  order puts the content on top. `dialog` uses `--z-overlay` for its scrim and
+  `--z-modal` for the dialog, a layer apart; `sheet` and `drawer` put both on
+  `--z-drawer`, below dialogs, so a dialog opened from a panel still dims it.
+  Never give an overlay a higher layer than the content it belongs to.
 - **Motion is composed from two shared keyframe pairs, not one per direction.**
   Floating surfaces (`popover`, `dropdown`, `tooltip`) grow from
   `transform-origin`, which the primitive computes, so one animation covers all

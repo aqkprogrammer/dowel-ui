@@ -54,7 +54,7 @@ they want to change something.
 
 ## What is in it
 
-**220 components** and **51 blocks**, every one keyboard-operable and audited for
+**244 components** and **51 blocks**, every one keyboard-operable and audited for
 contrast.
 
 **AI** — the reason this library exists
@@ -146,7 +146,7 @@ object.
 ```
 
 Thirteen presets ship with it, and every one passes **WCAG AA contrast in both
-light and dark** — verified by an audit that checks 598 colour pairs across 26
+light and dark** — verified by an audit that checks 962 colour pairs across 26
 schemes on every commit, not by eye.
 
 ---

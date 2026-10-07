@@ -1,0 +1,17 @@
+{
+  "id": "billing",
+  "title": "Billing: usage and invoices",
+  "prompt": "Create a billing page at /billing that shows the current plan, how much of this month's API request quota and storage have been used, and a list of past invoices with a download link for each.",
+  "route": "src/app/billing/page.tsx",
+  "install": [
+    "button",
+    "card",
+    "badge",
+    "meter",
+    "progress",
+    "table",
+    "data-table",
+    "empty-state"
+  ],
+  "expect": ["meter", "button"]
+}

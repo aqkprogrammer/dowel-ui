@@ -436,7 +436,15 @@ export function SelectionList({
                 {item.description ? (
                   <span
                     id={`${baseId}-${String(index)}-description`}
-                    className="truncate text-[0.71875rem] text-current/45"
+                    data-slot="selection-list-description"
+                    className={cn(
+                      "truncate text-[0.71875rem]",
+                      // Secondary, but read: the audited muted token, never a
+                      // faded foreground. The inverted fill is the opposite
+                      // surface, where muted-foreground falls under 4.5:1, so
+                      // its descriptions keep the full inverted colour.
+                      tone === "inverted" ? "text-current" : "text-muted-foreground",
+                    )}
                   >
                     {item.description}
                   </span>

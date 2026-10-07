@@ -14,4 +14,9 @@ export const meta = defineMeta({
     "The dot is aria-hidden decoration; the button is named by its label. The morph runs on " +
     "keyboard focus as well as hover, and hover only applies on devices that can hover, so a " +
     "tap never leaves it stuck. Under reduced motion the change is instant.",
+  guidance: {
+    useWhen: ["a pill call to action led by a dot that stretches on hover and focus"],
+    avoidWhen: ["routine actions — use button"],
+    alternatives: ["button", "effect-button"],
+  },
 });

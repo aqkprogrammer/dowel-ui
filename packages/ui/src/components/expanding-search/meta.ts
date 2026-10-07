@@ -16,4 +16,12 @@ export const meta = defineMeta({
     "leaving an empty field collapses it without moving focus. The collapsed field is visibility-hidden, so " +
     "it is out of the tab order. `inputProps` reaches the input for combobox wiring, and its onKeyDown can " +
     "preventDefault to keep Escape for its own listbox.",
+  guidance: {
+    useWhen: ["a search field that stays collapsed to an icon in a crowded header or toolbar"],
+    avoidWhen: [
+      "a ⌘K palette of actions — use command",
+      "a search field that is always visible — use input",
+    ],
+    alternatives: ["input", "command", "combobox"],
+  },
 });

@@ -18,4 +18,11 @@ export const meta = defineMeta({
     "and stays quiet during playback, which would otherwise talk over itself. The step list marks the current " +
     'step with aria-current="step". Status, source and corrections are words, and the arguments and what ' +
     "the agent was told are focusable, named regions because they scroll.",
+  guidance: {
+    useWhen: [
+      "reviewing a finished agent run step by step: each call, what the agent was told, each take-over",
+    ],
+    avoidWhen: ["a list of what can be undone — use agent-ledger"],
+    alternatives: ["agent-ledger", "ai-action-ledger"],
+  },
 });

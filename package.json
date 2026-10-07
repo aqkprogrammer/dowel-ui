@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@11.9.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.18"
   },
   "scripts": {
     "build": "turbo run build",
@@ -15,7 +15,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "turbo run typecheck",
+    "typecheck": "turbo run typecheck && tsc --noEmit -p tsconfig.json",
     "test": "turbo run test",
     "test:scripts": "vitest run",
     "install-check": "tsx scripts/install-check.ts",

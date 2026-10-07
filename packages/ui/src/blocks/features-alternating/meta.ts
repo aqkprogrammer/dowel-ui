@@ -18,4 +18,8 @@ export const meta = defineMeta({
     "right-to-left page, as does the slide. Media is a prop — pass an image with real alt text; " +
     "the fallback panel is decorative. Rows starting below the fold are hidden until they " +
     "scroll in, never under reduced motion.",
+  guidance: {
+    useWhen: ["a few features, each with a screenshot or visual, in rows that alternate sides"],
+    alternatives: ["features-bento", "features-icon-grid"],
+  },
 });

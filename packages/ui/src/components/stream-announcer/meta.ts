@@ -22,4 +22,12 @@ export const meta = defineMeta({
     "present from first paint that only gains nodes — not role=status, which is atomic and would re-read " +
     "everything, and not role=log, which would add a second transcript to navigate. Skip states how many " +
     "sentences it will drop in its accessible name, and says how many it dropped.",
+  guidance: {
+    useWhen: [
+      "letting screen reader users hear a streaming response a sentence at a time, as an opt-in",
+    ],
+    avoidWhen: ["announcing only that a response is generating — ai-conversation already does"],
+    alternatives: ["ai-conversation"],
+  },
+  composesWith: ["ai-response"],
 });

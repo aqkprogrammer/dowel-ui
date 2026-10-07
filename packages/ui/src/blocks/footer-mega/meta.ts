@@ -17,4 +17,10 @@ export const meta = defineMeta({
     "field (autocomplete=email); an invalid address marks the field aria-invalid and ties the " +
     "message to it, and a successful sign-up is confirmed in a status region. Social links always " +
     "carry their name as text, and external ones say they open a new tab.",
+  guidance: {
+    useWhen: [
+      "a large site footer with four link columns, a newsletter sign-up and a social bar",
+    ],
+    alternatives: ["footer-newsletter", "footer-simple", "footer-minimal"],
+  },
 });

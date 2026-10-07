@@ -14,4 +14,9 @@ export const meta = defineMeta({
     'Decorative: aria-hidden unless given aria-label or aria-labelledby, when it becomes role="img". It never ' +
     "reports state on its own — pair it with a text status. Pure CSS; under reduced motion every loop stops and " +
     "the orb shows its settled first frame.",
+  guidance: {
+    useWhen: ["a decorative orb that can follow an AI state and a live audio level"],
+    avoidWhen: ["a text status for an agent's work — use ai-agent-status"],
+    alternatives: ["matrix-orb", "fluid-orb", "orb-face", "ai-agent-status"],
+  },
 });

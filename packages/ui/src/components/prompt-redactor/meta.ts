@@ -18,4 +18,10 @@ export const meta = defineMeta({
     'it applies to. Keeping a secret adds a written warning. "What will be sent" is a native disclosure. The ' +
     "panel is only a named region while it has findings, so an empty one adds nothing to the landmarks, and it " +
     "is data-agent-ui, so using it never takes over an agent surface.",
+  guidance: {
+    useWhen: [
+      "checking a prompt for emails, card numbers and API keys before it is sent, and restoring them in the reply",
+    ],
+  },
+  composesWith: ["ai-prompt-input"],
 });

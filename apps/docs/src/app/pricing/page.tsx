@@ -1,12 +1,10 @@
-import { Badge } from "@dowel-ui/react/badge";
 import { Button } from "@dowel-ui/react/button";
 import { Check } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { AstraHeaderShell, AstraHero } from "~/components/astra";
-import { SiteFooter } from "~/components/site-footer";
-import { SiteHeader } from "~/components/site-header";
+import { PageHeader } from "~/components/site/page-header";
+import { SiteShell } from "~/components/site/site-shell";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
 import { commerceLinks, supportMailto } from "~/lib/commerce";
@@ -43,25 +41,19 @@ export default function PricingPage() {
   const links = commerceLinks();
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <AstraHeaderShell>
-        <SiteHeader searchEntries={[]} />
-      </AstraHeaderShell>
-      <AstraHero variant="banner" leftLabel="Dowel" rightLabel="Pricing" />
+    <SiteShell width="default">
+      <div>
+        <PageHeader
+          eyebrow="Pricing"
+          title="The components are free. The applications are Pro."
+          cosmic="hero"
+          seed={53}
+          align="center"
+          className="mx-auto max-w-4xl pt-16 sm:pt-20"
+          description="Every component and every block that has ever shipped free stays free, under MIT. Pro is the catalogue of whole application surfaces built on top of them, and Teams is for organisations that want a registry of their own."
+        />
 
-      <main id="content" className="mx-auto w-full max-w-5xl flex-1 px-4 py-16">
-        <div className="max-w-2xl">
-          <h1 className="text-3xl font-semibold tracking-tight text-balance">
-            The components are free. The applications are Pro.
-          </h1>
-          <p className="mt-4 text-lg text-pretty text-muted-foreground">
-            Every component and every block that has ever shipped free stays free, under MIT.
-            Pro is the catalogue of whole application surfaces built on top of them, and Teams
-            is for organisations that want a registry of their own.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+        <div className="mt-8 grid items-start gap-4 lg:grid-cols-3">
           <Tier
             name="Free"
             price="$0"
@@ -167,11 +159,12 @@ export default function PricingPage() {
           />
         </div>
 
-        <section aria-labelledby="pricing-faq" className="mt-20 max-w-3xl">
-          <h2 id="pricing-faq" className="text-xl font-semibold tracking-tight">
+        <section aria-labelledby="pricing-faq" className="mx-auto mt-24 max-w-3xl">
+          <p className="eyebrow">FAQ</p>
+          <h2 id="pricing-faq" className="display-md text-luminous mt-4">
             Questions
           </h2>
-          <dl className="mt-6 grid gap-6">
+          <dl className="mt-8 grid divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
             <Question title="Will something I use today stop being free?">
               No. Free is a promise the build enforces: an item that has ever been installable
               without a licence is named in a test that fails the release if its access changes.
@@ -202,10 +195,8 @@ export default function PricingPage() {
             </Question>
           </dl>
         </section>
-      </main>
-
-      <SiteFooter />
-    </div>
+      </div>
+    </SiteShell>
   );
 }
 
@@ -231,8 +222,8 @@ function Tier({
       aria-labelledby={`tier-${name.toLowerCase().replace(/[^a-z]+/g, "-")}`}
       className={
         highlighted
-          ? "flex flex-col gap-6 rounded-2xl border-2 border-primary bg-card p-6"
-          : "flex flex-col gap-6 rounded-2xl border border-border bg-card p-6"
+          ? "relative flex flex-col gap-6 overflow-hidden rounded-2xl border border-[var(--cosmic-blue)] bg-[var(--pane-raised)] p-6 shadow-[0_0_0_1px_var(--cosmic-blue),0_40px_120px_-40px_var(--glow-blue)] lg:-mt-4 lg:pb-10"
+          : "flex flex-col gap-6 rounded-2xl border border-[var(--hairline)] bg-[var(--pane)] p-6"
       }
     >
       <div>
@@ -244,12 +235,12 @@ function Tier({
             {name}
           </h2>
           {highlighted ? (
-            <Badge size="sm" variant="default">
-              Pro
-            </Badge>
+            <span className="rounded-full border border-[var(--hairline-strong)] px-2 py-0.5 font-mono text-[0.625rem] tracking-wide text-[var(--cosmic-orange)] uppercase">
+              Most capable
+            </span>
           ) : null}
         </div>
-        <p className="mt-3 text-3xl font-semibold tracking-tight">{price}</p>
+        <p className="mt-4 text-4xl font-semibold tracking-tight">{price}</p>
         <p className="text-sm text-muted-foreground">{cadence}</p>
         <p className="mt-3 text-sm text-pretty text-muted-foreground">{summary}</p>
       </div>
@@ -257,7 +248,7 @@ function Tier({
       <ul className="grid flex-1 gap-2 text-sm">
         {features.map((feature) => (
           <li key={feature} className="flex gap-2">
-            <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />
+            <Check className="mt-0.5 size-4 shrink-0 text-[var(--cosmic-blue)]" aria-hidden />
             <span>{feature}</span>
           </li>
         ))}
@@ -270,9 +261,9 @@ function Tier({
 
 function Question({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
+    <div className="py-5">
       <dt className="font-medium">{title}</dt>
-      <dd className="mt-1 text-sm text-pretty text-muted-foreground">{children}</dd>
+      <dd className="mt-2 text-sm leading-6 text-pretty text-muted-foreground">{children}</dd>
     </div>
   );
 }

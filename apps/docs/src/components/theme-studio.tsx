@@ -36,7 +36,7 @@ import { useEffect, useId, useMemo, useState, type CSSProperties, type ReactNode
 import { tokenDeclarations } from "~/lib/design-tokens.generated";
 
 /** The default preset's primary, so the studio opens on something that works. */
-const STARTING_COLOUR: Oklch = { l: 0.545, c: 0.196, h: 275 };
+const STARTING_COLOUR: Oklch = { l: 0.54, c: 0.196, h: 275 };
 
 /**
  * Build a theme preset, and be told before you ship it whether it can be read.
@@ -211,8 +211,8 @@ export function ThemeStudio() {
           <div>
             <p className="font-medium">
               {failures.length === 0
-                ? "Every state passes WCAG AA."
-                : `${String(failures.length)} of ${String(checks.length)} states fail WCAG AA.`}
+                ? "Every pair passes WCAG AA."
+                : `${String(failures.length)} of ${String(checks.length)} pairs fail WCAG AA.`}
             </p>
             <p className="mt-0.5 text-muted-foreground">
               {failures.length === 0

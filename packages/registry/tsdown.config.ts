@@ -9,9 +9,13 @@ export default defineConfig({
    * `node:fs` into the browser bundle, which fails the build outright. The
    * planner touches nothing but data, so it gets a door of its own.
    */
-  entry: ["src/index.ts", "src/build.ts", "src/generate.ts"],
+  entry: ["src/index.ts", "src/build.ts", "src/generate.ts", "src/analysis/index.ts"],
   format: ["esm"],
   dts: true,
   clean: true,
   outExtensions: () => ({ js: ".js", dts: ".d.ts" }),
+  // The build reads component source through the TypeScript compiler to
+  // extract props and variants. That is a build-time tool, never bundled: it
+  // is several megabytes, and the build only ever runs where it is installed.
+  external: ["typescript"],
 });

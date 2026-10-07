@@ -20,9 +20,10 @@ import { fileURLToPath } from "node:url";
  * 1. Publishes the registry the CLI reads. The docs site is the registry's
  *    host, so `public/r` is a copy of what `@dowel-ui/registry` just built —
  *    never hand-maintained.
- * 2. Generates static imports for every Storybook story, so the previews on a
- *    component's page are literally the stories that are tested in CI. There is
- *    no second set of examples to drift.
+ * 2. Generates a loader for every Storybook story file, so the previews on a
+ *    component's page are literally the stories that are tested in CI — and a
+ *    page fetches only the ones it shows. There is no second set of examples
+ *    to drift.
  * 3. Generates the version the site displays, read from the component package,
  *    so the badge in the header cannot claim a release that was never cut.
  * 4. Generates the variant axes the playground offers, read from each
@@ -38,9 +39,12 @@ import { fileURLToPath } from "node:url";
  * 8. Writes the design tokens in the shape Figma reads — one file per shipped
  *    preset, and the parsed declarations the Theme Studio needs to write one
  *    for a preset of your own — from the same CSS the components use.
+ * 9. Collects the AgentBench tasks, metric definitions and published runs, so
+ *    the /agentbench page shows exactly what the harness ran and nothing it
+ *    did not.
  */
 
-import { buildRegistry, proItems, writeLicensedModule } from "@dowel-ui/registry/build";
+import { buildRegistry, writeLicensedModule } from "@dowel-ui/registry/build";
 import {
   parseTokenCss,
   THEME_PRESETS,
@@ -48,10 +52,16 @@ import {
   type Declarations,
 } from "@dowel-ui/themes";
 
-import { extractProps, type PropsGroup } from "./props";
-import { assess, type ComponentQuality } from "./quality";
-import { exportOrder } from "./stories";
-import { extractVariants, type VariantAxis } from "./variants";
+import { extractVariants, type VariantAxis } from "@dowel-ui/registry/analysis";
+import type { RegistryItem, RegistryPropsGroup, RegistryQuality } from "@dowel-ui/registry";
+
+import {
+  loadPublishedSummaries,
+  loadTasks as loadBenchTasks,
+  METRICS as BENCH_METRICS,
+} from "@dowel-ui/agentbench/published";
+
+import { storyExports } from "./stories";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const docsRoot = join(here, "..");
@@ -102,11 +112,6 @@ function publishRegistry(): number {
   return readdirSync(target).length;
 }
 
-function identifier(name: string): string {
-  const [first, ...rest] = name.split("-");
-  return `${first ?? ""}${rest.map((part) => part[0]?.toUpperCase() + part.slice(1)).join("")}Stories`;
-}
-
 interface PreviewSource {
   name: string;
   /** Import path segment: "components" or "blocks". */
@@ -129,8 +134,8 @@ function generatePreviews(licensedNames: ReadonlySet<string>): number {
   // serves both — the integrity test enforces that uniqueness.
   //
   // Licensed blocks are the exception, and they are excluded rather than
-  // imported-and-hidden. This module is imported by a client component, so
-  // every name in it is compiled into a chunk the browser downloads: listing a
+  // loaded-and-hidden. This module is imported by a client component, so every
+  // path in it is compiled into a chunk the browser can download: listing a
   // Pro block here publishes it, whatever the page then chooses to render.
   // Their previews are rendered to markup instead, by scripts/prerender.ts.
   const sources = [
@@ -138,25 +143,22 @@ function generatePreviews(licensedNames: ReadonlySet<string>): number {
     ...storiesIn(blocksDir, "blocks"),
   ].filter((source) => !licensedNames.has(source.name));
 
-  const imports = sources
+  const loaders = sources
     .map(
       (source) =>
-        `import * as ${identifier(source.name)} from "@ui/${source.group}/${source.name}/${source.name}.stories";`,
+        `  "${source.name}": () => import("@ui/${source.group}/${source.name}/${source.name}.stories"),`,
     )
     .join("\n");
 
-  const entries = sources
-    .map((source) => `  "${source.name}": ${identifier(source.name)},`)
-    .join("\n");
-
-  // Recorded here because it cannot be recovered at runtime: a module namespace
-  // object sorts its keys, so importing the module loses the order the author
-  // wrote — and the first story is the canonical one.
-  const order = sources
+  // Read from source because a page needs the list before it has the module —
+  // for the example chips, and to know which story is the canonical one. It is
+  // also the only place the order survives: a module namespace object sorts its
+  // keys, and the first story the author wrote is the one a page opens on.
+  const names = sources
     .map((source) => {
       const root = source.group === "blocks" ? blocksDir : componentsDir;
-      const names = exportOrder(join(root, source.name, `${source.name}.stories.tsx`));
-      return `  "${source.name}": ${JSON.stringify(names)},`;
+      const found = storyExports(join(root, source.name, `${source.name}.stories.tsx`));
+      return `  "${source.name}": ${JSON.stringify(found)},`;
     })
     .join("\n");
 
@@ -164,24 +166,25 @@ function generatePreviews(licensedNames: ReadonlySet<string>): number {
     join(docsRoot, "src", "lib", "previews.generated.ts"),
     `// Generated by scripts/prepare.ts. Do not edit.
 //
-// Static imports rather than a glob, because Next resolves imports at build
-// time and a dynamic path would defeat both bundling and type checking.
+// One dynamic import per story file, each with a literal path. Literal, because
+// the bundler can only split what it can see, and a template string would pull
+// in every file the pattern could match. Dynamic, because static imports here
+// put every story in the library into one 2 MB chunk that 296 of the site's 312
+// pages downloaded: the button page carried every block.
 import type { StoryModule } from "./story-types";
 
-${imports}
-
-export const storyModules: Record<string, StoryModule> = {
-${entries}
+export const storyLoaders: Record<string, () => Promise<StoryModule>> = {
+${loaders}
 };
 
 /**
- * Export order per story file, as written.
+ * The stories in each file, in the order they were written.
  *
- * Object.keys(module) returns them sorted, which is not the order anyone chose.
- * Names that are not stories are filtered out where this is consumed.
+ * Known without loading the module, so a page can lay out its examples and pick
+ * the canonical one while the story itself is still on its way.
  */
-export const storyOrder: Record<string, string[]> = {
-${order}
+export const storyNames: Record<string, string[]> = {
+${names}
 };
 `,
   );
@@ -197,16 +200,13 @@ ${order}
  * the API, and the copy is what goes stale. This one cannot describe a prop the
  * component does not take, or miss one it does.
  */
-function generateProps(): number {
-  const groups: Record<string, PropsGroup[]> = {};
-
-  for (const { name, group } of [
-    ...storiesIn(componentsDir, "components"),
-    ...storiesIn(blocksDir, "blocks"),
-  ]) {
-    const root = group === "blocks" ? blocksDir : componentsDir;
-    const found = extractProps(join(root, name, `${name}.tsx`));
-    if (found.length > 0) groups[name] = found;
+function generateProps(items: RegistryItem[]): number {
+  // Read from the registry's genome, which extracts them from the source once
+  // for every consumer: this page, the MCP server and the agent docs all read
+  // the same table, so none of them can disagree about a component's props.
+  const groups: Record<string, RegistryPropsGroup[]> = {};
+  for (const item of items) {
+    if (item.props && item.props.length > 0) groups[item.name] = item.props;
   }
 
   writeFileSync(
@@ -285,33 +285,15 @@ export const componentVariants: Record<string, VariantAxis[]> = ${JSON.stringify
  * would be a claim; this one can be checked by reading the file it was
  * computed from.
  */
-function generateQuality(): { count: number; average: number } {
-  const quality: Record<string, ComponentQuality> = {};
-
-  // The published accessibility note is part of the assessment, and it lives in
-  // the registry rather than in the source.
-  const index = JSON.parse(
-    readFileSync(join(docsRoot, "public", "r", "index.json"), "utf8"),
-  ) as { items: { name: string }[] };
-
-  // A licensed item has no public file, by design. Its note is read from the
-  // same build the gated route serves, so a Pro block is measured against the
-  // same rules as a free one — a catalogue where only the free half has a
-  // quality score is a catalogue that looks like it is hiding something.
-  const licensed = new Map(proItems(buildRegistry()).map((item) => [item.name, item]));
-
-  for (const entry of index.items) {
-    const item =
-      licensed.get(entry.name) ??
-      (JSON.parse(
-        readFileSync(join(docsRoot, "public", "r", `${entry.name}.json`), "utf8"),
-      ) as { name: string; type: string; a11y?: string });
-
+function generateQuality(items: RegistryItem[]): { count: number; average: number } {
+  // The assessment is part of each item's genome, measured by the registry
+  // build, so the standard travels with the component. Licensed items are
+  // included: a catalogue where only the free half has a score is one that
+  // looks like it is hiding something.
+  const quality: Record<string, RegistryQuality> = {};
+  for (const item of items) {
     if (item.type !== "registry:ui" && item.type !== "registry:block") continue;
-
-    const root = item.type === "registry:block" ? blocksDir : componentsDir;
-    const assessed = assess(join(root, item.name), item.name, item.a11y);
-    if (assessed) quality[item.name] = assessed;
+    if (item.quality) quality[item.name] = item.quality;
   }
 
   const scores = Object.values(quality).map((entry) => entry.score);
@@ -363,6 +345,36 @@ export const version = ${JSON.stringify(pkg.version)};
   );
 
   return pkg.version;
+}
+
+/**
+ * Writes what the AgentBench page shows.
+ *
+ * Only runs someone copied into `results/published/` are included — the
+ * harness's own results directory is local and gitignored. With none
+ * published, the page says so; it has no numbers of its own to fall back on.
+ */
+function generateAgentBench(): { tasks: number; runs: number } {
+  const tasks = loadBenchTasks();
+  const runs = loadPublishedSummaries();
+
+  writeFileSync(
+    join(docsRoot, "src", "lib", "agentbench.generated.ts"),
+    `// Generated by scripts/prepare.ts. Do not edit.
+//
+// Read from packages/agentbench: the tasks as the harness runs them, and only
+// the runs published under results/published.
+import type { MetricDefinition, Summary, Task } from "@dowel-ui/agentbench/published";
+
+export const benchTasks: Task[] = ${JSON.stringify(tasks, null, 2)};
+
+export const benchMetrics: MetricDefinition[] = ${JSON.stringify(BENCH_METRICS, null, 2)};
+
+export const benchRuns: Summary[] = ${JSON.stringify(runs, null, 2)};
+`,
+  );
+
+  return { tasks: tasks.length, runs: runs.length };
 }
 
 /**
@@ -461,6 +473,10 @@ function generateProPreviews(licensedNames: ReadonlySet<string>): number {
  * whole paid catalogue, and the failure is silent — the site looks right, the
  * previews work, and the source is simply in a chunk. So it is asserted rather
  * than trusted, on every build and every `dev`.
+ *
+ * Loading the previews on demand does not change the answer. A lazy import is
+ * still a chunk the build emits, at a URL written into the preview code every
+ * visitor downloads; that fewer pages fetch it makes it no less public.
  */
 function assertNoLicensedPreviews(licensedNames: ReadonlySet<string>): void {
   const generated = readFileSync(join(docsRoot, "src", "lib", "previews.generated.ts"), "utf8");
@@ -469,8 +485,8 @@ function assertNoLicensedPreviews(licensedNames: ReadonlySet<string>): void {
     if (generated.includes(`/${name}/${name}.stories`)) {
       throw new Error(
         `The licensed block "${name}" is imported by previews.generated.ts, ` +
-          "which a client component imports. That ships its source to every " +
-          "visitor. Prerender it instead — see scripts/prerender.ts.",
+          "which a client component imports. That compiles its source into a " +
+          "chunk anyone can download. Prerender it instead — see scripts/prerender.ts.",
       );
     }
   }
@@ -479,20 +495,24 @@ function assertNoLicensedPreviews(licensedNames: ReadonlySet<string>): void {
 const files = publishRegistry();
 const licensed = writeLicensedModule(licensedModule);
 
+// Built once: it reads every component through the TypeScript compiler.
+const items = buildRegistry();
+
 // From the registry build, which is the one place that decides what is
 // licensed. A second list here would be a second answer.
 const licensedNames: ReadonlySet<string> = new Set(
-  proItems(buildRegistry()).map((item) => item.name),
+  items.filter((item) => item.access === "pro").map((item) => item.name),
 );
 
 const previews = generatePreviews(licensedNames);
 assertNoLicensedPreviews(licensedNames);
 const proPreviews = generateProPreviews(licensedNames);
 const variants = generateVariants();
-const props = generateProps();
-const quality = generateQuality();
+const props = generateProps(items);
+const quality = generateQuality(items);
 const version = generateVersion();
 const figma = generateDesignTokens();
+const bench = generateAgentBench();
 
 console.log(
   `Prepared docs: ${String(files)} registry files published, ${String(licensed)} licensed, ` +
@@ -500,5 +520,6 @@ console.log(
     `${String(proPreviews)} licensed blocks prerendered, ` +
     `${String(variants)} components with variant axes, ` +
     `${String(props)} with props tables, ${String(quality.count)} assessed ` +
-    `(${String(quality.average)}% average), ${String(figma)} Figma token files, version ${version}.`,
+    `(${String(quality.average)}% average), ${String(figma)} Figma token files, ` +
+    `${String(bench.tasks)} AgentBench tasks and ${String(bench.runs)} published runs, version ${version}.`,
 );

@@ -14,4 +14,14 @@ export const meta = defineMeta({
     "exactly when a colour-only signal fails the people who most need to see it. Live " +
     "announcements are off by default — several agents each announcing their transitions turns a " +
     "dashboard into noise; enable it for the one agent being watched.",
+  guidance: {
+    useWhen: [
+      "a pill saying what an agent is doing: idle, thinking, working, waiting, done or error",
+    ],
+    avoidWhen: [
+      "the save state of a document — use sync-status",
+      "a general status label — use badge",
+    ],
+    alternatives: ["sync-status", "badge", "ai-loader"],
+  },
 });

@@ -12,6 +12,10 @@
 
 [**Documentation**](https://dowel-eight.vercel.app) · [**Components**](https://dowel-eight.vercel.app/docs/components) · [**CLI**](https://dowel-eight.vercel.app/docs/cli)
 
+<br>
+
+<img src="docs/screenshots/tour.webp" alt="Tour: the docs home, the component playground and the theme studio" width="100%">
+
 </div>
 
 ---
@@ -44,7 +48,7 @@ as you pick, and [per-component quality](https://dowel-eight.vercel.app/quality)
 
 ## What is in it
 
-**220 components** and **51 blocks**, every one keyboard-operable and audited for
+**244 components** and **51 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·
@@ -226,6 +230,10 @@ rewrites imports to your project's own path alias.
 | `add <names…>` | Installs components and everything they depend on                  |
 | `list`         | Shows the registry, marking what you already have                  |
 | `update`       | Compares installed components against the registry                 |
+| `plan`         | Chooses the components for a screen you describe                   |
+| `diff`         | Shows how installed files differ from the registry's               |
+| `doctor`       | Checks the setup, installed components and agent docs              |
+| `audit`        | Finds hardcoded colours, off-scale sizes and bypassed components   |
 | `agents`       | Writes the catalogue for the coding agents in this project         |
 | `login`        | Stores a licence key, for components that need one                 |
 | `whoami`       | Reports whether this machine is signed in                          |
@@ -239,6 +247,18 @@ it already matches; a file you _have_ edited is never overwritten without
 `--overwrite`, which is the whole point of owning the source. This works because
 `add` records a hash of what it wrote, so `update` can tell your changes apart
 from upstream ones.
+
+**`doctor` and `audit` are for after the install.** `doctor` checks the
+project: Tailwind 4 and the alias, the tokens in the stylesheet, every installed
+file still present, the npm packages they import, updates available, and
+whether the agent docs are stale. It prints a checklist rather than a score,
+and exits non-zero only on a failure. `audit` reads the project's own code for
+the ways a design system erodes: Tailwind palette colours and literal colours
+in classes or inline styles, arbitrary sizes off the spacing scale, physical
+`ml-`/`text-left` utilities that break right-to-left, and native `<button>`,
+`<input>` or `<dialog>` elements where the Dowel component is installed. It
+skips the files Dowel wrote, uses the same rules as the library's own audits,
+and `--fix` rewrites only the findings with one exact fix, after asking.
 
 The CLI refuses, loudly, to install into a project it cannot support correctly:
 Tailwind v3 (the tokens use `@theme`), a JavaScript project (the published
@@ -278,16 +298,25 @@ npx @dowel-ui/cli list          # what exists
 [**dowel-eight.vercel.app/generate**](https://dowel-eight.vercel.app/generate) —
 describe a screen, get the components that build it, the install command, and a
 brief to paste into your coding agent. The MCP server exposes the same thing as
-`plan_ui`, so an agent can ask for it directly.
+`plan_ui`, so an agent can ask for it directly, and so does the CLI:
+
+```bash
+npx @dowel-ui/cli plan "a support dashboard with ticket filters and an assistant"
+npx @dowel-ui/cli plan "…" --model    # choose with Claude, using your own credentials
+```
 
 Every suggestion is resolved against the registry before anything is written, so
 it cannot name a component that does not exist — which is what asking a model
-directly gets you, complete with a `variant` nobody implemented. It also does
-not guess at props: the registry publishes what a component _is_ and what it
-depends on, not the shape of its arguments, so the output stops at the
-composition and links to the page where the props are documented. A plausible
-invented prop is worse than an obvious gap — one is a TODO, the other is a bug
-wearing the costume of working code.
+directly gets you, complete with a `variant` nobody implemented. That holds with
+`--model` too: the model chooses from the catalogue it is given, with each
+item's guidance on when to use it, and anything it names that the registry does
+not have is dropped and reported. `--model` needs `@dowel-ui/cli`'s optional peer
+`@anthropic-ai/sdk` and Anthropic credentials; it sends the prompt and the public
+catalogue, never your files.
+
+The plan stops at the composition. It does not write props: each component's
+props are published on its registry item, read from its type, and the agent is
+pointed at them — a plausible invented prop is worse than an obvious gap.
 
 ## Pro
 
@@ -306,7 +335,9 @@ npx @dowel-ui/cli add crm
 The key is checked against the registry the moment it is pasted, so a bad key
 fails then rather than during an install a week later. It is stored in your own
 config directory, never in the project; CI sets `DOWEL_TOKEN` from its secrets
-store instead. The registry lists every Pro item — title, description, what it
+store instead. The key is only ever sent over HTTPS to the registry it was
+issued for, so a repository whose `components.json` names some other server
+cannot collect it. The registry lists every Pro item — title, description, what it
 is built from — and serves the source only to a licence holder, so a Pro block
 still shows up in `list`, in the agent docs and in the MCP server, with what it
 is and how to get it.
@@ -344,7 +375,11 @@ const result = await buildCustomRegistry(
 ```
 
 Point a project at the result and `add acme-callout` installs it, pulling in
-`badge` from upstream on the way.
+`badge` from upstream on the way. Put the directory behind anything that answers
+a missing key with `401`, and `login --registry <url>` signs a developer in; keys
+are stored per registry and only ever sent to their own. Items can name an
+`owner`, the version they shipped `since`, and a `deprecated` notice with a
+`replacement`, which the CLI, the MCP server and the agent docs all honour.
 
 **A local item replaces an upstream one of the same name**, and the build tells
 you which — overriding upstream's Button is a legitimate thing to want and a
@@ -403,8 +438,10 @@ exist.
 }
 ```
 
-Four tools: `search_components`, `get_component`, `get_guide`,
-`install_command`.
+Six tools: `search_components`, `get_component` (with when to use it, what it
+is confused with, and its props), `get_guide`, `install_command`, `plan_ui`, and
+`audit_code`, which checks what the agent wrote against the same rules as
+`dowel audit` before anyone sees it.
 
 **llms.txt.** For an agent that can fetch a URL but not run a server, the site
 serves [`/llms.txt`](https://dowel-eight.vercel.app/llms.txt) (the index) and
@@ -413,7 +450,7 @@ one request), generated at build time from the same registry.
 
 ## Development
 
-Requires Node ≥ 20 and pnpm 11.
+Requires Node ≥ 22.18 and pnpm 11 to develop. The published CLI, MCP server and scaffolder run on Node 20.12 or later, and CI runs them there.
 
 ```bash
 pnpm install
@@ -461,7 +498,7 @@ warn. Keyboard interaction is tested, not assumed.
 
 Contrast is checked separately, because a test environment that never paints
 cannot check it: `audit:contrast` converts the OKLCH tokens to sRGB and verifies
-all 598 semantic pairs across both modes and all thirteen presets. It runs in CI.
+all 962 semantic pairs across both modes and all thirteen presets. It runs in CI.
 
 A few choices worth knowing about, because they differ from what similar
 libraries do:
@@ -532,6 +569,23 @@ Decisions that constrain future work are recorded in
     revealed about them
 12. [Audits](docs/architecture/0012-audits.md) — the 88 contrast failures, and
     what fixing them revealed about the palette
+13. [The paid catalogue](docs/architecture/0013-paid-catalogue.md) — what
+    "withheld" means, and why Pro is only ever new things
+14. [The motion catalogue](docs/architecture/0014-motion-catalogue.md) —
+    keyframes that ship with the component
+15. [Agent-operable UI](docs/architecture/0015-agent-operable-ui.md) — control
+    as state, and failing closed
+16. [Doctor, audit, and the verification standard](docs/architecture/0016-doctor-and-audit.md)
+    — a checklist, not a score
+17. [What agents are told, and where a model fits](docs/architecture/0017-agents-and-models.md)
+    — the model chooses, the registry decides what is real
+18. [Browser CI](docs/architecture/0018-browser-ci.md) — a curated visual
+    subset, a pinned container, and a baseline that only shrinks
+19. [Enterprise foundations](docs/architecture/0019-enterprise-foundations.md) —
+    private registries, governance, and what is not built
+
+The plan these came out of, with what is done and what is not, is
+[the roadmap](docs/architecture/dowel-roadmap.md).
 
 ## Requirements
 

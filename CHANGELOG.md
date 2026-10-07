@@ -5,26 +5,297 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ## Unreleased
 
-### Fixed
-
-- **`swipe-carousel` no longer breaks `invite-carousel` and
-  `reviews-carousel`** when they are installed in the same project. Each
-  carousel carries its own `carousel-controls.tsx` so that it installs alone,
-  and `swipe-carousel` carried a shorter one under the same name: whichever was
-  written last won, and the other two then imported names their copy did not
-  have. All three now carry the same file, and `audit:installed-imports` fails
-  when two items ship different files under one name.
-
 ### Changed
 
 - **The install check runs in CI.** `pnpm install-check` installs every
   registry item into a new Next.js app with this checkout's CLI and builds it,
   on pull requests that touch the library and nightly against the newest
-  Next.js. Its first run found the carousel bug above.
+  Next.js.
 - **Releases publish from a tag.** Pushing `vX.Y.Z` runs a workflow that
   refuses to continue until the live registry serves that version, publishes
   to npm with trusted publishing, and opens the GitHub release from this
   file. See `RELEASING.md`.
+- `audit:installed-imports` fails when two items ship different files under
+  one name, the cause of the carousel bug fixed in 0.12.0.
+
+## 0.13.1
+
+Fixes for the accessibility problems the real-browser suite found in 0.13.0.
+`@dowel-ui/react` and `@dowel-ui/themes` only; the CLI, the MCP server, the
+registry builder and `create-dowel-app` are unchanged at 0.13.0. Components
+installed as source get these through `dowel update`.
+
+### Fixed
+
+- **Status and primary text on their own tints reach 4.5:1 in light mode.**
+  `text-destructive` on `bg-destructive/10` (and the same for success, warning
+  and info) measured 4.14–4.32:1, and primary text on the soft button's 12%
+  tint 3.97–4.48:1 in ten of the thirteen presets. The status colours are
+  darker in light mode (`red-500` 0.577→0.55, `green-500` 0.53→0.515,
+  `amber-500` 0.55→0.535, `blue-500` 0.545→0.525), as is the light-mode primary
+  of the default theme and of `amber`, `blue`, `candy`, `emerald`, `green`,
+  `indigo`, `ocean`, `orange` and `red` (by 0.005–0.035, with hover and active
+  moved by the same step). Dark mode is unchanged. Every such pair now measures
+  4.52:1 or better in every preset.
+- **The soft button stays readable while hovered and pressed.** Its label now
+  steps to `primary-hover` as the tint deepens, and the pressed tint is 20%
+  rather than 24%; primary text on the old hover and pressed tints fell to
+  3.3–4.4:1. The onboarding block's current-step marker uses a 12% tint, like
+  the soft button, instead of 15%.
+- **`audit:contrast` checks text on tints.** It now measures each status colour
+  on its own 10% tint and primary text on the soft button's tints, over both
+  the page and the card, and composites translucent colours the way browsers
+  paint them (on gamma-encoded channels). It previously blended in linear
+  light, which reads a 10% tint as darker than it renders and would have
+  passed these pairs by ~0.3:1. `pnpm audit:contrast --verbose` lists them.
+- **The theme studio checks text on tints too.** A colour derived there could
+  pass every label check and still fail as text on its own tint, as the shipped
+  presets did; the studio now lists primary on the soft button's tints, light
+  and dark, alongside the solid states.
+- `ai-suggest-mode`: removed text is full-strength, marked by its strike-through
+  and tint. Muted text on the darker destructive tint measured 4.4:1 — found by
+  the browser suite after the palette change above.
+- **`Select` inside `FormControl` had no accessible name.** `FormControl`
+  passes the field's id, description and invalid state to its child, and
+  `Select`'s root renders no element, so they were dropped and the label
+  pointed at nothing. `Select` now passes them on to its trigger.
+- **`Conversation`'s transcript could not be scrolled by keyboard** when the
+  messages held nothing focusable. It is now a focusable, named region (`label`,
+  default "Conversation"), as `Table`'s scroll wrapper already is.
+- `ai-loader`: the elapsed-time counter is full-strength muted text instead of `opacity-60` on muted text (2.4:1).
+- `pull-to-refresh`: the demo's balance decimals and idle time windows use `text-muted-foreground` instead of a faded foreground (2.2:1).
+- `browser-tabs`: the tab strip follows the tone, so an inverted window's inactive tab titles read at 4.5:1 or more instead of 2.1:1.
+- `island`: secondary text in the demo views is full-strength, not `opacity-70`, which was 3.34:1 on the primary tone.
+- `code-block`: the light-mode highlighted-line band is a 4% tint of the page, so syntax colours on it stay at 4.5:1 or more (`text-info` was 4.08:1).
+- `log-viewer`: the Fields toggle is a 24px-tall target instead of 16px; only rows that have one grow, by 2px.
+- `image-accordion`: a collapsed panel, which is its own trigger, is never narrower than 24px (it could be 16px).
+- `reviews-carousel`: each pagination dot is a 24 × 24 target instead of 16 × 24; the dot itself is unchanged.
+- `command-center` block: a resolved incident shows an outline severity badge and muted title instead of fading the row, which took the warning badge to 2.8:1.
+- `onboarding` block: a blocked step is no longer faded, so its warning badge has the solid fill instead of a lighter one (3.95:1).
+- `selection-list`: item descriptions were the foreground at 45% (2.9:1); they use `text-muted-foreground` (5.3:1 light, 7.4:1 dark), and full-strength text on the inverted fill.
+- `slide-to-confirm`: the track label, the control's only visible instruction, was `text-foreground/45` (2.9:1); it is `text-muted-foreground` (5.3:1 light, 7.4:1 dark), and the power shimmer only ever brightens it.
+- `confirm-typed`: the action was faded to `opacity-55` (2.2–2.5:1) until the text matched; it stays reachable but is now `aria-disabled` and drawn in the outline style, with a full-contrast label, until it takes its real variant on a match.
+- `animated-checklist`: the "Add new task" button was faded to `opacity-34` (2.1:1) and done tasks to `opacity-42` (2.7:1); both use `text-muted-foreground` (5.3:1), and a done task is shown by its tick and strike-through.
+- `calendar`: days outside the month, which are selectable, were muted at 50% opacity (2.0:1); they are plain `text-muted-foreground` (5.3:1). The root is now `relative`, so the month navigation sits on the calendar rather than at the edges of the page.
+- Stories: the `agent-data-table` selection column has a header name, the
+  skeleton loading stories give their label a role to belong to, and the tabs
+  stories render the panels their triggers point at.
+
+## 0.13.0
+
+The CLI and the MCP server now work after the install as well as during it,
+and coding agents are told which component is right, not only which exist.
+
+- **Security.** The CLI no longer trusts its registry with the filesystem or
+  its licence key: paths are confined, keys go only to the registry they were
+  issued for, and registry dependencies must be npm packages.
+- **The component genome.** Every registry item carries its props, whether it
+  needs a client boundary, whether it animates, and its quality checks; 188
+  carry guidance on when to use them and what they are confused with.
+- **`dowel doctor`, `diff`, `audit` and `plan`**, and the MCP server's
+  `audit_code`. `plan --model` asks Claude, with your own credentials.
+- **Private registries** with per-registry keys, and governance metadata
+  (`owner`, `since`, `deprecated`).
+- **In the repository:** real-browser accessibility over every story, visual
+  regression, a fresh-app install of every item in CI, and AgentBench, a
+  harness for measuring whether agent support helps.
+
+### Added
+
+- **AgentBench** (`packages/agentbench`, private): a harness that runs the same
+  prompt in two copies of a project — with Dowel's agent files and MCP server,
+  and without — and scores both diffs with `tsc`, `dowel audit`, invented and
+  uninstalled imports, recall of expected components, and the jsx-a11y rules.
+  Ten tasks, a Claude Code adapter, and `noop`/`reference` adapters that cost
+  nothing. No run has been published; `/agentbench` on the site documents the
+  method and shows published runs only.
+- **Private registries can require a key.** A registry that answers `401` gets
+  one retry with the key stored for it, and no other; a public registry never
+  receives a key it did not ask for. Keys are stored per registry, so a Pro
+  licence and a company key coexist. `login --registry <url>` verifies against
+  the registry's index when it has no licence endpoint; `logout --registry`
+  removes one key; `whoami` lists them. The MCP server reads `DOWEL_TOKEN` and
+  `DOWEL_TOKEN_REGISTRY` for the same.
+- **Governance metadata:** an item can declare `owner`, `since`, and
+  `deprecated` (version, reason, replacement). Deprecated items still install;
+  `add` and `update` name the replacement, `list` and `doctor` mark them, the
+  MCP server and agent docs warn off them, and the planners skip them. Custom
+  registries can also declare `guidance` and `composesWith`, and the build
+  rejects any of these naming an item that does not exist. Upstream guidance
+  that names an item the extending registry cannot serve, such as a Pro block,
+  is dropped from the inherited copy.
+- **`dowel plan "<screen>"`** chooses the blocks and components for a screen you
+  describe. `--model` asks Claude to choose, with your own Anthropic
+  credentials and the optional peer `@anthropic-ai/sdk`; whatever it names
+  that the registry does not have is dropped and reported. Without `--model`
+  it uses the built-in planner, which needs nothing.
+- **MCP `audit_code`** checks code an agent wrote against the same rules as
+  `dowel audit`. `get_component` now says when to use a component, what it is
+  confused with, whether it needs a client boundary, and every prop its type
+  declares; `search_components` matches on what a component is for.
+- The agent files list each component's guidance under it, and the planners
+  score it above a description match.
+- `create-dowel-app` writes the agent files when it scaffolds.
+- **`dowel doctor`** checks a project's setup and prints a checklist: the
+  project shape, the import alias against `tsconfig.json`, the tokens in the
+  stylesheet, installed files present, npm packages and component dependencies
+  installed, a licence for any Pro item, updates available, and stale agent
+  docs. It is a checklist, not a score, and it writes nothing.
+- **`dowel diff [names…]`** shows how installed files differ from the
+  registry's current ones, as a unified diff.
+- **`dowel audit [paths…]`** finds Tailwind palette colours, literal colours in
+  classes and inline styles, arbitrary sizes off the scale, physical direction
+  utilities, and native elements where the Dowel component is installed. It
+  skips the files Dowel wrote. `--fix` rewrites the physical utilities, the
+  only findings with one exact fix, after asking. `--json` is for CI.
+- **The component genome.** Every registry item now carries `capabilities`
+  (whether it needs a client boundary, whether it animates), `props` read from
+  its type, and the `quality` checks from `/quality`. Items may also declare
+  `guidance` (when to use it, when not, what it is confused with) and
+  `composesWith`. All optional: older registries parse, and older CLIs ignore
+  the new fields.
+- The registry now publishes the JSON Schemas its `$schema` fields pointed at:
+  `r/schema/registry-item.json` and `r/schema/registry-index.json`.
+- The MCP server has contract tests for every tool, and a README.
+
+### Continuous integration
+
+- **Every Storybook story is checked by axe in a real browser**, light and dark,
+  with the `color-contrast` and `target-size` rules the jsdom tests cannot
+  run (`packages/browser-tests`, ADR 18). It found 140 violations across 82
+  stories, recorded as 83 entries in `known-violations.json`, each with a
+  reason — 70 of them "to fix". The suite fails on anything new and on any
+  entry that no longer occurs, so the list can only shrink. The largest group
+  is status text on its own 10% tint (4.1–4.5:1), a pair the palette audit
+  never checked.
+- **Visual regression** for 42 curated stories — forms, open overlays, data,
+  feedback, AI and five blocks — in light and dark, LTR and RTL, compared
+  pixel-for-pixel inside the pinned Playwright container (188 images). It
+  found the calendar's month navigation anchored to the wrong ancestor.
+- Storybook has a **Direction** toolbar global that sets `dir` and wraps the
+  story in `DirectionProvider`, so RTL previews mirror the primitives too.
+- **Coverage thresholds are enforced** in CI (measured: 97.3% statements,
+  93.4% branches, against floors of 85% and 80%).
+- **Every free item is installed into a fresh app on every pull request**
+  (`scripts/smoke/install-all.mjs`): scaffold, `init`, `add` all of them,
+  `tsc --noEmit`, `next build` — the release check that used to be manual.
+
+### Security
+
+- **Registry file paths are confined to their directory.** A path such as
+  `ui/../../.bashrc` used to be written outside the project. The registry
+  schema now refuses absolute paths, `..`, `.` and empty segments,
+  backslashes, colons and NUL, and the CLI checks again where the path meets
+  the disk.
+- **`remove` only deletes what the CLI could have written.** It used to delete
+  any path `components.json` listed. It now refuses, deleting nothing, when an
+  entry names a file outside the directories components are installed into.
+  Alias directories outside the project, as in a monorepo, still work.
+- **The licence key goes only to the registry it was issued for, over HTTPS.**
+  The registry an install reads comes from `components.json`, so a cloned
+  repository could name its own server, mark an item as licensed, and collect
+  the key. `login` now records which registry it verified the key against, and
+  the CLI refuses to send the key anywhere else. Keys stored before this change
+  belong to the default registry. `DOWEL_TOKEN` belongs to the default registry
+  unless the new `DOWEL_TOKEN_REGISTRY` names another.
+- **Registry dependencies must be npm package names**, optionally with a
+  version range. A `git+https:` URL, a tarball or a local path is refused
+  instead of being handed to the package manager.
+- **Item names are validated** wherever they arrive from, including the
+  command line, before they become a URL or a file path.
+
+### Fixed
+
+- `remove theme --force` deleted the project's whole stylesheet, because
+  `init` records it under `theme`. The stylesheet is now never deleted.
+- `update` failed with ENOENT restoring a file whose directory had been
+  deleted.
+- Registry and licence requests time out after 30 seconds instead of waiting
+  indefinitely.
+- The MCP server's `install_command` said a Pro item was "not found"; it now
+  resolves it from the index and says it needs a licence. Unknown names are
+  all reported together, with suggestions, and a name like `../package` is
+  refused rather than read from outside the registry.
+- `audit:rtl` skipped a physical utility whenever a class such as `bg-muted`
+  sat within a dozen characters before it. No component had such a bug hiding;
+  the check is now exact.
+- The CLI and scaffolder state Node 20.12 as their floor, which their prompts
+  library requires, and CI runs the built binaries on Node 20 and 22.
+
+## 0.12.0
+
+Twenty-four animated components from Animate UI's patterns, 244 in all (up
+from 220). Also fixes `sheet` and `drawer` dimming their own panel, and
+`swipe-carousel` breaking the other carousels when installed after them.
+
+### Added
+
+Twenty-four animated components whose patterns come from Animate UI. All are
+original implementations: Animate UI's licence (MIT with the Commons Clause)
+does not allow redistribution, so none of its code was used. See
+`THIRD_PARTY_NOTICES.md`. Animate UI items Dowel already covered, such as tabs,
+tooltip, accordion and the copy, icon and theme-toggler buttons, were not
+added again. All 24 are `beta`, and all of them stop or settle under reduced
+motion.
+
+- **Overlays:** `alert-dialog` (springs up out of a blur, and the destructive
+  tone shakes its icon once), `hover-card` (grows from its trigger with an
+  overshoot, and can stagger its contents) and `preview-link-card` (a link
+  whose preview image wipes in from a shimmer; nothing is fetched).
+- **Form controls:** `toggle` (squishes when pressed, and its fill pours out
+  from the centre), `toggle-group` (a sliding highlight in single mode,
+  per-item springs in multiple mode), `flip-button`, `ripple-button`,
+  `liquid-button` (rolling liquid fill with an inverting label) and
+  `share-button` (opens into a staggered row of targets, including copy-link
+  and the native share sheet).
+- **Data and navigation:** `file-tree` (the full ARIA tree pattern, with
+  folders that tilt open, a drawn guide rail and a gliding selection),
+  `code-tabs` (`syncKey` switches every instance on the page together and
+  remembers the choice), `pin-list`, `management-bar` (a floating bulk-actions
+  toolbar with rolling counts) and `radial-nav`.
+- **Display and feedback:** `flip-card` (leans toward the pointer, lifts as it
+  turns, and a sheen sweeps across), `radial-intro` (avatars spiral out into
+  an orbiting ring) and `notification-list` (a receding deck that springs open
+  into a list, with swipe-to-dismiss and an always-available dismiss button).
+- **Backgrounds:** `stars-background`, `gravity-stars-background`,
+  `fireworks-background` and `hole-background` draw through the
+  `dither-canvas` engine, so they inherit its DPR cap, pause when off-screen
+  or in a hidden tab, and take their colours from the theme.
+  `bubble-background`, `gradient-background` (linear, aurora and mesh) and
+  `hexagon-background` are CSS-first.
+
+### Changed
+
+- **Generate and the MCP server** find the new components from the words
+  people use for them — "file explorer", "link preview", "are you sure",
+  "bulk actions", "fireworks", "honeycomb" and others now reach them.
+- **The components page** features `fireworks-background`, `file-tree` and
+  `flip-card`.
+- **`button`, `badge`, `label`, `avatar`, `input`, `separator` and
+  `data-table`** now mark their root with `data-slot`, like every other
+  component. They were the exceptions, so tooling that finds a component's
+  parts in rendered markup — the docs site's "Parts" view on block pages —
+  could not see them. A `data-slot` passed by the caller still wins, so
+  wrappers such as `copy-button` keep their own.
+
+### Fixed
+
+- **Installing `swipe-carousel` no longer breaks `reviews-carousel` and
+  `invite-carousel`.** All three ship a `carousel-controls.tsx`, but
+  `swipe-carousel`'s was a shorter copy without the rotation control. Files
+  install flat, so adding `swipe-carousel` after either of the others replaced
+  the file they import from, and the project stopped type-checking. All three
+  now ship the same file, and a registry test fails if two items ever ship
+  different files to the same path. If it happened to you, run
+  `dowel update swipe-carousel`.
+- **`sheet` and `drawer` no longer dim themselves.** Each put its overlay on
+  `--z-overlay` (300) and its panel on `--z-drawer` (200), so the overlay
+  painted over the open panel — and over `sidebar`'s mobile panel, which is a
+  sheet. The overlay now shares the panel's drawer layer and comes first in
+  the portal, so the panel sits above it; a dialog opened from inside a panel
+  still dims it from the layer above. If you installed either, run
+  `dowel update sheet drawer`, or change `z-[var(--z-overlay)]` to
+  `z-[var(--z-drawer)]` on the overlay yourself.
 
 ## 0.11.0
 

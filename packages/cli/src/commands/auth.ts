@@ -1,9 +1,19 @@
 import * as prompts from "@clack/prompts";
 
 import { branding } from "../branding";
-import { authPath, clearToken, maskToken, readToken, TOKEN_ENV, writeToken } from "../lib/auth";
+import {
+  authPath,
+  canCarryCredentials,
+  clearToken,
+  maskToken,
+  readCredentials,
+  readToken,
+  TOKEN_ENV,
+  writeToken,
+} from "../lib/auth";
 import { CliError } from "../lib/errors";
 import { logger, pc } from "../lib/logger";
+import { REQUEST_TIMEOUT_MS } from "../lib/registry-client";
 
 /**
  * Signing in, out, and asking who you are.
@@ -47,6 +57,13 @@ function licenseEndpoint(registry: string): string {
 export async function verify(registry: string, token: string): Promise<LicenseResponse> {
   const url = licenseEndpoint(registry);
 
+  if (!canCarryCredentials(url)) {
+    throw new CliError(
+      `Not sending a licence key to ${url}: it is not an HTTPS address.`,
+      "Use the registry's https:// URL.",
+    );
+  }
+
   let response: Response;
   try {
     response = await fetch(url, {
@@ -56,6 +73,7 @@ export async function verify(registry: string, token: string): Promise<LicenseRe
         "content-type": "application/json",
       },
       body: JSON.stringify({}),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch (cause) {
     throw new CliError(
@@ -64,17 +82,19 @@ export async function verify(registry: string, token: string): Promise<LicenseRe
     );
   }
 
-  if (response.status === 404) {
-    throw new CliError(
-      "This registry does not issue licences.",
-      "Only the official registry does. Check --registry.",
-    );
-  }
+  // No licence endpoint: a private registry, most likely static files behind
+  // something that checks a key. The key is good if it opens the index.
+  if (response.status === 404) return verifyByIndex(registry, token);
 
   let body: unknown;
   try {
     body = await response.json();
   } catch {
+    // A private registry behind a proxy that checks the key answers a bad one
+    // with a bare 401 before any route is reached.
+    if (response.status === 401 || response.status === 403) {
+      return { valid: false, reason: "The registry did not accept this key." };
+    }
     throw new CliError(`${url} did not return a licence answer this CLI understands.`);
   }
 
@@ -84,6 +104,34 @@ export async function verify(registry: string, token: string): Promise<LicenseRe
   }
 
   return answer;
+}
+
+/**
+ * Checks a key against a registry that has no licence endpoint, by asking for
+ * its index with the key.
+ */
+async function verifyByIndex(registry: string, token: string): Promise<LicenseResponse> {
+  const url = `${registry.replace(/\/$/, "")}/index.json`;
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      headers: { authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch (cause) {
+    throw new CliError(
+      `Could not reach ${url} to check the key.`,
+      cause instanceof Error ? cause.message : undefined,
+    );
+  }
+  if (response.ok) return { valid: true };
+  if (response.status === 401 || response.status === 403) {
+    return { valid: false, reason: "The registry did not accept this key." };
+  }
+  throw new CliError(
+    `${registry} has no licence endpoint, and its index answered ${String(response.status)}.`,
+    "Check the registry URL.",
+  );
 }
 
 export async function login(options: LoginOptions): Promise<void> {
@@ -119,25 +167,28 @@ export async function login(options: LoginOptions): Promise<void> {
     );
   }
 
-  const path = writeToken(token);
+  const path = writeToken(token, process.env, options.registry);
 
   logger.blank();
   logger.success(`Signed in${answer.plan ? ` on ${answer.plan}` : ""}.`);
   if (answer.holder) logger.info(pc.dim(`  Licensed to ${answer.holder}`));
   if (answer.expiresAt) logger.info(pc.dim(`  Active until ${answer.expiresAt}`));
   logger.blank();
+  logger.info(pc.dim(`  For ${options.registry}`));
   logger.info(pc.dim(`Stored in ${path}, readable only by you.`));
   logger.info(pc.dim(`For CI, set ${TOKEN_ENV} instead of committing anything.`));
 }
 
-export function logout(): void {
-  const removed = clearToken();
+export function logout(registry?: string): void {
+  const removed = clearToken(process.env, registry);
 
   logger.blank();
   if (removed) {
-    logger.success("Signed out.");
+    logger.success(registry ? `Signed out of ${registry}.` : "Signed out of every registry.");
   } else {
-    logger.info("Not signed in — nothing to remove.");
+    logger.info(
+      registry ? `No key is stored for ${registry}.` : "Not signed in — nothing to remove.",
+    );
   }
 
   // Said whether or not a file was removed: an environment variable outranks
@@ -151,15 +202,25 @@ export function logout(): void {
 }
 
 export interface WhoamiOptions {
-  registry: string;
+  /** Defaults to the registry the key belongs to. */
+  registry?: string;
   /** Ask the registry, rather than only reporting what is stored. */
   check: boolean;
 }
 
 export async function whoami(options: WhoamiOptions): Promise<void> {
-  const credentials = readToken();
+  const all = readCredentials();
+  const credentials = options.registry ? readToken(process.env, options.registry) : all[0];
 
   logger.blank();
+  if (all.length > 1) {
+    logger.info(pc.dim("Keys on this machine:"));
+    for (const entry of all) {
+      const from = entry.source === "env" ? TOKEN_ENV : "stored";
+      logger.info(`  ${maskToken(entry.token)}  ${entry.registry}  ${pc.dim(`(${from})`)}`);
+    }
+    logger.blank();
+  }
   if (!credentials) {
     logger.info("Not signed in.");
     logger.blank();
@@ -170,6 +231,7 @@ export async function whoami(options: WhoamiOptions): Promise<void> {
   const from = credentials.source === "env" ? `${TOKEN_ENV} (this shell)` : authPath();
   logger.success(`Signed in with ${maskToken(credentials.token)}`);
   logger.info(pc.dim(`  from ${from}`));
+  logger.info(pc.dim(`  for ${credentials.registry}`));
 
   if (!options.check) {
     logger.blank();
@@ -177,7 +239,7 @@ export async function whoami(options: WhoamiOptions): Promise<void> {
     return;
   }
 
-  const answer = await verify(options.registry, credentials.token);
+  const answer = await verify(options.registry ?? credentials.registry, credentials.token);
 
   logger.blank();
   if (!answer.valid) {

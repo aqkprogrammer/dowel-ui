@@ -145,6 +145,26 @@ describe("CommandCenterBlock", () => {
     expect(items[2]).toHaveAttribute("data-resolved");
   });
 
+  it("marks a resolved incident by tone and an outline badge, never by fading it", () => {
+    render(<CommandCenterBlock services={SERVICES} incidents={INCIDENTS} />);
+
+    const card = screen
+      .getByRole("heading", { name: "Incidents" })
+      .closest("[data-slot='card']");
+    const [open, , resolved] = within(card as HTMLElement).getAllByRole("listitem");
+    // Opacity on the row took the badge's light text on its fill to 2.8:1.
+    expect(resolved?.className).not.toMatch(/opacity/);
+    expect(resolved).toHaveTextContent("Resolved");
+
+    const resolvedBadge = resolved?.querySelector("[data-slot='badge']");
+    expect(resolvedBadge).toHaveTextContent("major");
+    expect(resolvedBadge).toHaveClass("bg-transparent");
+    expect(resolvedBadge).not.toHaveClass("bg-warning");
+
+    const openBadge = open?.querySelector("[data-slot='badge']");
+    expect(openBadge).toHaveClass("bg-destructive");
+  });
+
   it("explains an empty incident list", () => {
     render(<CommandCenterBlock services={SERVICES} />);
     expect(screen.getByText("No incidents")).toBeInTheDocument();

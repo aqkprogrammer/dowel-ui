@@ -14,9 +14,9 @@
   /* The brand is 2.90:1 under white text and 3.03:1 as text on white. 0.555 is
      the lightest value that clears 4.5:1 for both; hue and chroma are kept.
      The secondary's chroma is capped at 0.175, the most sRGB holds at 0.472. */
-  --primary: oklch(0.555 0.17 257.78);
-  --primary-hover: oklch(0.51 0.17 257.78);
-  --primary-active: oklch(0.472 0.175 258.02);
+  --primary: oklch(0.53 0.17 257.78);
+  --primary-hover: oklch(0.485 0.17 257.78);
+  --primary-active: oklch(0.447 0.175 258.02);
   --primary-foreground: oklch(0.985 0.002 265);
 }
 

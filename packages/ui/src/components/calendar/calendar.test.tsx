@@ -123,6 +123,42 @@ describe("Calendar", () => {
     expect(container.querySelector('[data-outside="true"]')).toBeInTheDocument();
   });
 
+  it("draws outside days as readable, selectable muted text with no opacity", async () => {
+    const onSelect = vi.fn();
+    const user = userEvent.setup();
+    const { container } = render(
+      <Calendar mode="single" defaultMonth={JANUARY_2026} onSelect={onSelect} />,
+    );
+    // 31 December 2025 leads January 2026's first week.
+    const outside = container.querySelector<HTMLElement>('[data-day="2025-12-31"]');
+    expect(outside).toHaveAttribute("data-outside", "true");
+    expect(outside).toHaveClass("text-muted-foreground");
+    expect(outside?.className).not.toMatch(/opacity-\d/);
+    // Told apart from the month's own days, which keep the foreground.
+    expect(container.querySelector('[data-day="2026-01-15"]')).not.toHaveClass(
+      "text-muted-foreground",
+    );
+
+    await user.click(dayButton(container, "2025-12-31"));
+    expect(onSelect).toHaveBeenCalled();
+  });
+
+  it("positions the month navigation against the calendar itself", () => {
+    const { container } = render(<Calendar mode="single" defaultMonth={JANUARY_2026} />);
+    const root = container.querySelector<HTMLElement>(".rdp-root");
+    const nav = screen.getByRole("navigation");
+    expect(nav).toHaveClass("absolute");
+    expect(root).toHaveClass("relative");
+    // The nearest ancestor that could contain it is the root: nothing between
+    // them is positioned, so `inset-x-3 top-3` lines up with the root's `p-3`.
+    let ancestor = nav.parentElement;
+    while (ancestor && ancestor !== root) {
+      expect(ancestor.className).not.toMatch(/\b(relative|absolute|fixed|sticky)\b/);
+      ancestor = ancestor.parentElement;
+    }
+    expect(ancestor).toBe(root);
+  });
+
   it("can hide days outside the visible month", () => {
     const { container } = render(
       <Calendar mode="single" defaultMonth={JANUARY_2026} showOutsideDays={false} />,

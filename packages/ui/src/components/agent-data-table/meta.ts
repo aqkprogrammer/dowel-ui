@@ -15,4 +15,12 @@ export const meta = defineMeta({
     "the column header's aria-sort, its page change by the pagination's live region, and its selection by " +
     "the rows' selected state, exactly as a person's would be. Tools exist only for features the table has, " +
     "so an agent is never offered an action whose result the table cannot show.",
+  guidance: {
+    useWhen: [
+      "letting an agent read, sort, search, filter, select and page a TanStack table through the table's own API",
+    ],
+    avoidWhen: ["a table no agent operates — use data-table"],
+    alternatives: ["data-table"],
+  },
+  composesWith: ["data-table"],
 });

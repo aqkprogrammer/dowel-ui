@@ -1,0 +1,8 @@
+{
+  "id": "orders-table",
+  "title": "Data table with search and pagination",
+  "prompt": "Add an orders page at /orders with a table of orders (order number, customer, date, total, status) that can be searched by customer name and paged through 20 orders at a time.",
+  "route": "src/app/orders/page.tsx",
+  "install": ["data-table", "table", "pagination", "input", "button", "select", "badge"],
+  "expect": ["data-table", "input"]
+}

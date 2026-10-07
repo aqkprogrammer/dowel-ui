@@ -14,4 +14,8 @@ export const meta = defineMeta({
     "One section landmark named by its headline, whose level is a prop (default 2). Both actions " +
     "are real links. The glow is aria-hidden decoration. The copy rises in once, on first scroll " +
     "into view, and settles instantly under reduced motion.",
+  guidance: {
+    useWhen: ["a centred closing call to action with two actions"],
+    alternatives: ["cta-banner", "cta-split-image"],
+  },
 });

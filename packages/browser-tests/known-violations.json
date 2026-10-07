@@ -1,0 +1,80 @@
+[
+  {
+    "story": "blocks-faq-accordion--heading-level-one",
+    "rule": "heading-order",
+    "themes": ["light", "dark"],
+    "reason": "demonstrates headingLevel=1, which the prop's docs warn against: the questions stay h3, so h1 → h3 skips a level. The default (2) passes"
+  },
+  {
+    "story": "data-code-tabs--synced",
+    "rule": "landmark-unique",
+    "themes": ["light", "dark"],
+    "reason": "story composition: the story shows two synced instances whose code regions share a label; one instance per page has unique labels"
+  },
+  {
+    "story": "display-marquee--gallery",
+    "rule": "landmark-unique",
+    "themes": ["light", "dark"],
+    "reason": "story composition: a gallery renders several instances of the component side by side, so their landmarks share a label; one instance per page does not"
+  },
+  {
+    "story": "effects-text-effect--in-view",
+    "rule": "scrollable-region-focusable",
+    "themes": ["light", "dark"],
+    "reason": "story composition: the fixed-height scroll box is the story's own wrapper, used to demonstrate in-view triggering"
+  },
+  {
+    "story": "form-duration-picker--disabled",
+    "rule": "color-contrast",
+    "themes": ["light", "dark"],
+    "reason": "disabled state: WCAG 1.4.3 exempts inactive components, but the faded text is not itself a disabled form control, so axe cannot tell"
+  },
+  {
+    "story": "form-expanding-search--gallery",
+    "rule": "landmark-unique",
+    "themes": ["light", "dark"],
+    "reason": "story composition: a gallery renders several instances of the component side by side, so their landmarks share a label; one instance per page does not"
+  },
+  {
+    "story": "form-liquid-button--default",
+    "rule": "color-contrast",
+    "themes": ["light", "dark"],
+    "reason": "false positive: the second label is clipped away with clip-path until hover, when it sits on the fill; axe ignores clip-path and pairs it with the page background"
+  },
+  {
+    "story": "form-liquid-button--sizes",
+    "rule": "color-contrast",
+    "themes": ["light", "dark"],
+    "reason": "false positive: the second label is clipped away with clip-path until hover, when it sits on the fill; axe ignores clip-path and pairs it with the page background"
+  },
+  {
+    "story": "form-liquid-button--tones",
+    "rule": "color-contrast",
+    "themes": ["light", "dark"],
+    "reason": "false positive: the second label is clipped away with clip-path until hover, when it sits on the fill; axe ignores clip-path and pairs it with the page background"
+  },
+  {
+    "story": "form-liquid-button--wide",
+    "rule": "color-contrast",
+    "themes": ["light", "dark"],
+    "reason": "false positive: the second label is clipped away with clip-path until hover, when it sits on the fill; axe ignores clip-path and pairs it with the page background"
+  },
+  {
+    "story": "forms-file-upload--disabled",
+    "rule": "color-contrast",
+    "themes": ["light", "dark"],
+    "reason": "disabled state: WCAG 1.4.3 exempts inactive components, but the faded text is not itself a disabled form control, so axe cannot tell"
+  },
+  {
+    "story": "forms-tags-input--disabled",
+    "rule": "color-contrast",
+    "themes": ["light"],
+    "reason": "disabled state: WCAG 1.4.3 exempts inactive components, but the faded text is not itself a disabled form control, so axe cannot tell"
+  },
+  {
+    "story": "navigation-rail-nav--right-to-left",
+    "rule": "landmark-unique",
+    "themes": ["light", "dark"],
+    "reason": "story composition: two rail navs with the same label side by side, one per indicator style; an application has one"
+  }
+]

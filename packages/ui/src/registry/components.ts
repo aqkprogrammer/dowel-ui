@@ -220,6 +220,30 @@ import { meta as quantityInputMeta } from "@/components/quantity-input/meta";
 import { meta as permissionPromptMeta } from "@/components/permission-prompt/meta";
 import { meta as chartSonifierMeta } from "@/components/chart-sonifier/meta";
 import { meta as expressionEditorMeta } from "@/components/expression-editor/meta";
+import { meta as alertDialogMeta } from "@/components/alert-dialog/meta";
+import { meta as hoverCardMeta } from "@/components/hover-card/meta";
+import { meta as previewLinkCardMeta } from "@/components/preview-link-card/meta";
+import { meta as toggleMeta } from "@/components/toggle/meta";
+import { meta as toggleGroupMeta } from "@/components/toggle-group/meta";
+import { meta as fileTreeMeta } from "@/components/file-tree/meta";
+import { meta as codeTabsMeta } from "@/components/code-tabs/meta";
+import { meta as pinListMeta } from "@/components/pin-list/meta";
+import { meta as notificationListMeta } from "@/components/notification-list/meta";
+import { meta as flipButtonMeta } from "@/components/flip-button/meta";
+import { meta as rippleButtonMeta } from "@/components/ripple-button/meta";
+import { meta as liquidButtonMeta } from "@/components/liquid-button/meta";
+import { meta as shareButtonMeta } from "@/components/share-button/meta";
+import { meta as flipCardMeta } from "@/components/flip-card/meta";
+import { meta as managementBarMeta } from "@/components/management-bar/meta";
+import { meta as radialNavMeta } from "@/components/radial-nav/meta";
+import { meta as radialIntroMeta } from "@/components/radial-intro/meta";
+import { meta as starsBackgroundMeta } from "@/components/stars-background/meta";
+import { meta as gravityStarsBackgroundMeta } from "@/components/gravity-stars-background/meta";
+import { meta as fireworksBackgroundMeta } from "@/components/fireworks-background/meta";
+import { meta as holeBackgroundMeta } from "@/components/hole-background/meta";
+import { meta as bubbleBackgroundMeta } from "@/components/bubble-background/meta";
+import { meta as gradientBackgroundMeta } from "@/components/gradient-background/meta";
+import { meta as hexagonBackgroundMeta } from "@/components/hexagon-background/meta";
 
 /**
  * Every component in the registry.
@@ -453,6 +477,30 @@ export const componentMetas: ComponentMeta[] = [
   permissionPromptMeta,
   chartSonifierMeta,
   expressionEditorMeta,
+  alertDialogMeta,
+  hoverCardMeta,
+  previewLinkCardMeta,
+  toggleMeta,
+  toggleGroupMeta,
+  fileTreeMeta,
+  codeTabsMeta,
+  pinListMeta,
+  notificationListMeta,
+  flipButtonMeta,
+  rippleButtonMeta,
+  liquidButtonMeta,
+  shareButtonMeta,
+  flipCardMeta,
+  managementBarMeta,
+  radialNavMeta,
+  radialIntroMeta,
+  starsBackgroundMeta,
+  gravityStarsBackgroundMeta,
+  fireworksBackgroundMeta,
+  holeBackgroundMeta,
+  bubbleBackgroundMeta,
+  gradientBackgroundMeta,
+  hexagonBackgroundMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is

@@ -32,7 +32,9 @@ export function Calendar({
       className={cn("p-3", className)}
       classNames={{
         ...defaults,
-        root: cn(defaults.root, "w-fit"),
+        // Positioned, so the absolute month navigation sits against the
+        // calendar rather than the nearest positioned ancestor (or the page).
+        root: cn(defaults.root, "relative w-fit"),
         months: cn(defaults.months, "flex flex-col gap-4 sm:flex-row"),
         month: cn(defaults.month, "flex flex-col gap-4"),
         nav: cn(defaults.nav, "absolute inset-x-3 top-3 flex items-center justify-between"),
@@ -77,7 +79,10 @@ export function Calendar({
         ),
         range_end: cn(defaults.range_end, "rounded-e-md bg-accent"),
         today: cn(defaults.today, "[&>button]:font-semibold [&>button]:text-primary"),
-        outside: cn(defaults.outside, "text-muted-foreground opacity-50"),
+        // Outside days are selectable buttons, so they stay readable: the
+        // muted token alone (4.5:1+) tells them apart from the month's own
+        // days, without opacity on top.
+        outside: cn(defaults.outside, "text-muted-foreground"),
         disabled: cn(defaults.disabled, "opacity-40"),
         hidden: cn(defaults.hidden, "invisible"),
         ...classNames,

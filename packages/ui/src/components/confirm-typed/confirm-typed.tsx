@@ -175,13 +175,22 @@ export function ConfirmTyped({
       </span>
 
       <Button
-        variant={variant}
+        // Not disabled while the text does not match: it stays reachable, and
+        // pressing it says why nothing happened. The state is carried by
+        // aria-disabled and, visually, by the quieter outline style. The
+        // label is never faded: an enabled control keeps 4.5:1. It takes its
+        // real variant the moment the text matches.
+        variant={matched ? variant : "outline"}
         loading={pending}
         data-ready={matched || undefined}
+        aria-disabled={!matched || pending || undefined}
         aria-describedby={matched ? undefined : `${id}-hint`}
-        // Dimmed rather than disabled while the text does not match: it stays
-        // reachable, and pressing it says why nothing happened.
-        className={cn("self-start", !matched && !pending && "opacity-55")}
+        className={cn(
+          "self-start",
+          // Button dims and stops pointer events on aria-disabled; undo both,
+          // since a press here is answered rather than ignored.
+          !matched && !pending && "aria-disabled:pointer-events-auto aria-disabled:opacity-100",
+        )}
         onClick={attempt}
       >
         {pending ? `${action}…` : action}

@@ -20,4 +20,15 @@ export const meta = defineMeta({
     "is inert. The same focus rules apply — the cross when asking, the bin on backing out, Undo once done — and with " +
     "`undoWindow={0}` focus stays on the bin, now aria-disabled and named by `doneLabel`. The lid, panel and check " +
     "are CSS transitions that collapse under reduced motion.",
+  guidance: {
+    useWhen: [
+      "a destructive button that asks in place, such as deleting a list row",
+      "a delete that can offer a timed undo",
+    ],
+    avoidWhen: [
+      "a consequential action that needs explaining — use alert-dialog",
+      "deleting something that cannot be recovered — use confirm-typed",
+    ],
+    alternatives: ["alert-dialog", "confirm-typed", "hold-button"],
+  },
 });

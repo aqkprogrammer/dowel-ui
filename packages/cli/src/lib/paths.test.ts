@@ -24,6 +24,15 @@ function config(overrides: Partial<Config> = {}): Config {
   };
 }
 
+describe("resolveDestination refuses a path that leaves its directory", () => {
+  it.each(["ui/../../../.bashrc", "lib/../../package.json", "ui/./x.tsx", "/etc/passwd"])(
+    "%s",
+    (path) => {
+      expect(() => resolveDestination(config(), path)).toThrow(CliError);
+    },
+  );
+});
+
 describe("aliasToDirectory", () => {
   it("resolves an alias through the configured prefix and base", () => {
     expect(aliasToDirectory(config(), "@/components/ui")).toBe("src/components/ui");

@@ -17,4 +17,15 @@ export const meta = defineMeta({
     "announced by the surface's status region; a failed undo shows its reason on the entry. Arguments are a " +
     "focusable, named region, since they scroll. The ledger is data-agent-ui, so using it never takes over " +
     "the surface.",
+  guidance: {
+    useWhen: [
+      "listing what the agent did on an agent-surface, with undo for calls whose tool registered one",
+    ],
+    avoidWhen: [
+      "actions recorded outside an agent surface — use ai-action-ledger",
+      "stepping through a run in order — use agent-replay",
+    ],
+    alternatives: ["ai-action-ledger", "agent-replay"],
+  },
+  composesWith: ["agent-approvals", "control-baton"],
 });

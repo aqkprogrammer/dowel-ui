@@ -150,6 +150,11 @@ export async function create(options: CreateOptions): Promise<void> {
       "--yes",
       ...(options.skipInstall ? ["--skip-install"] : []),
     ]);
+    // Written now rather than suggested at the end. The first thing many people
+    // do in a new app is ask a coding agent to build a page, and an agent with
+    // no catalogue writes its own Button — the design system has a hole in it
+    // before the first commit.
+    runDowel(manager, target, branding.cliPackage, ["agents"]);
   }
 
   summarise({ directory, template, theme, manager, options });
@@ -184,7 +189,11 @@ function summarise({ directory, template, theme, manager, options }: SummaryCont
     ),
   );
   logger.info(
-    pc.dim(`Teach your coding agent what is installed: npx ${branding.cliPackage} agents`),
+    pc.dim(
+      options.skipComponents
+        ? `Teach your coding agent what is installed: npx ${branding.cliPackage} agents`
+        : "Coding agents: AGENTS.md, .dowel/, a Claude skill and a Cursor rule describe what is installed.",
+    ),
   );
 }
 

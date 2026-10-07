@@ -15,4 +15,8 @@ export const meta = defineMeta({
     "real links. The image is content and requires alt text; the placeholder shown without one is " +
     "aria-hidden. The slide-in follows reading direction, plays once on first scroll into view and " +
     "settles instantly under reduced motion.",
+  guidance: {
+    useWhen: ["a call to action with copy on one side and an image on the other"],
+    alternatives: ["cta-centered", "cta-banner"],
+  },
 });

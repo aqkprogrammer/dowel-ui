@@ -294,6 +294,12 @@ pnpm install-check    # every registry item, installed into a new Next.js app
 CI runs exactly this. Run it locally anyway before a publish: a failed publish
 is far more awkward to undo than a failed build.
 
+CI also installs every free item into a fresh app with the local scaffolder,
+CLI and registry, then runs `tsc` and `next build`
+(`scripts/smoke/install-all.mjs`). That is the pre-release half of the check
+below; the post-publish half, against the live registry and the published
+CLI, is still yours to run.
+
 ### 3. Publish
 
 Publishing is done by `.github/workflows/release.yml`, which runs when a

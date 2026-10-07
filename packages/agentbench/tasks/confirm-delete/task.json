@@ -1,0 +1,8 @@
+{
+  "id": "confirm-delete",
+  "title": "Confirm before delete",
+  "prompt": "Make a projects page at /projects that lists a few projects and lets people delete one. Deleting cannot be undone, so ask them to confirm first.",
+  "route": "src/app/projects/page.tsx",
+  "install": ["button", "card", "alert-dialog", "dialog", "table", "toast"],
+  "expect": ["alert-dialog", "button"]
+}

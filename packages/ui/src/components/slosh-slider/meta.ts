@@ -17,4 +17,9 @@ export const meta = defineMeta({
     "development warning fires when it is unnamed — no default name is baked in. The focus ring is drawn around " +
     "the whole bar. The liquid fill is aria-hidden decoration; under reduced motion it jumps with the knob and " +
     "never leans.",
+  guidance: {
+    useWhen: ["a single-value slider where a liquid fill suits the product"],
+    avoidWhen: ["a range with two thumbs, or a standard form slider — use slider"],
+    alternatives: ["slider"],
+  },
 });
