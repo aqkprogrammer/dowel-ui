@@ -18,6 +18,8 @@
     "typecheck": "turbo run typecheck && tsc --noEmit -p tsconfig.json",
     "test": "turbo run test",
     "test:scripts": "vitest run",
+    "install-check": "tsx scripts/install-check.ts",
+    "release": "tsx scripts/release.ts",
     "test:watch": "pnpm --filter @dowel-ui/react test:watch",
     "storybook": "pnpm --filter @dowel-ui/react storybook",
     "docs": "pnpm --filter @dowel-ui/docs dev",

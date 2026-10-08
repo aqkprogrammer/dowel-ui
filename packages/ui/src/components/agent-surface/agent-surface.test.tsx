@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createRef, useEffect, useRef, useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -362,6 +362,37 @@ describe("AgentSurface", () => {
       expect(onDelete).not.toHaveBeenCalled();
     });
 
+    it("withdraws the question when the person takes over, without waiting for an answer", async () => {
+      const onDelete = vi.fn();
+      const { api } = setup(
+        {
+          defaultHolder: "agent",
+          onApprovalRequest: () => new Promise<boolean>(() => undefined),
+        },
+        { onDelete },
+      );
+      const pending = api().call("delete", { id: "a" });
+      act(() => {
+        api().takeOver();
+      });
+      await expect(pending).resolves.toMatchObject({
+        status: "refused",
+        text: "The person has taken control of this page. Wait until they hand it back, then try again.",
+      });
+      expect(onDelete).not.toHaveBeenCalled();
+    });
+
+    it("withdraws the question when the caller gives up", async () => {
+      const { api } = setup({
+        defaultHolder: "agent",
+        onApprovalRequest: () => new Promise<boolean>(() => undefined),
+      });
+      const controller = new AbortController();
+      const pending = api().call("delete", { id: "a" }, { signal: controller.signal });
+      controller.abort();
+      await expect(pending).resolves.toMatchObject({ ok: false, status: "failed" });
+    });
+
     it("refuses if the person takes over while approval is pending", async () => {
       let approve = (_value: boolean) => undefined as void;
       const onDelete = vi.fn();
@@ -551,6 +582,90 @@ describe("AgentSurface", () => {
         );
         fireEvent.input(screen.getByRole("textbox"), { target: { value: "x" } });
         expect(apiRef.current?.getHolder()).toBe("person");
+      });
+
+      // These two state what must hold. They cannot catch the bug they are
+      // named for: React renders between the capture and bubble phases of a
+      // real event, and a scripted one never gives it the chance. The real
+      // check is in a browser: screen-reader-tests' agent-surface harness.
+      it("keeps the tick that took over", () => {
+        // The person's own action has to land: taking the page and losing the
+        // click that took it is the agent winning the race after all.
+        function Row() {
+          // Anything that registers a tool re-renders when control changes,
+          // which is what used to reset the box before its change was read.
+          useAgentSurface();
+          const [checked, setChecked] = useState(false);
+          return (
+            <input
+              type="checkbox"
+              aria-label="Select Acme"
+              checked={checked}
+              onChange={(event) => {
+                setChecked(event.target.checked);
+              }}
+            />
+          );
+        }
+        const apiRef = createRef<AgentSurfaceApi>();
+        render(
+          <AgentSurface apiRef={apiRef} defaultHolder="agent">
+            <Row />
+          </AgentSurface>,
+        );
+        fireEvent.click(screen.getByRole("checkbox"));
+        expect(apiRef.current?.getHolder()).toBe("person");
+        expect(screen.getByRole("checkbox")).toBeChecked();
+      });
+
+      it("keeps the character that took over", () => {
+        function Filter() {
+          useAgentSurface();
+          const [value, setValue] = useState("");
+          return (
+            <input
+              aria-label="Filter"
+              value={value}
+              onChange={(event) => {
+                setValue(event.target.value);
+              }}
+            />
+          );
+        }
+        const apiRef = createRef<AgentSurfaceApi>();
+        render(
+          <AgentSurface apiRef={apiRef} defaultHolder="agent">
+            <Filter />
+          </AgentSurface>,
+        );
+        fireEvent.input(screen.getByRole("textbox"), { target: { value: "r" } });
+        expect(apiRef.current?.getHolder()).toBe("person");
+        expect(screen.getByRole("textbox")).toHaveValue("r");
+      });
+
+      it("still takes over when the control's own handler stops the event", async () => {
+        const apiRef = createRef<AgentSurfaceApi>();
+        const { container } = render(
+          <AgentSurface apiRef={apiRef} defaultHolder="agent">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              Archive
+            </button>
+          </AgentSurface>,
+        );
+        fireEvent.click(screen.getByRole("button", { name: "Archive" }));
+        // Refused from the instant of the click, whatever the handler does.
+        expect(apiRef.current?.getHolder()).toBe("person");
+        await waitFor(() => {
+          expect(container.querySelector("[data-slot='agent-surface']")).toHaveAttribute(
+            "data-holder",
+            "person",
+          );
+        });
       });
 
       it("does not take over for a click on plain content", () => {

@@ -14,6 +14,7 @@
     "clean": "rm -rf .next .turbo public/r src/lib/previews.generated.ts src/lib/pro-previews.generated.ts src/lib/props.generated.ts src/lib/variants.generated.ts src/lib/quality.generated.ts src/lib/licensed-registry.generated.ts src/lib/version.generated.ts src/lib/design-tokens.generated.ts src/lib/agentbench.generated.ts public/figma"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "0.131.0",
     "@dowel-ui/react": "workspace:*",
     "@dowel-ui/registry": "workspace:*",
     "@dowel-ui/themes": "workspace:*",

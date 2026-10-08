@@ -108,6 +108,38 @@ block's source cannot be read out of `node_modules`.
 
 ---
 
+## Agent demo configuration
+
+`/agent-demo` lets a visitor ask a model to operate a page. The page's tools run
+in the browser; the one server-side piece is `POST /api/agent-demo`, which
+plays a single model turn. It is the only thing on this site that spends money
+per request, so it is off until it is configured, and narrow when it is on.
+
+| Variable            | Required    | What it does                                                                                                        |
+| ------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------- |
+| `ANTHROPIC_API_KEY` | for a model | Unset, the page plays a scripted run instead and the endpoint refuses. Nothing else needs changing.                 |
+| `AGENT_DEMO_MODEL`  | no          | Defaults to `claude-opus-5-5`. An override must accept adaptive thinking and `effort`, which the request sends.     |
+| `AGENT_DEMO`        | no          | `off` returns the page to the scripted run without removing the key: the switch to reach for if a bill looks wrong. |
+
+`GET /api/agent-demo` answers `{"mode":"model"}` or `{"mode":"scripted"}`, and
+nothing else, so a deploy can be checked without running anything.
+
+**What bounds the spend.** The endpoint accepts only the demo's shape
+(`src/lib/agent-demo/request.ts`): a request of at most 300 characters, the
+demo's six tools by name, at most 12 model turns in a run, and short tool
+results. The system prompt is fixed on the server and tells the model it can
+only operate that page. Each turn asks for at most 4,096 output tokens at low
+effort. So one run costs cents, and the endpoint is a poor way to get a model
+for anything else.
+
+**What does not.** The built-in rate limit (40 turns per visitor and 400 in
+all, per ten minutes) is counted in memory, per server instance, and a
+serverless host runs several instances and recycles them. It stops a tab in a
+loop, not a determined caller. Before pointing traffic at the demo, add a rate
+limit rule for `/api/agent-demo` at the host's edge (on Vercel: Firewall →
+Rate Limiting), and set a monthly spend limit on the API key's workspace in
+the Claude Console. Those two are the real ceiling.
+
 ## Before the first release
 
 These are one-time, and all three are first-come.
@@ -289,6 +321,7 @@ edit and nothing more.
 pnpm install          # lockfile picks up the new versions
 pnpm run audit:all
 pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build
+pnpm install-check    # every registry item, installed into a new Next.js app
 ```
 
 CI runs exactly this. Run it locally anyway before a publish: a failed publish
@@ -302,18 +335,66 @@ CLI, is still yours to run.
 
 ### 3. Publish
 
+Publishing is done by `.github/workflows/release.yml`, which runs when a
+version tag is pushed. With the site deployed and the release commit on `main`:
+
+```bash
+git tag -a v0.12.0 -m "0.12.0" && git push origin v0.12.0
+```
+
+It runs as two jobs:
+
+1. **Check and pack.** `pnpm release check` refuses to go on unless the tag
+   matches every published package's version, the changelog has that version's
+   section, and **the live registry already serves it**, which is the
+   deploy-first rule enforced rather than remembered. Then it builds and packs
+   a tarball of each public package.
+2. **Publish.** `scripts/publish-tarballs.ts` hands the tarballs to npm, then
+   the GitHub release is created from the changelog's section (or a draft
+   written ahead of time is published). This job installs nothing and builds
+   nothing: it is the one with publishing rights, so it runs no code that came
+   from a dependency.
+
+A version npm already has is skipped, so a run that failed half-way is fixed
+by re-running it. The same steps run locally:
+
+```bash
+pnpm release check v0.12.0
+pnpm release pack v0.12.0 out && node scripts/publish-tarballs.ts out --dry-run
+```
+
+#### One-time setup: trusted publishing
+
+npm accepts the workflow's own identity instead of a token or a one-time code,
+once each package names it. For every published package (`@dowel-ui/react`,
+`@dowel-ui/themes`, `@dowel-ui/registry`, `@dowel-ui/cli`, `@dowel-ui/mcp`,
+`create-dowel-app`), on npmjs.com under the package's **Settings → Trusted
+Publisher**, choose GitHub Actions and enter:
+
+| Field             | Value           |
+| ----------------- | --------------- |
+| Organization/user | `aqkprogrammer` |
+| Repository        | `dowel-ui`      |
+| Workflow filename | `release.yml`   |
+| Environment       | `npm`           |
+
+The `npm` environment is created in the repository the first time the workflow
+runs. Adding required reviewers to it (Settings → Environments → npm) makes
+each publish wait for an approval click, which replaces the one-time code as
+the "a person meant this" step.
+
+Until that is set up, an `NPM_TOKEN` repository secret holding a granular
+access token with publish rights works instead; the workflow uses it when it
+is present. Publishing by hand still works too, and still needs the account's
+second factor:
+
 ```bash
 pnpm publish -r --access public
 ```
 
-`-r` publishes every public workspace package. `--access public` is required
-for the first publish of a scoped package (`@dowel-ui/*`); the unscoped
-`dowel-cli` is public by default, and the flag is harmless there. Without it npm
-assumes private and rejects it.
-
-Publishing requires a one-time code: the `aqkprogrammer` account has 2FA set to
-`auth-and-writes`, so every publish prompts for an OTP, or takes one on the
-command line as `--otp=<code>`.
+Run that from a clean checkout of an up-to-date `main`: pnpm refuses any other
+branch, and a working tree with changes. npm asks for approval in the browser
+and gives up after a few minutes.
 
 ### The `dowel-cli` alias
 
@@ -330,18 +411,19 @@ against an older CLI is what to avoid.
 
 ### 4. Tag
 
-```bash
-git push --follow-tags origin main
-```
-
-Then draft a GitHub release from the tag, using the generated changelog entries.
+Pushing the tag is what publishes (step 3), so there is nothing left to do
+here. A release published by hand still needs its tag pushed afterwards, and
+its GitHub release drafted from the changelog section.
 
 ---
 
 ## What to check after publishing
 
 The point of a source-first library is the install, so test that rather than the
-package contents:
+package contents. `pnpm install-check` does this for every registry item before
+a release, against this checkout's CLI and registry, and CI runs it on pull
+requests and nightly (`.github/workflows/install-check.yml`). After publishing,
+do it once by hand with the published CLI and the live registry:
 
 ```bash
 cd /tmp && pnpm create next-app@latest dowel-check --ts --tailwind --app
@@ -370,7 +452,8 @@ Three things this catches that nothing earlier does:
 3. Bump the versions and close the changelog section (step 1 above), then run
    the gate in step 2 and commit as `release: <version>`
 4. Deploy the site **first** — the registry is what the CLI reads
-5. `pnpm publish -r`
+5. Push the tag: `git tag -a vX.Y.Z -m "X.Y.Z" && git push origin vX.Y.Z`. The
+   release workflow checks the registry, publishes and opens the GitHub release
 
 Deploying before publishing matters on every release, not just the first. A
 published CLI that resolves against an older registry will install components
