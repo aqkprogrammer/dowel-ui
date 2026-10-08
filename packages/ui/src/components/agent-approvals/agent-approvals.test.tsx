@@ -158,6 +158,42 @@ describe("AgentApprovals", () => {
     expect(screen.queryByText(/more request/)).not.toBeInTheDocument();
   });
 
+  it("takes the request away when the person takes the page back", async () => {
+    const { api } = setup();
+    let pending: Promise<unknown> = Promise.resolve();
+    act(() => {
+      api().grant();
+      pending = api().call("send_email", EMAIL);
+    });
+    expect(screen.getByRole("button", { name: "Approve once" })).toBeInTheDocument();
+
+    let result: unknown;
+    await act(async () => {
+      api().takeOver();
+      result = await pending;
+    });
+    // Approving it now could only be refused, so it is not left to be approved.
+    expect(result).toMatchObject({ status: "refused" });
+    expect(screen.queryByRole("button", { name: "Approve once" })).not.toBeInTheDocument();
+  });
+
+  it("shows the next request when the one on screen is withdrawn", async () => {
+    const { api } = setup();
+    const controller = new AbortController();
+    act(() => {
+      void api().call("send_email", EMAIL, { signal: controller.signal });
+      void api().call("refund");
+    });
+    expect(screen.getByText("1 more request waiting")).toBeInTheDocument();
+
+    await act(async () => {
+      controller.abort();
+      await Promise.resolve();
+    });
+    expect(screen.getByRole("heading", { name: "Refund the order" })).toBeInTheDocument();
+    expect(screen.queryByText(/more request/)).not.toBeInTheDocument();
+  });
+
   it("refuses whatever is waiting when it unmounts", async () => {
     const apiRef = createRef<AgentSurfaceApi>();
     const { rerender } = render(

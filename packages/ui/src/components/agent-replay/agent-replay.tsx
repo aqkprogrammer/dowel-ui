@@ -173,6 +173,9 @@ export function AgentReplay({
   return (
     <section
       data-slot="agent-replay"
+      // Stepping through what happened is overseeing the agent, not taking the
+      // page back from it.
+      data-agent-ui=""
       aria-labelledby={headingId}
       className={cn(
         "flex flex-col gap-3 rounded-lg border border-border bg-card p-4 text-sm",

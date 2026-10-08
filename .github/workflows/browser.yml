@@ -139,3 +139,36 @@ jobs:
             packages/browser-tests/playwright-report/
             packages/browser-tests/test-results/
           retention-days: 7
+
+  # Behaviour that only a real browser has, checked against the Storybook
+  # stories with no screen reader involved. The unit tests run in jsdom, which
+  # cannot show what React does between the phases of a real event: taking over
+  # an `agent-surface` by ticking a box used to lose the tick, with every unit
+  # test green.
+  behaviour:
+    name: Real-browser behaviour
+    needs: storybook
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: storybook-static
+          path: packages/ui/storybook-static
+      - run: pnpm --filter @dowel-ui/screen-reader-tests exec playwright install --with-deps chromium
+      - run: pnpm --filter @dowel-ui/screen-reader-tests test:browser
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-results
+          path: |
+            packages/screen-reader-tests/test-results
+            packages/screen-reader-tests/playwright-report
+          retention-days: 7

@@ -108,6 +108,38 @@ block's source cannot be read out of `node_modules`.
 
 ---
 
+## Agent demo configuration
+
+`/agent-demo` lets a visitor ask a model to operate a page. The page's tools run
+in the browser; the one server-side piece is `POST /api/agent-demo`, which
+plays a single model turn. It is the only thing on this site that spends money
+per request, so it is off until it is configured, and narrow when it is on.
+
+| Variable            | Required    | What it does                                                                                                        |
+| ------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------- |
+| `ANTHROPIC_API_KEY` | for a model | Unset, the page plays a scripted run instead and the endpoint refuses. Nothing else needs changing.                 |
+| `AGENT_DEMO_MODEL`  | no          | Defaults to `claude-opus-5-5`. An override must accept adaptive thinking and `effort`, which the request sends.     |
+| `AGENT_DEMO`        | no          | `off` returns the page to the scripted run without removing the key: the switch to reach for if a bill looks wrong. |
+
+`GET /api/agent-demo` answers `{"mode":"model"}` or `{"mode":"scripted"}`, and
+nothing else, so a deploy can be checked without running anything.
+
+**What bounds the spend.** The endpoint accepts only the demo's shape
+(`src/lib/agent-demo/request.ts`): a request of at most 300 characters, the
+demo's six tools by name, at most 12 model turns in a run, and short tool
+results. The system prompt is fixed on the server and tells the model it can
+only operate that page. Each turn asks for at most 4,096 output tokens at low
+effort. So one run costs cents, and the endpoint is a poor way to get a model
+for anything else.
+
+**What does not.** The built-in rate limit (40 turns per visitor and 400 in
+all, per ten minutes) is counted in memory, per server instance, and a
+serverless host runs several instances and recycles them. It stops a tab in a
+loop, not a determined caller. Before pointing traffic at the demo, add a rate
+limit rule for `/api/agent-demo` at the host's edge (on Vercel: Firewall →
+Rate Limiting), and set a monthly spend limit on the API key's workspace in
+the Claude Console. Those two are the real ceiling.
+
 ## Before the first release
 
 These are one-time, and all three are first-come.
