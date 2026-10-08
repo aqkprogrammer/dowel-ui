@@ -23,6 +23,17 @@ satisfied honestly — during Phase 1 a `jsx-a11y/heading-has-content` report on
 `CardTitle` was resolved by destructuring `children` so the heading's content is
 statically visible, not by silencing the rule.
 
+Two more checks run in CI only when the files they cover change:
+
+- **Visual regression.** A pull request that touches `packages/ui` or
+  `packages/themes` gets a screenshot of every Storybook story, compared with
+  the same story on the base branch. If your change is meant to alter how
+  something looks, add the `visual-change` label to the pull request. See
+  [`docs/testing/visual-regression.md`](docs/testing/visual-regression.md).
+- **Screen readers.** A change to `stream-announcer` runs real VoiceOver and
+  NVDA against it. See
+  [`docs/testing/screen-readers.md`](docs/testing/screen-readers.md).
+
 ## Adding a component
 
 Read [`docs/architecture/0004-component-conventions.md`](docs/architecture/0004-component-conventions.md)

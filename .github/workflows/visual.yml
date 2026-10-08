@@ -1,0 +1,156 @@
+name: Visual regression
+
+# A screenshot of every Storybook story, compared between the base branch and
+# this change. There are no baseline images in git: the job builds Storybook
+# for both commits, screenshots the base build to get the expected images, then
+# screenshots the head build and compares, all on one runner with one browser.
+#
+# It fails when a story looks different, unless the pull request carries the
+# `visual-change` label. See docs/testing/visual-regression.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: Branch to compare against
+        default: main
+  pull_request:
+    # `labeled` and `unlabeled` so that adding or removing `visual-change`
+    # starts a new run. A re-run of an old one still sees the old labels.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    paths:
+      - "packages/ui/**"
+      - "packages/themes/**"
+      - "packages/visual-tests/**"
+      # The static server the visual tests run.
+      - "packages/screen-reader-tests/serve-storybook.ts"
+      - ".github/workflows/visual.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  STORYBOOK_DISABLE_TELEMETRY: 1
+
+jobs:
+  compare:
+    name: Compare with the base branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      # All of history: the base commit is found from it below.
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # On a pull request the checkout is GitHub's merge of the branch into its
+      # base, so the first parent is exactly the commit this change is measured
+      # against, however far behind the branch is. Started by hand, it is where
+      # the branch left the one named in the input; on that branch itself the
+      # two are the same commit, which makes the run a stability check.
+      - name: Find the base commit
+        id: base
+        env:
+          BASE_BRANCH: ${{ inputs.base }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            sha=$(git rev-parse HEAD^1)
+          else
+            sha=$(git merge-base HEAD "origin/$BASE_BRANCH")
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          # Outside the checkout, so that neither build can see the other.
+          echo "BASE_WORKTREE=$RUNNER_TEMP/base" >> "$GITHUB_ENV"
+          echo "BASE_STORYBOOK=$RUNNER_TEMP/storybook-base" >> "$GITHUB_ENV"
+
+      - run: pnpm install --frozen-lockfile
+
+      # A build is a function of its commit, so later pushes to the same pull
+      # request reuse it until the base branch moves.
+      - name: Restore the base Storybook
+        id: base-storybook
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.BASE_STORYBOOK }}
+          key: visual-storybook-${{ runner.os }}-${{ steps.base.outputs.sha }}
+
+      # Storybook imports workspace packages (the themes) that ship from dist/,
+      # which a clean checkout does not have yet.
+      - name: Build the base Storybook
+        if: steps.base-storybook.outputs.cache-hit != 'true'
+        env:
+          BASE_SHA: ${{ steps.base.outputs.sha }}
+        run: |
+          git worktree add --detach "$BASE_WORKTREE" "$BASE_SHA"
+          cd "$BASE_WORKTREE"
+          pnpm install --frozen-lockfile
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
+          cp -R packages/ui/storybook-static "$BASE_STORYBOOK"
+
+      - name: Build the head Storybook
+        run: |
+          pnpm --filter "@dowel-ui/react^..." build
+          pnpm --filter @dowel-ui/react build-storybook
+
+      - run: pnpm --filter @dowel-ui/visual-tests exec playwright install --with-deps chromium
+
+      # The tests are the head's, run against both builds, so a change to how
+      # stories are captured applies to both sides of the comparison. A story
+      # that cannot be captured on the base commit was broken before this
+      # change: it is reported as not compared, and does not stop the job. A
+      # run that captures nothing at all is a broken run, not a broken story,
+      # and does stop it: with no baseline, every story would pass unseen.
+      - name: Capture the baseline from the base build
+        env:
+          STORYBOOK_DIR: ${{ env.BASE_STORYBOOK }}
+          PLAYWRIGHT_HTML_OUTPUT_DIR: baseline-report
+        run: |
+          if ! pnpm visual:baseline; then
+            if [ ! -f packages/visual-tests/baseline/baseline.json ]; then
+              echo "::error::The baseline run captured nothing."
+              exit 1
+            fi
+            echo "::warning::Some stories could not be captured on the base commit. They are listed in the job summary and are not compared."
+            cat packages/visual-tests/test-results/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # Fails on any difference, unless the pull request is labelled as an
+      # intended visual change. A story that does not render fails either way.
+      - name: Compare the head build against the baseline
+        env:
+          VISUAL_CHANGES_APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'visual-change') }}
+        run: pnpm visual:compare
+
+      # Only the comparison's summary: if the job stopped before comparing, the
+      # file here is still the baseline's, which the step above has dealt with.
+      - name: Write the job summary
+        if: always()
+        run: |
+          results=packages/visual-tests/test-results
+          if grep -q '"mode": "compare"' "$results/summary.json" 2>/dev/null; then
+            cat "$results/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # The report holds the expected, actual and diff image of every story
+      # that changed, and a screenshot of every new one.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-report
+          path: |
+            packages/visual-tests/playwright-report/
+            packages/visual-tests/baseline-report/
+            packages/visual-tests/test-results/summary.json
+            packages/visual-tests/test-results/summary.md
+          retention-days: 14

@@ -7,6 +7,14 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ### Added
 
+- **Visual regression tests.** `packages/visual-tests` screenshots every
+  Storybook story and compares it with the same story on the base branch, in a
+  new CI workflow. No baseline images are committed: the job builds Storybook
+  for both commits and captures the baseline from the base build each time. A
+  pull request that changes how a story looks fails unless it carries the
+  `visual-change` label. See `docs/testing/visual-regression.md`. It runs
+  alongside `packages/browser-tests`, which keeps committed baselines for a
+  curated set of stories.
 - **A live agent demo, at `/agent-demo`.** A model operates a small deals page
   through the tools the page registers with `agent-surface`, and the visitor
   can take the page back by touching it, hand it back with a note, approve or
