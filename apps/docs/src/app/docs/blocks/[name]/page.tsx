@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 
 import { InstallCommand } from "~/components/install-command";
+import { InstallTabs } from "~/components/install-tabs";
 import { JsonLd } from "~/components/json-ld";
 import { LicensedNotice } from "~/components/licensed-notice";
 import { Preview } from "~/components/preview";
@@ -15,6 +16,7 @@ import { DocSection } from "~/components/site/doc-section";
 import { OnThisPage } from "~/components/site/on-this-page";
 import { blockGroupLabel, blockGroupOf } from "~/lib/block-taxonomy";
 import { branding } from "~/lib/branding";
+import { manualInstallFor } from "~/lib/manual-install";
 import { proPreviews } from "~/lib/pro-previews.generated";
 import { componentProps } from "~/lib/props.generated";
 import { getBlocks, getComponents, getRegistryItem, isLicensed } from "~/lib/registry";
@@ -102,7 +104,6 @@ export default async function BlockPage({ params }: PageProps) {
     { id: "built-from", title: "Built from" },
     ...(hasProps ? [{ id: "api", title: "API" }] : []),
     ...(item.a11y ? [{ id: "accessibility", title: "Accessibility" }] : []),
-    { id: "source", title: "Source" },
   ];
 
   const structuredData = graph(
@@ -213,7 +214,15 @@ export default async function BlockPage({ params }: PageProps) {
                 : "The block is written to your blocks directory, and everything it is built from is installed alongside it."
             }
           >
-            <InstallCommand args={`add ${item.name}`} />
+            <InstallTabs
+              manual={manualInstallFor(item)}
+              cli={
+                <>
+                  <InstallCommand args={`add ${item.name}`} />
+                  {licensed ? <LicensedNotice name={item.name} /> : null}
+                </>
+              }
+            />
           </DocSection>
 
           {usage ? (
@@ -267,48 +276,6 @@ export default async function BlockPage({ params }: PageProps) {
               </div>
             </DocSection>
           ) : null}
-
-          <DocSection
-            id="source"
-            title="Source"
-            description={
-              licensed ? (
-                <>
-                  {item.files.length === 1 ? "One file" : `${String(item.files.length)} files`},
-                  written by{" "}
-                  <code className="font-mono text-foreground">
-                    {branding.cliName} add {item.name}
-                  </code>{" "}
-                  with imports rewritten to your own path alias, and yours to edit from then on.
-                </>
-              ) : (
-                <>
-                  Exactly what{" "}
-                  <code className="font-mono text-foreground">
-                    {branding.cliName} add {item.name}
-                  </code>{" "}
-                  writes, with imports rewritten to your own path alias. It is a starting point
-                  — edit it.
-                </>
-              )
-            }
-          >
-            {licensed ? (
-              <LicensedNotice name={item.name} />
-            ) : (
-              <div className="grid gap-4">
-                {item.files.map((file) => (
-                  <CodePanel
-                    key={file.path}
-                    title={`components/${file.path}`}
-                    code={file.content}
-                    collapseAfter={40}
-                    lineNumbers
-                  />
-                ))}
-              </div>
-            )}
-          </DocSection>
         </div>
 
         <div className="hidden xl:block">
