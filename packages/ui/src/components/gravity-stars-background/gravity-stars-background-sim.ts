@@ -222,7 +222,10 @@ export function stepGravityStars(world: GravityStarsWorld, dt: number): void {
       star.vy += ny * strength;
     }
   }
-  world.waves = world.waves.filter((wave) => wave.age < waveLife);
+  // In place, so a frame with waves allocates no new array.
+  let kept = 0;
+  for (const wave of world.waves) if (wave.age < waveLife) world.waves[kept++] = wave;
+  world.waves.length = kept;
 
   for (const star of world.stars) {
     const speed = Math.hypot(star.vx, star.vy);
@@ -238,26 +241,132 @@ export function stepGravityStars(world: GravityStarsWorld, dt: number): void {
 }
 
 /**
+ * Reusable storage for the links found in one frame, so finding them every
+ * frame allocates nothing once the buffers have grown to fit.
+ */
+export interface GravityLinkBuffer {
+  a: Int32Array;
+  b: Int32Array;
+  strength: Float32Array;
+  count: number;
+  /** Spatial hash: the first star in each cell, and the next star in its cell. */
+  heads: Int32Array;
+  next: Int32Array;
+}
+
+export function createGravityLinkBuffer(): GravityLinkBuffer {
+  return {
+    a: new Int32Array(256),
+    b: new Int32Array(256),
+    strength: new Float32Array(256),
+    count: 0,
+    heads: new Int32Array(64),
+    next: new Int32Array(64),
+  };
+}
+
+function growLinks(buffer: GravityLinkBuffer): void {
+  const size = buffer.a.length * 2;
+  const a = new Int32Array(size);
+  const b = new Int32Array(size);
+  const strength = new Float32Array(size);
+  a.set(buffer.a);
+  b.set(buffer.b);
+  strength.set(buffer.strength);
+  buffer.a = a;
+  buffer.b = b;
+  buffer.strength = strength;
+}
+
+/**
+ * Finds every pair of particles closer than `distance`, with a 0–1 strength
+ * that fades to nothing at `distance`, into `buffer`.
+ *
+ * Particles are hashed into cells `distance` wide, so each is compared only
+ * with those in its own and the eight neighbouring cells — linear in the
+ * number of particles at a given density, where comparing every pair is
+ * quadratic (51,000 checks a frame at 320 stars).
+ */
+export function collectGravityStarsLinks(
+  stars: readonly GravityStar[],
+  distance: number,
+  buffer: GravityLinkBuffer,
+): void {
+  buffer.count = 0;
+  const n = stars.length;
+  if (n < 2 || distance <= 0) return;
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const star of stars) {
+    if (star.x < minX) minX = star.x;
+    if (star.y < minY) minY = star.y;
+    if (star.x > maxX) maxX = star.x;
+    if (star.y > maxY) maxY = star.y;
+  }
+  const cols = Math.max(1, Math.floor((maxX - minX) / distance) + 1);
+  const rows = Math.max(1, Math.floor((maxY - minY) / distance) + 1);
+  const cells = cols * rows;
+  if (buffer.heads.length < cells) buffer.heads = new Int32Array(cells * 2);
+  if (buffer.next.length < n) buffer.next = new Int32Array(n * 2);
+  buffer.heads.fill(-1, 0, cells);
+  for (let i = n - 1; i >= 0; i -= 1) {
+    const star = stars[i];
+    if (!star) continue;
+    const cell =
+      Math.floor((star.y - minY) / distance) * cols + Math.floor((star.x - minX) / distance);
+    buffer.next[i] = buffer.heads[cell] ?? -1;
+    buffer.heads[cell] = i;
+  }
+
+  const limit = distance * distance;
+  for (let i = 0; i < n; i += 1) {
+    const a = stars[i];
+    if (!a) continue;
+    const col = Math.floor((a.x - minX) / distance);
+    const row = Math.floor((a.y - minY) / distance);
+    for (let dy = -1; dy <= 1; dy += 1) {
+      const r = row + dy;
+      if (r < 0 || r >= rows) continue;
+      for (let dx = -1; dx <= 1; dx += 1) {
+        const c = col + dx;
+        if (c < 0 || c >= cols) continue;
+        for (let j = buffer.heads[r * cols + c] ?? -1; j !== -1; j = buffer.next[j] ?? -1) {
+          if (j <= i) continue;
+          const b = stars[j];
+          if (!b) continue;
+          const ox = a.x - b.x;
+          const oy = a.y - b.y;
+          const squared = ox * ox + oy * oy;
+          if (squared >= limit) continue;
+          if (buffer.count >= buffer.a.length) growLinks(buffer);
+          buffer.a[buffer.count] = i;
+          buffer.b[buffer.count] = j;
+          buffer.strength[buffer.count] = 1 - Math.sqrt(squared) / distance;
+          buffer.count += 1;
+        }
+      }
+    }
+  }
+}
+
+/**
  * Pairs of particles close enough to be joined by a faint line, with a 0–1
- * strength that fades to nothing at `distance`.
+ * strength that fades to nothing at `distance`, ordered by the first index
+ * and then the second. A convenience over `collectGravityStarsLinks`, which
+ * the frame loop uses instead, because it allocates.
  */
 export function gravityStarsLinks(
   stars: readonly GravityStar[],
   distance: number,
 ): [number, number, number][] {
+  const buffer = createGravityLinkBuffer();
+  collectGravityStarsLinks(stars, distance, buffer);
   const links: [number, number, number][] = [];
-  const limit = distance * distance;
-  for (let i = 0; i < stars.length; i += 1) {
-    const a = stars[i];
-    if (!a) continue;
-    for (let j = i + 1; j < stars.length; j += 1) {
-      const b = stars[j];
-      if (!b) continue;
-      const dx = a.x - b.x;
-      const dy = a.y - b.y;
-      const squared = dx * dx + dy * dy;
-      if (squared < limit) links.push([i, j, 1 - Math.sqrt(squared) / distance]);
-    }
+  for (let k = 0; k < buffer.count; k += 1) {
+    links.push([buffer.a[k] ?? 0, buffer.b[k] ?? 0, buffer.strength[k] ?? 0]);
   }
-  return links;
+  return links.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
 }

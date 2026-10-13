@@ -1,6 +1,6 @@
 # Component ecosystem expansion — audit and roadmap
 
-**Status:** Batches 0–3 committed (2026-10-13); Batch 4 next
+**Status:** Batches 0–4 committed (2026-10-13); Batch 5 next
 **Branch:** `feat/ecosystem-expansion`
 **Supersedes nothing.** `docs/plans/component-expansion.md` (the motion catalogue,
 done in 0.12) and ADR 0014 stay in force; this document is what comes after
@@ -463,12 +463,24 @@ Lessons from Batch 1, carried forward:
 
 ### Batch 4 — Background Studio
 
-- [ ] `pattern-background` (dots, grid, stripes, noise, grain)
-- [ ] `interactive-grid` (pointer-reactive cells, canvas)
-- [ ] `light-beams`, `mesh-gradient`, `flow-field`
+- [x] `pattern-background` — dots, grid, lines, diagonal, checker and grain in
+      one CSS component; optional seamless drift, paused off-screen
+- [x] `interactive-grid` — canvas cells lit by the pointer, ripples on press,
+      optional idle ripples; draws only while something moves
+- [x] `light-beams` — CSS rays from a point, feathered fan, two swaying layers
+- [x] `flow-field` — particles on a smooth current, one stroke per frame, a
+      still drawing of the field under reduced motion
+- [x] `mesh-gradient` — covered by `shader-background`'s `mesh-gradient` scene
+      (and `gradient-background`'s mesh look); no separate component
 - [x] `shader-background` (raw WebGL, fourteen scenes; landed early, 2b30e09)
-- [ ] fix the perf items in section 9 for the existing backgrounds
-- [x] docs: a backgrounds page (`/docs/backgrounds`, 2b30e09)
+- [x] perf: `gravity-stars-background` links found with a spatial hash into
+      reused buffers (was 51,000 pair checks and fresh arrays a frame);
+      `fireworks-background` steps in place; `bubble-background` and
+      `gradient-background` pause off-screen. `gradient-orb` stays a server
+      component: it is small, and browsers already skip painting it off-screen
+- [x] docs: a backgrounds page (`/docs/backgrounds`, 2b30e09), now with a
+      "Patterns & grids" filter and the four new backgrounds; every background
+      component's page links to its looks there
 
 ### Batch 5 — scroll and cursor
 

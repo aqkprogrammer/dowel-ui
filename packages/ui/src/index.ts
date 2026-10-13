@@ -251,6 +251,10 @@ export * from "./components/comparison-slider";
 export * from "./components/color-picker";
 export * from "./components/resizable";
 export * from "./components/password-strength";
+export * from "./components/pattern-background";
+export * from "./components/interactive-grid";
+export * from "./components/light-beams";
+export * from "./components/flow-field";
 
 export * from "./hooks/use-reduced-motion";
 export * from "./hooks/use-in-view";

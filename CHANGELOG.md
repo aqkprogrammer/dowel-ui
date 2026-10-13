@@ -52,6 +52,15 @@ per-package changelogs, whatever an earlier version of this line claimed.
   into the project's hooks folder (`dowel add use-in-view`), and are exported
   from `@dowel-ui/react` and `@dowel-ui/react/hooks/*`.
 
+- **`pattern-background`**, **`interactive-grid`**, **`light-beams`** and
+  **`flow-field`**: a CSS pattern backdrop (dots, grid, lines, stripes, checker,
+  grain), a pointer-lit canvas grid with ripples, CSS rays of light, and
+  particles on a moving current. All four are on `/docs/backgrounds`, in a new
+  "Patterns & grids" filter.
+- **Docs: background pages link to the gallery** ("14 looks in Backgrounds"),
+  deep-linked to the look, and component pages say how a component draws when
+  it is more than CSS ("Draws on a canvas", "Renders with WebGL").
+
 ### Fixed
 
 - **Props tables were missing props** a component removes from its element with
@@ -60,6 +69,11 @@ per-package changelogs, whatever an earlier version of this line claimed.
 - **`matrix-orb`** could run its springs backwards for one frame: the first
   frame's clock and the next frame's timestamp can disagree, and the negative
   step was not clamped. This also made two of its tests fail intermittently.
+- **Background performance:** `gravity-stars-background` finds its links with
+  a spatial hash into reused buffers instead of comparing every pair and
+  allocating each frame; `fireworks-background` no longer allocates per frame;
+  `bubble-background` and `gradient-background` pause their animation
+  off-screen.
 - The MCP server's `search_components` category hint now lists every category,
   `effects` included.
 

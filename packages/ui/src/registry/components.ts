@@ -253,6 +253,10 @@ import { meta as comparisonSliderMeta } from "@/components/comparison-slider/met
 import { meta as colorPickerMeta } from "@/components/color-picker/meta";
 import { meta as resizableMeta } from "@/components/resizable/meta";
 import { meta as passwordStrengthMeta } from "@/components/password-strength/meta";
+import { meta as patternBackgroundMeta } from "@/components/pattern-background/meta";
+import { meta as interactiveGridMeta } from "@/components/interactive-grid/meta";
+import { meta as lightBeamsMeta } from "@/components/light-beams/meta";
+import { meta as flowFieldMeta } from "@/components/flow-field/meta";
 
 /**
  * Every component in the registry.
@@ -519,6 +523,10 @@ export const componentMetas: ComponentMeta[] = [
   colorPickerMeta,
   resizableMeta,
   passwordStrengthMeta,
+  patternBackgroundMeta,
+  interactiveGridMeta,
+  lightBeamsMeta,
+  flowFieldMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block and hook

@@ -5,6 +5,8 @@ import {
   createGravityStarsWorld,
   GRAVITY_STARS,
   gravityStarsCount,
+  collectGravityStarsLinks,
+  createGravityLinkBuffer,
   gravityStarsLinks,
   resizeGravityStarsWorld,
   setGravityStarsPointer,
@@ -183,5 +185,38 @@ describe("gravityStarsLinks", () => {
     expect(links[0]?.[2]).toBeCloseTo(0.7);
     expect(links[1]?.[2]).toBeCloseTo(0.1);
     expect(gravityStarsLinks(stars, 0)).toEqual([]);
+  });
+});
+
+describe("collectGravityStarsLinks", () => {
+  it("finds exactly the pairs comparing every pair would", () => {
+    const stars = Array.from({ length: 300 }, (_, i) =>
+      star({ x: (i * 97.3) % 800, y: (i * 41.9) % 500 }),
+    );
+    const brute: string[] = [];
+    for (let i = 0; i < stars.length; i += 1) {
+      for (let j = i + 1; j < stars.length; j += 1) {
+        const a = stars[i];
+        const b = stars[j];
+        if (a && b && Math.hypot(a.x - b.x, a.y - b.y) < 60)
+          brute.push(`${String(i)}-${String(j)}`);
+      }
+    }
+    const fast = gravityStarsLinks(stars, 60).map(([i, j]) => `${String(i)}-${String(j)}`);
+    expect(fast.sort()).toEqual(brute.sort());
+  });
+
+  it("reuses its buffers frame to frame, growing only when it must", () => {
+    const buffer = createGravityLinkBuffer();
+    const crowd = Array.from({ length: 80 }, (_, i) =>
+      star({ x: i % 10, y: Math.floor(i / 10) }),
+    );
+    collectGravityStarsLinks(crowd, 50, buffer);
+    expect(buffer.count).toBe((80 * 79) / 2);
+    const grown = buffer.a;
+    collectGravityStarsLinks(crowd, 50, buffer);
+    expect(buffer.a).toBe(grown);
+    collectGravityStarsLinks([], 50, buffer);
+    expect(buffer.count).toBe(0);
   });
 });

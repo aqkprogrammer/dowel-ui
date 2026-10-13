@@ -21,12 +21,13 @@ import { absoluteUrl } from "./site";
  */
 
 export type BackgroundCategory =
-  "landscape" | "floral" | "abstract" | "particles" | "cosmic" | "science";
+  "landscape" | "floral" | "abstract" | "texture" | "particles" | "cosmic" | "science";
 
 export const BACKGROUND_CATEGORIES: { id: BackgroundCategory; label: string }[] = [
   { id: "landscape", label: "Landscape" },
   { id: "floral", label: "Floral" },
   { id: "abstract", label: "Abstract & glass" },
+  { id: "texture", label: "Patterns & grids" },
   { id: "particles", label: "Particles" },
   { id: "cosmic", label: "Cosmic" },
   { id: "science", label: "Science" },
@@ -205,6 +206,77 @@ const COMPONENT_ENTRIES: BackgroundEntry[] = [
     props: { idle: true },
     tone: "theme",
     engine: "SVG",
+    interactive: true,
+  },
+  {
+    id: "dot-grid",
+    title: "Dot Grid",
+    category: "texture",
+    description:
+      "A quiet dot grid in the border colour, faded at the edges. Costs nothing to paint.",
+    component: "pattern-background",
+    exportName: "PatternBackground",
+    props: { pattern: "dots", fade: "edges" },
+    tone: "theme",
+    engine: "CSS",
+  },
+  {
+    id: "blueprint-grid",
+    title: "Blueprint Grid",
+    category: "texture",
+    description: "A fine grid drifting diagonally, one cell at a time, like an editor canvas.",
+    component: "pattern-background",
+    exportName: "PatternBackground",
+    props: { pattern: "grid", size: 32, drift: true, color: "muted-foreground", opacity: 0.3 },
+    tone: "theme",
+    engine: "CSS",
+  },
+  {
+    id: "pinstripe",
+    title: "Pinstripe",
+    category: "texture",
+    description: "Diagonal hairline stripes for a card or an empty state.",
+    component: "pattern-background",
+    exportName: "PatternBackground",
+    props: { pattern: "diagonal", size: 14, opacity: 0.6, fade: "bottom" },
+    tone: "theme",
+    engine: "CSS",
+  },
+  {
+    id: "pointer-grid",
+    title: "Pointer Grid",
+    category: "texture",
+    description:
+      "Cells that light up around the pointer and fade behind it; press to send a ripple.",
+    component: "interactive-grid",
+    exportName: "InteractiveGrid",
+    props: { fade: "edges", idle: true },
+    tone: "theme",
+    engine: "Canvas 2D",
+    interactive: true,
+  },
+  {
+    id: "light-beams",
+    title: "Light Beams",
+    category: "abstract",
+    description: "Rays of light fanning down from above, swaying slowly against each other.",
+    component: "light-beams",
+    exportName: "LightBeams",
+    props: { intensity: 0.6 },
+    tone: "theme",
+    engine: "CSS",
+  },
+  {
+    id: "flow-field",
+    title: "Flow Field",
+    category: "science",
+    description:
+      "Particles carried along a slowly changing current; the pointer parts the flow.",
+    component: "flow-field",
+    exportName: "FlowField",
+    props: { fade: "edges" },
+    tone: "theme",
+    engine: "Canvas 2D",
     interactive: true,
   },
 ];

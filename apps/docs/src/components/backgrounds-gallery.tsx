@@ -7,9 +7,13 @@ import { AuroraBackground } from "@ui/components/aurora-background";
 import { BubbleBackground } from "@ui/components/bubble-background";
 import { CosmicBackground } from "@ui/components/cosmic-background";
 import { FireworksBackground } from "@ui/components/fireworks-background";
+import { FlowField } from "@ui/components/flow-field";
 import { GradientBackground } from "@ui/components/gradient-background";
 import { GravityStarsBackground } from "@ui/components/gravity-stars-background";
 import { HexagonBackground } from "@ui/components/hexagon-background";
+import { InteractiveGrid } from "@ui/components/interactive-grid";
+import { LightBeams } from "@ui/components/light-beams";
+import { PatternBackground } from "@ui/components/pattern-background";
 import { HoleBackground } from "@ui/components/hole-background";
 import { ShaderBackground } from "@ui/components/shader-background";
 import { StarsBackground } from "@ui/components/stars-background";
@@ -59,6 +63,10 @@ const COMPONENTS: Record<string, ComponentType<any>> = {
   "hexagon-background": HexagonBackground,
   "hole-background": HoleBackground,
   "stars-background": StarsBackground,
+  "pattern-background": PatternBackground,
+  "interactive-grid": InteractiveGrid,
+  "light-beams": LightBeams,
+  "flow-field": FlowField,
 };
 
 const STAGE_ID = "backgrounds-stage";
