@@ -15,7 +15,13 @@ import { ShaderBackground } from "@ui/components/shader-background";
 import { StarsBackground } from "@ui/components/stars-background";
 import { ArrowUpRight, Eye, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState, type ComponentType, type ReactNode } from "react";
+import {
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 
 import type { BackgroundCategory, BackgroundEntry, BackgroundTone } from "~/lib/backgrounds";
 
@@ -233,6 +239,21 @@ function Card({
   );
 }
 
+function subscribeToHash(onChange: () => void): () => void {
+  window.addEventListener("hashchange", onChange);
+  return () => {
+    window.removeEventListener("hashchange", onChange);
+  };
+}
+
+function readHash(): string {
+  return decodeURIComponent(window.location.hash.slice(1));
+}
+
+function noHash(): string {
+  return "";
+}
+
 export function BackgroundsGallery({
   items,
   categories,
@@ -241,7 +262,11 @@ export function BackgroundsGallery({
   categories: { id: BackgroundCategory; label: string }[];
 }) {
   const [filter, setFilter] = useState<"all" | BackgroundCategory>("all");
-  const [stageId, setStageId] = useState(items[0]?.id ?? "");
+  // A link to /docs/backgrounds#<id> — from a component's page, say — opens
+  // that background on the stage; choosing a card afterwards takes over.
+  const linked = useSyncExternalStore(subscribeToHash, readHash, noHash);
+  const [chosen, setStageId] = useState<string | null>(null);
+  const stageId = chosen ?? (items.some((item) => item.id === linked) ? linked : items[0]?.id);
   const stage = items.find((item) => item.id === stageId) ?? items[0];
   const labels = useMemo(
     () => Object.fromEntries(categories.map((category) => [category.id, category.label])),

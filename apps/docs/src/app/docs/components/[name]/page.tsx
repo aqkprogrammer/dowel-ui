@@ -17,6 +17,7 @@ import { CosmicBackground } from "~/components/site/cosmic-background";
 import { DocSection } from "~/components/site/doc-section";
 import { OnThisPage } from "~/components/site/on-this-page";
 import { StoryGallery } from "~/components/story-gallery";
+import { BACKGROUNDS } from "~/lib/backgrounds";
 import { branding } from "~/lib/branding";
 import { categoryMeta } from "~/lib/category-meta";
 import { manualInstallFor } from "~/lib/manual-install";
@@ -52,6 +53,13 @@ interface PageProps {
 
 /** Stories that open over the page or need a viewport of scroll: shown one at a time only. */
 const NO_GALLERY = new Set(["session-expiry", "scroll-reveal-text"]);
+
+/** Words for each rendering tier above plain CSS, as a page header chip. */
+const TIER_LABELS = {
+  motion: "Animates with motion",
+  canvas: "Draws on a canvas",
+  webgl: "Renders with WebGL",
+} as const;
 
 export function generateStaticParams() {
   return getComponents().map((item) => ({ name: item.name }));
@@ -102,6 +110,13 @@ export default async function ComponentPage({ params }: PageProps) {
   const usedIn = getBlocksUsing(item.name);
   const usage = licensed ? undefined : usageFor(item);
   const categoryLabel = CATEGORY_LABELS[entry.category] ?? entry.category;
+  // How it draws, when that is more than markup and CSS: what installing it
+  // takes on. And, for a background, where its looks are shown side by side.
+  const tier =
+    item.capabilities?.tier && item.capabilities.tier !== "css"
+      ? item.capabilities.tier
+      : undefined;
+  const looks = BACKGROUNDS.filter((look) => look.component === item.name);
   const CategoryIcon = categoryMeta(entry.category).icon;
   const hasProps = (componentProps[item.name]?.length ?? 0) > 0;
   const hasQuality = componentQuality[item.name] !== undefined;
@@ -204,6 +219,24 @@ export default async function ComponentPage({ params }: PageProps) {
             {item.a11y ? (
               <li className="rounded-full border border-[var(--hairline)] px-2.5 py-1">
                 Accessibility notes
+              </li>
+            ) : null}
+            {tier ? (
+              <li className="rounded-full border border-[var(--hairline)] px-2.5 py-1">
+                {TIER_LABELS[tier]}
+              </li>
+            ) : null}
+            {looks[0] ? (
+              <li>
+                <Link
+                  href={`/docs/backgrounds#${looks[0].id}`}
+                  className="inline-flex items-center gap-1 rounded-full border border-[var(--hairline-strong)] px-2.5 py-1 text-foreground transition-colors outline-none hover:border-[var(--cosmic-blue)] focus-visible:ring-2 focus-visible:ring-ring/55"
+                >
+                  {looks.length === 1
+                    ? "See it in Backgrounds"
+                    : `${String(looks.length)} looks in Backgrounds`}
+                  <ArrowUpRight aria-hidden="true" className="size-3" />
+                </Link>
               </li>
             ) : null}
           </ul>
