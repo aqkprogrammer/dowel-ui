@@ -1,13 +1,17 @@
 "use client";
 
 import { cn } from "@dowel-ui/react";
-import { Code2, Eye, Layers, SlidersHorizontal } from "lucide-react";
+import { Code2, Eye, Layers, Maximize2, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { Suspense, useRef, useState, ViewTransition, type ReactNode } from "react";
 
+import type { GeneratedControl } from "~/lib/controls.generated";
+import { PROP_PARAM } from "~/lib/playground";
 import type { ProPreviewStory } from "~/lib/pro-previews.generated";
+import type { StoryArgs } from "~/lib/story-types";
 
 import { PartsOverlay, partColour, useParts, type PartSpec } from "./parts-overlay";
+import { PreviewControlsCode, PreviewControlsPanel } from "./preview-controls";
 import { CodePanel } from "./site/code-panel";
 import { CosmicLoader } from "./site/cosmic-loader";
 import { FilterChips } from "./site/filter-chips";
@@ -58,6 +62,11 @@ export interface PreviewProps {
   prerenderedLabel?: string;
   /** Where the playground opens on this component, if it can. */
   playgroundHref?: string;
+  /**
+   * The component's derived controls, from the registry. Given, the toolbar
+   * offers a Controls panel beside the live example.
+   */
+  controls?: readonly GeneratedControl[];
   /** Taller stage, for whole screens. */
   size?: "component" | "block";
   /**
@@ -88,6 +97,7 @@ export function Preview({
   prerendered,
   prerenderedLabel,
   playgroundHref,
+  controls,
   size = "component",
   parts: partSpecs,
   transitionName,
@@ -102,6 +112,8 @@ export function Preview({
   const [partsOn, setPartsOn] = useState(false);
   const [focus, setFocus] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
+  const [controlsOn, setControlsOn] = useState(false);
+  const [overrides, setOverrides] = useState<StoryArgs>({});
   const stage = useRef<HTMLDivElement | null>(null);
   const specs = partSpecs ?? NO_PARTS;
   const showingParts = partsOn && view === "preview" && specs.length > 0;
@@ -109,6 +121,25 @@ export function Preview({
   const lit = focus ?? pinned;
 
   if (stories.length === 0 && !children) return null;
+
+  // Live examples only: a still cannot take props, and children are a page's
+  // own composition.
+  const canControl = !prerendered && !children && (controls?.length ?? 0) > 0;
+  const showingControls = canControl && controlsOn && view === "preview";
+
+  // The playground opens on the same props, so "take this further" keeps what
+  // was set. Its URL reader checks each value against the control again.
+  const playgroundLink = playgroundHref
+    ? `${playgroundHref}${Object.entries(overrides)
+        .flatMap(([prop, value]) =>
+          typeof value === "string" || typeof value === "number"
+            ? [`&${PROP_PARAM}${prop}=${encodeURIComponent(String(value))}`]
+            : typeof value === "boolean"
+              ? [`&${PROP_PARAM}${prop}=${value ? "1" : "0"}`]
+              : [],
+        )
+        .join("")}`
+    : undefined;
 
   const counts = new Map<string, number>();
   for (const part of found) counts.set(part.name, (counts.get(part.name) ?? 0) + 1);
@@ -185,12 +216,35 @@ export function Preview({
           </button>
         ) : null}
 
-        {playgroundHref ? (
-          <Link
-            href={playgroundHref}
-            className="ms-auto inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/55"
+        {canControl && view === "preview" ? (
+          <button
+            type="button"
+            aria-pressed={controlsOn}
+            aria-controls={`${component}-controls`}
+            onClick={() => {
+              setControlsOn((value) => !value);
+            }}
+            className={cn(
+              "ms-auto inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/55",
+              controlsOn
+                ? "bg-[var(--pane-raised)] text-foreground shadow-[inset_0_0_0_1px_var(--hairline-strong)]"
+                : "text-muted-foreground hover:text-foreground",
+            )}
           >
             <SlidersHorizontal aria-hidden="true" className="size-3.5" />
+            Controls
+          </button>
+        ) : null}
+
+        {playgroundLink ? (
+          <Link
+            href={playgroundLink}
+            className={cn(
+              "inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/55",
+              !(canControl && view === "preview") && "ms-auto",
+            )}
+          >
+            <Maximize2 aria-hidden="true" className="size-3.5" />
             Playground
           </Link>
         ) : null}
@@ -250,62 +304,101 @@ export function Preview({
       ) : null}
 
       {view === "preview" ? (
-        <>
-          {/* The surface scrolls its own overflow rather than widening the
+        <div className={cn(showingControls && "grid lg:grid-cols-[minmax(0,1fr)_16rem]")}>
+          <div className="min-w-0">
+            {/* The surface scrolls its own overflow rather than widening the
               page. A block is a full application surface and its intrinsic
               width can exceed the column on a narrow screen. `min-w-min` lets
               the inner grid grow to the content's own width so the scrollbar
               lands here, while still filling — and centring within — the
               column when content is small. */}
-          <div
-            // Reachable by keyboard when a wide block overflows it.
-            tabIndex={0}
-            role="region"
-            aria-label={`${component} preview`}
-            className="stage-surface overflow-x-auto outline-none focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-inset"
-          >
             <div
-              className={cn(
-                "grid min-w-min place-items-center [perspective:2000px]",
-                size === "block" ? "min-h-[28rem] p-4 sm:p-8" : "min-h-[22rem] p-8 sm:p-12",
-                showingParts && "py-10 sm:py-14",
-              )}
+              // Reachable by keyboard when a wide block overflows it.
+              tabIndex={0}
+              role="region"
+              aria-label={`${component} preview`}
+              className="stage-surface overflow-x-auto outline-none focus-visible:ring-2 focus-visible:ring-ring/55 focus-visible:ring-inset"
             >
-              {/* Tilted back in Parts view, so the boxes float above the
-                  screen they were found in. The overlay measures in this
-                  element's own layout, which the tilt does not change. */}
               <div
-                ref={stage}
                 className={cn(
-                  "relative [transform-style:preserve-3d]",
-                  "transition-transform duration-700 ease-[var(--ease-out-quint)]",
-                  showingParts &&
-                    "motion-safe:[transform:rotateX(16deg)_rotateZ(-3deg)_scale(0.92)]",
+                  "grid min-w-min place-items-center [perspective:2000px]",
+                  size === "block" ? "min-h-[28rem] p-4 sm:p-8" : "min-h-[22rem] p-8 sm:p-12",
+                  showingParts && "py-10 sm:py-14",
                 )}
               >
-                {children ??
-                  (still ? (
-                    <Still html={still.html} label={prerenderedLabel ?? component} />
-                  ) : (
-                    // Seen only after a client-side navigation: a page loaded
-                    // directly arrives with the story already rendered. The
-                    // stage's minimum height is what keeps the page from
-                    // moving, so the loader needs no size of its own.
-                    <Suspense fallback={<CosmicLoader size="sm" label="Loading the example" />}>
-                      <StoryPreview component={component} story={story} />
-                    </Suspense>
-                  ))}
-                {showingParts ? <PartsOverlay parts={found} specs={specs} focus={lit} /> : null}
+                {/* Tilted back in Parts view, so the boxes float above the
+                  screen they were found in. The overlay measures in this
+                  element's own layout, which the tilt does not change. */}
+                <div
+                  ref={stage}
+                  className={cn(
+                    "relative [transform-style:preserve-3d]",
+                    "transition-transform duration-700 ease-[var(--ease-out-quint)]",
+                    showingParts &&
+                      "motion-safe:[transform:rotateX(16deg)_rotateZ(-3deg)_scale(0.92)]",
+                  )}
+                >
+                  {children ??
+                    (still ? (
+                      <Still html={still.html} label={prerenderedLabel ?? component} />
+                    ) : (
+                      // Seen only after a client-side navigation: a page loaded
+                      // directly arrives with the story already rendered. The
+                      // stage's minimum height is what keeps the page from
+                      // moving, so the loader needs no size of its own.
+                      <Suspense
+                        fallback={<CosmicLoader size="sm" label="Loading the example" />}
+                      >
+                        <StoryPreview component={component} story={story} args={overrides} />
+                      </Suspense>
+                    ))}
+                  {showingParts ? (
+                    <PartsOverlay parts={found} specs={specs} focus={lit} />
+                  ) : null}
+                </div>
               </div>
             </div>
+            {still ? (
+              <p className="border-t border-[var(--hairline)] px-4 py-2.5 text-xs text-muted-foreground">
+                A still, rendered at build time from the same story the tests run. The block
+                itself is interactive; the copy that runs is the one the CLI installs.
+              </p>
+            ) : null}
+            {canControl && controls ? (
+              <Suspense fallback={null}>
+                <PreviewControlsCode
+                  component={component}
+                  story={story}
+                  derived={controls}
+                  overrides={overrides}
+                />
+              </Suspense>
+            ) : null}
           </div>
-          {still ? (
-            <p className="border-t border-[var(--hairline)] px-4 py-2.5 text-xs text-muted-foreground">
-              A still, rendered at build time from the same story the tests run. The block
-              itself is interactive; the copy that runs is the one the CLI installs.
-            </p>
+          {showingControls && controls ? (
+            <div
+              id={`${component}-controls`}
+              role="group"
+              aria-label={`${component} props`}
+              className="border-t border-[var(--hairline)] lg:border-s lg:border-t-0"
+            >
+              <Suspense fallback={null}>
+                <PreviewControlsPanel
+                  component={component}
+                  story={story}
+                  derived={controls}
+                  overrides={overrides}
+                  onChange={(prop, value) => {
+                    setOverrides((previous) => ({ ...previous, [prop]: value }));
+                  }}
+                  onReset={() => {
+                    setOverrides({});
+                  }}
+                />
+              </Suspense>
+            </div>
           ) : null}
-        </>
+        </div>
       ) : source ? (
         <CodePanel
           code={source}

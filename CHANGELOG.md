@@ -22,6 +22,28 @@ per-package changelogs, whatever an earlier version of this line claimed.
   generated from the same catalogue as the card.
 - **Docs: manual install tabs** on component and block pages, next to the CLI
   command.
+- **Controls on every component page.** A Controls toggle beside the live
+  example sets its props in place and shows the tag as set; the Playground link
+  carries those props with it.
+- **Playground links hold the whole configuration**: component, example, theme,
+  mode, radius and every changed prop. Values read from a link are checked
+  against the control that would have set them — an unknown option is dropped
+  and a number is clamped to its range.
+- **Registry: a `control` on each prop** (select, boolean, number, text or
+  colour), derived from the prop's type with its default, and refined by a new
+  optional `controls` field in `meta.ts` for what a type cannot say (a number's
+  range). The MCP server's `get_component` shows number ranges.
+- **Registry: `capabilities.tier`** — `css`, `motion`, `canvas` or `webgl`, the
+  heaviest technique an item uses counting what it installs with it. Optional in
+  the schema, so registries built before it still parse.
+
+### Fixed
+
+- **Props tables were missing props** a component removes from its element with
+  `Omit` and then declares itself (`BorderBeam`'s `color`, for one): 120 across
+  the library, now listed.
+- The MCP server's `search_components` category hint now lists every category,
+  `effects` included.
 
 ## 0.13.1
 

@@ -146,9 +146,40 @@ export const registryCapabilitiesSchema = z.object({
   client: z.boolean(),
   /** Animates, through CSS keyframes or the `motion` library. */
   animated: z.boolean(),
+  /**
+   * The heaviest rendering technique it uses, counting what it installs with
+   * it: `css`, `motion` (the animation library), `canvas` (2D canvas) or
+   * `webgl`. Optional so a registry built before it still parses.
+   */
+  tier: z.enum(["css", "motion", "canvas", "webgl"]).optional(),
 });
 
 export type RegistryCapabilities = z.infer<typeof registryCapabilitiesSchema>;
+
+/**
+ * How a playground can set a prop, derived from its declared type and refined
+ * by the component's `meta.controls` hints. Absent when the type gives no
+ * honest control (functions, nodes, objects, mixed unions).
+ */
+export const registryPropControlSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("select"),
+    options: z.array(z.union([z.string(), z.number()])).min(1),
+    default: z.union([z.string(), z.number()]).optional(),
+  }),
+  z.object({ kind: z.literal("boolean"), default: z.boolean().optional() }),
+  z.object({
+    kind: z.literal("number"),
+    min: z.number().optional(),
+    max: z.number().optional(),
+    step: z.number().positive().optional(),
+    default: z.number().optional(),
+  }),
+  z.object({ kind: z.literal("text"), default: z.string().optional() }),
+  z.object({ kind: z.literal("color"), default: z.string().optional() }),
+]);
+
+export type RegistryPropControl = z.infer<typeof registryPropControlSchema>;
 
 export const registryPropSchema = z.object({
   name: z.string().min(1),
@@ -157,6 +188,7 @@ export const registryPropSchema = z.object({
   required: z.boolean(),
   default: z.string().optional(),
   description: z.string().optional(),
+  control: registryPropControlSchema.optional(),
 });
 
 /** The props one exported component adds, read from its type. */

@@ -4,7 +4,7 @@ import { use, type ReactNode } from "react";
 
 import { storyLoaders, storyNames } from "~/lib/previews.generated";
 import { StoryRender } from "~/lib/story-render";
-import type { StoryModule } from "~/lib/story-types";
+import type { StoryArgs, StoryModule } from "~/lib/story-types";
 
 /**
  * Renders a Storybook story as a documentation preview.
@@ -26,6 +26,8 @@ export interface StoryPreviewProps {
   story?: string;
   /** Shown when there is no such story — not while one is loading. */
   fallback?: ReactNode;
+  /** Prop values over the story's own, from the page's controls. */
+  args?: StoryArgs;
 }
 
 /**
@@ -88,12 +90,12 @@ export function useStoryModule(component: string): StoryModule | undefined {
   return pending ? use(pending) : undefined;
 }
 
-export function StoryPreview({ component, story, fallback }: StoryPreviewProps) {
+export function StoryPreview({ component, story, fallback, args }: StoryPreviewProps) {
   const storyModule = useStoryModule(component);
   if (!storyModule) return <>{fallback}</>;
 
   const name = story ?? getStoryNames(component)[0];
   if (name === undefined) return <>{fallback}</>;
 
-  return <StoryRender module={storyModule} story={name} fallback={fallback} />;
+  return <StoryRender module={storyModule} story={name} fallback={fallback} args={args} />;
 }

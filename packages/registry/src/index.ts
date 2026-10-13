@@ -74,6 +74,7 @@ export {
   registryItemNameSchema,
   registryItemSchema,
   registryItemTypeSchema,
+  registryPropControlSchema,
   registryPropSchema,
   registryPropsGroupSchema,
   registryQualitySchema,
@@ -87,6 +88,7 @@ export {
   type RegistryIndexEntry,
   type RegistryItem,
   type RegistryItemType,
+  type RegistryPropControl,
   type RegistryPropsGroup,
   type RegistryQuality,
 } from "./schema";

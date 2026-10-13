@@ -29,7 +29,26 @@ export interface PropRow {
   /** From the destructured parameter, or from cva's `defaultVariants`. */
   default?: string;
   description?: string;
+  /** How a playground can set this prop, when its type says so unambiguously. */
+  control?: PropControl;
 }
+
+/**
+ * A playground control for one prop, derived from its declared type.
+ *
+ * Only types that name their own values get one: a union of literals is a
+ * select, `boolean` a switch, `number` a number, `string` a text field (a
+ * colour field when the prop is named for a colour). Functions, nodes, objects
+ * and arrays get none — there is nothing honest to put in a control for them,
+ * and a playground that invents a value for `onChange` is lying about the API.
+ * `default` is the declared default when it is a plain literal.
+ */
+export type PropControl =
+  | { kind: "select"; options: (string | number)[]; default?: string | number }
+  | { kind: "boolean"; default?: boolean }
+  | { kind: "number"; min?: number; max?: number; step?: number; default?: number }
+  | { kind: "text"; default?: string }
+  | { kind: "color"; default?: string };
 
 export interface PropsGroup {
   /** The exported component, e.g. "TokenUsage". */
@@ -141,6 +160,7 @@ function rowsFromCva(config: ts.ObjectLiteralExpression): PropRow[] {
         type: boolean ? "boolean" : options.map((option) => `"${option}"`).join(" | "),
         required: false,
         ...(fallback === undefined ? {} : { default: `"${fallback}"` }),
+        control: boolean ? { kind: "boolean" } : { kind: "select", options },
       },
     ];
   });
@@ -251,9 +271,17 @@ function resolveType(
       const inner = typeArguments?.[0];
       if (!inner) return { props: [], omitted: [] };
       const resolved = resolveType(inner, source, declarations, variants, aliases, seen);
-      return name === "Omit"
-        ? { ...resolved, omitted: [...resolved.omitted, ...omittedKeys(node)] }
-        : resolved;
+      if (name === "Pick") return resolved;
+      // The omission applies to what this `Omit` wraps, and only to that: a
+      // component that omits an element's `color` and declares a `color` of its
+      // own still has one.
+      const keys = omittedKeys(node);
+      const dropped = new Set(keys);
+      return {
+        ...resolved,
+        props: resolved.props.filter((prop) => !dropped.has(prop.name)),
+        omitted: [...resolved.omitted, ...keys],
+      };
     }
 
     if (name === "VariantProps") {
@@ -288,7 +316,7 @@ function resolveType(
   }
 
   if (ts.isTypeLiteralNode(node)) {
-    return { props: membersOf(node.members, source), omitted: [] };
+    return { props: membersOf(node.members, source, declarations), omitted: [] };
   }
 
   return { props: [], omitted: [] };
@@ -297,6 +325,7 @@ function resolveType(
 function membersOf(
   members: ts.NodeArray<ts.TypeElement> | ts.TypeElement[],
   source: ts.SourceFile,
+  declarations: Map<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration>,
 ): PropRow[] {
   return [...members].flatMap((member) => {
     if (!ts.isPropertySignature(member) || !member.name) return [];
@@ -304,15 +333,132 @@ function membersOf(
     if (name === undefined) return [];
 
     const description = docOf(member);
+    const control = member.type
+      ? controlOf(member.type, name, declarations, new Set())
+      : undefined;
     return [
       {
         name,
         type: member.type ? flatten(member.type.getText(source)) : "unknown",
         required: member.questionToken === undefined,
         ...(description === undefined ? {} : { description }),
+        ...(control === undefined ? {} : { control }),
       },
     ];
   });
+}
+
+/** Props named for a colour take a colour field rather than plain text. */
+const COLOUR_PROP = /colou?r$/i;
+
+/**
+ * The control a declared type implies, if it implies exactly one.
+ *
+ * Local aliases are followed (`type Origin = "top" | "center"`), and
+ * `| undefined` / `| null` are ignored — an optional prop is still a select.
+ * Anything mixed (`"auto" | number`) gets nothing rather than a guess.
+ */
+function controlOf(
+  node: ts.TypeNode,
+  name: string,
+  declarations: Map<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration>,
+  seen: Set<string>,
+): PropControl | undefined {
+  if (ts.isParenthesizedTypeNode(node)) return controlOf(node.type, name, declarations, seen);
+
+  if (ts.isUnionTypeNode(node)) {
+    const members = node.types.filter(
+      (member) =>
+        member.kind !== ts.SyntaxKind.UndefinedKeyword &&
+        !(ts.isLiteralTypeNode(member) && member.literal.kind === ts.SyntaxKind.NullKeyword),
+    );
+    if (members.length === 1 && members[0]) {
+      return controlOf(members[0], name, declarations, seen);
+    }
+    const literals = members.map(literalOf);
+    if (literals.every((value) => typeof value === "boolean")) return { kind: "boolean" };
+    if (literals.every((value) => typeof value === "string")) {
+      return { kind: "select", options: literals };
+    }
+    if (literals.every((value) => typeof value === "number")) {
+      return { kind: "select", options: literals };
+    }
+    return undefined;
+  }
+
+  switch (node.kind) {
+    case ts.SyntaxKind.BooleanKeyword:
+      return { kind: "boolean" };
+    case ts.SyntaxKind.NumberKeyword:
+      return { kind: "number" };
+    case ts.SyntaxKind.StringKeyword:
+      return COLOUR_PROP.test(name) ? { kind: "color" } : { kind: "text" };
+    default:
+      break;
+  }
+
+  if (ts.isTypeReferenceNode(node) && ts.isIdentifier(node.typeName)) {
+    const alias = declarations.get(node.typeName.text);
+    if (alias && ts.isTypeAliasDeclaration(alias) && !seen.has(alias.name.text)) {
+      seen.add(alias.name.text);
+      return controlOf(alias.type, name, declarations, seen);
+    }
+  }
+
+  return undefined;
+}
+
+/** The value a literal type names: `"a"`, `3`, `-1`, `true`. */
+function literalOf(node: ts.TypeNode): string | number | boolean | undefined {
+  if (node.kind === ts.SyntaxKind.BooleanKeyword) return true;
+  if (!ts.isLiteralTypeNode(node)) return undefined;
+  const { literal } = node;
+  if (ts.isStringLiteral(literal)) return literal.text;
+  if (ts.isNumericLiteral(literal)) return Number(literal.text);
+  if (
+    ts.isPrefixUnaryExpression(literal) &&
+    literal.operator === ts.SyntaxKind.MinusToken &&
+    ts.isNumericLiteral(literal.operand)
+  ) {
+    return -Number(literal.operand.text);
+  }
+  if (literal.kind === ts.SyntaxKind.TrueKeyword) return true;
+  if (literal.kind === ts.SyntaxKind.FalseKeyword) return false;
+  return undefined;
+}
+
+/**
+ * A default written as a plain literal, as the value it is — `"md"`, `0.85`,
+ * `true`. Expressions (`DEFAULT_PALETTE`, `Math.PI / 2`) are left as text in
+ * the table and give the control no default.
+ */
+export function parseDefault(text: string): string | number | boolean | undefined {
+  if (text === "true") return true;
+  if (text === "false") return false;
+  if (/^-?\d+(\.\d+)?$/.test(text)) return Number(text);
+  const quoted = /^"([^"\\]*)"$/.exec(text) ?? /^'([^'\\]*)'$/.exec(text);
+  return quoted ? quoted[1] : undefined;
+}
+
+/** A control with the prop's default attached, when the default fits the control. */
+function withDefault(control: PropControl, text: string | undefined): PropControl {
+  if (text === undefined) return control;
+  const value = parseDefault(text);
+  if (value === undefined) return control;
+  switch (control.kind) {
+    case "boolean":
+      return typeof value === "boolean" ? { ...control, default: value } : control;
+    case "number":
+      return typeof value === "number" ? { ...control, default: value } : control;
+    case "select":
+      return (typeof value === "string" || typeof value === "number") &&
+        control.options.includes(value)
+        ? { ...control, default: value }
+        : control;
+    case "text":
+    case "color":
+      return typeof value === "string" ? { ...control, default: value } : control;
+  }
 }
 
 function resolveDeclaration(
@@ -336,7 +482,7 @@ function resolveDeclaration(
   return {
     props: [
       ...inherited.flatMap((entry) => entry.props),
-      ...membersOf(declaration.members, source),
+      ...membersOf(declaration.members, source, declarations),
     ],
     element: inherited.find((entry) => entry.element)?.element,
     forwards: inherited.find((entry) => entry.forwards)?.forwards,
@@ -446,10 +592,15 @@ export function extractProps(file: string): PropsGroup[] {
     const NOISE = new Set(["className", "children", "asChild"]);
 
     const props = resolved.props
-      .filter((prop) => !omitted.has(prop.name))
       .map((prop) => {
         const fallback = defaults.get(prop.name) ?? prop.default;
-        return { ...prop, ...(fallback === undefined ? {} : { default: fallback }) };
+        return {
+          ...prop,
+          ...(fallback === undefined ? {} : { default: fallback }),
+          ...(prop.control === undefined
+            ? {}
+            : { control: withDefault(prop.control, fallback) }),
+        };
       })
       // A prop redeclared by a subtype wins; the later declaration is the
       // narrower one, which is what the component actually accepts.
@@ -480,4 +631,77 @@ export function extractProps(file: string): PropsGroup[] {
   }
 
   return groups;
+}
+
+/** What a prop's type cannot say about its control — see `ControlHint` in the ui schema. */
+export interface ControlHintInput {
+  min?: number;
+  max?: number;
+  step?: number;
+  kind?: "color" | "text";
+  hidden?: boolean;
+}
+
+/**
+ * Applies a component's hand-written hints to its derived controls.
+ *
+ * A hint names a prop, and applies to that prop in every exported part that
+ * has it. A hint that names no prop at all throws: it is a typo, or a prop
+ * that was renamed, and either way the control it describes no longer exists.
+ */
+export function applyControlHints(
+  groups: PropsGroup[],
+  hints: Record<string, ControlHintInput> | undefined,
+  item: string,
+): PropsGroup[] {
+  if (!hints) return groups;
+  const known = new Set(groups.flatMap((group) => group.props.map((prop) => prop.name)));
+  const unknown = Object.keys(hints).filter((name) => !known.has(name));
+  if (unknown.length > 0) {
+    throw new Error(
+      `${item}: meta.controls names ${unknown.map((name) => `"${name}"`).join(", ")}, which no exported component of it accepts.`,
+    );
+  }
+
+  return groups.map((group) => ({
+    ...group,
+    props: group.props.map((prop) => {
+      const hint = hints[prop.name];
+      if (!hint) return prop;
+      const control = hinted(prop.control, hint, `${item}: ${prop.name}`);
+      const row: PropRow = { ...prop };
+      delete row.control;
+      return control === undefined ? row : { ...row, control };
+    }),
+  }));
+}
+
+function hinted(
+  control: PropControl | undefined,
+  hint: ControlHintInput,
+  where: string,
+): PropControl | undefined {
+  if (hint.hidden) return undefined;
+
+  if (hint.kind) {
+    const fallback =
+      control && "default" in control && typeof control.default === "string"
+        ? control.default
+        : undefined;
+    return { kind: hint.kind, ...(fallback === undefined ? {} : { default: fallback }) };
+  }
+
+  const range = {
+    ...(hint.min === undefined ? {} : { min: hint.min }),
+    ...(hint.max === undefined ? {} : { max: hint.max }),
+    ...(hint.step === undefined ? {} : { step: hint.step }),
+  };
+  if (Object.keys(range).length === 0) return control;
+  if (control === undefined) return { kind: "number", ...range };
+  if (control.kind !== "number") {
+    throw new Error(
+      `${where}: a range hint was given for a ${control.kind} control; ranges are for numbers.`,
+    );
+  }
+  return { ...control, ...range };
 }

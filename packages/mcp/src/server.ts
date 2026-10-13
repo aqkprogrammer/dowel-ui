@@ -6,6 +6,7 @@ import {
   componentsDoc,
   conventionsDoc,
   planUi,
+  REGISTRY_CATEGORIES,
   registryItemNameSchema,
   renderBrief,
   renderPlan,
@@ -125,9 +126,38 @@ function genomeLines(entry: RegistryIndexEntry): string[] {
         "Animates. Motion follows the theme's --motion-scale, which reduced motion collapses.",
       );
     }
+    if (capabilities.tier && capabilities.tier !== "css") {
+      lines.push(TIER_NOTES[capabilities.tier]);
+    }
     lines.push("");
   }
   return lines;
+}
+
+/** What each rendering tier above plain CSS asks of the project that installs it. */
+const TIER_NOTES = {
+  motion: "Tier: motion — installs the `motion` animation library.",
+  canvas:
+    "Tier: canvas — draws in a 2D canvas, paused off-screen and in hidden tabs; keep text off its busiest part.",
+  webgl:
+    "Tier: WebGL — needs a GPU context and falls back without one; prefer one per page, and not on low-power views.",
+} as const;
+
+/** How a playground could set a prop, in a few words. */
+function controlNote(
+  control: NonNullable<RegistryItem["props"]>[number]["props"][number]["control"],
+): string {
+  if (!control) return "";
+  switch (control.kind) {
+    case "number":
+      return control.min !== undefined && control.max !== undefined
+        ? ` [${String(control.min)}–${String(control.max)}]`
+        : "";
+    case "color":
+      return " [colour]";
+    default:
+      return "";
+  }
 }
 
 /** Each exported component's own props, read from its type by the registry build. */
@@ -141,7 +171,9 @@ function propsLines(item: RegistryItem): string[] {
       const required = prop.required ? " (required)" : "";
       const fallback = prop.default === undefined ? "" : ` = ${prop.default}`;
       const about = prop.description ? ` — ${prop.description}` : "";
-      lines.push(`- \`${prop.name}\`: \`${prop.type}\`${required}${fallback}${about}`);
+      lines.push(
+        `- \`${prop.name}\`: \`${prop.type}\`${controlNote(prop.control)}${required}${fallback}${about}`,
+      );
     }
     if (group.element) {
       const omitted = group.omitted.length > 0 ? ` except ${group.omitted.join(", ")}` : "";
@@ -314,9 +346,7 @@ export function createServer(options: ServerOptions): McpServer {
         category: z
           .string()
           .optional()
-          .describe(
-            "Restrict to one category: ai, form, overlay, data, feedback, navigation, display, layout, foundation",
-          ),
+          .describe(`Restrict to one category: ${REGISTRY_CATEGORIES.join(", ")}`),
         kind: z
           .enum(["component", "block", "any"])
           .optional()

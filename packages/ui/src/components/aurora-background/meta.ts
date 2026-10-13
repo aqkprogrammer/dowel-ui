@@ -27,5 +27,10 @@ export const meta = defineMeta({
     ],
     alternatives: ["gradient-background", "bubble-background", "cosmic-background"],
   },
+  controls: {
+    intensity: { min: 0, max: 1, step: 0.05 },
+    speed: { min: 0, max: 4, step: 0.25 },
+    blur: { min: 0, max: 120, step: 4 },
+  },
   composesWith: ["text-effect", "shimmer-text", "border-beam"],
 });

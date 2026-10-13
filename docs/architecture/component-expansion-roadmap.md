@@ -1,6 +1,6 @@
 # Component ecosystem expansion — audit and roadmap
 
-**Status:** Phase 0 done; Batch 1 built and verified, not yet committed (2026-10-12)
+**Status:** Batches 0–1 committed; Batch 2 built and verified, not yet committed (2026-10-13)
 **Branch:** `feat/ecosystem-expansion`
 **Supersedes nothing.** `docs/plans/component-expansion.md` (the motion catalogue,
 done in 0.12) and ADR 0014 stay in force; this document is what comes after
@@ -418,16 +418,32 @@ Lessons from Batch 1, carried forward:
 
 ### Batch 2 — infrastructure the rest depends on
 
-- [ ] `ControlHint` + `meta.controls`; derived `props[].control`; unit tests for
-      `props.ts` (none today)
-- [ ] derived `capabilities.tier` and `capabilities.reducedMotion`
-- [ ] `use-reduced-motion` and `use-in-view` as `registry:hook` items
-- [ ] playground: URL state for all values, number ranges, text/colour kinds
-- [ ] Controls tab on component pages
-- [ ] MCP: `effects` in the category hint, planner synonyms in search
+- [x] `ControlHint` + `meta.controls`; derived `props[].control` (select, boolean,
+      number, text, colour) with structured defaults; unit tests for `props.ts`.
+      233 of 248 components have at least one control, 1,464 of 2,217 props.
+- [x] Fixed on the way: a prop removed from the element with `Omit` and
+      redeclared by the component was dropped from its props table — 120 props
+      were missing across the library.
+- [x] derived `capabilities.tier` (css / motion / canvas / webgl), inherited
+      through `registryDependencies`: 193 / 33 / 19 / 3.
+- [ ] `capabilities.reducedMotion` — not derivable honestly from source yet;
+      left out rather than guessed.
+- [x] playground: controls from the registry (the separate cva pass is
+      retired), argType ranges honoured, number / text / colour fields, every
+      setting in the URL and validated on the way back in, code for composed
+      examples.
+- [x] Controls panel on every component page, carried into the playground link.
+- [x] MCP: every category in the search hint; tier and control ranges in
+      `get_component`.
+- [ ] Moved to Batch 3: `use-reduced-motion` and `use-in-view` as
+      `registry:hook` items. The CLI already installs `hooks/`, but the meta
+      checks, build and install smoke test need extending, and they should land
+      with their first consumer (the carousel) rather than with none.
 
 ### Batch 3 — core gaps
 
+- [ ] `use-reduced-motion` and `use-in-view` as `registry:hook` items (from
+      Batch 2), first used by the carousel
 - [ ] `carousel` (basic, Embla-free: scroll-snap + buttons + dots + keyboard;
       autoplay opt-in, pauses on hover/focus/off-screen, pause control)
 - [ ] `comparison-slider` (before/after, keyboard operable slider role)
@@ -441,9 +457,9 @@ Lessons from Batch 1, carried forward:
 - [ ] `pattern-background` (dots, grid, stripes, noise, grain)
 - [ ] `interactive-grid` (pointer-reactive cells, canvas)
 - [ ] `light-beams`, `mesh-gradient`, `flow-field`
-- [ ] `shader-background` (raw WebGL presets on the shader-transition engine)
+- [x] `shader-background` (raw WebGL, fourteen scenes; landed early, 2b30e09)
 - [ ] fix the perf items in section 9 for the existing backgrounds
-- [ ] docs: a Background Studio page (one stage, switch background, controls)
+- [x] docs: a backgrounds page (`/docs/backgrounds`, 2b30e09)
 
 ### Batch 5 — scroll and cursor
 
@@ -477,7 +493,9 @@ Lessons from Batch 1, carried forward:
 
 ### Progress
 
-| Batch                          | Status            | Commit |
-| ------------------------------ | ----------------- | ------ |
-| 0 Audit (this document)        | done              | —      |
-| 1 Brand + border beam + aurora | done, uncommitted | —      |
+| Batch                                        | Status            | Commit  |
+| -------------------------------------------- | ----------------- | ------- |
+| 0 Audit (this document)                      | done              | —       |
+| 1 Brand + border beam + aurora               | done              | 661ecda |
+| 4 (part) shader-background, backgrounds page | done              | 2b30e09 |
+| 2 Infrastructure                             | done, uncommitted | —       |

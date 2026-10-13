@@ -88,10 +88,37 @@ export interface ComponentMeta {
     /** What to use instead, when there is one. */
     replacement?: string;
   };
+  /**
+   * Playground hints for props whose control cannot be read from their type:
+   * a number's range, a string that is really a colour, a prop to leave out.
+   * Keyed by prop name; the registry build fails if a key names no prop.
+   */
+  controls?: Record<string, ControlHint>;
   /** The version it first shipped in. */
   since?: string;
   /** Who maintains it. */
   owner?: string;
+}
+
+/**
+ * What a prop's type cannot say about how to set it.
+ *
+ * The registry derives a control for every prop whose type names its values —
+ * a union of literals, `boolean`, `number`, `string`. A hint only adds what the
+ * type leaves open: `number` has no range, so without `min` and `max` a
+ * playground can offer a number field but not a slider.
+ */
+export interface ControlHint {
+  /** Lower bound for a number. With `max`, the playground shows a slider. */
+  min?: number;
+  /** Upper bound for a number. */
+  max?: number;
+  /** Increment for a number. */
+  step?: number;
+  /** Overrides the derived kind — a `string` prop that takes a colour, say. */
+  kind?: "color" | "text";
+  /** Leave this prop out of the playground. */
+  hidden?: boolean;
 }
 
 export interface ComponentGuidance {

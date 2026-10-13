@@ -28,5 +28,12 @@ export const meta = defineMeta({
     ],
     alternatives: ["stars-background", "gravity-stars-background", "aurora-background"],
   },
+  controls: {
+    orbits: { min: 0, max: 3, step: 1 },
+    density: { min: 0, max: 4, step: 0.25 },
+    speed: { min: 0, max: 4, step: 0.25 },
+    glow: { min: 0, max: 1, step: 0.05 },
+    seed: { min: 1, max: 99, step: 1 },
+  },
   composesWith: ["border-beam", "shimmer-text", "text-effect"],
 });

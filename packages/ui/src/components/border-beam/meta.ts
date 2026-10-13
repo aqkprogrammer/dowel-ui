@@ -27,5 +27,12 @@ export const meta = defineMeta({
     ],
     alternatives: ["glow-card", "effect-button", "shimmer-text"],
   },
+  controls: {
+    duration: { min: 1000, max: 15000, step: 500 },
+    delay: { min: -6000, max: 6000, step: 250 },
+    length: { min: 0.05, max: 1, step: 0.05 },
+    thickness: { min: 1, max: 4, step: 0.5 },
+    colorTo: { kind: "color" },
+  },
   composesWith: ["button", "card", "glow-card"],
 });

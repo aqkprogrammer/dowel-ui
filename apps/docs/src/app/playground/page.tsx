@@ -38,7 +38,7 @@ export default function PlaygroundPage() {
         title="Turn every knob. Copy the code."
         cosmic="ambient"
         seed={31}
-        description="Every control is read from the component itself — its variants from the same definition that generates its classes, its examples from the stories that run in CI. Nothing here can offer a value the component does not implement."
+        description="Every control is read from the component itself — each prop's own type, its examples from the stories that run in CI. Nothing here can offer a value the component does not accept, and the address bar always holds a link to exactly what you see."
       />
 
       {/* useSearchParams needs a boundary, and the shell above it is worth

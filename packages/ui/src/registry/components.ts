@@ -515,4 +515,4 @@ export const componentMetas: ComponentMeta[] = [
 // re-exported here — the registry build reads both through one import.
 export { blockMetas } from "./blocks";
 export { COMPONENT_CATEGORIES, COMPONENT_STATUSES } from "./schema";
-export type { ComponentCategory, ComponentMeta, ComponentStatus } from "./schema";
+export type { ComponentCategory, ComponentMeta, ComponentStatus, ControlHint } from "./schema";

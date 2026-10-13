@@ -13,7 +13,7 @@ import { CodePanel } from "../site/code-panel";
  * The playground, in miniature, on the home page.
  *
  * Real: the button is the library's, the options are the ones its `cva()`
- * call declares (handed down from the generated variant table on the server),
+ * call declares (handed down from the registry's generated controls on the server),
  * and the code is written the way the full playground writes it — a prop left
  * at its default is left out. It is the full playground's idea at the size of
  * one component, with a link to the rest.

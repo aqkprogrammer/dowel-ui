@@ -22,16 +22,19 @@ export function StoryRender({
   module: storyModule,
   story,
   fallback,
+  args: overrides,
 }: {
   module: StoryModule;
   story: string;
   fallback?: ReactNode;
+  /** Prop values set from the page's controls, over the story's own. */
+  args?: StoryArgs;
 }) {
   const resolved = asStory(storyModule[story]);
   const meta = asStoryMeta(storyModule.default);
   if (!resolved || !meta) return <>{fallback}</>;
 
-  const args: StoryArgs = { ...meta.args, ...resolved.args };
+  const args: StoryArgs = { ...meta.args, ...resolved.args, ...overrides };
 
   // Rendered as a component, not called as a function: stories use hooks, and
   // invoking them directly would break the rules of hooks.

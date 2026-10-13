@@ -9,6 +9,7 @@ import { InstallTabs } from "~/components/install-tabs";
 import { JsonLd } from "~/components/json-ld";
 import { LicensedNotice } from "~/components/licensed-notice";
 import { Preview } from "~/components/preview";
+import { componentControls } from "~/lib/controls.generated";
 import { PropsTable } from "~/components/props-table";
 import { QualityChecks } from "~/components/quality-checks";
 import { CodePanel } from "~/components/site/code-panel";
@@ -214,6 +215,7 @@ export default async function ComponentPage({ params }: PageProps) {
           source={source}
           sourceTitle={mainPath ? `components/${mainPath}` : undefined}
           playgroundHref={licensed ? undefined : `/playground?c=${item.name}`}
+          controls={licensed ? undefined : componentControls[item.name]}
         />
 
         <div className="mt-16">

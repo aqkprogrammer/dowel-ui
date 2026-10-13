@@ -4,7 +4,13 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { blockMetas, componentMetas, type ComponentMeta } from "@dowel-ui/react/registry";
 
-import { assess, capabilitiesOf, extractProps } from "./analysis";
+import {
+  applyControlHints,
+  assess,
+  capabilitiesOf,
+  extractProps,
+  resolveTiers,
+} from "./analysis";
 import { hashContent } from "./hash";
 import { z } from "zod";
 
@@ -61,7 +67,7 @@ function buildSourceItem(meta: ComponentMeta): RegistryItem {
   // The genome: what the source says about the item, read from it here so no
   // consumer has to read the source again, and none can disagree about it.
   const mainFile = join(sourceDir, `${meta.name}.tsx`);
-  const props = extractProps(mainFile);
+  const props = applyControlHints(extractProps(mainFile), meta.controls, meta.name);
   const quality = assess(sourceDir, meta.name, meta.a11y);
 
   return registryItemSchema.parse({
@@ -157,12 +163,24 @@ function buildThemeItem(): RegistryItem {
 }
 
 export function buildRegistry(): RegistryItem[] {
-  return [
+  const items = [
     buildUtilsItem(),
     buildThemeItem(),
     ...componentMetas.map(buildSourceItem),
     ...blockMetas.map(buildSourceItem),
   ];
+
+  // Each item's tier counts what it installs with it, so it is settled once
+  // every item's own tier is known.
+  const tiers = resolveTiers(
+    new Map(items.map((item) => [item.name, item.capabilities?.tier ?? "css"])),
+    new Map(items.map((item) => [item.name, item.registryDependencies])),
+  );
+  return items.map((item) =>
+    item.capabilities
+      ? { ...item, capabilities: { ...item.capabilities, tier: tiers.get(item.name) ?? "css" } }
+      : item,
+  );
 }
 
 /** Items whose source anyone may fetch. */

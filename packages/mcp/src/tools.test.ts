@@ -287,6 +287,17 @@ describe("get_component", () => {
     expect(text).not.toContain("**Pro**");
   });
 
+  it("names a component's rendering tier and each number control's range", async () => {
+    const { text } = await call("get_component", { name: "cosmic-background" });
+    expect(text).toContain("Tier: canvas");
+    expect(text).toMatch(/- `orbits`: `number` \[0–3\]/);
+    expect(text).toMatch(/- `starColor`: `string` \[colour\]/);
+
+    // Plain CSS components say nothing about tiers.
+    const { text: button } = await call("get_component", { name: "button" });
+    expect(button).not.toContain("Tier:");
+  });
+
   it("includes the full source when asked", async () => {
     const item = registryItemSchema.parse(
       JSON.parse(readFileSync(join(LOCAL_REGISTRY, "button.json"), "utf8")),
