@@ -244,6 +244,9 @@ import { meta as holeBackgroundMeta } from "@/components/hole-background/meta";
 import { meta as bubbleBackgroundMeta } from "@/components/bubble-background/meta";
 import { meta as gradientBackgroundMeta } from "@/components/gradient-background/meta";
 import { meta as hexagonBackgroundMeta } from "@/components/hexagon-background/meta";
+import { meta as cosmicBackgroundMeta } from "@/components/cosmic-background/meta";
+import { meta as borderBeamMeta } from "@/components/border-beam/meta";
+import { meta as auroraBackgroundMeta } from "@/components/aurora-background/meta";
 
 /**
  * Every component in the registry.
@@ -501,6 +504,9 @@ export const componentMetas: ComponentMeta[] = [
   bubbleBackgroundMeta,
   gradientBackgroundMeta,
   hexagonBackgroundMeta,
+  cosmicBackgroundMeta,
+  borderBeamMeta,
+  auroraBackgroundMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is

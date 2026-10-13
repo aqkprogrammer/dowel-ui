@@ -242,6 +242,9 @@ export * from "./components/hole-background";
 export * from "./components/bubble-background";
 export * from "./components/gradient-background";
 export * from "./components/hexagon-background";
+export * from "./components/cosmic-background";
+export * from "./components/border-beam";
+export * from "./components/aurora-background";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";
