@@ -86,6 +86,11 @@ per-package changelogs, whatever an earlier version of this line claimed.
   `workflow-graph` lays out a pipeline in layers, each step stating its
   status; `model-comparison` compares models in a table that marks the best
   of each row in words.
+- **Blocks:** `changelog`, `contact`, `careers`, `integrations`, `api-keys`
+  (each new key shown once, revoking confirmed), `site-header` (desktop menus
+  and the mobile list from one list of links), and two heroes over the new
+  backgrounds, `hero-light-beams` and `hero-flow-field`. Search finds them by
+  everyday words — "release notes", "jobs", "mega menu", "api keys".
 
 ### Fixed
 

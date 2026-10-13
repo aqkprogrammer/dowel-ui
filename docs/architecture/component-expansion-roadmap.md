@@ -1,6 +1,6 @@
 # Component ecosystem expansion — audit and roadmap
 
-**Status:** Batches 0–6 and 7a committed (2026-10-13); Batch 7b (blocks) next
+**Status:** Batches 0–7 committed (2026-10-13); Batch 8 (3D) next
 **Branch:** `feat/ecosystem-expansion`
 **Supersedes nothing.** `docs/plans/component-expansion.md` (the motion catalogue,
 done in 0.12) and ADR 0014 stay in force; this document is what comes after
@@ -541,8 +541,21 @@ Lessons from Batch 1, carried forward:
 
 7b — blocks:
 
-- [ ] changelog, contact, integrations, careers, API keys, navbar sections,
-      background-led heroes using Batch 4
+- [x] `changelog` — releases as dated articles, changes marked in words,
+      filterable by kind
+- [x] `contact` — details beside a form that checks on submit, focuses the
+      first problem, sends and confirms (focus on the confirmation)
+- [x] `integrations` — searchable, filterable cards with a switch named by
+      each service; a rejected change puts the switch back
+- [x] `careers` — roles grouped by team, each one link named by its title;
+      search, team filter, and an empty state that tells "no match" from
+      "no openings"
+- [x] `api-keys` — table, create with name and permissions, the key shown
+      once (secret-field), revoke behind a destructive confirmation
+- [x] `site-header` — one list drives the desktop menus (with a featured
+      card) and the grouped mobile menu; a "Headers" group in the docs
+- [x] `hero-light-beams` and `hero-flow-field` — the Batch 4 backgrounds
+      behind a centred and a developer hero
 
 ### Batch 8 — 3D
 
@@ -569,4 +582,5 @@ Lessons from Batch 1, carried forward:
 | 4 Backgrounds                                | done   | f1dd6e5 |
 | 5 Scroll and cursor effects                  | done   | 868eb5d |
 | 6 Typography and buttons                     | done   | 05d5a8b |
-| 7a Navigation and AI components              | done   | —       |
+| 7a Navigation and AI components              | done   | e5bfba1 |
+| 7b Blocks                                    | done   | —       |

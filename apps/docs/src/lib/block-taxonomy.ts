@@ -54,6 +54,11 @@ export const BLOCK_GROUPS: BlockGroup[] = [
     blurb: "Plan tables with billing-period switches.",
   },
   {
+    id: "headers",
+    label: "Headers",
+    blurb: "Site headers with menus, a mobile list and a skip link.",
+  },
+  {
     id: "footers",
     label: "Footers",
     blurb: "From one row to a full mega footer with a newsletter.",
@@ -78,6 +83,12 @@ const BY_NAME: Record<string, string> = {
   signup: "auth",
   "forgot-password": "auth",
   pricing: "pricing",
+  "site-header": "headers",
+  "api-keys": "saas",
+  integrations: "saas",
+  contact: "sections",
+  changelog: "sections",
+  careers: "sections",
 };
 
 const BY_PREFIX: [string, string][] = [
