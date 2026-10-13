@@ -61,6 +61,13 @@ per-package changelogs, whatever an earlier version of this line claimed.
   deep-linked to the look, and component pages say how a component draws when
   it is more than CSS ("Draws on a canvas", "Renders with WebGL").
 
+- **Scroll effects:** `scroll-reveal` (seven effects, staggered children, and
+  content that is never hidden unless it will be revealed), `parallax`,
+  `stacking-cards` and `horizontal-scroll` (pinned, driven by the page's own
+  scroll, a plain scroller without JavaScript or under reduced motion).
+- **Cursor effects:** `image-trail` and `cursor-spotlight`, scoped to their
+  box, leaving the system cursor alone, and off for touch and reduced motion.
+
 ### Fixed
 
 - **Props tables were missing props** a component removes from its element with

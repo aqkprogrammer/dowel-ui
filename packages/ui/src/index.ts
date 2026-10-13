@@ -255,6 +255,12 @@ export * from "./components/pattern-background";
 export * from "./components/interactive-grid";
 export * from "./components/light-beams";
 export * from "./components/flow-field";
+export * from "./components/scroll-reveal";
+export * from "./components/parallax";
+export * from "./components/stacking-cards";
+export * from "./components/horizontal-scroll";
+export * from "./components/image-trail";
+export * from "./components/cursor-spotlight";
 
 export * from "./hooks/use-reduced-motion";
 export * from "./hooks/use-in-view";

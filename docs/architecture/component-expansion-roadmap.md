@@ -1,6 +1,6 @@
 # Component ecosystem expansion — audit and roadmap
 
-**Status:** Batches 0–4 committed (2026-10-13); Batch 5 next
+**Status:** Batches 0–5 committed (2026-10-13); Batch 6 next
 **Branch:** `feat/ecosystem-expansion`
 **Supersedes nothing.** `docs/plans/component-expansion.md` (the motion catalogue,
 done in 0.12) and ADR 0014 stay in force; this document is what comes after
@@ -484,8 +484,20 @@ Lessons from Batch 1, carried forward:
 
 ### Batch 5 — scroll and cursor
 
-- [ ] `scroll-reveal`, `parallax`, `stacking-cards`, `horizontal-scroll`
-- [ ] `image-trail`, `cursor-spotlight`
+- [x] `scroll-reveal` — seven effects and a stagger; never hides what it cannot
+      reveal (visible on the server, untouched if on screen at load, nothing
+      hidden without an observer or under reduced motion)
+- [x] `parallax` — lags or leads the scroll from the viewport's middle; one
+      transform a frame, only near the screen
+- [x] `stacking-cards` — sticky stacking in CSS, covered cards ease back; scroll
+      margins keep focused content clear of the stack
+- [x] `horizontal-scroll` — pins and slides on the page's own scroll; a plain
+      scroller without JavaScript or under reduced motion; focus scrolls the
+      page to the item
+- [x] `image-trail` — a reused pool of images along the pointer path, scoped,
+      off for touch and reduced motion
+- [x] `cursor-spotlight` — a glow or a reveal around the pointer, absent until
+      the pointer is inside
 
 ### Batch 6 — typography and buttons
 
