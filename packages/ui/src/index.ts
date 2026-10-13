@@ -245,6 +245,7 @@ export * from "./components/hexagon-background";
 export * from "./components/cosmic-background";
 export * from "./components/border-beam";
 export * from "./components/aurora-background";
+export * from "./components/shader-background";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";

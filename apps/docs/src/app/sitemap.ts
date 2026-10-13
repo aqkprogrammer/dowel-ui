@@ -30,6 +30,7 @@ const STATIC_ROUTES: {
   { path: "/docs", priority: 0.9, changeFrequency: "weekly" },
   { path: "/docs/components", priority: 0.9, changeFrequency: "weekly" },
   { path: "/docs/blocks", priority: 0.9, changeFrequency: "weekly" },
+  { path: "/docs/backgrounds", priority: 0.8, changeFrequency: "weekly" },
   { path: "/docs/installation", priority: 0.8, changeFrequency: "monthly" },
   { path: "/docs/cli", priority: 0.7, changeFrequency: "monthly" },
   { path: "/docs/themes", priority: 0.7, changeFrequency: "monthly" },

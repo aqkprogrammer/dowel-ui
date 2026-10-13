@@ -24,6 +24,7 @@ export const PRIMARY_NAV: NavLink[] = [
   { title: "Docs", href: "/docs" },
   { title: "Components", href: "/docs/components" },
   { title: "Blocks", href: "/docs/blocks" },
+  { title: "Backgrounds", href: "/docs/backgrounds" },
   { title: "Playground", href: "/playground" },
   { title: "Generate", href: "/generate" },
   { title: "Themes", href: "/docs/themes" },
@@ -40,6 +41,7 @@ export const PRIMARY_NAV: NavLink[] = [
 export function primaryFor(pathname: string): string | undefined {
   if (pathname.startsWith("/docs/components")) return "/docs/components";
   if (pathname.startsWith("/docs/blocks")) return "/docs/blocks";
+  if (pathname.startsWith("/docs/backgrounds")) return "/docs/backgrounds";
   if (pathname.startsWith("/docs/themes") || pathname.startsWith("/theme-studio")) {
     return "/docs/themes";
   }
@@ -111,6 +113,11 @@ export const TOOLS: NavSection = {
       href: "/theme-studio",
       description: "Build a preset from one colour, contrast-checked",
     },
+    {
+      title: "Backgrounds",
+      href: "/docs/backgrounds",
+      description: "Animated page backgrounds, each with a prompt for your AI agent",
+    },
     { title: "Quality", href: "/quality", description: "Per-component quality scores" },
     {
       title: "AgentBench",
@@ -126,6 +133,7 @@ export const FOOTER_NAV: NavSection[] = [
     items: [
       { title: "Components", href: "/docs/components" },
       { title: "Blocks", href: "/docs/blocks" },
+      { title: "Backgrounds", href: "/docs/backgrounds" },
       { title: "Playground", href: "/playground" },
       { title: "Themes", href: "/docs/themes" },
       { title: "Pricing", href: "/pricing" },

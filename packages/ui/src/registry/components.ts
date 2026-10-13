@@ -247,6 +247,7 @@ import { meta as hexagonBackgroundMeta } from "@/components/hexagon-background/m
 import { meta as cosmicBackgroundMeta } from "@/components/cosmic-background/meta";
 import { meta as borderBeamMeta } from "@/components/border-beam/meta";
 import { meta as auroraBackgroundMeta } from "@/components/aurora-background/meta";
+import { meta as shaderBackgroundMeta } from "@/components/shader-background/meta";
 
 /**
  * Every component in the registry.
@@ -507,6 +508,7 @@ export const componentMetas: ComponentMeta[] = [
   cosmicBackgroundMeta,
   borderBeamMeta,
   auroraBackgroundMeta,
+  shaderBackgroundMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block barrel is
