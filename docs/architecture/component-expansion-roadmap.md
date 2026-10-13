@@ -1,6 +1,6 @@
 # Component ecosystem expansion — audit and roadmap
 
-**Status:** Batches 0–5 committed (2026-10-13); Batch 6 next
+**Status:** Batches 0–6 committed (2026-10-13); Batch 7 next
 **Branch:** `feat/ecosystem-expansion`
 **Supersedes nothing.** `docs/plans/component-expansion.md` (the motion catalogue,
 done in 0.12) and ADR 0014 stay in force; this document is what comes after
@@ -501,9 +501,21 @@ Lessons from Batch 1, carried forward:
 
 ### Batch 6 — typography and buttons
 
-- [ ] `gradient-text`, `highlight-text`, `letter-swap`, `proximity-text`
-- [ ] `effect-button` glitch + press variants; `burst` (confetti) utility
-- [ ] glow-card `spotlight` variant; `bento-grid` primitive
+- [x] `gradient-text` — a drifting gradient fill, still one run of real text
+- [x] `highlight-text` — marker, underline or strike drawn on in view, on
+      hover/focus or at once; wraps across lines; RTL-aware
+- [x] `letter-swap` — letters roll over on its own or its parent's hover and
+      focus; read as one word
+- [x] `proximity-text` — letters swell, thicken and tint toward the pointer,
+      keeping the text's own weight at rest
+- [x] `effect-button` `glitch` effect; `Button` `press="depth"` (the edge goes
+      on press even under reduced motion; only the travel is motion-safe)
+- [x] `confetti-button` and `burstConfetti()` — a self-removing overlay, theme
+      colours, nothing under reduced motion
+- [x] `glow-card` `variant="spotlight"` — interior light under the content;
+      `bento-grid` — spans from `md` up, one column below, document order kept
+- [x] Fixed on the way: `useInView({ once })` ignores entries after its first
+      sighting
 
 ### Batch 7 — navigation, AI and blocks
 

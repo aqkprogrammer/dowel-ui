@@ -7,7 +7,7 @@ import { mirrorForDirection } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 /*
- * One mechanism, eight effects (ADR 0014). Every effect is a response to the
+ * One mechanism, nine effects (ADR 0014). Every effect is a response to the
  * button being hovered OR keyboard-focused — never hover alone, or a keyboard
  * user gets a flatter control than a mouse user.
  *
@@ -42,10 +42,12 @@ const STYLES = `
 @keyframes ${PREFIX}-shake{0%,100%{translate:0 0;rotate:0deg}25%,75%{translate:0 -2px;rotate:-10deg}50%{translate:0 0;rotate:10deg}}
 @keyframes ${PREFIX}-glare{0%{translate:-100% 0}46%,100%{translate:100% 0}}
 @keyframes ${PREFIX}-ring{from{opacity:1;scale:1}to{opacity:0;scale:1.15}}
+@keyframes ${PREFIX}-glitch{0%,100%{text-shadow:none;translate:0 0}15%{text-shadow:-2px 0 var(--color-info),2px 0 var(--color-destructive);translate:1px 0}35%{text-shadow:2px 0 var(--color-info),-2px 0 var(--color-destructive);translate:-1px 0}55%{text-shadow:-1px 0 var(--color-info),1px 0 var(--color-destructive);translate:0 1px}75%{text-shadow:1px 0 var(--color-info),-1px 0 var(--color-destructive);translate:0 0}}
 ${whenActive("pulse", "icon", `animation:${PREFIX}-pulse ${scaled(400)} ease-in-out`)}
 ${whenActive("shake", "icon", `animation:${PREFIX}-shake ${scaled(400)} ease-in-out`)}
 ${whenActive("glare", "glare", `animation:${PREFIX}-glare ${scaled(1850)} ease-in-out infinite`)}
 ${whenActive("expand-ring", "ring", `animation:${PREFIX}-ring ${scaled(600)} ease-out`)}
+${whenActive("glitch", "label", `animation:${PREFIX}-glitch ${scaled(420)} steps(1,end)`)}
 `;
 
 export const effectButtonEffects = [
@@ -57,6 +59,7 @@ export const effectButtonEffects = [
   "text-reveal",
   "expand-ring",
   "clip-corners",
+  "glitch",
 ] as const;
 
 export type EffectButtonEffect = (typeof effectButtonEffects)[number];
@@ -76,6 +79,7 @@ const effectButtonVariants = cva("group/effect relative", {
       "text-reveal": "",
       "expand-ring": "",
       "clip-corners": "",
+      glitch: "",
     },
   },
   defaultVariants: { effect: "slide-arrow" },
@@ -126,6 +130,7 @@ const ICON: Record<EffectButtonEffect, string> = {
     "group-hover/effect:scale-110 group-focus-visible/effect:scale-110",
   ),
   "clip-corners": "",
+  glitch: "",
 };
 
 const TRAILING = cn(

@@ -263,6 +263,12 @@ import { meta as stackingCardsMeta } from "@/components/stacking-cards/meta";
 import { meta as horizontalScrollMeta } from "@/components/horizontal-scroll/meta";
 import { meta as imageTrailMeta } from "@/components/image-trail/meta";
 import { meta as cursorSpotlightMeta } from "@/components/cursor-spotlight/meta";
+import { meta as gradientTextMeta } from "@/components/gradient-text/meta";
+import { meta as highlightTextMeta } from "@/components/highlight-text/meta";
+import { meta as letterSwapMeta } from "@/components/letter-swap/meta";
+import { meta as proximityTextMeta } from "@/components/proximity-text/meta";
+import { meta as confettiButtonMeta } from "@/components/confetti-button/meta";
+import { meta as bentoGridMeta } from "@/components/bento-grid/meta";
 
 /**
  * Every component in the registry.
@@ -539,6 +545,12 @@ export const componentMetas: ComponentMeta[] = [
   horizontalScrollMeta,
   imageTrailMeta,
   cursorSpotlightMeta,
+  gradientTextMeta,
+  highlightTextMeta,
+  letterSwapMeta,
+  proximityTextMeta,
+  confettiButtonMeta,
+  bentoGridMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block and hook

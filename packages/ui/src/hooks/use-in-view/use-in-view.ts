@@ -48,6 +48,8 @@ export function useInView<T extends Element = HTMLElement>({
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
+          // After the first sighting, `once` ignores any entry still in flight.
+          if (once && seen.current) return;
           setInView(entry.isIntersecting);
           if (entry.isIntersecting && once) {
             seen.current = true;

@@ -204,3 +204,8 @@ export const AsLink: Story = {
     </EffectButton>
   ),
 };
+
+/** The label splits into the theme's info and destructive colours for a moment on hover or focus. */
+export const Glitch: Story = {
+  args: { effect: "glitch", variant: "outline", children: "Deploy to production" },
+};

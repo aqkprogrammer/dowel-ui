@@ -27,7 +27,7 @@ const meta = {
     },
     size: { control: "select", options: ["sm", "md", "lg", "icon", "icon-sm"] },
     shape: { control: "select", options: ["default", "pill", "square"] },
-    press: { control: "inline-radio", options: ["scale", "none"] },
+    press: { control: "inline-radio", options: ["scale", "depth", "none"] },
     loading: { control: "boolean" },
     disabled: { control: "boolean" },
     asChild: { table: { disable: true } },
@@ -169,6 +169,21 @@ export const SmoothButton: Story = {
           Saving
         </Button>
       </div>
+    </div>
+  ),
+};
+
+/** `press="depth"`: raised on an edge in a darker shade, sinking into it while held. */
+export const DepthPress: Story = {
+  render: () => (
+    <div className="flex flex-wrap gap-3">
+      <Button press="depth">Continue</Button>
+      <Button press="depth" variant="outline">
+        Cancel
+      </Button>
+      <Button press="depth" variant="destructive">
+        Delete
+      </Button>
     </div>
   ),
 };

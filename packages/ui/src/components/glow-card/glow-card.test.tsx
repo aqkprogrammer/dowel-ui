@@ -223,4 +223,19 @@ describe("GlowCard", () => {
     const { container } = render(<Group />);
     await expectNoA11yViolations(container);
   });
+
+  it("lights the interior with no ring in the spotlight variant, under the content", () => {
+    render(
+      <GlowCard variant="spotlight" data-testid="card">
+        <p>Inside</p>
+      </GlowCard>,
+    );
+    const card = screen.getByTestId("card");
+    expect(card).toHaveAttribute("data-variant", "spotlight");
+    const light = card.querySelector("[data-slot=glow-card-glow]");
+    expect(light).toHaveClass("-z-10", "motion-reduce:hidden");
+    expect(light?.className).toContain("radial-gradient");
+    expect(light?.className).not.toContain("shadow-[inset_0_0_0_1px");
+    expect(card).toHaveClass("isolate");
+  });
 });

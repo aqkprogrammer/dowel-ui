@@ -261,6 +261,12 @@ export * from "./components/stacking-cards";
 export * from "./components/horizontal-scroll";
 export * from "./components/image-trail";
 export * from "./components/cursor-spotlight";
+export * from "./components/gradient-text";
+export * from "./components/highlight-text";
+export * from "./components/letter-swap";
+export * from "./components/proximity-text";
+export * from "./components/confetti-button";
+export * from "./components/bento-grid";
 
 export * from "./hooks/use-reduced-motion";
 export * from "./hooks/use-in-view";

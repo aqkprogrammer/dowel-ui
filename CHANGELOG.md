@@ -68,6 +68,14 @@ per-package changelogs, whatever an earlier version of this line claimed.
 - **Cursor effects:** `image-trail` and `cursor-spotlight`, scoped to their
   box, leaving the system cursor alone, and off for touch and reduced motion.
 
+- **Text effects:** `gradient-text`, `highlight-text`, `letter-swap` and
+  `proximity-text` — each keeps the text as real, readable text.
+- **Buttons:** `effect-button` gains a `glitch` effect; `Button` gains
+  `press="depth"`, raised on an edge it sinks into; `confetti-button` bursts
+  confetti from itself, and `burstConfetti()` from anywhere.
+- **Layout:** `glow-card` gains `variant="spotlight"`, and `bento-grid` lays out
+  tiles of mixed sizes.
+
 ### Fixed
 
 - **Props tables were missing props** a component removes from its element with
