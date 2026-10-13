@@ -128,9 +128,14 @@ export function summariseBlastRadius(
           : " None of it can be undone."
         : ` ${sampled ? "At least " : ""}${String(permanent)} cannot be undone.`;
 
+  // One kind, all of it listed: "2 emails will be created" says it, where
+  // "2 emails will change: 2 created" says it twice.
+  const present = ORDER.filter((kind) => byKind[kind] > 0);
+  const only = present.length === 1 && !sampled ? present[0] : undefined;
   const sentence =
-    `${count(total, noun)} will change` +
-    (kinds.length > 0 ? `: ${list(kinds)}.` : ".") +
+    (only
+      ? `${count(total, noun)} will be ${VERB[only]}.`
+      : `${count(total, noun)} will change` + (kinds.length > 0 ? `: ${list(kinds)}.` : ".")) +
     permanence;
   return { total, byKind, permanent, sampled, sentence };
 }

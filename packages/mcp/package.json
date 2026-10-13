@@ -50,15 +50,15 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.30.0",
+    "@modelcontextprotocol/sdk": "1.31.0",
     "zod": "4.5.4"
   },
   "devDependencies": {
     "@dowel-ui/config": "workspace:*",
     "@dowel-ui/registry": "workspace:*",
-    "@types/node": "26.4.0",
-    "tsdown": "0.22.14",
+    "@types/node": "26.6.3",
+    "tsdown": "0.23.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "5.0.2"
   }
 }

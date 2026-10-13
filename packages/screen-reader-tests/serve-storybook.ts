@@ -8,15 +8,21 @@
  * the Ubuntu, macOS and Windows runners.
  *
  *   pnpm --filter @dowel-ui/react build-storybook && node serve-storybook.ts
+ *
+ * The visual regression tests (packages/visual-tests) run this same file, and
+ * point it at the build to screenshot with STORYBOOK_DIR, which is why the
+ * directory and the port can both be set from outside.
  */
 import { readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
-import { extname, join, normalize, sep } from "node:path";
+import { extname, join, normalize, resolve, sep } from "node:path";
 
-// Overridable for browser-tests' container runs, which copy the build off the
-// bind mount first: served from there, each page's chunks took seconds.
-const root =
-  process.env.STORYBOOK_STATIC_DIR ?? join(import.meta.dirname, "..", "ui", "storybook-static");
+// Overridable from outside: browser-tests' container runs set
+// STORYBOOK_STATIC_DIR (they copy the build off the bind mount first, since
+// served from there each page's chunks took seconds), and the visual
+// regression tests point STORYBOOK_DIR at the build they are screenshotting.
+const dir = process.env.STORYBOOK_STATIC_DIR ?? process.env.STORYBOOK_DIR;
+const root = dir ? resolve(dir) : join(import.meta.dirname, "..", "ui", "storybook-static");
 const port = Number(process.env.PORT ?? 6007);
 
 const TYPES: Record<string, string> = {

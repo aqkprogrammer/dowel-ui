@@ -26,6 +26,7 @@ export const PRIMARY_NAV: NavLink[] = [
   { title: "Blocks", href: "/docs/blocks" },
   { title: "Backgrounds", href: "/docs/backgrounds" },
   { title: "Playground", href: "/playground" },
+  { title: "Demo", href: "/agent-demo" },
   { title: "Generate", href: "/generate" },
   { title: "Themes", href: "/docs/themes" },
   { title: "Pricing", href: "/pricing" },
@@ -53,6 +54,7 @@ export function primaryFor(pathname: string): string | undefined {
     return "/docs";
   }
   if (pathname.startsWith("/playground")) return "/playground";
+  if (pathname.startsWith("/agent-demo")) return "/agent-demo";
   if (pathname.startsWith("/generate")) return "/generate";
   if (pathname.startsWith("/pricing")) return "/pricing";
   return undefined;
@@ -104,6 +106,11 @@ export const TOOLS: NavSection = {
       description: "Every variant of every component, with the code",
     },
     {
+      title: "Agent demo",
+      href: "/agent-demo",
+      description: "A model operates a page through agent-surface; take it back any time",
+    },
+    {
       title: "Generate",
       href: "/generate",
       description: "Describe a screen, get the components that build it",
@@ -135,6 +142,7 @@ export const FOOTER_NAV: NavSection[] = [
       { title: "Blocks", href: "/docs/blocks" },
       { title: "Backgrounds", href: "/docs/backgrounds" },
       { title: "Playground", href: "/playground" },
+      { title: "Agent demo", href: "/agent-demo" },
       { title: "Themes", href: "/docs/themes" },
       { title: "Pricing", href: "/pricing" },
     ],

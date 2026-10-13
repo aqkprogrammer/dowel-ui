@@ -282,6 +282,34 @@ describe("AgentReplay", () => {
     );
   });
 
+  it("does not take the page from the agent when someone steps through it", async () => {
+    function Tool() {
+      useAgentTool({
+        name: "list",
+        description: "Lists.",
+        effect: "read",
+        execute: () => "3 rows",
+      });
+      return null;
+    }
+    const apiRef = createRef<AgentSurfaceApi>();
+    render(
+      <AgentSurface apiRef={apiRef} agentName="Claude">
+        <Tool />
+        <AgentReplay />
+      </AgentSurface>,
+    );
+    act(() => {
+      apiRef.current?.grant();
+    });
+    await act(async () => {
+      await apiRef.current?.call("list");
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Last" }));
+    // Reviewing the run is oversight, like the ledger: the agent keeps going.
+    expect(apiRef.current?.getHolder()).toBe("agent");
+  });
+
   it("takes a heading, and lets className override its utilities", () => {
     setup({ heading: "How it went", className: "p-6" });
     const section = screen.getByRole("region", { name: "How it went" });

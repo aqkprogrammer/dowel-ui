@@ -11,13 +11,19 @@ until the checks below have passed on real screen readers.
 `packages/screen-reader-tests` drives real screen readers with
 [Guidepup](https://www.guidepup.dev) against the Storybook stories:
 
-| Project     | Screen reader | Browser  | Where                                     |
-| ----------- | ------------- | -------- | ----------------------------------------- |
-| `harness`   | none          | Chromium | anywhere; proves the scenarios themselves |
-| `voiceover` | VoiceOver     | WebKit   | macOS (`macos-15` in CI)                  |
-| `nvda`      | NVDA          | Chromium | Windows (`windows-2025` in CI)            |
+| Project     | Screen reader | Browser  | Where                                       |
+| ----------- | ------------- | -------- | ------------------------------------------- |
+| `harness`   | none          | Chromium | anywhere; proves the scenarios themselves   |
+| `browser`   | none          | Chromium | anywhere; behaviour only a real browser has |
+| `voiceover` | VoiceOver     | WebKit   | macOS (`macos-15` in CI)                    |
+| `nvda`      | NVDA          | Chromium | Windows (`windows-2025` in CI)              |
 
-Each project runs two scenarios:
+The `browser` project is not about speech. It holds checks that jsdom cannot
+make, such as what React does between the phases of a real click, and it lives
+here because this package already runs Playwright against Storybook. The
+`Browser` workflow runs it when `agent-surface` changes.
+
+Each screen reader project runs two scenarios:
 
 1. **Whole sentences, once, in order.** Every chunk the announcer hands over
    is spoken. Chunks come out in the order they were handed over, none is

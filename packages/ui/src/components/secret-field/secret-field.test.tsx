@@ -31,7 +31,7 @@ describe("maskSecret", () => {
   it("keeps the prefix through the last underscore and the last four", () => {
     expect(maskSecret(KEY)).toBe("sk_live_…0000");
     expect(maskSecret("ghp_16C7e42F292c6912E7710c838347Ae178B4a")).toBe("ghp_…8B4a");
-    expect(maskSecret("whsec_9c1f2a3b4c5d6e7f8a9b0c1d2e3f")).toBe("whsec_…2e3f");
+    expect(maskSecret("whsec_EXAMPLE-not-a-real-secret-2e3f")).toBe("whsec_…2e3f");
   });
 
   it("keeps four characters when there is no prefix", () => {

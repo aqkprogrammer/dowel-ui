@@ -354,6 +354,21 @@ export const Default: Story = {
 };
 
 /**
+ * The agent holds the page from the start. Tick a box or type in the filter:
+ * you take control, and the tick or the character still lands. Only a real
+ * browser shows whether it does, so `screen-reader-tests` runs this story in
+ * one (`agent-surface.browser.spec.ts`).
+ */
+export const HeldByTheAgent: Story = {
+  render: () => (
+    <AgentSurface agentName="Claude" defaultHolder="agent" className="flex flex-col gap-4 p-4">
+      <ControlBaton />
+      <DealsTable />
+    </AgentSurface>
+  ),
+};
+
+/**
  * The agent reaches something only the person can do and hands over, saying
  * why. The person does it, hands back with a note, and the agent carries on
  * knowing what changed.

@@ -137,13 +137,44 @@ export async function runTool(
       );
     }
 
+    // The question is withdrawn if the person takes the page back, or the
+    // caller gives up, while it is open. Otherwise it stays on screen with
+    // nothing left to approve: a call made while the person holds control is
+    // refused whatever they answer.
+    const question = new AbortController();
+    const withdraw = () => {
+      question.abort();
+    };
+    outer?.addEventListener("abort", withdraw, { once: true });
+    runtime.running.add(question);
+    const withdrawn = new Promise<null>((resolve) => {
+      question.signal.addEventListener(
+        "abort",
+        () => {
+          resolve(null);
+        },
+        { once: true },
+      );
+    });
+
     // Asked synchronously, so an approval UI appears in the same tick; a
     // handler that throws is a refusal, like one that says no.
-    let answer: NormalisedApproval;
+    let answer: NormalisedApproval | null;
     try {
-      answer = normaliseApproval(await ask(call));
+      answer = await Promise.race([
+        Promise.resolve(ask(call)).then(normaliseApproval),
+        withdrawn,
+      ]);
     } catch {
       answer = normaliseApproval(false);
+    } finally {
+      runtime.running.delete(question);
+      outer?.removeEventListener("abort", withdraw);
+    }
+    if (outer?.aborted) return end("failed", REFUSAL.stopped);
+    // Control can change while the question is open, and it outranks the answer.
+    if (answer === null || runtime.holder() === "person") {
+      return end("refused", REFUSAL.personHolds);
     }
     if (!answer.approved) {
       return end(
@@ -151,8 +182,6 @@ export async function runTool(
         answer.reason ? `${REFUSAL.declined.slice(0, -1)}: ${answer.reason}` : REFUSAL.declined,
       );
     }
-    // Control can change while the question is open.
-    if (runtime.holder() === "person") return end("refused", REFUSAL.personHolds);
 
     // Approved with corrections: the person's version is what runs, and it is
     // held to the same schema the agent's was.
