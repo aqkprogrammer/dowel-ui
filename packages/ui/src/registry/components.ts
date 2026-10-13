@@ -269,6 +269,13 @@ import { meta as letterSwapMeta } from "@/components/letter-swap/meta";
 import { meta as proximityTextMeta } from "@/components/proximity-text/meta";
 import { meta as confettiButtonMeta } from "@/components/confetti-button/meta";
 import { meta as bentoGridMeta } from "@/components/bento-grid/meta";
+import { meta as navigationMenuMeta } from "@/components/navigation-menu/meta";
+import { meta as navbarMeta } from "@/components/navbar/meta";
+import { meta as bottomNavMeta } from "@/components/bottom-nav/meta";
+import { meta as audioVisualizerMeta } from "@/components/audio-visualizer/meta";
+import { meta as voiceInputMeta } from "@/components/voice-input/meta";
+import { meta as workflowGraphMeta } from "@/components/workflow-graph/meta";
+import { meta as modelComparisonMeta } from "@/components/model-comparison/meta";
 
 /**
  * Every component in the registry.
@@ -551,6 +558,13 @@ export const componentMetas: ComponentMeta[] = [
   proximityTextMeta,
   confettiButtonMeta,
   bentoGridMeta,
+  navigationMenuMeta,
+  navbarMeta,
+  bottomNavMeta,
+  audioVisualizerMeta,
+  voiceInputMeta,
+  workflowGraphMeta,
+  modelComparisonMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block and hook

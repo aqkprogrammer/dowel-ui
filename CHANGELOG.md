@@ -76,6 +76,17 @@ per-package changelogs, whatever an earlier version of this line claimed.
 - **Layout:** `glow-card` gains `variant="spotlight"`, and `bento-grid` lays out
   tiles of mixed sizes.
 
+- **Navigation:** `navbar` (static, sticky or hide-on-scroll — never hidden
+  while it holds focus — with a mobile menu and a skip link),
+  `navigation-menu` (links and mega menus) and `bottom-nav` (a phone tab bar
+  with spoken badges).
+- **AI:** `voice-input` records, shows level and time, transcribes where the
+  browser can, and explains a blocked or missing microphone;
+  `audio-visualizer` draws a stream or a level as bars, a wave or an orb;
+  `workflow-graph` lays out a pipeline in layers, each step stating its
+  status; `model-comparison` compares models in a table that marks the best
+  of each row in words.
+
 ### Fixed
 
 - **Props tables were missing props** a component removes from its element with

@@ -267,6 +267,13 @@ export * from "./components/letter-swap";
 export * from "./components/proximity-text";
 export * from "./components/confetti-button";
 export * from "./components/bento-grid";
+export * from "./components/navigation-menu";
+export * from "./components/navbar";
+export * from "./components/bottom-nav";
+export * from "./components/audio-visualizer";
+export * from "./components/voice-input";
+export * from "./components/workflow-graph";
+export * from "./components/model-comparison";
 
 export * from "./hooks/use-reduced-motion";
 export * from "./hooks/use-in-view";

@@ -1,6 +1,6 @@
 # Component ecosystem expansion — audit and roadmap
 
-**Status:** Batches 0–6 committed (2026-10-13); Batch 7 next
+**Status:** Batches 0–6 and 7a committed (2026-10-13); Batch 7b (blocks) next
 **Branch:** `feat/ecosystem-expansion`
 **Supersedes nothing.** `docs/plans/component-expansion.md` (the motion catalogue,
 done in 0.12) and ADR 0014 stay in force; this document is what comes after
@@ -519,10 +519,30 @@ Lessons from Batch 1, carried forward:
 
 ### Batch 7 — navigation, AI and blocks
 
-- [ ] `navbar`, `navigation-menu`, `bottom-nav`
-- [ ] `voice-input` + `audio-visualizer`, `workflow-graph`, `model-comparison`
-- [ ] blocks: changelog, contact, integrations, careers, API keys, navbar
-      sections, background-led heroes using Batch 4
+7a — components:
+
+- [x] `navbar` — static, sticky or hide-on-scroll (never hidden while it holds
+      focus or its menu is open); default, floating and glass; lifts once the
+      page scrolls; a disclosure menu below `md`; a skip link
+- [x] `navigation-menu` — on Radix NavigationMenu: links and mega menus in one
+      resizing viewport
+- [x] `bottom-nav` — a phone tab bar: icon over label, `aria-current`, count
+      and dot badges spoken in words, safe-area padding, hidden from `md` up
+- [x] `audio-visualizer` — bars, wave or orb from a MediaStream or a level,
+      through the dither engine; closes its audio context with the stream
+- [x] `voice-input` — a mic toggle that records (MediaRecorder), shows level
+      and time, optionally transcribes, and explains denied, missing and
+      unsupported; Escape cancels
+- [x] `workflow-graph` — a computed layered layout (cycles broken, crossings
+      reduced); steps as a list with status in text and what they follow;
+      the line into a running step flows
+- [x] `model-comparison` — a real table; the best of each row marked "Best";
+      sticky metric column and caption; choose a model
+
+7b — blocks:
+
+- [ ] changelog, contact, integrations, careers, API keys, navbar sections,
+      background-led heroes using Batch 4
 
 ### Batch 8 — 3D
 
@@ -544,4 +564,9 @@ Lessons from Batch 1, carried forward:
 | 1 Brand + border beam + aurora               | done   | 661ecda |
 | 4 (part) shader-background, backgrounds page | done   | 2b30e09 |
 | 2 Infrastructure                             | done   | 04ea921 |
-| 3 Core gaps (combobox extensions remaining)  | done   | —       |
+| 3 Core gaps (combobox extensions remaining)  | done   | 6b564e8 |
+| Docs navigation and background links         | done   | b8e1a5b |
+| 4 Backgrounds                                | done   | f1dd6e5 |
+| 5 Scroll and cursor effects                  | done   | 868eb5d |
+| 6 Typography and buttons                     | done   | 05d5a8b |
+| 7a Navigation and AI components              | done   | —       |
