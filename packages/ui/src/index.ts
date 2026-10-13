@@ -274,6 +274,9 @@ export * from "./components/audio-visualizer";
 export * from "./components/voice-input";
 export * from "./components/workflow-graph";
 export * from "./components/model-comparison";
+export * from "./components/cube";
+export * from "./components/image-ring";
+export * from "./components/device-mockup";
 
 export * from "./hooks/use-reduced-motion";
 export * from "./hooks/use-in-view";

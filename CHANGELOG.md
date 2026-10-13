@@ -91,6 +91,10 @@ per-package changelogs, whatever an earlier version of this line claimed.
   and the mobile list from one list of links), and two heroes over the new
   backgrounds, `hero-light-beams` and `hero-flow-field`. Search finds them by
   everyday words — "release notes", "jobs", "mega menu", "api keys".
+- **3D:** `cube` turns to show one face at a time — a carousel to assistive
+  technology, by buttons, arrow keys or drag; `image-ring` stands images on a
+  slowly turning ring you can drag; `device-mockup` draws a phone, tablet,
+  laptop or browser around a screenshot or live UI, with an optional tilt.
 
 ### Fixed
 

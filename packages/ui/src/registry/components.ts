@@ -276,6 +276,9 @@ import { meta as audioVisualizerMeta } from "@/components/audio-visualizer/meta"
 import { meta as voiceInputMeta } from "@/components/voice-input/meta";
 import { meta as workflowGraphMeta } from "@/components/workflow-graph/meta";
 import { meta as modelComparisonMeta } from "@/components/model-comparison/meta";
+import { meta as cubeMeta } from "@/components/cube/meta";
+import { meta as imageRingMeta } from "@/components/image-ring/meta";
+import { meta as deviceMockupMeta } from "@/components/device-mockup/meta";
 
 /**
  * Every component in the registry.
@@ -565,6 +568,9 @@ export const componentMetas: ComponentMeta[] = [
   voiceInputMeta,
   workflowGraphMeta,
   modelComparisonMeta,
+  cubeMeta,
+  imageRingMeta,
+  deviceMockupMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block and hook

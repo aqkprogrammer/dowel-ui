@@ -1,6 +1,6 @@
 # Component ecosystem expansion — audit and roadmap
 
-**Status:** Batches 0–7 committed (2026-10-13); Batch 8 (3D) next
+**Status:** Batches 0–7 and 8a committed (2026-10-14); Batch 8b (WebGL) next
 **Branch:** `feat/ecosystem-expansion`
 **Supersedes nothing.** `docs/plans/component-expansion.md` (the motion catalogue,
 done in 0.12) and ADR 0014 stay in force; this document is what comes after
@@ -559,7 +559,12 @@ Lessons from Batch 1, carried forward:
 
 ### Batch 8 — 3D
 
-- [ ] CSS 3D: `cube`, `image-ring`, `device-mockup`
+- [x] CSS 3D: `cube` (a 3D carousel: faces are slides, the hidden ones inert;
+      buttons, arrows, drag; auto-turn that pauses and never runs under
+      reduced motion), `image-ring` (a turning circular gallery, a list of
+      images to assistive technology, scales to fit), `device-mockup`
+      (phone, tablet, laptop, browser; tilt that straightens on hover/focus;
+      server-rendered)
 - [ ] WebGL, separately: `globe` (raw WebGL), `model-viewer` (`three` as its
       own dependency, lazy-mounted, poster fallback)
 
@@ -583,4 +588,5 @@ Lessons from Batch 1, carried forward:
 | 5 Scroll and cursor effects                  | done   | 868eb5d |
 | 6 Typography and buttons                     | done   | 05d5a8b |
 | 7a Navigation and AI components              | done   | e5bfba1 |
-| 7b Blocks                                    | done   | —       |
+| 7b Blocks                                    | done   | e93e5ef |
+| 8a CSS 3D                                    | done   | —       |
