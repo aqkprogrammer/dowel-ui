@@ -37,11 +37,29 @@ per-package changelogs, whatever an earlier version of this line claimed.
   heaviest technique an item uses counting what it installs with it. Optional in
   the schema, so registries built before it still parse.
 
+- **`carousel`**: scroll-snap carousel with previous/next, dots, keyboard
+  steps in reading direction, several items per view and a vertical layout.
+  Rotation is opt-in and pauses on hover, focus, off-screen and in hidden tabs.
+- **`comparison-slider`**: two versions of one thing with a draggable,
+  keyboard-operable divider.
+- **`color-picker`**: saturation square, hue and alpha, hex/rgb/oklch,
+  swatches, eyedropper and a live WCAG contrast reading.
+- **`resizable`**: panels with window-splitter handles, limits and collapsible
+  panels.
+- **`password-strength`**: a strength meter and rule checklist for a password
+  field.
+- **Hooks in the registry**: `use-reduced-motion` and `use-in-view` install
+  into the project's hooks folder (`dowel add use-in-view`), and are exported
+  from `@dowel-ui/react` and `@dowel-ui/react/hooks/*`.
+
 ### Fixed
 
 - **Props tables were missing props** a component removes from its element with
   `Omit` and then declares itself (`BorderBeam`'s `color`, for one): 120 across
   the library, now listed.
+- **`matrix-orb`** could run its springs backwards for one frame: the first
+  frame's clock and the next frame's timestamp can disagree, and the negative
+  step was not clamped. This also made two of its tests fail intermittently.
 - The MCP server's `search_components` category hint now lists every category,
   `effects` included.
 

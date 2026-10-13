@@ -246,6 +246,14 @@ export * from "./components/cosmic-background";
 export * from "./components/border-beam";
 export * from "./components/aurora-background";
 export * from "./components/shader-background";
+export * from "./components/carousel";
+export * from "./components/comparison-slider";
+export * from "./components/color-picker";
+export * from "./components/resizable";
+export * from "./components/password-strength";
+
+export * from "./hooks/use-reduced-motion";
+export * from "./hooks/use-in-view";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";

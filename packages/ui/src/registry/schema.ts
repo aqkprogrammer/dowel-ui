@@ -33,10 +33,11 @@ export interface ComponentMeta {
    * What kind of registry entry this is.
    *
    * Components are the building blocks; blocks are whole sections assembled
-   * from them. They install into different places and are browsed differently,
+   * from them; hooks are behaviour several components share, with no markup of
+   * their own. They install into different places and are browsed differently,
    * so the distinction is explicit rather than inferred from the category.
    */
-  kind?: "component" | "block";
+  kind?: "component" | "block" | "hook";
   /** Display name for docs and Storybook. */
   title: string;
   /** One sentence, used on listing pages and by `<cli> list`. */

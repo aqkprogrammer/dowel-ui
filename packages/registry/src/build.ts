@@ -2,7 +2,12 @@ import { readFileSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { blockMetas, componentMetas, type ComponentMeta } from "@dowel-ui/react/registry";
+import {
+  blockMetas,
+  componentMetas,
+  hookMetas,
+  type ComponentMeta,
+} from "@dowel-ui/react/registry";
 
 import {
   applyControlHints,
@@ -50,9 +55,14 @@ function read(path: string): string {
  */
 function buildSourceItem(meta: ComponentMeta): RegistryItem {
   const isBlock = meta.kind === "block";
-  const sourceDir = join(uiSrc, isBlock ? "blocks" : "components", meta.name);
-  const group = isBlock ? "blocks" : "ui";
-  const fileType = isBlock ? "registry:block" : "registry:ui";
+  const isHook = meta.kind === "hook";
+  const sourceDir = join(
+    uiSrc,
+    isBlock ? "blocks" : isHook ? "hooks" : "components",
+    meta.name,
+  );
+  const group = isBlock ? "blocks" : isHook ? "hooks" : "ui";
+  const fileType = isBlock ? "registry:block" : isHook ? "registry:hook" : "registry:ui";
 
   const files: RegistryFile[] = meta.files.map((file) => {
     const content = read(join(sourceDir, file));
@@ -67,7 +77,10 @@ function buildSourceItem(meta: ComponentMeta): RegistryItem {
   // The genome: what the source says about the item, read from it here so no
   // consumer has to read the source again, and none can disagree about it.
   const mainFile = join(sourceDir, `${meta.name}.tsx`);
-  const props = applyControlHints(extractProps(mainFile), meta.controls, meta.name);
+  // A hook has no props table: it is a function, not a component.
+  const props = isHook
+    ? []
+    : applyControlHints(extractProps(mainFile), meta.controls, meta.name);
   const quality = assess(sourceDir, meta.name, meta.a11y);
 
   return registryItemSchema.parse({
@@ -168,6 +181,7 @@ export function buildRegistry(): RegistryItem[] {
     buildThemeItem(),
     ...componentMetas.map(buildSourceItem),
     ...blockMetas.map(buildSourceItem),
+    ...hookMetas.map(buildSourceItem),
   ];
 
   // Each item's tier counts what it installs with it, so it is settled once

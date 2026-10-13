@@ -1,6 +1,6 @@
 # Component ecosystem expansion — audit and roadmap
 
-**Status:** Batches 0–1 committed; Batch 2 built and verified, not yet committed (2026-10-13)
+**Status:** Batches 0–3 committed (2026-10-13); Batch 4 next
 **Branch:** `feat/ecosystem-expansion`
 **Supersedes nothing.** `docs/plans/component-expansion.md` (the motion catalogue,
 done in 0.12) and ADR 0014 stay in force; this document is what comes after
@@ -442,15 +442,24 @@ Lessons from Batch 1, carried forward:
 
 ### Batch 3 — core gaps
 
-- [ ] `use-reduced-motion` and `use-in-view` as `registry:hook` items (from
-      Batch 2), first used by the carousel
-- [ ] `carousel` (basic, Embla-free: scroll-snap + buttons + dots + keyboard;
-      autoplay opt-in, pauses on hover/focus/off-screen, pause control)
-- [ ] `comparison-slider` (before/after, keyboard operable slider role)
-- [ ] `color-picker` (OKLCH-aware, palette + input + contrast readout)
-- [ ] `resizable` (panels with keyboard handles, `role="separator"`)
-- [ ] `password-strength` (rule list + meter; pairs with `secret-field`)
-- [ ] combobox `multiple` / async / creatable
+- [x] `use-reduced-motion` and `use-in-view` as `registry:hook` items: a new
+      `hook` kind, `src/hooks/`, meta checks that count `@/hooks/` imports, a
+      `./hooks/*` package export, and the CLI installing into the hooks alias
+- [x] `carousel` — native scroll-snap, previous/next, dots, arrow keys in
+      reading direction, several per view, vertical; rotation opt-in, paused on
+      hover/focus/off-screen/hidden tab, never by itself under reduced motion,
+      with a development warning when it has no `CarouselPlayPause`
+- [x] `comparison-slider` — clip-path reveal, a real `role="slider"`, drag or
+      hover, right-to-left aware
+- [x] `color-picker` — HSV square as a keyboard slider, hue/alpha, hex/rgb/oklch
+      in and out, swatches, eyedropper, WCAG contrast against a theme token
+- [x] `resizable` — APG window splitter, limits, collapsible panels, nested
+      groups, right-to-left aware
+- [x] `password-strength` — meter and rule checklist in words; pairs with a
+      password `input` (not `secret-field`, which displays keys)
+- [ ] combobox `multiple` / async / creatable — moved to its own change:
+      `combobox.tsx` is at 20.9 of the 24 kB file budget and must be split
+      before it can grow, without changing its API
 
 ### Batch 4 — Background Studio
 
@@ -493,9 +502,10 @@ Lessons from Batch 1, carried forward:
 
 ### Progress
 
-| Batch                                        | Status            | Commit  |
-| -------------------------------------------- | ----------------- | ------- |
-| 0 Audit (this document)                      | done              | —       |
-| 1 Brand + border beam + aurora               | done              | 661ecda |
-| 4 (part) shader-background, backgrounds page | done              | 2b30e09 |
-| 2 Infrastructure                             | done, uncommitted | —       |
+| Batch                                        | Status | Commit  |
+| -------------------------------------------- | ------ | ------- |
+| 0 Audit (this document)                      | done   | —       |
+| 1 Brand + border beam + aurora               | done   | 661ecda |
+| 4 (part) shader-background, backgrounds page | done   | 2b30e09 |
+| 2 Infrastructure                             | done   | 04ea921 |
+| 3 Core gaps (combobox extensions remaining)  | done   | —       |

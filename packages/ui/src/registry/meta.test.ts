@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { blockMetas } from "./blocks";
 import { componentMetas } from "./components";
+import { hookMetas } from "./hooks";
 import { COMPONENT_CATEGORIES, COMPONENT_STATUSES, type ComponentMeta } from "./schema";
 
 /**
@@ -16,6 +17,7 @@ import { COMPONENT_CATEGORIES, COMPONENT_STATUSES, type ComponentMeta } from "./
 const metaModules = {
   ...import.meta.glob<{ meta: ComponentMeta }>("../components/*/meta.ts", { eager: true }),
   ...import.meta.glob<{ meta: ComponentMeta }>("../blocks/*/meta.ts", { eager: true }),
+  ...import.meta.glob<{ meta: ComponentMeta }>("../hooks/*/meta.ts", { eager: true }),
 };
 
 const sourceFiles = {
@@ -25,6 +27,11 @@ const sourceFiles = {
     import: "default",
   }),
   ...import.meta.glob<string>("../blocks/*/*.{ts,tsx}", {
+    eager: true,
+    query: "?raw",
+    import: "default",
+  }),
+  ...import.meta.glob<string>("../hooks/*/*.{ts,tsx}", {
     eager: true,
     query: "?raw",
     import: "default",
@@ -100,7 +107,7 @@ function resolveImports(sources: string[]): ResolvedImports {
     for (const specifier of extractSpecifiers(source)) {
       if (PEER_PACKAGES.has(specifier)) continue;
 
-      if (specifier.startsWith("@/components/")) {
+      if (specifier.startsWith("@/components/") || specifier.startsWith("@/hooks/")) {
         const name = specifier.split("/")[2];
         if (name) resolved.registry.add(name);
       } else if (specifier.startsWith("@/")) {
@@ -155,10 +162,22 @@ describe("registry metadata", () => {
       expect(shippedSources).toHaveLength(meta.files.length);
     });
 
-    it("ships an index, a test and a story", () => {
+    it("ships an index, a test and — unless it is a hook, with nothing to show — a story", () => {
       expect(sourceFiles[`${dir}/index.ts`]).toBeTypeOf("string");
       expect(sourceFiles[`${dir}/${dirName}.test.tsx`]).toBeTypeOf("string");
-      expect(sourceFiles[`${dir}/${dirName}.stories.tsx`]).toBeTypeOf("string");
+      if (meta.kind !== "hook") {
+        expect(sourceFiles[`${dir}/${dirName}.stories.tsx`]).toBeTypeOf("string");
+      }
+    });
+
+    it("lives in the directory its kind installs from", () => {
+      const expected =
+        meta.kind === "block"
+          ? "../blocks/"
+          : meta.kind === "hook"
+            ? "../hooks/"
+            : "../components/";
+      expect(metaPath.startsWith(expected), `${meta.name} is not under ${expected}`).toBe(true);
     });
 
     it("declares exactly the npm packages its source imports", () => {
@@ -251,13 +270,18 @@ describe("registry metadata", () => {
     // disk but is missing from one would simply never be publishable, with no
     // other signal that anything was wrong.
     const onDisk = metaEntries.map(([, module]) => module.meta.name).sort();
-    const inBarrels = [...componentMetas, ...blockMetas].map((meta) => meta.name).sort();
+    const inBarrels = [...componentMetas, ...blockMetas, ...hookMetas]
+      .map((meta) => meta.name)
+      .sort();
     expect(inBarrels).toEqual(onDisk);
   });
 
-  it("keeps components and blocks in separate barrels", () => {
-    expect(componentMetas.every((meta) => meta.kind !== "block")).toBe(true);
+  it("keeps components, blocks and hooks in separate barrels", () => {
+    expect(
+      componentMetas.every((meta) => meta.kind === undefined || meta.kind === "component"),
+    ).toBe(true);
     expect(blockMetas.every((meta) => meta.kind === "block")).toBe(true);
+    expect(hookMetas.every((meta) => meta.kind === "hook")).toBe(true);
   });
 
   it("has no duplicate registry names", () => {

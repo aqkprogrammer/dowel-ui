@@ -188,6 +188,17 @@ describe("add", () => {
     }
   });
 
+  it("writes a hook into the configured hooks directory", async () => {
+    const root = project();
+    await initialise(root);
+    await addTo(root, ["use-reduced-motion"]);
+
+    expect(read(root, "src/hooks/use-reduced-motion.ts")).toContain(
+      "export function useReducedMotion(",
+    );
+    expect(readConfig(root).installed).toHaveProperty("use-reduced-motion");
+  });
+
   it("installs a shared dependency once", async () => {
     const root = project();
     await initialise(root);

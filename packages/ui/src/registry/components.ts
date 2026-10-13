@@ -248,6 +248,11 @@ import { meta as cosmicBackgroundMeta } from "@/components/cosmic-background/met
 import { meta as borderBeamMeta } from "@/components/border-beam/meta";
 import { meta as auroraBackgroundMeta } from "@/components/aurora-background/meta";
 import { meta as shaderBackgroundMeta } from "@/components/shader-background/meta";
+import { meta as carouselMeta } from "@/components/carousel/meta";
+import { meta as comparisonSliderMeta } from "@/components/comparison-slider/meta";
+import { meta as colorPickerMeta } from "@/components/color-picker/meta";
+import { meta as resizableMeta } from "@/components/resizable/meta";
+import { meta as passwordStrengthMeta } from "@/components/password-strength/meta";
 
 /**
  * Every component in the registry.
@@ -509,10 +514,17 @@ export const componentMetas: ComponentMeta[] = [
   borderBeamMeta,
   auroraBackgroundMeta,
   shaderBackgroundMeta,
+  carouselMeta,
+  comparisonSliderMeta,
+  colorPickerMeta,
+  resizableMeta,
+  passwordStrengthMeta,
 ];
 
-// This file is the `@dowel-ui/react/registry` entry point, so the block barrel is
-// re-exported here — the registry build reads both through one import.
+// This file is the `@dowel-ui/react/registry` entry point, so the block and hook
+// barrels are re-exported here — the registry build reads all three through one
+// import.
 export { blockMetas } from "./blocks";
+export { hookMetas } from "./hooks";
 export { COMPONENT_CATEGORIES, COMPONENT_STATUSES } from "./schema";
 export type { ComponentCategory, ComponentMeta, ComponentStatus, ControlHint } from "./schema";
