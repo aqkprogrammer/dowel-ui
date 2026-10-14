@@ -1,6 +1,6 @@
 # Component ecosystem expansion — audit and roadmap
 
-**Status:** Batches 0–7 and 8a committed (2026-10-14); Batch 8b (WebGL) next
+**Status:** Batches 0–8 committed (2026-10-14); Batch 9 (release) next
 **Branch:** `feat/ecosystem-expansion`
 **Supersedes nothing.** `docs/plans/component-expansion.md` (the motion catalogue,
 done in 0.12) and ADR 0014 stay in force; this document is what comes after
@@ -565,8 +565,15 @@ Lessons from Batch 1, carried forward:
       images to assistive technology, scales to fit), `device-mockup`
       (phone, tablet, laptop, browser; tilt that straightens on hover/focus;
       server-rendered)
-- [ ] WebGL, separately: `globe` (raw WebGL), `model-viewer` (`three` as its
-      own dependency, lazy-mounted, poster fallback)
+- [x] WebGL, separately: `globe` (raw WebGL, one context: a dot lattice with an
+      optional `land` test, great-circle arcs drawn as point runs with a
+      pulse, markers; places and routes listed for screen readers; SVG
+      fallback), `model-viewer` (`three` an optional peer and this entry's
+      own dependency, out of the barrel — `@dowel-ui/react/model-viewer`;
+      poster first, three.js fetched only when wanted and never without
+      WebGL; drag, arrows and +/−; everything disposed)
+- [ ] Follow-up: bundle a public-domain land mask for `globe` (Natural Earth),
+      which needs a download approved first
 
 ### Batch 9 — release
 
@@ -589,4 +596,5 @@ Lessons from Batch 1, carried forward:
 | 6 Typography and buttons                     | done   | 05d5a8b |
 | 7a Navigation and AI components              | done   | e5bfba1 |
 | 7b Blocks                                    | done   | e93e5ef |
-| 8a CSS 3D                                    | done   | —       |
+| 8a CSS 3D                                    | done   | f903600 |
+| 8b WebGL                                     | done   | —       |

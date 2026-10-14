@@ -95,6 +95,11 @@ per-package changelogs, whatever an earlier version of this line claimed.
   technology, by buttons, arrow keys or drag; `image-ring` stands images on a
   slowly turning ring you can drag; `device-mockup` draws a phone, tablet,
   laptop or browser around a screenshot or live UI, with an optional tilt.
+- **WebGL:** `globe` draws a dotted globe with places and the routes between
+  them in raw WebGL, listing them for screen readers and falling back to SVG;
+  `model-viewer` shows a glTF/GLB model people can turn, behind a poster.
+  `three` is an optional peer used only by `model-viewer`, which is not in
+  the main entry: import it from `@dowel-ui/react/model-viewer`.
 
 ### Fixed
 

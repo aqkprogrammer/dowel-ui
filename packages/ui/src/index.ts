@@ -277,6 +277,9 @@ export * from "./components/model-comparison";
 export * from "./components/cube";
 export * from "./components/image-ring";
 export * from "./components/device-mockup";
+export * from "./components/globe";
+// model-viewer is not re-exported here: it loads `three`, an optional peer.
+// Import it from "@dowel-ui/react/model-viewer", or install it with the CLI.
 
 export * from "./hooks/use-reduced-motion";
 export * from "./hooks/use-in-view";

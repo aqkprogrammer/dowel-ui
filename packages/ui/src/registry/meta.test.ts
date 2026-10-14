@@ -44,15 +44,20 @@ const packageJson = import.meta.glob<string>("../../package.json", {
   import: "default",
 });
 
-const declaredNpmDependencies = new Set(
-  Object.keys(
-    (
-      JSON.parse(Object.values(packageJson)[0] ?? "{}") as {
-        dependencies?: Record<string, string>;
-      }
-    ).dependencies ?? {},
-  ),
-);
+const manifest = JSON.parse(Object.values(packageJson)[0] ?? "{}") as {
+  dependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+};
+
+/**
+ * What @dowel-ui/react declares: its dependencies, and its peers — an
+ * optional peer such as `three` belongs to one entry, is kept out of the main
+ * export, and is installed here as a dev dependency so that entry is tested.
+ */
+const declaredNpmDependencies = new Set([
+  ...Object.keys(manifest.dependencies ?? {}),
+  ...Object.keys(manifest.peerDependencies ?? {}),
+]);
 
 /** Provided by the consuming app, never installed by the CLI. */
 const PEER_PACKAGES = new Set(["react", "react-dom", "react/jsx-runtime"]);
