@@ -81,10 +81,14 @@ jobs:
       - uses: actions/checkout@v5
 
       # No registry-url: it writes an .npmrc that overrides trusted publishing
-      # and turns every publish into a 404.
+      # and turns every publish into a 404. No package-manager cache either:
+      # v5 turns it on when package.json names pnpm, and looks for a pnpm that
+      # this job, which installs nothing, does not have — v0.14.0's run
+      # stopped here.
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          package-manager-cache: false
 
       # Trusted publishing needs npm 11.5.1 or later.
       - name: Update npm
