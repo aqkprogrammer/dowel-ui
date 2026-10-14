@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/visual-tests",
-  "version": "0.11.0",
+  "version": "0.14.0",
   "private": true,
   "type": "module",
   "description": "Visual regression tests: a screenshot of every Storybook story, compared between two builds. Not part of `pnpm test` — they need a built Storybook and a baseline to compare against.",

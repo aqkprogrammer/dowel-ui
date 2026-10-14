@@ -22,6 +22,6 @@ export function isUnreleased(since: string, current: string = version): boolean 
 }
 
 /** The release the features on `main` but not yet on npm will ship in. */
-export const NEXT_RELEASE = "0.13.0";
+export const NEXT_RELEASE = "0.15.0";
 
 export { version as publishedVersion };
