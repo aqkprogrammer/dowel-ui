@@ -90,9 +90,11 @@ export const VISUAL_STORIES: VisualStory[] = [
   // Navigation
   { id: "navigation-tabs--default" },
   { id: "navigation-bottom-nav--default" },
+  // Opened by hover, as a pointer opens it: a click after the hover that
+  // already opened it would toggle it shut.
   {
     id: "navigation-navigation-menu--default",
-    open: click("[data-slot=navigation-menu-content]"),
+    open: { by: "hover", reveals: "[data-slot=navigation-menu-content]" },
   },
   // 3D, in CSS: still under reduced motion, so a frame is a fair picture
   { id: "display-cube--default" },

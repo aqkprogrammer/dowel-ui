@@ -248,7 +248,9 @@ export function ColorPicker({
             onValueChange={([h]) => {
               update({ ...hsva, h: h ?? 0 });
             }}
-            className="[&_[data-slot=slider-range]]:bg-transparent [&_[data-slot=slider-track]]:bg-(image:--color-picker-hue)"
+            // h-6: the thumb inside the slider's own box, so the hue and opacity
+            // thumbs are a full target apart rather than touching.
+            className="h-6 [&_[data-slot=slider-range]]:bg-transparent [&_[data-slot=slider-track]]:bg-(image:--color-picker-hue)"
             style={{ "--color-picker-hue": HUE_GRADIENT } as CSSProperties}
           />
           {alpha ? (
@@ -264,7 +266,7 @@ export function ColorPicker({
                 update({ ...hsva, a: (a ?? 100) / 100 });
               }}
               className={cn(
-                "[&_[data-slot=slider-range]]:bg-transparent",
+                "h-6 [&_[data-slot=slider-range]]:bg-transparent",
                 // A checkerboard of the theme's own two tones under the ramp.
                 "[&_[data-slot=slider-track]]:bg-[image:var(--color-picker-alpha),repeating-conic-gradient(var(--color-muted)_0_25%,var(--color-background)_0_50%)] [&_[data-slot=slider-track]]:[background-size:auto,8px_8px]",
               )}
