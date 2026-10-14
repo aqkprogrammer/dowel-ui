@@ -274,7 +274,7 @@ export function ModelComparison({
                         {isBest ? (
                           <span
                             data-slot="model-comparison-best"
-                            className="rounded-full bg-success/15 px-1.5 py-0.5 text-[0.6875rem] leading-none font-medium text-success"
+                            className="rounded-full bg-success px-1.5 py-0.5 text-[0.6875rem] leading-none font-medium text-success-foreground"
                           >
                             {words.best}
                           </span>

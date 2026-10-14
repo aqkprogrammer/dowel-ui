@@ -24,6 +24,18 @@
     "reason": "story composition: the fixed-height scroll box is the story's own wrapper, used to demonstrate in-view triggering"
   },
   {
+    "story": "form-color-picker--alpha-and-oklch",
+    "rule": "color-contrast",
+    "themes": ["light", "dark"],
+    "reason": "the contrast preview: an aria-hidden \"Aa\" drawn in the colour being picked, so its contrast against the page is visible; the ratio beside it is the information, and low contrast is what it exists to show"
+  },
+  {
+    "story": "form-color-picker--default",
+    "rule": "color-contrast",
+    "themes": ["dark"],
+    "reason": "the contrast preview: an aria-hidden \"Aa\" drawn in the colour being picked, so its contrast against the page is visible; the ratio beside it is the information, and low contrast is what it exists to show"
+  },
+  {
     "story": "form-duration-picker--disabled",
     "rule": "color-contrast",
     "themes": ["light", "dark"],
