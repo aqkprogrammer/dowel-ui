@@ -187,6 +187,8 @@ export function AgentSurface({
   apiRef,
   onClickCapture,
   onInputCapture,
+  onClick,
+  onInput,
   children,
   ...props
 }: AgentSurfaceProps) {
@@ -213,6 +215,8 @@ export function AgentSurface({
   const sequence = useRef(0);
   const touched = useRef(new Map<Element, ReturnType<typeof setTimeout>>());
   const exposed = useRef(webmcp);
+  /** A take-over seen in the capture phase and not yet committed. */
+  const takingOver = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Compared by value: an inline array is a new array every render.
   const exposedToKey = JSON.stringify(exposedTo ?? []);
   const exposedToDefault = useRef<readonly string[]>(exposedTo ?? []);
@@ -247,14 +251,14 @@ export function AgentSurface({
     [],
   );
 
-  const change = useCallback(
+  /** Makes a change of control known: to the agent's calls, to React, to the app. */
+  const apply = useCallback(
     (
+      previous: ControlHolder,
       next: ControlHolder,
       by: ControlChange["by"],
       extra: { reason?: string; note?: string } = {},
     ) => {
-      const previous = holderRef.current;
-      if (next === previous) return;
       if (next === "person") {
         resumeTo.current = previous;
         for (const controller of stores.running) controller.abort();
@@ -280,6 +284,18 @@ export function AgentSurface({
       latest.current.onControlChange?.(event);
     },
     [labels, stores],
+  );
+
+  const change = useCallback(
+    (
+      next: ControlHolder,
+      by: ControlChange["by"],
+      extra: { reason?: string; note?: string } = {},
+    ) => {
+      const previous = holderRef.current;
+      if (next !== previous) apply(previous, next, by, extra);
+    },
+    [apply],
   );
 
   const runtime = useMemo<CallRuntime>(
@@ -422,6 +438,7 @@ export function AgentSurface({
         element.removeAttribute("data-agent-touched");
       }
       for (const controller of controllers) controller.abort();
+      if (takingOver.current !== null) clearTimeout(takingOver.current);
     };
   }, [stores]);
 
@@ -468,13 +485,31 @@ export function AgentSurface({
   // theirs; anything a person really did is trusted. Interface that is about
   // the agent rather than the page — the baton, an approval, the composer —
   // is marked data-agent-ui: approving a call is not taking the page back.
+  const commitTakeOver = () => {
+    if (takingOver.current === null) return;
+    clearTimeout(takingOver.current);
+    takingOver.current = null;
+    apply("agent", "person", "person");
+  };
+
   const takeOverFromInput = (event: SyntheticEvent, interactiveOnly: boolean) => {
     if (takeOverOn !== "input" || holderRef.current !== "agent") return;
     if (!event.nativeEvent.isTrusted && stores.executing.current > 0) return;
     const target = event.target instanceof Element ? event.target : null;
     if (!target || target.closest("[data-agent-ui]")) return;
     if (interactiveOnly && !target.closest(INTERACTIVE)) return;
-    change("person", "person");
+
+    // The agent is refused from this instant, but React is not told yet.
+    // React handles the capture and bubble phases of an event as two passes
+    // and renders between them, so a state change made here would re-render
+    // the person's controlled checkbox or field back to its old value before
+    // its own onChange was worked out: they would take the page and lose the
+    // very click that took it. The change is committed in the bubble phase,
+    // in the same pass as their handler. The timer covers a handler that
+    // stops the event before it gets back here.
+    holderRef.current = "person";
+    resumeTo.current = "agent";
+    takingOver.current = setTimeout(commitTakeOver, 0);
   };
 
   const context = useMemo<AgentSurfaceContextValue>(
@@ -510,6 +545,9 @@ export function AgentSurface({
       <style href="dowel-agent-surface" precedence="dowel">
         {STYLES}
       </style>
+      {/* The listeners watch events from the controls inside; the region itself
+          is not something to click or type in. */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
         data-slot="agent-surface"
         data-holder={holder}
@@ -520,6 +558,14 @@ export function AgentSurface({
         onInputCapture={(event) => {
           onInputCapture?.(event);
           takeOverFromInput(event, false);
+        }}
+        onClick={(event) => {
+          onClick?.(event);
+          commitTakeOver();
+        }}
+        onInput={(event) => {
+          onInput?.(event);
+          commitTakeOver();
         }}
         className={cn(
           "relative rounded-lg transition-shadow duration-[var(--duration-normal)]",

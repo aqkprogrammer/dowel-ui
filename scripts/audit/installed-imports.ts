@@ -12,6 +12,13 @@
  *
  * The rule: everything a component's `index.ts` exports, its main file exports.
  *
+ * Flat also means file names are shared. Every carousel carries its own
+ * `carousel-controls.tsx` so that it installs alone, and installed together
+ * the last one written wins: `swipe-carousel` carried a shorter one, and
+ * `invite-carousel` then imported names its copy did not have.
+ *
+ * The second rule: files of the same name in different items are identical.
+ *
  *   pnpm audit:installed-imports
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -21,7 +28,8 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const components = join(repoRoot, "packages", "ui", "src", "components");
+const uiSrc = join(repoRoot, "packages", "ui", "src");
+const components = join(uiSrc, "components");
 
 function resolveSibling(from: string, specifier: string): string | undefined {
   if (!specifier.startsWith(".")) return undefined;
@@ -92,6 +100,35 @@ for (const dir of readdirSync(components, { withFileTypes: true })) {
   }
 }
 
+// Components land in one folder and blocks in another, so a name only has to
+// be unique, or identical, within each.
+const SHIPPED = /\.tsx?$/;
+const NOT_SHIPPED = /\.(test|stories)\.tsx?$|^(index|meta)\.ts$/;
+
+for (const group of ["components", "blocks"]) {
+  const root = join(uiSrc, group);
+  if (!existsSync(root)) continue;
+  const byName = new Map<string, { item: string; source: string }[]>();
+
+  for (const dir of readdirSync(root, { withFileTypes: true })) {
+    if (!dir.isDirectory()) continue;
+    for (const file of readdirSync(join(root, dir.name))) {
+      if (!SHIPPED.test(file) || NOT_SHIPPED.test(file)) continue;
+      const copies = byName.get(file) ?? [];
+      copies.push({ item: dir.name, source: readFileSync(join(root, dir.name, file), "utf8") });
+      byName.set(file, copies);
+    }
+  }
+
+  for (const [file, copies] of byName) {
+    if (new Set(copies.map((copy) => copy.source)).size <= 1) continue;
+    problems.push(
+      `${file} differs between ${copies.map((copy) => copy.item).join(", ")} (${group}). ` +
+        "Installed together they overwrite each other: make the copies identical, or rename one.",
+    );
+  }
+}
+
 if (problems.length > 0) {
   console.error(`✗ ${String(problems.length)} components import differently once installed:\n`);
   for (const problem of problems) console.error(`  ${problem}`);
@@ -99,5 +136,6 @@ if (problems.length > 0) {
 }
 
 console.log(
-  `✓ ${String(checked)} components export the same from their main file as their index.`,
+  `✓ ${String(checked)} components export the same from their main file as their index, ` +
+    "and no two items ship different files under one name.",
 );

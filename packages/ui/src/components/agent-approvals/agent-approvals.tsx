@@ -107,6 +107,15 @@ export function correctedInput(
   return corrected;
 }
 
+/**
+ * A question is open while its call is still waiting. The surface ends the
+ * call when the person takes the page back, and the question goes with it.
+ */
+function isOpen(entry: Pending, live: AgentToolCall[]): boolean {
+  const call = live.find((candidate) => candidate.id === entry.call.id);
+  return !call || call.status === "running";
+}
+
 export interface AgentApprovalsProps extends Omit<ComponentPropsWithRef<"div">, "children"> {
   /** Labels for arguments, by name. Otherwise the schema's description, or the name itself. */
   fieldLabels?: Record<string, string>;
@@ -118,12 +127,18 @@ export function AgentApprovals({ className, fieldLabels, ...props }: AgentApprov
   const [settled, setSettled] = useState<Settled | null>(null);
   const pending = useRef<Pending[]>([]);
 
+  const liveCalls = useRef(calls);
+  useEffect(() => {
+    liveCalls.current = calls;
+  }, [calls]);
+
   useEffect(() => {
     const unregister = registerApprover(
       (call) =>
         new Promise<ApprovalAnswer>((resolve) => {
           const entry = { call, resolve };
-          pending.current = [...pending.current, entry];
+          const open = pending.current.filter((other) => isOpen(other, liveCalls.current));
+          pending.current = [...open, entry];
           setQueue(pending.current);
         }),
     );
@@ -135,7 +150,8 @@ export function AgentApprovals({ className, fieldLabels, ...props }: AgentApprov
     };
   }, [registerApprover]);
 
-  const current = queue[0];
+  const open = queue.filter((entry) => isOpen(entry, calls));
+  const current = open[0];
   const schema = current
     ? api.tools().find((tool) => tool.name === current.call.tool)?.inputSchema
     : undefined;
@@ -204,9 +220,9 @@ export function AgentApprovals({ className, fieldLabels, ...props }: AgentApprov
           ) : null}
         </ApprovalRequest>
       ) : null}
-      {queue.length > 1 ? (
+      {open.length > 1 ? (
         <p data-slot="agent-approvals-queued" className="text-xs text-muted-foreground">
-          {queue.length - 1} more {queue.length === 2 ? "request" : "requests"} waiting
+          {open.length - 1} more {open.length === 2 ? "request" : "requests"} waiting
         </p>
       ) : null}
     </div>

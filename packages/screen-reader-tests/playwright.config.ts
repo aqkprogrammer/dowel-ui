@@ -63,6 +63,13 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], headless: true },
     },
     {
+      // No screen reader either: behaviour that only a real browser has, such
+      // as what React does between the phases of a real click.
+      name: "browser",
+      testMatch: /\.browser\.spec\.ts$/,
+      use: { ...devices["Desktop Chrome"], headless: true },
+    },
+    {
       name: "voiceover",
       testMatch: /\.voiceover\.spec\.ts$/,
       use: { ...devices["Desktop Safari"], headless: false },

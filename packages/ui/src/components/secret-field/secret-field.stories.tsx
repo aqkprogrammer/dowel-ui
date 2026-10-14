@@ -65,7 +65,7 @@ export const Revealable: Story = {
       <div className="flex flex-col gap-3">
         <SecretField
           label="Webhook signing secret"
-          value="whsec_9c1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b"
+          value="whsec_EXAMPLE-not-a-real-secret-2e3f"
           onRevealChange={(revealed) => {
             setLog((current) => [
               ...current,
