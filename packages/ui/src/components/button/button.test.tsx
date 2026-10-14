@@ -266,6 +266,28 @@ describe("Button motion and extra axes (SmoothUI)", () => {
     expect(screen.getByRole("button")).not.toHaveClass("motion-safe:active:scale-[0.97]");
   });
 
+  it("raises the button on an edge it sinks into with press depth", () => {
+    const { rerender } = render(<Button press="depth">Action</Button>);
+    const button = screen.getByRole("button");
+    expect(button).toHaveClass("shadow-[0_3px_0_var(--color-primary-active)]");
+    expect(button).toHaveClass("motion-safe:active:translate-y-[3px]");
+    // The edge goes on press even under reduced motion; only the travel is motion-safe.
+    expect(button).toHaveClass("active:shadow-[0_0_0_var(--color-primary-active)]");
+    expect(button).not.toHaveClass("motion-safe:active:scale-[0.97]");
+    rerender(
+      <Button press="depth" variant="outline">
+        Action
+      </Button>,
+    );
+    expect(button).toHaveClass("shadow-[0_3px_0_var(--color-border-strong)]");
+    rerender(
+      <Button press="depth" variant="link">
+        Action
+      </Button>,
+    );
+    expect(button.className).not.toContain("translate-y-[3px]");
+  });
+
   it("never presses the link variant", () => {
     render(<Button variant="link">Read more</Button>);
     expect(screen.getByRole("button")).not.toHaveClass("motion-safe:active:scale-[0.97]");

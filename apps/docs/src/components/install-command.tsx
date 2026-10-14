@@ -7,10 +7,10 @@ import { useSyncExternalStore } from "react";
 import { branding } from "~/lib/branding";
 
 const RUNNERS = [
-  { id: "pnpm", prefix: "pnpm dlx" },
-  { id: "npm", prefix: "npx" },
-  { id: "yarn", prefix: "yarn dlx" },
-  { id: "bun", prefix: "bunx" },
+  { id: "pnpm", prefix: "pnpm dlx", add: "pnpm add" },
+  { id: "npm", prefix: "npx", add: "npm install" },
+  { id: "yarn", prefix: "yarn dlx", add: "yarn add" },
+  { id: "bun", prefix: "bunx", add: "bun add" },
 ] as const;
 
 type Runner = (typeof RUNNERS)[number]["id"];
@@ -46,9 +46,10 @@ function writeRunner(runner: Runner): void {
 }
 
 /** The reader's package manager, as chosen on any install command on the site. */
-export function usePackageRunner(): { runner: Runner; prefix: string } {
+export function usePackageRunner(): { runner: Runner; prefix: string; add: string } {
   const runner = useSyncExternalStore<Runner>(subscribe, readRunner, () => "pnpm");
-  return { runner, prefix: RUNNERS.find((entry) => entry.id === runner)?.prefix ?? "npx" };
+  const entry = RUNNERS.find((candidate) => candidate.id === runner);
+  return { runner, prefix: entry?.prefix ?? "npx", add: entry?.add ?? "npm install" };
 }
 
 /**
@@ -69,7 +70,63 @@ export function InstallCommand({
   const { runner, prefix } = usePackageRunner();
   // cliPackage, not cliName: this follows the runner, so it is the npm package
   // name — which is not the same as the binary it installs.
-  const command = `${prefix} ${branding.cliPackage} ${args}`;
+  return (
+    <CommandBox
+      runner={runner}
+      command={prefix}
+      rest={branding.cliPackage}
+      args={args}
+      label="Copy install command"
+      className={className}
+      compact={compact}
+    />
+  );
+}
+
+/**
+ * `npm install` for a list of packages, in the reader's package manager — the
+ * first step of installing a component by hand.
+ */
+export function PackageInstallCommand({
+  packages,
+  dev = false,
+  className,
+}: {
+  packages: string[];
+  /** Save them as dev dependencies; every package manager here takes `-D`. */
+  dev?: boolean;
+  className?: string;
+}) {
+  const { runner, add } = usePackageRunner();
+  return (
+    <CommandBox
+      runner={runner}
+      command={add}
+      args={`${dev ? "-D " : ""}${packages.join(" ")}`}
+      label={dev ? "Copy dev dependency install command" : "Copy dependency install command"}
+      className={className}
+    />
+  );
+}
+
+function CommandBox({
+  runner,
+  command,
+  rest,
+  args,
+  label,
+  className,
+  compact = false,
+}: {
+  runner: Runner;
+  command: string;
+  rest?: string;
+  args: string;
+  label: string;
+  className?: string;
+  compact?: boolean;
+}) {
+  const full = [command, rest, args].filter(Boolean).join(" ");
 
   return (
     <div
@@ -111,14 +168,14 @@ export function InstallCommand({
           <span aria-hidden="true" className="me-2 text-muted-foreground/60 select-none">
             $
           </span>
-          <span className="tok-fn">{prefix}</span> {branding.cliPackage}{" "}
-          <span className="text-foreground">{args}</span>
+          <span className="tok-fn">{command}</span>
+          {rest ? ` ${rest}` : null} <span className="text-foreground">{args}</span>
         </code>
         <CopyButton
-          value={command}
+          value={full}
           variant="ghost"
           size="icon-sm"
-          aria-label="Copy install command"
+          aria-label={label}
           tone="success"
           className="size-7 shrink-0 text-muted-foreground hover:text-foreground [&_svg]:size-3.5"
         />

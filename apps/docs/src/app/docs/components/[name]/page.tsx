@@ -5,9 +5,11 @@ import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 
 import { InstallCommand } from "~/components/install-command";
+import { InstallTabs } from "~/components/install-tabs";
 import { JsonLd } from "~/components/json-ld";
 import { LicensedNotice } from "~/components/licensed-notice";
 import { Preview } from "~/components/preview";
+import { componentControls } from "~/lib/controls.generated";
 import { PropsTable } from "~/components/props-table";
 import { QualityChecks } from "~/components/quality-checks";
 import { CodePanel } from "~/components/site/code-panel";
@@ -15,8 +17,10 @@ import { CosmicBackground } from "~/components/site/cosmic-background";
 import { DocSection } from "~/components/site/doc-section";
 import { OnThisPage } from "~/components/site/on-this-page";
 import { StoryGallery } from "~/components/story-gallery";
+import { BACKGROUNDS } from "~/lib/backgrounds";
 import { branding } from "~/lib/branding";
 import { categoryMeta } from "~/lib/category-meta";
+import { manualInstallFor } from "~/lib/manual-install";
 import { componentProps } from "~/lib/props.generated";
 import { componentQuality } from "~/lib/quality.generated";
 import {
@@ -39,7 +43,8 @@ import { usageFor } from "~/lib/usage";
  *
  * It reads top to bottom in the order someone deciding on a component asks:
  * what does it look like, how do I get it, how do I use it, what are its
- * variants, what does it take, and is it any good. The source is last.
+ * variants, what does it take, and is it any good. The source is in the
+ * manual installation steps, with everything else it needs.
  */
 
 interface PageProps {
@@ -48,6 +53,13 @@ interface PageProps {
 
 /** Stories that open over the page or need a viewport of scroll: shown one at a time only. */
 const NO_GALLERY = new Set(["session-expiry", "scroll-reveal-text"]);
+
+/** Words for each rendering tier above plain CSS, as a page header chip. */
+const TIER_LABELS = {
+  motion: "Animates with motion",
+  canvas: "Draws on a canvas",
+  webgl: "Renders with WebGL",
+} as const;
 
 export function generateStaticParams() {
   return getComponents().map((item) => ({ name: item.name }));
@@ -98,6 +110,13 @@ export default async function ComponentPage({ params }: PageProps) {
   const usedIn = getBlocksUsing(item.name);
   const usage = licensed ? undefined : usageFor(item);
   const categoryLabel = CATEGORY_LABELS[entry.category] ?? entry.category;
+  // How it draws, when that is more than markup and CSS: what installing it
+  // takes on. And, for a background, where its looks are shown side by side.
+  const tier =
+    item.capabilities?.tier && item.capabilities.tier !== "css"
+      ? item.capabilities.tier
+      : undefined;
+  const looks = BACKGROUNDS.filter((look) => look.component === item.name);
   const CategoryIcon = categoryMeta(entry.category).icon;
   const hasProps = (componentProps[item.name]?.length ?? 0) > 0;
   const hasQuality = componentQuality[item.name] !== undefined;
@@ -111,7 +130,6 @@ export default async function ComponentPage({ params }: PageProps) {
     ...(item.a11y ? [{ id: "accessibility", title: "Accessibility" }] : []),
     ...(hasQuality ? [{ id: "quality", title: "Quality" }] : []),
     ...(usedIn.length > 0 ? [{ id: "used-in", title: "Used in" }] : []),
-    { id: "source", title: "Source" },
   ];
 
   const structuredData = graph(
@@ -203,6 +221,24 @@ export default async function ComponentPage({ params }: PageProps) {
                 Accessibility notes
               </li>
             ) : null}
+            {tier ? (
+              <li className="rounded-full border border-[var(--hairline)] px-2.5 py-1">
+                {TIER_LABELS[tier]}
+              </li>
+            ) : null}
+            {looks[0] ? (
+              <li>
+                <Link
+                  href={`/docs/backgrounds#${looks[0].id}`}
+                  className="inline-flex items-center gap-1 rounded-full border border-[var(--hairline-strong)] px-2.5 py-1 text-foreground transition-colors outline-none hover:border-[var(--cosmic-blue)] focus-visible:ring-2 focus-visible:ring-ring/55"
+                >
+                  {looks.length === 1
+                    ? "See it in Backgrounds"
+                    : `${String(looks.length)} looks in Backgrounds`}
+                  <ArrowUpRight aria-hidden="true" className="size-3" />
+                </Link>
+              </li>
+            ) : null}
           </ul>
         </header>
 
@@ -212,6 +248,7 @@ export default async function ComponentPage({ params }: PageProps) {
           source={source}
           sourceTitle={mainPath ? `components/${mainPath}` : undefined}
           playgroundHref={licensed ? undefined : `/playground?c=${item.name}`}
+          controls={licensed ? undefined : componentControls[item.name]}
         />
 
         <div className="mt-16">
@@ -220,32 +257,40 @@ export default async function ComponentPage({ params }: PageProps) {
             title="Installation"
             description={
               item.registryDependencies.length > 0
-                ? `Installs ${formatList(item.registryDependencies)} as well, because this component imports ${item.registryDependencies.length === 1 ? "it" : "them"}.`
-                : "One command, and the file is in your project."
+                ? `The CLI installs ${formatList(item.registryDependencies)} as well, because this component imports ${item.registryDependencies.length === 1 ? "it" : "them"}. Or copy everything in by hand.`
+                : "One command and the file is in your project, or copy it in by hand."
             }
           >
-            <InstallCommand args={`add ${item.name}`} />
-            <p className="mt-3 text-sm text-muted-foreground">
-              {item.dependencies.length > 0 ? (
+            <InstallTabs
+              manual={manualInstallFor(item)}
+              cli={
                 <>
-                  npm packages installed:{" "}
-                  {item.dependencies.map((dependency, index) => (
-                    <span key={dependency}>
-                      {index > 0 ? ", " : ""}
-                      <code className="rounded bg-[var(--pane-raised)] px-1 py-0.5 font-mono text-[0.85em] text-foreground">
-                        {dependency}
-                      </code>
-                    </span>
-                  ))}
-                  .
+                  <InstallCommand args={`add ${item.name}`} />
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {item.dependencies.length > 0 ? (
+                      <>
+                        npm packages installed:{" "}
+                        {item.dependencies.map((dependency, index) => (
+                          <span key={dependency}>
+                            {index > 0 ? ", " : ""}
+                            <code className="rounded bg-[var(--pane-raised)] px-1 py-0.5 font-mono text-[0.85em] text-foreground">
+                              {dependency}
+                            </code>
+                          </span>
+                        ))}
+                        .
+                      </>
+                    ) : (
+                      <>
+                        No npm packages are needed beyond what {branding.libraryName} already
+                        requires.
+                      </>
+                    )}
+                  </p>
+                  {licensed ? <LicensedNotice name={item.name} /> : null}
                 </>
-              ) : (
-                <>
-                  No npm packages are needed beyond what {branding.libraryName} already
-                  requires.
-                </>
-              )}
-            </p>
+              }
+            />
           </DocSection>
 
           {usage ? (
@@ -329,36 +374,6 @@ export default async function ComponentPage({ params }: PageProps) {
               </ul>
             </DocSection>
           ) : null}
-
-          <DocSection
-            id="source"
-            title="Source"
-            description={
-              <>
-                Exactly what{" "}
-                <code className="font-mono text-foreground">
-                  {branding.cliName} add {item.name}
-                </code>{" "}
-                writes into your project, with imports rewritten to your own path alias.
-              </>
-            }
-          >
-            {licensed ? (
-              <LicensedNotice name={item.name} />
-            ) : (
-              <div className="grid gap-4">
-                {item.files.map((file) => (
-                  <CodePanel
-                    key={file.path}
-                    title={`components/${file.path}`}
-                    code={file.content}
-                    collapseAfter={40}
-                    lineNumbers
-                  />
-                ))}
-              </div>
-            )}
-          </DocSection>
         </div>
       </article>
 

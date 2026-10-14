@@ -244,6 +244,43 @@ import { meta as holeBackgroundMeta } from "@/components/hole-background/meta";
 import { meta as bubbleBackgroundMeta } from "@/components/bubble-background/meta";
 import { meta as gradientBackgroundMeta } from "@/components/gradient-background/meta";
 import { meta as hexagonBackgroundMeta } from "@/components/hexagon-background/meta";
+import { meta as cosmicBackgroundMeta } from "@/components/cosmic-background/meta";
+import { meta as borderBeamMeta } from "@/components/border-beam/meta";
+import { meta as auroraBackgroundMeta } from "@/components/aurora-background/meta";
+import { meta as shaderBackgroundMeta } from "@/components/shader-background/meta";
+import { meta as carouselMeta } from "@/components/carousel/meta";
+import { meta as comparisonSliderMeta } from "@/components/comparison-slider/meta";
+import { meta as colorPickerMeta } from "@/components/color-picker/meta";
+import { meta as resizableMeta } from "@/components/resizable/meta";
+import { meta as passwordStrengthMeta } from "@/components/password-strength/meta";
+import { meta as patternBackgroundMeta } from "@/components/pattern-background/meta";
+import { meta as interactiveGridMeta } from "@/components/interactive-grid/meta";
+import { meta as lightBeamsMeta } from "@/components/light-beams/meta";
+import { meta as flowFieldMeta } from "@/components/flow-field/meta";
+import { meta as scrollRevealMeta } from "@/components/scroll-reveal/meta";
+import { meta as parallaxMeta } from "@/components/parallax/meta";
+import { meta as stackingCardsMeta } from "@/components/stacking-cards/meta";
+import { meta as horizontalScrollMeta } from "@/components/horizontal-scroll/meta";
+import { meta as imageTrailMeta } from "@/components/image-trail/meta";
+import { meta as cursorSpotlightMeta } from "@/components/cursor-spotlight/meta";
+import { meta as gradientTextMeta } from "@/components/gradient-text/meta";
+import { meta as highlightTextMeta } from "@/components/highlight-text/meta";
+import { meta as letterSwapMeta } from "@/components/letter-swap/meta";
+import { meta as proximityTextMeta } from "@/components/proximity-text/meta";
+import { meta as confettiButtonMeta } from "@/components/confetti-button/meta";
+import { meta as bentoGridMeta } from "@/components/bento-grid/meta";
+import { meta as navigationMenuMeta } from "@/components/navigation-menu/meta";
+import { meta as navbarMeta } from "@/components/navbar/meta";
+import { meta as bottomNavMeta } from "@/components/bottom-nav/meta";
+import { meta as audioVisualizerMeta } from "@/components/audio-visualizer/meta";
+import { meta as voiceInputMeta } from "@/components/voice-input/meta";
+import { meta as workflowGraphMeta } from "@/components/workflow-graph/meta";
+import { meta as modelComparisonMeta } from "@/components/model-comparison/meta";
+import { meta as cubeMeta } from "@/components/cube/meta";
+import { meta as imageRingMeta } from "@/components/image-ring/meta";
+import { meta as deviceMockupMeta } from "@/components/device-mockup/meta";
+import { meta as globeMeta } from "@/components/globe/meta";
+import { meta as modelViewerMeta } from "@/components/model-viewer/meta";
 
 /**
  * Every component in the registry.
@@ -501,10 +538,49 @@ export const componentMetas: ComponentMeta[] = [
   bubbleBackgroundMeta,
   gradientBackgroundMeta,
   hexagonBackgroundMeta,
+  cosmicBackgroundMeta,
+  borderBeamMeta,
+  auroraBackgroundMeta,
+  shaderBackgroundMeta,
+  carouselMeta,
+  comparisonSliderMeta,
+  colorPickerMeta,
+  resizableMeta,
+  passwordStrengthMeta,
+  patternBackgroundMeta,
+  interactiveGridMeta,
+  lightBeamsMeta,
+  flowFieldMeta,
+  scrollRevealMeta,
+  parallaxMeta,
+  stackingCardsMeta,
+  horizontalScrollMeta,
+  imageTrailMeta,
+  cursorSpotlightMeta,
+  gradientTextMeta,
+  highlightTextMeta,
+  letterSwapMeta,
+  proximityTextMeta,
+  confettiButtonMeta,
+  bentoGridMeta,
+  navigationMenuMeta,
+  navbarMeta,
+  bottomNavMeta,
+  audioVisualizerMeta,
+  voiceInputMeta,
+  workflowGraphMeta,
+  modelComparisonMeta,
+  cubeMeta,
+  imageRingMeta,
+  deviceMockupMeta,
+  globeMeta,
+  modelViewerMeta,
 ];
 
-// This file is the `@dowel-ui/react/registry` entry point, so the block barrel is
-// re-exported here — the registry build reads both through one import.
+// This file is the `@dowel-ui/react/registry` entry point, so the block and hook
+// barrels are re-exported here — the registry build reads all three through one
+// import.
 export { blockMetas } from "./blocks";
+export { hookMetas } from "./hooks";
 export { COMPONENT_CATEGORIES, COMPONENT_STATUSES } from "./schema";
-export type { ComponentCategory, ComponentMeta, ComponentStatus } from "./schema";
+export type { ComponentCategory, ComponentMeta, ComponentStatus, ControlHint } from "./schema";

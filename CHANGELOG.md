@@ -7,6 +7,100 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ### Added
 
+- **`shader-background`** (experimental): a full-bleed WebGL scene behind
+  content. One engine draws fourteen procedural presets: `dunes`, `hills`,
+  `storm-sea`, `meadow`, `petals`, `glass-wave`, `liquid-metal`, `silk`,
+  `mesh-gradient`, `topography`, `particle-ocean`, `nebula`, `warp` and
+  `helix`. `colors` re-dresses any scene with theme tokens or CSS colours, and
+  `attach="viewport"` pins it behind a whole page without clipping sticky
+  headers. It stops drawing off-screen and in hidden tabs, shows one still frame
+  under reduced motion, and falls back to a CSS gradient in the same palette
+  without WebGL or after a lost context.
+- **`aurora-background`**, **`border-beam`** and **`cosmic-background`**.
+- **Docs: `/docs/backgrounds`** shows every background in the library live,
+  with category filters and, for each one, a prompt for a coding agent that is
+  generated from the same catalogue as the card.
+- **Docs: manual install tabs** on component and block pages, next to the CLI
+  command.
+- **Controls on every component page.** A Controls toggle beside the live
+  example sets its props in place and shows the tag as set; the Playground link
+  carries those props with it.
+- **Playground links hold the whole configuration**: component, example, theme,
+  mode, radius and every changed prop. Values read from a link are checked
+  against the control that would have set them — an unknown option is dropped
+  and a number is clamped to its range.
+- **Registry: a `control` on each prop** (select, boolean, number, text or
+  colour), derived from the prop's type with its default, and refined by a new
+  optional `controls` field in `meta.ts` for what a type cannot say (a number's
+  range). The MCP server's `get_component` shows number ranges.
+- **Registry: `capabilities.tier`** — `css`, `motion`, `canvas` or `webgl`, the
+  heaviest technique an item uses counting what it installs with it. Optional in
+  the schema, so registries built before it still parse.
+
+- **`carousel`**: scroll-snap carousel with previous/next, dots, keyboard
+  steps in reading direction, several items per view and a vertical layout.
+  Rotation is opt-in and pauses on hover, focus, off-screen and in hidden tabs.
+- **`comparison-slider`**: two versions of one thing with a draggable,
+  keyboard-operable divider.
+- **`color-picker`**: saturation square, hue and alpha, hex/rgb/oklch,
+  swatches, eyedropper and a live WCAG contrast reading.
+- **`resizable`**: panels with window-splitter handles, limits and collapsible
+  panels.
+- **`password-strength`**: a strength meter and rule checklist for a password
+  field.
+- **Hooks in the registry**: `use-reduced-motion` and `use-in-view` install
+  into the project's hooks folder (`dowel add use-in-view`), and are exported
+  from `@dowel-ui/react` and `@dowel-ui/react/hooks/*`.
+
+- **`pattern-background`**, **`interactive-grid`**, **`light-beams`** and
+  **`flow-field`**: a CSS pattern backdrop (dots, grid, lines, stripes, checker,
+  grain), a pointer-lit canvas grid with ripples, CSS rays of light, and
+  particles on a moving current. All four are on `/docs/backgrounds`, in a new
+  "Patterns & grids" filter.
+- **Docs: background pages link to the gallery** ("14 looks in Backgrounds"),
+  deep-linked to the look, and component pages say how a component draws when
+  it is more than CSS ("Draws on a canvas", "Renders with WebGL").
+
+- **Scroll effects:** `scroll-reveal` (seven effects, staggered children, and
+  content that is never hidden unless it will be revealed), `parallax`,
+  `stacking-cards` and `horizontal-scroll` (pinned, driven by the page's own
+  scroll, a plain scroller without JavaScript or under reduced motion).
+- **Cursor effects:** `image-trail` and `cursor-spotlight`, scoped to their
+  box, leaving the system cursor alone, and off for touch and reduced motion.
+
+- **Text effects:** `gradient-text`, `highlight-text`, `letter-swap` and
+  `proximity-text` — each keeps the text as real, readable text.
+- **Buttons:** `effect-button` gains a `glitch` effect; `Button` gains
+  `press="depth"`, raised on an edge it sinks into; `confetti-button` bursts
+  confetti from itself, and `burstConfetti()` from anywhere.
+- **Layout:** `glow-card` gains `variant="spotlight"`, and `bento-grid` lays out
+  tiles of mixed sizes.
+
+- **Navigation:** `navbar` (static, sticky or hide-on-scroll — never hidden
+  while it holds focus — with a mobile menu and a skip link),
+  `navigation-menu` (links and mega menus) and `bottom-nav` (a phone tab bar
+  with spoken badges).
+- **AI:** `voice-input` records, shows level and time, transcribes where the
+  browser can, and explains a blocked or missing microphone;
+  `audio-visualizer` draws a stream or a level as bars, a wave or an orb;
+  `workflow-graph` lays out a pipeline in layers, each step stating its
+  status; `model-comparison` compares models in a table that marks the best
+  of each row in words.
+- **Blocks:** `changelog`, `contact`, `careers`, `integrations`, `api-keys`
+  (each new key shown once, revoking confirmed), `site-header` (desktop menus
+  and the mobile list from one list of links), and two heroes over the new
+  backgrounds, `hero-light-beams` and `hero-flow-field`. Search finds them by
+  everyday words — "release notes", "jobs", "mega menu", "api keys".
+- **3D:** `cube` turns to show one face at a time — a carousel to assistive
+  technology, by buttons, arrow keys or drag; `image-ring` stands images on a
+  slowly turning ring you can drag; `device-mockup` draws a phone, tablet,
+  laptop or browser around a screenshot or live UI, with an optional tilt.
+- **WebGL:** `globe` draws a dotted globe with places and the routes between
+  them in raw WebGL, listing them for screen readers and falling back to SVG;
+  `model-viewer` shows a glTF/GLB model people can turn, behind a poster.
+  `three` is an optional peer used only by `model-viewer`, which is not in
+  the main entry: import it from `@dowel-ui/react/model-viewer`.
+
 - **Visual regression tests.** `packages/visual-tests` screenshots every
   Storybook story and compares it with the same story on the base branch, in a
   new CI workflow. No baseline images are committed: the job builds Storybook
@@ -25,6 +119,13 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ### Changed
 
+- **Registry items can name dev dependencies.** An item whose npm dependency
+  ships no type declarations lists them in `devDependencies`, and `dowel add`
+  installs them with `-D`, so the project still type-checks — the install
+  check caught `model-viewer` failing without `@types/three`. The field is
+  optional: older registries parse, and an older CLI ignores it (and leaves
+  the types to be installed by hand). `dowel doctor`, the MCP server and the
+  docs' manual install steps list them too.
 - **The install check runs in CI.** `pnpm install-check` installs every
   registry item into a new Next.js app with this checkout's CLI and builds it,
   on pull requests that touch the library and nightly against the newest
@@ -60,6 +161,20 @@ which a unit test could see.
 - **`agent-replay` no longer takes the page from the agent.** Stepping through
   a replay inside a surface counted as taking over. Like the ledger, it is
   marked as the agent's own interface.
+
+- **Props tables were missing props** a component removes from its element with
+  `Omit` and then declares itself (`BorderBeam`'s `color`, for one): 120 across
+  the library, now listed.
+- **`matrix-orb`** could run its springs backwards for one frame: the first
+  frame's clock and the next frame's timestamp can disagree, and the negative
+  step was not clamped. This also made two of its tests fail intermittently.
+- **Background performance:** `gravity-stars-background` finds its links with
+  a spatial hash into reused buffers instead of comparing every pair and
+  allocating each frame; `fireworks-background` no longer allocates per frame;
+  `bubble-background` and `gradient-background` pause their animation
+  off-screen.
+- The MCP server's `search_components` category hint now lists every category,
+  `effects` included.
 
 ## 0.13.1
 

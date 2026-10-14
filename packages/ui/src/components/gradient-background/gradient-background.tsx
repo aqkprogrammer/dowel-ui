@@ -4,6 +4,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { MotionConfig, motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import {
+  useCallback,
   useId,
   useSyncExternalStore,
   type ComponentPropsWithRef,
@@ -12,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { useInView } from "@/hooks/use-in-view";
 import { cn } from "@/lib/utils";
 
 /*
@@ -48,6 +50,7 @@ function scaled(seconds: number): string {
 }
 
 const STYLES = `
+[data-slot=gradient-background][data-offscreen] *,[data-slot=gradient-background][data-offscreen] *::before,[data-slot=gradient-background][data-offscreen] *::after{animation-play-state:paused!important}
 @keyframes ${PREFIX}-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes ${PREFIX}-sway{0%,100%{transform:translate3d(0,0,0) rotate(0deg) skewX(0deg)}33%{transform:translate3d(-6%,4%,0) rotate(4deg) skewX(-8deg)}66%{transform:translate3d(5%,-3%,0) rotate(-3deg) skewX(6deg)}}
 @keyframes ${PREFIX}-orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
@@ -185,9 +188,20 @@ export function GradientBackground({
   children,
   onPointerMove,
   onPointerLeave,
+  ref,
   ...props
 }: GradientBackgroundProps) {
   const reduced = usePrefersReducedMotion();
+  // Its animations run forever; off-screen they pause, as nobody can see them.
+  const { ref: inViewRef, inView } = useInView<HTMLDivElement>({ rootMargin: "100px" });
+  const setRefs = useCallback(
+    (node: HTMLDivElement | null) => {
+      inViewRef(node);
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+    },
+    [inViewRef, ref],
+  );
   const grainId = `${PREFIX}-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const palette = colors.length > 0 ? colors : DEFAULT_COLORS;
   const c = (index: number) => palette[index % palette.length] ?? DEFAULT_COLORS[0];
@@ -293,7 +307,9 @@ export function GradientBackground({
   return (
     <MotionConfig reducedMotion="user">
       <div
+        ref={setRefs}
         data-slot="gradient-background"
+        data-offscreen={inView ? undefined : ""}
         data-variant={mood}
         data-interactive={follows ? "" : undefined}
         className={cn(gradientBackgroundVariants({ variant, speed }), className)}

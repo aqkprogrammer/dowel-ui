@@ -18,6 +18,7 @@ const meta = {
     },
     intensity: { control: { type: "range", min: 0, max: 1, step: 0.05 } },
     radius: { control: { type: "range", min: 60, max: 400, step: 10 } },
+    variant: { control: "inline-radio", options: ["glow", "spotlight"] },
   },
   render: (args) => (
     <GlowCard {...args} className="w-72 p-5">
@@ -134,6 +135,19 @@ export const AsLink: Story = {
           The whole card is one link.
         </span>
       </a>
+    </GlowCard>
+  ),
+};
+
+/** The spotlight variant: the light fills the interior around the pointer, with no ring. */
+export const Spotlight: Story = {
+  args: { variant: "spotlight", intensity: 0.2, radius: 260 },
+  render: (args) => (
+    <GlowCard {...args} className="w-80 p-6">
+      <h2 className="text-sm font-semibold">A light inside the card</h2>
+      <p className="mt-2 text-xs text-muted-foreground">
+        It sits under the text, so the words are lit, never tinted.
+      </p>
     </GlowCard>
   ),
 };

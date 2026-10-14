@@ -19,30 +19,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@dowel-ui/react/select";
-import { Slider } from "@dowel-ui/react/slider";
 import { Switch } from "@dowel-ui/react/switch";
 import { cn } from "@dowel-ui/react";
 import { THEME_PRESETS } from "@dowel-ui/themes";
 import { RotateCcw } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import {
-  startTransition,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useSearchParams } from "next/navigation";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   componentTag,
   controlsFor,
+  decodeOverrides,
+  encodeOverrides,
   generateJsx,
   initialValue,
   type Control,
 } from "~/lib/playground";
+import { componentControls } from "~/lib/controls.generated";
 import { asStory, asStoryMeta, type StoryArgs } from "~/lib/story-types";
 
+import { ControlField, Field, SliderField } from "./control-fields";
 import { CodePanel } from "./site/code-panel";
 import { getStoryNames, useStoryModule } from "./story-preview";
 
@@ -63,7 +59,6 @@ export interface PlaygroundEntry {
  * stories and the theme controls, not an empty panel captioned "no options".
  */
 export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
-  const router = useRouter();
   const params = useSearchParams();
 
   const initialName = params.get("c") ?? entries[0]?.name ?? "button";
@@ -73,9 +68,29 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
       : (entries[0]?.name ?? ""),
   );
 
-  const [preset, setPreset] = useState<string>(params.get("theme") ?? "default");
+  // Everything read from the URL is checked against what a control could have
+  // chosen: an unknown preset falls back to the default, a radius is clamped.
+  const [preset, setPreset] = useState<string>(() => {
+    const requested = params.get("theme");
+    return requested !== null && (THEME_PRESETS as readonly string[]).includes(requested)
+      ? requested
+      : "default";
+  });
   const [dark, setDark] = useState(params.get("dark") === "1");
-  const [radius, setRadius] = useState(Number(params.get("radius") ?? "1"));
+  const [radius, setRadius] = useState(() => {
+    const requested = Number(params.get("radius") ?? "1");
+    return Number.isFinite(requested) ? Math.min(2, Math.max(0, requested)) : 1;
+  });
+
+  /**
+   * The link this page was opened with, for the component it names.
+   *
+   * Its prop values cannot be decoded yet — the controls they are checked
+   * against arrive with the component's stories — so they are kept here and
+   * read once those controls exist, then dropped the first time the reader
+   * changes anything.
+   */
+  const [linked] = useState(() => ({ name: initialName, params: new URLSearchParams(params) }));
 
   /**
    * Radius is applied to the document, not to the preview surface.
@@ -111,10 +126,16 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
   // order a module namespace object hands back.
   const storyNames = useMemo(() => getStoryNames(name), [name]);
 
-  const [storyName, setStoryName] = useState<string | undefined>(undefined);
-  const story = asStory(storyModule?.[storyName ?? storyNames[0] ?? ""]);
+  const [storyName, setStoryName] = useState<string | undefined>(() => {
+    const requested = linked.params.get("s");
+    return requested ?? undefined;
+  });
+  // A story named in a link that the component does not have is ignored.
+  const activeStory =
+    storyName !== undefined && storyNames.includes(storyName) ? storyName : undefined;
+  const story = asStory(storyModule?.[activeStory ?? storyNames[0] ?? ""]);
 
-  const controls = useMemo(() => controlsFor(name, meta), [name, meta]);
+  const controls = useMemo(() => controlsFor(componentControls[name], meta), [name, meta]);
 
   const baseArgs: StoryArgs = useMemo(
     () => ({ ...meta?.args, ...story?.args }),
@@ -131,7 +152,11 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
 
   // Memoised because the `?? {}` fallback is a fresh object every render, which
   // would make the memo below recompute on every render and defeat itself.
-  const current = useMemo(() => overrides[name] ?? {}, [overrides, name]);
+  const current = useMemo(
+    () =>
+      overrides[name] ?? (name === linked.name ? decodeOverrides(linked.params, controls) : {}),
+    [overrides, name, linked, controls],
+  );
 
   const values = useMemo(() => {
     const resolved: Record<string, unknown> = {};
@@ -146,29 +171,51 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
     (prop: string, value: unknown) => {
       setOverrides((previous) => ({
         ...previous,
-        [name]: { ...previous[name], [prop]: value },
+        [name]: { ...current, ...previous[name], [prop]: value },
       }));
     },
-    [name],
+    [name, current],
   );
 
-  const selectComponent = useCallback(
-    (next: string) => {
-      startTransition(() => {
-        setName(next);
-        setStoryName(undefined);
-      });
-      // Replace, not push: forty knob turns should not mean forty presses of
-      // the back button to leave the page.
-      router.replace(`/playground?c=${next}`, { scroll: false });
-    },
-    [router],
-  );
+  const selectComponent = useCallback((next: string) => {
+    startTransition(() => {
+      setName(next);
+      setStoryName(undefined);
+    });
+  }, []);
 
   const reset = useCallback(() => {
     setOverrides((previous) => ({ ...previous, [name]: {} }));
     setStoryName(undefined);
   }, [name]);
+
+  /**
+   * The URL is the configuration: component, example, theme, mode, radius and
+   * every prop the reader changed, so copying the address shares exactly what
+   * is on the stage. Replaced, not pushed — forty knob turns should not mean
+   * forty presses of the back button to leave the page — and through the
+   * History API, which the router follows without a server round trip.
+   */
+  useEffect(() => {
+    const query = new URLSearchParams({ c: name });
+    if (activeStory !== undefined) query.set("s", activeStory);
+    if (preset !== "default") query.set("theme", preset);
+    if (dark) query.set("dark", "1");
+    if (radius !== 1) query.set("radius", String(radius));
+    for (const [key, value] of encodeOverrides(current, controls)) query.set(key, value);
+    const next = `?${query.toString()}`;
+    // A task later, not now: on the first load the router writes its own
+    // history entry after this page's effects have run, and would put the
+    // opening URL back over this one.
+    const timer = window.setTimeout(() => {
+      if (next !== window.location.search) {
+        window.history.replaceState(window.history.state, "", next);
+      }
+    }, 0);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [name, activeStory, preset, dark, radius, current, controls]);
 
   const args: StoryArgs = { ...baseArgs, ...values };
   const Render = story?.render ?? meta?.render ?? meta?.component;
@@ -204,7 +251,7 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
           <div className="w-full sm:w-52">
             <Field label="Example" htmlFor="playground-story">
               <Select
-                value={storyName ?? storyNames[0]}
+                value={activeStory ?? storyNames[0]}
                 onValueChange={(value) => {
                   setStoryName(value);
                 }}
@@ -260,7 +307,7 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
             variant="outline"
             size="md"
             onClick={reset}
-            disabled={!modified && storyName === undefined}
+            disabled={!modified && activeStory === undefined}
           >
             <RotateCcw />
             Reset
@@ -287,8 +334,8 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
 
           {controls.length === 0 ? (
             <p className="text-xs text-pretty text-muted-foreground">
-              {entry?.title ?? "This component"} has no variant props. Its examples and the
-              theme still apply.
+              {entry?.title ?? "This component"} has no props a control can set. Its examples
+              and the theme still apply.
             </p>
           ) : null}
 
@@ -363,145 +410,6 @@ export function Playground({ entries }: { entries: PlaygroundEntry[] }) {
   );
 }
 
-function Field({
-  label,
-  htmlFor,
-  hint,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  hint?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="grid gap-2">
-      <div className="flex items-baseline justify-between gap-2">
-        <Label htmlFor={htmlFor}>{label}</Label>
-        {hint ? (
-          <span className="text-xs text-muted-foreground tabular-nums">{hint}</span>
-        ) : null}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-/**
- * A labelled slider.
- *
- * The name goes to the thumb, not to the root: the thumb is the element with
- * `role="slider"`, so a `<Label htmlFor>` pointing at the root names a div with
- * no role and leaves the control a keyboard user actually lands on unnamed.
- * The component says so in a development warning, which is how this was caught.
- */
-function SliderField({
-  id,
-  label,
-  hint,
-  valueText,
-  min,
-  max,
-  step,
-  value,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  hint?: string;
-  valueText?: string;
-  min: number;
-  max: number;
-  step: number;
-  value: number;
-  onChange: (value: number) => void;
-}) {
-  const labelId = `${id}-label`;
-
-  return (
-    <div className="grid gap-2">
-      <div className="flex items-baseline justify-between gap-2">
-        <span id={labelId} className="text-sm font-medium">
-          {label}
-        </span>
-        {hint ? (
-          <span className="text-xs text-muted-foreground tabular-nums">{hint}</span>
-        ) : null}
-      </div>
-      <Slider
-        aria-labelledby={labelId}
-        aria-valuetext={valueText}
-        min={min}
-        max={max}
-        step={step}
-        value={[value]}
-        onValueChange={([next]) => {
-          onChange(next ?? min);
-        }}
-      />
-    </div>
-  );
-}
-
-function ControlField({
-  control,
-  value,
-  onChange,
-}: {
-  control: Control;
-  value: unknown;
-  onChange: (value: unknown) => void;
-}) {
-  const id = `playground-${control.prop}`;
-
-  if (control.kind === "boolean") {
-    return (
-      <div className="flex items-center justify-between gap-3">
-        <Label htmlFor={id} className="font-mono text-xs">
-          {control.prop}
-        </Label>
-        <Switch id={id} checked={value === true} onCheckedChange={onChange} />
-      </div>
-    );
-  }
-
-  if (control.kind === "number") {
-    const numeric = typeof value === "number" ? value : 0;
-    return (
-      <SliderField
-        id={id}
-        label={control.prop}
-        hint={String(numeric)}
-        min={0}
-        max={100}
-        step={1}
-        value={numeric}
-        onChange={onChange}
-      />
-    );
-  }
-
-  return (
-    <Field label={control.prop} htmlFor={id}>
-      <Select
-        value={typeof value === "string" ? value : (control.options[0] ?? "")}
-        onValueChange={onChange}
-      >
-        <SelectTrigger id={id}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {control.options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </Field>
-  );
-}
-
 /**
  * The code for the current selection.
  *
@@ -523,13 +431,10 @@ function Code({
   args: StoryArgs;
   composed: boolean;
 }) {
-  if (controls.length === 0 || composed) {
+  if (controls.length === 0) {
     return (
       <p className="px-5 py-4 text-sm text-muted-foreground">
-        {composed
-          ? "This example is a hand-written composition, so there is no single tag to generate. "
-          : "This component has no variant props. "}
-        Its source is on the{" "}
+        This component has no props a control can set. Its source is on the{" "}
         <a className="underline underline-offset-4" href={`/docs/components/${name}`}>
           documentation page
         </a>
@@ -539,6 +444,32 @@ function Code({
   }
 
   const tag = componentTag(name);
+
+  // A story with its own render is a hand-written composition, often of several
+  // components, so the code for the whole example is its source, not a tag
+  // printed from the knobs. What the knobs do describe is the component itself,
+  // so that is what is generated: its tag, with the props as set.
+  if (composed) {
+    return (
+      <div>
+        <p className="px-5 pt-4 text-sm text-pretty text-muted-foreground">
+          This example is a hand-written composition. Below is the {tag} in it with the props
+          you set; the whole example is on the{" "}
+          <a className="underline underline-offset-4" href={`/docs/components/${name}`}>
+            documentation page
+          </a>
+          .
+        </p>
+        <CodePanel
+          code={generateJsx(tag, values, controls, "")}
+          language="tsx"
+          title={`Generated · ${tag} props`}
+          className="rounded-none border-0"
+        />
+      </div>
+    );
+  }
+
   const children = typeof args.children === "string" ? args.children : tag;
   const code = generateJsx(tag, values, controls, children);
 

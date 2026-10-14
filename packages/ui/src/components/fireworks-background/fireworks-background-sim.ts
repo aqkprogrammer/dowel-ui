@@ -225,20 +225,28 @@ export function stepFireworks(
     show.untilLaunch = (0.55 + show.random() * 0.9) / Math.min(3, Math.max(rate, 0.05));
   }
 
-  const remaining: FireworksRocket[] = [];
+  // Everything below works in place: no arrays or points are allocated per
+  // frame once a show is running, only when a rocket bursts into sparks.
+  let flying = 0;
   for (const rocket of show.rockets) {
     rocket.vy += FIREWORKS.gravity * dt;
     rocket.x += rocket.vx * dt;
     rocket.y += rocket.vy * dt;
-    rocket.trail.push({ x: rocket.x, y: rocket.y });
-    if (rocket.trail.length > FIREWORKS.trail) rocket.trail.shift();
+    // The oldest trail point is moved to the front rather than a new one made.
+    const point =
+      rocket.trail.length >= FIREWORKS.trail
+        ? (rocket.trail.shift() ?? { x: 0, y: 0 })
+        : { x: 0, y: 0 };
+    point.x = rocket.x;
+    point.y = rocket.y;
+    rocket.trail.push(point);
     if (rocket.vy >= -12) {
       burstFireworks(show, rocket.x, rocket.y, rocket.color, rocket.style, particleCount);
     } else {
-      remaining.push(rocket);
+      show.rockets[flying++] = rocket;
     }
   }
-  show.rockets = remaining;
+  show.rockets.length = flying;
 
   for (const spark of show.sparks) {
     const slow = Math.exp(-spark.drag * dt);
@@ -248,12 +256,18 @@ export function stepFireworks(
     spark.y += spark.vy * dt;
     spark.age += dt;
   }
-  show.sparks = show.sparks.filter(
-    (spark) => spark.age < spark.life && spark.y < show.height + 40,
-  );
+  let live = 0;
+  for (const spark of show.sparks) {
+    if (spark.age < spark.life && spark.y < show.height + 40) show.sparks[live++] = spark;
+  }
+  show.sparks.length = live;
 
-  for (const flash of show.flashes) flash.age += dt;
-  show.flashes = show.flashes.filter((flash) => flash.age < FIREWORKS.flashLife);
+  let lit = 0;
+  for (const flash of show.flashes) {
+    flash.age += dt;
+    if (flash.age < FIREWORKS.flashLife) show.flashes[lit++] = flash;
+  }
+  show.flashes.length = lit;
 }
 
 /** A spark's opacity: a long fade, with a crackling twinkle over its last half. */

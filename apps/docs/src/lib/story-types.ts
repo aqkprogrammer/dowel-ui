@@ -33,6 +33,10 @@ export interface StoryArgType {
   /** "select", "inline-radio", "boolean", "number", "range", "text". */
   control?: string;
   options?: string[];
+  /** A range control's bounds and step, when the author gave them. */
+  min?: number;
+  max?: number;
+  step?: number;
   /** True when the author hid the control from the panel. */
   disabled: boolean;
 }
@@ -135,8 +139,12 @@ function toArgTypes(value: unknown): Record<string, StoryArgType> {
 
     const table = isRecord(raw.table) ? raw.table : undefined;
 
+    const range = isRecord(raw.control) ? raw.control : {};
     found[name] = {
       control: controlType(raw.control),
+      ...numberField("min", range.min),
+      ...numberField("max", range.max),
+      ...numberField("step", range.step),
       options: Array.isArray(raw.options)
         ? raw.options.filter((option): option is string => typeof option === "string")
         : undefined,
@@ -148,6 +156,15 @@ function toArgTypes(value: unknown): Record<string, StoryArgType> {
   }
 
   return found;
+}
+
+function numberField<K extends "min" | "max" | "step">(
+  key: K,
+  value: unknown,
+): Partial<Record<K, number>> {
+  return typeof value === "number" && Number.isFinite(value)
+    ? ({ [key]: value } as Partial<Record<K, number>>)
+    : {};
 }
 
 function controlsDisabled(value: unknown): boolean {

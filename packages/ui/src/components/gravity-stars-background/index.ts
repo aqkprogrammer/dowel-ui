@@ -1,5 +1,7 @@
 export {
   addGravityStarsWave,
+  collectGravityStarsLinks,
+  createGravityLinkBuffer,
   createGravityStarsWorld,
   GRAVITY_STARS,
   GravityStarsBackground,
@@ -9,6 +11,7 @@ export {
   resizeGravityStarsWorld,
   setGravityStarsPointer,
   stepGravityStars,
+  type GravityLinkBuffer,
   type GravityStar,
   type GravityStarsBackgroundProps,
   type GravityStarsWave,

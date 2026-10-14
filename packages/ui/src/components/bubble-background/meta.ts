@@ -8,7 +8,7 @@ export const meta = defineMeta({
   category: "effects",
   status: "beta",
   dependencies: ["class-variance-authority", "motion"],
-  registryDependencies: [],
+  registryDependencies: ["use-in-view"],
   files: ["bubble-background.tsx"],
   a11y:
     "The blob layer is decorative: aria-hidden, pointer-events none, and it adds no role or tab stop. Children " +

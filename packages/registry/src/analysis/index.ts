@@ -5,7 +5,23 @@
  * build and the documentation site use it at build time, and nothing that runs
  * in a user's project should pay for it.
  */
-export { capabilitiesOf, hasClientDirective } from "./capabilities";
-export { extractProps, type PropRow, type PropsGroup } from "./props";
+export {
+  capabilitiesOf,
+  hasClientDirective,
+  heavierTier,
+  resolveTiers,
+  tierOf,
+  TIERS,
+  type Tier,
+} from "./capabilities";
+export {
+  applyControlHints,
+  extractProps,
+  parseDefault,
+  type ControlHintInput,
+  type PropControl,
+  type PropRow,
+  type PropsGroup,
+} from "./props";
 export { assess, type CheckState, type ComponentQuality, type QualityCheck } from "./quality";
 export { extractVariants, type VariantAxis } from "./variants";

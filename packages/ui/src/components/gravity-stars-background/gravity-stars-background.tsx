@@ -9,13 +9,15 @@ import { cn } from "@/lib/utils";
 
 import {
   addGravityStarsWave,
+  collectGravityStarsLinks,
+  createGravityLinkBuffer,
   createGravityStarsWorld,
   GRAVITY_STARS,
   gravityStarsCount,
-  gravityStarsLinks,
   resizeGravityStarsWorld,
   setGravityStarsPointer,
   stepGravityStars,
+  type GravityLinkBuffer,
   type GravityStarsWorld,
 } from "./gravity-stars-background-sim";
 
@@ -23,6 +25,8 @@ import {
 // resolves to, so it exports everything the folder's index does.
 export {
   addGravityStarsWave,
+  collectGravityStarsLinks,
+  createGravityLinkBuffer,
   createGravityStarsWorld,
   GRAVITY_STARS,
   gravityStarsCount,
@@ -30,6 +34,7 @@ export {
   resizeGravityStarsWorld,
   setGravityStarsPointer,
   stepGravityStars,
+  type GravityLinkBuffer,
   type GravityStar,
   type GravityStarsWave,
   type GravityStarsWorld,
@@ -103,6 +108,7 @@ export function GravityStarsBackground({
   ...props
 }: GravityStarsBackgroundProps) {
   const world = useRef<GravityStarsWorld | null>(null);
+  const linkBuffer = useRef<GravityLinkBuffer | null>(null);
   const built = useRef("");
 
   const draw: DitherDraw = (ctx, frame) => {
@@ -127,25 +133,30 @@ export function GravityStarsBackground({
     const { stars } = field;
 
     if (connections && linkDistance > 0) {
-      const buckets: [number, number][][] = Array.from({ length: LINK_BUCKETS }, () => []);
-      for (const [i, j, strength] of gravityStarsLinks(stars, linkDistance)) {
-        buckets[Math.min(LINK_BUCKETS - 1, Math.floor(strength * LINK_BUCKETS))]?.push([i, j]);
-      }
+      const links = (linkBuffer.current ??= createGravityLinkBuffer());
+      collectGravityStarsLinks(stars, linkDistance, links);
       ctx.strokeStyle = tint;
       ctx.lineWidth = 0.6;
-      buckets.forEach((pairs, bucket) => {
-        if (pairs.length === 0) return;
+      // One stroke per strength band, so the whole web draws in four calls.
+      for (let bucket = 0; bucket < LINK_BUCKETS; bucket += 1) {
         ctx.globalAlpha = ((bucket + 1) / LINK_BUCKETS) * 0.26;
         ctx.beginPath();
-        for (const [i, j] of pairs) {
-          const a = stars[i];
-          const b = stars[j];
+        let any = false;
+        for (let k = 0; k < links.count; k += 1) {
+          const band = Math.min(
+            LINK_BUCKETS - 1,
+            Math.floor((links.strength[k] ?? 0) * LINK_BUCKETS),
+          );
+          if (band !== bucket) continue;
+          const a = stars[links.a[k] ?? -1];
+          const b = stars[links.b[k] ?? -1];
           if (!a || !b) continue;
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
+          any = true;
         }
-        ctx.stroke();
-      });
+        if (any) ctx.stroke();
+      }
     }
 
     // The well: a faint halo under the pointer.

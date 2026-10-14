@@ -8,7 +8,7 @@ export const meta = defineMeta({
   category: "effects",
   status: "beta",
   dependencies: ["class-variance-authority", "motion"],
-  registryDependencies: [],
+  registryDependencies: ["use-in-view"],
   files: ["gradient-background.tsx"],
   a11y:
     "The gradient, grain and pointer light are decorative: one aria-hidden layer with pointer-events none " +

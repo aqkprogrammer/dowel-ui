@@ -17,7 +17,7 @@ import {
  * per direction would be thousands of images nobody reviews. These are the
  * surfaces a regression would hurt most — the controls every form uses, the
  * overlays (open, because a closed overlay is a button), tables, feedback,
- * the AI primitives, and five blocks at both widths — in light and dark, left
+ * the AI primitives, navigation, CSS 3D, and eight blocks at both widths — in light and dark, left
  * to right and right to left.
  *
  * Deterministic by construction rather than by tolerance:
@@ -85,14 +85,29 @@ export const VISUAL_STORIES: VisualStory[] = [
   { id: "ai-approval-request--default" },
   { id: "ai-token-usage--thresholds" },
   { id: "ai-agent-plan--default" },
+  { id: "ai-model-comparison--selectable" },
+  { id: "ai-workflow-graph--selectable" },
   // Navigation
   { id: "navigation-tabs--default" },
+  { id: "navigation-bottom-nav--default" },
+  // Opened by hover, as a pointer opens it: a click after the hover that
+  // already opened it would toggle it shut.
+  {
+    id: "navigation-navigation-menu--default",
+    open: { by: "hover", reveals: "[data-slot=navigation-menu-content]" },
+  },
+  // 3D, in CSS: still under reduced motion, so a frame is a fair picture
+  { id: "display-cube--default" },
+  { id: "display-device-mockup--browser" },
   // Blocks
   { id: "blocks-login--default", block: true },
   { id: "blocks-pricing-three-tier--default", block: true },
   { id: "blocks-settings--default", block: true },
   { id: "blocks-faq-accordion--default", block: true },
   { id: "blocks-stats-grid--default", block: true },
+  { id: "blocks-changelog--default", block: true },
+  { id: "blocks-careers--default", block: true },
+  { id: "blocks-api-keys--default", block: true },
 ];
 
 /** Any fixed instant will do; this one is a weekday mid-month. */

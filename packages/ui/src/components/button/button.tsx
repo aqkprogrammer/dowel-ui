@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const buttonVariants = cva(
   cn(
     "inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap select-none",
-    "transition-[background-color,border-color,color,box-shadow,scale] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
+    "transition-[background-color,border-color,color,box-shadow,scale,translate] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
     focusRing,
     disabledStyles,
     iconSlot,
@@ -75,10 +75,13 @@ const buttonVariants = cva(
       /**
        * Press feedback. `scale` shrinks the button to 97% while it is held —
        * a transform, so nothing around it moves, and it only exists when the
-       * reader has not asked for reduced motion. `none` opts out.
+       * reader has not asked for reduced motion. `depth` raises the button on
+       * a solid edge it sinks into while held; under reduced motion the edge
+       * still disappears, but the button does not travel. `none` opts out.
        */
       press: {
         scale: "",
+        depth: "",
         none: "",
       },
     },
@@ -101,6 +104,25 @@ const buttonVariants = cva(
           "gradient",
         ],
         className: "motion-safe:active:scale-[0.97]",
+      },
+      // Depth: an edge in a darker shade of the button's own colour.
+      {
+        press: "depth",
+        variant: ["primary", "soft", "gradient"],
+        className:
+          "shadow-[0_3px_0_var(--color-primary-active)] active:shadow-[0_0_0_var(--color-primary-active)] motion-safe:active:translate-y-[3px]",
+      },
+      {
+        press: "depth",
+        variant: ["secondary", "outline", "ghost"],
+        className:
+          "shadow-[0_3px_0_var(--color-border-strong)] active:shadow-[0_0_0_var(--color-border-strong)] motion-safe:active:translate-y-[3px]",
+      },
+      {
+        press: "depth",
+        variant: "destructive",
+        className:
+          "shadow-[0_3px_0_color-mix(in_oklab,var(--color-destructive)_70%,var(--color-foreground))] active:shadow-[0_0_0_transparent] motion-safe:active:translate-y-[3px]",
       },
     ],
     defaultVariants: {

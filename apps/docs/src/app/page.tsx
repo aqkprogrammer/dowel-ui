@@ -40,7 +40,7 @@ import { averageQuality } from "~/lib/quality.generated";
 import { CATEGORY_LABELS, getBlocks, getComponents, getRegistryItem } from "~/lib/registry";
 import { SITE_KEYWORDS, SITE_NAME, pageMetadata } from "~/lib/site";
 import { getEcosystemStats } from "~/lib/stats";
-import { componentVariants } from "~/lib/variants.generated";
+import { componentControls } from "~/lib/controls.generated";
 import { version } from "~/lib/version.generated";
 
 /**
@@ -307,11 +307,19 @@ export default async function HomePage() {
     },
   ];
 
-  const buttonAxes = (componentVariants.button ?? []).map((axis) => ({
-    prop: axis.prop,
-    options: [...axis.options],
-    fallback: axis.fallback,
-  }));
+  // The button's variant axes: its string-valued selects, from the same
+  // registry controls the full playground reads.
+  const buttonAxes = (componentControls.button ?? []).flatMap((control) =>
+    control.kind === "select" && control.options.every((option) => typeof option === "string")
+      ? [
+          {
+            prop: control.prop,
+            options: control.options.map(String),
+            fallback: typeof control.default === "string" ? control.default : undefined,
+          },
+        ]
+      : [],
+  );
 
   return (
     <div className="flex min-h-dvh flex-col">

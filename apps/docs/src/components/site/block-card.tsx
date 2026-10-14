@@ -121,7 +121,7 @@ export function BlockCard({ block, index = 0 }: { block: BlockCardItem; index?: 
             Preview
           </Link>
           <Link
-            href={`${href}#source`}
+            href={`${href}#${block.pro ? "installation" : "manual"}`}
             className="inline-flex h-7 items-center gap-1.5 rounded-md px-2 text-xs text-muted-foreground transition-colors outline-none hover:bg-[var(--pane-raised)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/55"
           >
             <Code2 aria-hidden="true" className="size-3.5" />

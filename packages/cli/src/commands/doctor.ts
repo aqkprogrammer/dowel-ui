@@ -277,7 +277,12 @@ function checkAgainstIndex(
     ...project.packageJson.dependencies,
     ...project.packageJson.devDependencies,
   };
-  const needed = new Set(installed.flatMap((name) => byName.get(name)?.dependencies ?? []));
+  const needed = new Set(
+    installed.flatMap((name) => {
+      const entry = byName.get(name);
+      return [...(entry?.dependencies ?? []), ...(entry?.devDependencies ?? [])];
+    }),
+  );
   const missingPackages = [...needed].filter((name) => !(name in present)).sort();
   add(
     missingPackages.length === 0

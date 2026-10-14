@@ -37,6 +37,14 @@ import { meta as heroPerspectiveGridMeta } from "@/blocks/hero-perspective-grid/
 import { meta as heroProductMeta } from "@/blocks/hero-product/meta";
 import { meta as heroSplitImageMeta } from "@/blocks/hero-split-image/meta";
 import { meta as heroSpotlightMeta } from "@/blocks/hero-spotlight/meta";
+import { meta as heroLightBeamsMeta } from "@/blocks/hero-light-beams/meta";
+import { meta as heroFlowFieldMeta } from "@/blocks/hero-flow-field/meta";
+import { meta as changelogMeta } from "@/blocks/changelog/meta";
+import { meta as careersMeta } from "@/blocks/careers/meta";
+import { meta as contactMeta } from "@/blocks/contact/meta";
+import { meta as integrationsMeta } from "@/blocks/integrations/meta";
+import { meta as apiKeysMeta } from "@/blocks/api-keys/meta";
+import { meta as siteHeaderMeta } from "@/blocks/site-header/meta";
 import { meta as logoCloudSimpleMeta } from "@/blocks/logo-cloud-simple/meta";
 import { meta as logoGridTooltipsMeta } from "@/blocks/logo-grid-tooltips/meta";
 import { meta as logoLinksMarqueeMeta } from "@/blocks/logo-links-marquee/meta";
@@ -99,6 +107,14 @@ export const blockMetas: ComponentMeta[] = [
   heroProductMeta,
   heroSplitImageMeta,
   heroSpotlightMeta,
+  heroLightBeamsMeta,
+  heroFlowFieldMeta,
+  changelogMeta,
+  careersMeta,
+  contactMeta,
+  integrationsMeta,
+  apiKeysMeta,
+  siteHeaderMeta,
   logoCloudSimpleMeta,
   logoGridTooltipsMeta,
   logoLinksMarqueeMeta,

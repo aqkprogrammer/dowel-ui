@@ -242,6 +242,47 @@ export * from "./components/hole-background";
 export * from "./components/bubble-background";
 export * from "./components/gradient-background";
 export * from "./components/hexagon-background";
+export * from "./components/cosmic-background";
+export * from "./components/border-beam";
+export * from "./components/aurora-background";
+export * from "./components/shader-background";
+export * from "./components/carousel";
+export * from "./components/comparison-slider";
+export * from "./components/color-picker";
+export * from "./components/resizable";
+export * from "./components/password-strength";
+export * from "./components/pattern-background";
+export * from "./components/interactive-grid";
+export * from "./components/light-beams";
+export * from "./components/flow-field";
+export * from "./components/scroll-reveal";
+export * from "./components/parallax";
+export * from "./components/stacking-cards";
+export * from "./components/horizontal-scroll";
+export * from "./components/image-trail";
+export * from "./components/cursor-spotlight";
+export * from "./components/gradient-text";
+export * from "./components/highlight-text";
+export * from "./components/letter-swap";
+export * from "./components/proximity-text";
+export * from "./components/confetti-button";
+export * from "./components/bento-grid";
+export * from "./components/navigation-menu";
+export * from "./components/navbar";
+export * from "./components/bottom-nav";
+export * from "./components/audio-visualizer";
+export * from "./components/voice-input";
+export * from "./components/workflow-graph";
+export * from "./components/model-comparison";
+export * from "./components/cube";
+export * from "./components/image-ring";
+export * from "./components/device-mockup";
+export * from "./components/globe";
+// model-viewer is not re-exported here: it loads `three`, an optional peer.
+// Import it from "@dowel-ui/react/model-viewer", or install it with the CLI.
+
+export * from "./hooks/use-reduced-motion";
+export * from "./hooks/use-in-view";
 
 export { cn } from "./lib/utils";
 export * from "./lib/styles";

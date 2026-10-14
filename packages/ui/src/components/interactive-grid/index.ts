@@ -1,0 +1,16 @@
+export {
+  ageRipples,
+  falloff,
+  INTERACTIVE_GRID_MAX_CELLS,
+  InteractiveGrid,
+  interactiveGridVariants,
+  layoutInteractiveGrid,
+  RIPPLE_LIFE,
+  RIPPLE_SPEED,
+  rippleAt,
+  stepInteractiveGrid,
+  type GridLayout,
+  type InteractiveGridProps,
+  type Ripple,
+  type StepOptions,
+} from "./interactive-grid";

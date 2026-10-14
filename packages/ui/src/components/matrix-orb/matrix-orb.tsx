@@ -308,7 +308,12 @@ export function MatrixOrb({
       raf = 0;
       const props = latest.current;
       const still = props.reduced || scaledOff;
-      const dt = still || last === null ? 0 : Math.min((now - last) / 1000, 1 / 15);
+      // Clamped at zero as well as at a frame's worth: the first frame is drawn
+      // with performance.now(), and the rAF timestamp that follows is the
+      // frame's start, which can be earlier — a negative step would run every
+      // spring backwards.
+      const dt =
+        still || last === null ? 0 : Math.min(Math.max((now - last) / 1000, 0), 1 / 15);
       last = still ? null : now;
       time += dt;
 

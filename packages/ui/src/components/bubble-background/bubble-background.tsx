@@ -4,6 +4,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { MotionConfig, motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import {
+  useCallback,
   useId,
   useSyncExternalStore,
   type ComponentPropsWithRef,
@@ -11,6 +12,7 @@ import {
   type PointerEvent,
 } from "react";
 
+import { useInView } from "@/hooks/use-in-view";
 import { cn } from "@/lib/utils";
 
 /*
@@ -52,6 +54,7 @@ const BLOBS = [
 ] as const;
 
 const STYLES = `
+[data-slot=bubble-background][data-offscreen] *,[data-slot=bubble-background][data-offscreen] *::before,[data-slot=bubble-background][data-offscreen] *::after{animation-play-state:paused!important}
 @keyframes ${PREFIX}-a{0%,100%{translate:0 0}33%{translate:24% 18%}66%{translate:-8% 30%}}
 @keyframes ${PREFIX}-b{0%,100%{translate:0 0;scale:1}50%{translate:-34% -20%;scale:1.15}}
 @keyframes ${PREFIX}-c{0%,100%{translate:0 0}25%{translate:30% -14%}50%{translate:52% 6%}75%{translate:18% 16%}}
@@ -141,9 +144,20 @@ export function BubbleBackground({
   children,
   onPointerMove,
   onPointerLeave,
+  ref,
   ...props
 }: BubbleBackgroundProps) {
   const reduced = usePrefersReducedMotion();
+  // Its animations run forever; off-screen they pause, as nobody can see them.
+  const { ref: inViewRef, inView } = useInView<HTMLDivElement>({ rootMargin: "100px" });
+  const setRefs = useCallback(
+    (node: HTMLDivElement | null) => {
+      inViewRef(node);
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+    },
+    [inViewRef, ref],
+  );
   const filterId = `${PREFIX}-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const palette = colors.length > 0 ? colors : DEFAULT_COLORS;
   const colorAt = (index: number) => palette[index % palette.length] ?? DEFAULT_COLORS[0];
@@ -176,7 +190,9 @@ export function BubbleBackground({
   return (
     <MotionConfig reducedMotion="user">
       <div
+        ref={setRefs}
         data-slot="bubble-background"
+        data-offscreen={inView ? undefined : ""}
         data-interactive={follows ? "" : undefined}
         className={cn(bubbleBackgroundVariants({ blur, speed }), className)}
         onPointerMove={handlePointerMove}

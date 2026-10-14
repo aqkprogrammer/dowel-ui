@@ -132,8 +132,23 @@ const glowLayer = cn(
   "motion-reduce:hidden",
 );
 
+/*
+ * The spotlight look: a soft light filling the card's interior around the
+ * pointer, with no ring. It sits at -z-10 inside the card's own stacking
+ * context (the card is `isolate`), which paints it over the card's background
+ * but under its content — so text is lit, never tinted.
+ */
+const spotlightLayer = cn(
+  "pointer-events-none absolute inset-0 -z-10 rounded-[inherit]",
+  "bg-[radial-gradient(var(--glow-radius,260px)_circle_at_var(--glow-x,50%)_var(--glow-y,50%),color-mix(in_oklab,var(--glow-color)_var(--glow-fill,16%),transparent),transparent_75%)]",
+  "opacity-[var(--glow-opacity,0)] transition-opacity duration-[var(--duration-normal)] ease-[var(--ease-out-quint)]",
+  "motion-reduce:hidden",
+);
+
 export interface GlowCardProps
   extends ComponentPropsWithRef<"div">, VariantProps<typeof glowCardVariants> {
+  /** `glow` lights the card's edge; `spotlight` lights its interior, with no ring. Default "glow". */
+  variant?: "glow" | "spotlight";
   /** Any CSS colour for the glow, overriding `tone`. */
   glowColor?: string;
   /** Strength of the tinted fill under the glow, 0–1. The ring is always full strength. */
@@ -151,6 +166,7 @@ export interface GlowCardProps
 export function GlowCard({
   className,
   tone,
+  variant = "glow",
   glowColor,
   intensity,
   radius,
@@ -172,6 +188,7 @@ export function GlowCard({
   return (
     <Comp
       data-slot="glow-card"
+      data-variant={variant}
       className={cn(glowCardVariants({ tone }), className)}
       style={{ ...vars, ...style }}
       onPointerMove={(event: PointerEvent<HTMLDivElement>) => {
@@ -187,7 +204,11 @@ export function GlowCard({
       {...props}
     >
       <Slot.Slottable>{children}</Slot.Slottable>
-      <span aria-hidden="true" data-slot="glow-card-glow" className={glowLayer} />
+      <span
+        aria-hidden="true"
+        data-slot="glow-card-glow"
+        className={variant === "spotlight" ? spotlightLayer : glowLayer}
+      />
     </Comp>
   );
 }

@@ -2,9 +2,20 @@ import { readFileSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { blockMetas, componentMetas, type ComponentMeta } from "@dowel-ui/react/registry";
+import {
+  blockMetas,
+  componentMetas,
+  hookMetas,
+  type ComponentMeta,
+} from "@dowel-ui/react/registry";
 
-import { assess, capabilitiesOf, extractProps } from "./analysis";
+import {
+  applyControlHints,
+  assess,
+  capabilitiesOf,
+  extractProps,
+  resolveTiers,
+} from "./analysis";
 import { hashContent } from "./hash";
 import { z } from "zod";
 
@@ -44,9 +55,14 @@ function read(path: string): string {
  */
 function buildSourceItem(meta: ComponentMeta): RegistryItem {
   const isBlock = meta.kind === "block";
-  const sourceDir = join(uiSrc, isBlock ? "blocks" : "components", meta.name);
-  const group = isBlock ? "blocks" : "ui";
-  const fileType = isBlock ? "registry:block" : "registry:ui";
+  const isHook = meta.kind === "hook";
+  const sourceDir = join(
+    uiSrc,
+    isBlock ? "blocks" : isHook ? "hooks" : "components",
+    meta.name,
+  );
+  const group = isBlock ? "blocks" : isHook ? "hooks" : "ui";
+  const fileType = isBlock ? "registry:block" : isHook ? "registry:hook" : "registry:ui";
 
   const files: RegistryFile[] = meta.files.map((file) => {
     const content = read(join(sourceDir, file));
@@ -61,7 +77,10 @@ function buildSourceItem(meta: ComponentMeta): RegistryItem {
   // The genome: what the source says about the item, read from it here so no
   // consumer has to read the source again, and none can disagree about it.
   const mainFile = join(sourceDir, `${meta.name}.tsx`);
-  const props = extractProps(mainFile);
+  // A hook has no props table: it is a function, not a component.
+  const props = isHook
+    ? []
+    : applyControlHints(extractProps(mainFile), meta.controls, meta.name);
   const quality = assess(sourceDir, meta.name, meta.a11y);
 
   return registryItemSchema.parse({
@@ -74,6 +93,8 @@ function buildSourceItem(meta: ComponentMeta): RegistryItem {
     category: meta.category,
     status: meta.status,
     dependencies: meta.dependencies,
+    // Only when there are some, so items without any are byte-for-byte as before.
+    ...(meta.devDependencies?.length ? { devDependencies: meta.devDependencies } : {}),
     registryDependencies: meta.registryDependencies,
     files,
     a11y: meta.a11y,
@@ -157,12 +178,25 @@ function buildThemeItem(): RegistryItem {
 }
 
 export function buildRegistry(): RegistryItem[] {
-  return [
+  const items = [
     buildUtilsItem(),
     buildThemeItem(),
     ...componentMetas.map(buildSourceItem),
     ...blockMetas.map(buildSourceItem),
+    ...hookMetas.map(buildSourceItem),
   ];
+
+  // Each item's tier counts what it installs with it, so it is settled once
+  // every item's own tier is known.
+  const tiers = resolveTiers(
+    new Map(items.map((item) => [item.name, item.capabilities?.tier ?? "css"])),
+    new Map(items.map((item) => [item.name, item.registryDependencies])),
+  );
+  return items.map((item) =>
+    item.capabilities
+      ? { ...item, capabilities: { ...item.capabilities, tier: tiers.get(item.name) ?? "css" } }
+      : item,
+  );
 }
 
 /** Items whose source anyone may fetch. */
@@ -184,6 +218,7 @@ export function buildIndex(items: RegistryItem[]) {
     category: item.category,
     status: item.status,
     dependencies: item.dependencies,
+    ...(item.devDependencies?.length ? { devDependencies: item.devDependencies } : {}),
     registryDependencies: item.registryDependencies,
     access: item.access,
     guidance: item.guidance,

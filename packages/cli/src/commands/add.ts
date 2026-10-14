@@ -145,10 +145,21 @@ export async function add(names: string[], options: AddOptions): Promise<void> {
   // returning at that point left the components unable to resolve with nothing
   // said about it.
   const dependencies = [...new Set(items.flatMap((item) => item.dependencies))];
-  const missing = missingDependencies(
-    { ...project.packageJson.dependencies, ...project.packageJson.devDependencies },
-    dependencies,
-  );
+  // Type declarations for a dependency that ships none, saved as dev dependencies.
+  const devDependencies = [
+    ...new Set(items.flatMap((item) => item.devDependencies ?? [])),
+  ].filter((dependency) => !dependencies.includes(dependency));
+  const present = {
+    ...project.packageJson.dependencies,
+    ...project.packageJson.devDependencies,
+  };
+  const missingRuntime = missingDependencies(present, dependencies);
+  const missingDev = missingDependencies(present, devDependencies);
+  const missing = [...missingRuntime, ...missingDev];
+  const install = () => {
+    installDependencies(project.packageManager, cwd, missingRuntime);
+    installDependencies(project.packageManager, cwd, missingDev, { dev: true });
+  };
 
   if (writable.length === 0) {
     if (missing.length === 0 || skipInstall) {
@@ -164,7 +175,7 @@ export async function add(names: string[], options: AddOptions): Promise<void> {
     logger.success("Already up to date, but some packages were missing.");
     logger.blank();
     logger.step(`Installing ${missing.join(", ")}`);
-    installDependencies(project.packageManager, cwd, missing);
+    install();
     return;
   }
 
@@ -215,7 +226,7 @@ export async function add(names: string[], options: AddOptions): Promise<void> {
   writeConfig(cwd, config);
 
   if (missing.length > 0 && !options.skipInstall) {
-    installDependencies(project.packageManager, cwd, missing);
+    install();
   }
 
   logger.blank();

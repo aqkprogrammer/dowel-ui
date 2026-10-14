@@ -51,6 +51,9 @@ const FEATURED: FeaturedItem[] = [
   { name: "fireworks-background", size: "wide" },
   { name: "file-tree", size: "base" },
   { name: "flip-card", size: "base" },
+  { name: "cosmic-background", size: "wide" },
+  { name: "color-picker", size: "base" },
+  { name: "comparison-slider", size: "base" },
 ];
 
 export default function ComponentsIndexPage() {

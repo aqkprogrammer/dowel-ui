@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { blockMetas } from "./blocks";
 import { componentMetas } from "./components";
+import { hookMetas } from "./hooks";
 import { COMPONENT_CATEGORIES, COMPONENT_STATUSES, type ComponentMeta } from "./schema";
 
 /**
@@ -16,6 +17,7 @@ import { COMPONENT_CATEGORIES, COMPONENT_STATUSES, type ComponentMeta } from "./
 const metaModules = {
   ...import.meta.glob<{ meta: ComponentMeta }>("../components/*/meta.ts", { eager: true }),
   ...import.meta.glob<{ meta: ComponentMeta }>("../blocks/*/meta.ts", { eager: true }),
+  ...import.meta.glob<{ meta: ComponentMeta }>("../hooks/*/meta.ts", { eager: true }),
 };
 
 const sourceFiles = {
@@ -29,6 +31,11 @@ const sourceFiles = {
     query: "?raw",
     import: "default",
   }),
+  ...import.meta.glob<string>("../hooks/*/*.{ts,tsx}", {
+    eager: true,
+    query: "?raw",
+    import: "default",
+  }),
 };
 
 const packageJson = import.meta.glob<string>("../../package.json", {
@@ -37,15 +44,24 @@ const packageJson = import.meta.glob<string>("../../package.json", {
   import: "default",
 });
 
-const declaredNpmDependencies = new Set(
-  Object.keys(
-    (
-      JSON.parse(Object.values(packageJson)[0] ?? "{}") as {
-        dependencies?: Record<string, string>;
-      }
-    ).dependencies ?? {},
-  ),
-);
+const manifest = JSON.parse(Object.values(packageJson)[0] ?? "{}") as {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+};
+
+/**
+ * What @dowel-ui/react declares: its dependencies, and its peers — an
+ * optional peer such as `three` belongs to one entry, is kept out of the main
+ * export, and is installed here as a dev dependency so that entry is tested.
+ */
+/** Installed here to type-check entries whose dependencies ship no types. */
+const workspaceDevDependencies = new Set(Object.keys(manifest.devDependencies ?? {}));
+
+const declaredNpmDependencies = new Set([
+  ...Object.keys(manifest.dependencies ?? {}),
+  ...Object.keys(manifest.peerDependencies ?? {}),
+]);
 
 /** Provided by the consuming app, never installed by the CLI. */
 const PEER_PACKAGES = new Set(["react", "react-dom", "react/jsx-runtime"]);
@@ -100,7 +116,7 @@ function resolveImports(sources: string[]): ResolvedImports {
     for (const specifier of extractSpecifiers(source)) {
       if (PEER_PACKAGES.has(specifier)) continue;
 
-      if (specifier.startsWith("@/components/")) {
+      if (specifier.startsWith("@/components/") || specifier.startsWith("@/hooks/")) {
         const name = specifier.split("/")[2];
         if (name) resolved.registry.add(name);
       } else if (specifier.startsWith("@/")) {
@@ -155,10 +171,22 @@ describe("registry metadata", () => {
       expect(shippedSources).toHaveLength(meta.files.length);
     });
 
-    it("ships an index, a test and a story", () => {
+    it("ships an index, a test and — unless it is a hook, with nothing to show — a story", () => {
       expect(sourceFiles[`${dir}/index.ts`]).toBeTypeOf("string");
       expect(sourceFiles[`${dir}/${dirName}.test.tsx`]).toBeTypeOf("string");
-      expect(sourceFiles[`${dir}/${dirName}.stories.tsx`]).toBeTypeOf("string");
+      if (meta.kind !== "hook") {
+        expect(sourceFiles[`${dir}/${dirName}.stories.tsx`]).toBeTypeOf("string");
+      }
+    });
+
+    it("lives in the directory its kind installs from", () => {
+      const expected =
+        meta.kind === "block"
+          ? "../blocks/"
+          : meta.kind === "hook"
+            ? "../hooks/"
+            : "../components/";
+      expect(metaPath.startsWith(expected), `${meta.name} is not under ${expected}`).toBe(true);
     });
 
     it("declares exactly the npm packages its source imports", () => {
@@ -244,6 +272,25 @@ describe("registry metadata", () => {
         ).toBe(true);
       }
     });
+
+    it("declares as dev dependencies only types for packages it uses", () => {
+      // An installed item is type-checked by the app, so a dependency that
+      // ships no types needs its @types package installed too — and nothing
+      // else belongs here, or `add` would fill a project's devDependencies
+      // with things its source never touches.
+      for (const dependency of meta.devDependencies ?? []) {
+        const typed = /^@types\/(.+)$/.exec(dependency)?.[1];
+        expect(typed, `${dependency} is not an @types package`).toBeDefined();
+        expect(
+          meta.dependencies.includes(typed ?? ""),
+          `${dependency} types ${String(typed)}, which ${meta.name} does not depend on`,
+        ).toBe(true);
+        expect(
+          workspaceDevDependencies.has(dependency),
+          `${dependency} is declared in meta but not installed for @dowel-ui/react`,
+        ).toBe(true);
+      }
+    });
   });
 
   it("lists every entry in the registry barrels", () => {
@@ -251,13 +298,18 @@ describe("registry metadata", () => {
     // disk but is missing from one would simply never be publishable, with no
     // other signal that anything was wrong.
     const onDisk = metaEntries.map(([, module]) => module.meta.name).sort();
-    const inBarrels = [...componentMetas, ...blockMetas].map((meta) => meta.name).sort();
+    const inBarrels = [...componentMetas, ...blockMetas, ...hookMetas]
+      .map((meta) => meta.name)
+      .sort();
     expect(inBarrels).toEqual(onDisk);
   });
 
-  it("keeps components and blocks in separate barrels", () => {
-    expect(componentMetas.every((meta) => meta.kind !== "block")).toBe(true);
+  it("keeps components, blocks and hooks in separate barrels", () => {
+    expect(
+      componentMetas.every((meta) => meta.kind === undefined || meta.kind === "component"),
+    ).toBe(true);
     expect(blockMetas.every((meta) => meta.kind === "block")).toBe(true);
+    expect(hookMetas.every((meta) => meta.kind === "hook")).toBe(true);
   });
 
   it("has no duplicate registry names", () => {

@@ -83,7 +83,7 @@ describe("EffectButton", () => {
     const used = new Set(
       [...css.matchAll(/animation:(dowel-effect-button-[\w-]+)/g)].map((match) => match[1]),
     );
-    expect(used.size).toBe(4);
+    expect(used.size).toBe(5);
     for (const name of used) {
       expect(css).toContain(`@keyframes ${String(name)}{`);
     }
@@ -217,6 +217,18 @@ describe("EffectButton", () => {
   it("renders a resting, invisible ring for expand-ring", () => {
     const { container } = render(<EffectButton effect="expand-ring">Expand Ring</EffectButton>);
     expect(part(container, "ring")).toHaveClass("opacity-0", "rounded-[inherit]");
+  });
+
+  it("glitches the label in theme colours, on hover and on keyboard focus", () => {
+    const { container } = render(<EffectButton effect="glitch">Deploy</EffectButton>);
+    expect(part(container, "label")).toHaveTextContent("Deploy");
+    const css = stylesheet();
+    expect(css).toContain("var(--color-info)");
+    expect(css).toContain("var(--color-destructive)");
+    expect(css).toContain(
+      "[data-slot=effect-button][data-effect=glitch]:focus-visible>[data-slot=effect-button-label]",
+    );
+    expect(css).toMatch(/\[data-effect=glitch\]:hover>\[data-slot=effect-button-label\]/);
   });
 
   it("renders four logical corners for clip-corners that move inward", () => {
