@@ -116,21 +116,6 @@ per-package changelogs, whatever an earlier version of this line claimed.
   runs through one narrow endpoint that is off until `ANTHROPIC_API_KEY` is
   set; without it the page plays a scripted run through the same surface. See
   `RELEASING.md` for the configuration and what bounds the cost.
-- **`shader-background`** (experimental): a full-bleed WebGL scene behind
-  content. One engine draws fourteen procedural presets: `dunes`, `hills`,
-  `storm-sea`, `meadow`, `petals`, `glass-wave`, `liquid-metal`, `silk`,
-  `mesh-gradient`, `topography`, `particle-ocean`, `nebula`, `warp` and
-  `helix`. `colors` re-dresses any scene with theme tokens or CSS colours, and
-  `attach="viewport"` pins it behind a whole page without clipping sticky
-  headers. It stops drawing off-screen and in hidden tabs, shows one still frame
-  under reduced motion, and falls back to a CSS gradient in the same palette
-  without WebGL or after a lost context.
-- **`aurora-background`**, **`border-beam`** and **`cosmic-background`**.
-- **Docs: `/docs/backgrounds`** shows every background in the library live,
-  with category filters and, for each one, a prompt for a coding agent that is
-  generated from the same catalogue as the card.
-- **Docs: manual install tabs** on component and block pages, next to the CLI
-  command.
 
 ### Changed
 
