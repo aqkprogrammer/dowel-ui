@@ -10,6 +10,9 @@ const INSTALL_COMMAND: Record<PackageManager, string[]> = {
   npm: ["install"],
 };
 
+/** The flag that saves to devDependencies. Every one of the four accepts `-D`. */
+const DEV_FLAG = "-D";
+
 /** Packages already present are skipped, so re-running `add` installs nothing. */
 export function missingDependencies(
   installed: Record<string, string>,
@@ -22,10 +25,11 @@ export function installDependencies(
   manager: PackageManager,
   cwd: string,
   dependencies: string[],
+  { dev = false }: { dev?: boolean } = {},
 ): void {
   if (dependencies.length === 0) return;
 
-  const args = [...INSTALL_COMMAND[manager], ...dependencies];
+  const args = [...INSTALL_COMMAND[manager], ...(dev ? [DEV_FLAG] : []), ...dependencies];
   const result = spawnSync(manager, args, { cwd, stdio: "inherit" });
 
   if (result.error) {

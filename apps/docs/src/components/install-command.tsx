@@ -89,9 +89,12 @@ export function InstallCommand({
  */
 export function PackageInstallCommand({
   packages,
+  dev = false,
   className,
 }: {
   packages: string[];
+  /** Save them as dev dependencies; every package manager here takes `-D`. */
+  dev?: boolean;
   className?: string;
 }) {
   const { runner, add } = usePackageRunner();
@@ -99,8 +102,8 @@ export function PackageInstallCommand({
     <CommandBox
       runner={runner}
       command={add}
-      args={packages.join(" ")}
-      label="Copy dependency install command"
+      args={`${dev ? "-D " : ""}${packages.join(" ")}`}
+      label={dev ? "Copy dev dependency install command" : "Copy dependency install command"}
       className={className}
     />
   );

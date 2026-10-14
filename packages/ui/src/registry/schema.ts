@@ -46,6 +46,12 @@ export interface ComponentMeta {
   status: ComponentStatus;
   /** npm packages the source imports. Peer deps (react) are excluded. */
   dependencies: string[];
+  /**
+   * npm packages needed only to type-check the source — type declarations
+   * such as `@types/three` for a dependency that ships none. The CLI installs
+   * them as dev dependencies.
+   */
+  devDependencies?: string[];
   /** Other registry components this one imports. */
   registryDependencies: string[];
   /** Files the CLI copies, relative to the component directory. */

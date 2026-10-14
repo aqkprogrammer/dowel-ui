@@ -30,6 +30,8 @@ export interface ManualPart {
 export interface ManualInstall {
   /** Every npm package the item and everything it pulls in needs, utilities included. */
   dependencies: string[];
+  /** Type declarations installed as dev dependencies, e.g. `@types/three`. */
+  devDependencies: string[];
   /** The design tokens, for the stylesheet that imports Tailwind. */
   tokens: ManualFile;
   /** `cn()` and the shared style fragments, which every component imports. */
@@ -95,6 +97,7 @@ export function manualInstallFor(item: RegistryItem): ManualInstall | undefined 
   const queue = [...item.registryDependencies];
   const parts: ManualPart[] = [];
   const dependencies = new Set<string>(item.dependencies);
+  const devDependencies = new Set<string>(item.devDependencies);
 
   while (queue.length > 0) {
     const name = queue.shift();
@@ -112,6 +115,7 @@ export function manualInstallFor(item: RegistryItem): ManualInstall | undefined 
       files: dependency.files.map(toManualFile),
     });
     for (const pkg of dependency.dependencies) dependencies.add(pkg);
+    for (const pkg of dependency.devDependencies ?? []) devDependencies.add(pkg);
     queue.push(...dependency.registryDependencies);
   }
 
@@ -124,6 +128,7 @@ export function manualInstallFor(item: RegistryItem): ManualInstall | undefined 
 
   return {
     dependencies: [...dependencies].sort(),
+    devDependencies: [...devDependencies].sort(),
     tokens: { path: "app/globals.css", language: "css", code: tokens.content },
     utils: utils.files.map(toManualFile),
     parts,

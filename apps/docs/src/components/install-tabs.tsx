@@ -112,6 +112,9 @@ function ManualSteps({ manual }: { manual: ManualInstall }) {
     <ol className="relative ms-3.5 grid gap-10 border-s border-[var(--hairline)] ps-7 [counter-reset:step]">
       <Step title="Install the npm packages">
         <PackageInstallCommand packages={manual.dependencies} />
+        {manual.devDependencies.length > 0 ? (
+          <PackageInstallCommand packages={manual.devDependencies} dev className="mt-3" />
+        ) : null}
       </Step>
 
       <Step

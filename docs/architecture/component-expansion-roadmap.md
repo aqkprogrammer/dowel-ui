@@ -577,8 +577,13 @@ Lessons from Batch 1, carried forward:
 
 ### Batch 9 — release
 
-- [ ] visual baselines for the new canvas/CSS effects (reduced-motion frame)
-- [ ] `install-all` green; changeset (minor); counts; search synonyms
+- [x] visual baselines: the curated browser-tests set gains the new static
+      surfaces (navigation, model comparison, workflow graph, CSS 3D, three
+      blocks); canvas and WebGL stay out of it by design, and every story is
+      compared against main by the visual-tests job on the PR
+- [x] install check green (336 free items into a new Next.js app) after
+      adding `devDependencies` to registry items for `@types/three`; minor
+      version; counts; search synonyms
 - [ ] `audit:all`; docs build; deploy then publish (`RELEASING.md`)
 
 ### Progress
@@ -597,4 +602,4 @@ Lessons from Batch 1, carried forward:
 | 7a Navigation and AI components              | done   | e5bfba1 |
 | 7b Blocks                                    | done   | e93e5ef |
 | 8a CSS 3D                                    | done   | f903600 |
-| 8b WebGL                                     | done   | —       |
+| 8b WebGL                                     | done   | 9108716 |

@@ -250,6 +250,12 @@ export const registryItemSchema = z.object({
   status: z.enum(["stable", "beta", "experimental"]),
   /** npm packages to install alongside the files. */
   dependencies: z.array(npmDependencySchema),
+  /**
+   * npm packages needed only to type-check the files, installed as dev
+   * dependencies — type declarations for a dependency that ships none.
+   * Optional, so older registries parse; a CLI that predates it ignores it.
+   */
+  devDependencies: z.array(npmDependencySchema).optional(),
   /** Other registry items to install first. */
   registryDependencies: z.array(registryItemNameSchema),
   files: z.array(registryFileSchema).min(1),
@@ -296,6 +302,7 @@ export const registryIndexEntrySchema = registryItemSchema
     category: true,
     status: true,
     dependencies: true,
+    devDependencies: true,
     registryDependencies: true,
     access: true,
     // What an agent needs to choose between items without fetching each one.

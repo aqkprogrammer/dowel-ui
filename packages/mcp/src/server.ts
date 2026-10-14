@@ -469,6 +469,9 @@ export function createServer(options: ServerOptions): McpServer {
       if (item.dependencies.length > 0) {
         lines.push(`npm packages: ${item.dependencies.join(", ")}`, "");
       }
+      if (item.devDependencies && item.devDependencies.length > 0) {
+        lines.push(`npm dev packages (types): ${item.devDependencies.join(", ")}`, "");
+      }
       lines.push(...genomeLines(entry));
       if (item.a11y) {
         lines.push("## Accessibility", "", item.a11y, "");
@@ -575,6 +578,9 @@ export function createServer(options: ServerOptions): McpServer {
           : "Nothing extra is pulled in.",
       ];
       if (npm.length > 0) lines.push(`npm packages installed alongside: ${npm.join(", ")}.`);
+      const npmDev = [...new Set(resolved.flatMap((entry) => entry.devDependencies ?? []))];
+      if (npmDev.length > 0)
+        lines.push(`Dev packages (types) installed alongside: ${npmDev.join(", ")}.`);
 
       // A licensed item still gets its command — it exists, and this is how it
       // is installed — but with the condition stated up front, so the first the

@@ -93,6 +93,8 @@ function buildSourceItem(meta: ComponentMeta): RegistryItem {
     category: meta.category,
     status: meta.status,
     dependencies: meta.dependencies,
+    // Only when there are some, so items without any are byte-for-byte as before.
+    ...(meta.devDependencies?.length ? { devDependencies: meta.devDependencies } : {}),
     registryDependencies: meta.registryDependencies,
     files,
     a11y: meta.a11y,
@@ -216,6 +218,7 @@ export function buildIndex(items: RegistryItem[]) {
     category: item.category,
     status: item.status,
     dependencies: item.dependencies,
+    ...(item.devDependencies?.length ? { devDependencies: item.devDependencies } : {}),
     registryDependencies: item.registryDependencies,
     access: item.access,
     guidance: item.guidance,

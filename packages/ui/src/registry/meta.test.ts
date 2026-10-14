@@ -46,6 +46,7 @@ const packageJson = import.meta.glob<string>("../../package.json", {
 
 const manifest = JSON.parse(Object.values(packageJson)[0] ?? "{}") as {
   dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
 };
 
@@ -54,6 +55,9 @@ const manifest = JSON.parse(Object.values(packageJson)[0] ?? "{}") as {
  * optional peer such as `three` belongs to one entry, is kept out of the main
  * export, and is installed here as a dev dependency so that entry is tested.
  */
+/** Installed here to type-check entries whose dependencies ship no types. */
+const workspaceDevDependencies = new Set(Object.keys(manifest.devDependencies ?? {}));
+
 const declaredNpmDependencies = new Set([
   ...Object.keys(manifest.dependencies ?? {}),
   ...Object.keys(manifest.peerDependencies ?? {}),
@@ -265,6 +269,25 @@ describe("registry metadata", () => {
         expect(
           declaredNpmDependencies.has(dependency),
           `${dependency} is declared in meta but missing from @dowel-ui/react dependencies`,
+        ).toBe(true);
+      }
+    });
+
+    it("declares as dev dependencies only types for packages it uses", () => {
+      // An installed item is type-checked by the app, so a dependency that
+      // ships no types needs its @types package installed too — and nothing
+      // else belongs here, or `add` would fill a project's devDependencies
+      // with things its source never touches.
+      for (const dependency of meta.devDependencies ?? []) {
+        const typed = /^@types\/(.+)$/.exec(dependency)?.[1];
+        expect(typed, `${dependency} is not an @types package`).toBeDefined();
+        expect(
+          meta.dependencies.includes(typed ?? ""),
+          `${dependency} types ${String(typed)}, which ${meta.name} does not depend on`,
+        ).toBe(true);
+        expect(
+          workspaceDevDependencies.has(dependency),
+          `${dependency} is declared in meta but not installed for @dowel-ui/react`,
         ).toBe(true);
       }
     });

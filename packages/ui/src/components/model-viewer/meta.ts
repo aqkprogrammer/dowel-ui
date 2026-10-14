@@ -8,6 +8,8 @@ export const meta = defineMeta({
   category: "display",
   status: "experimental",
   dependencies: ["three"],
+  // three ships no type declarations; an installed copy is type-checked by the app.
+  devDependencies: ["@types/three"],
   registryDependencies: ["button", "use-in-view", "use-reduced-motion"],
   files: ["model-viewer.tsx"],
   a11y:

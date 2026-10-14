@@ -119,6 +119,13 @@ per-package changelogs, whatever an earlier version of this line claimed.
 
 ### Changed
 
+- **Registry items can name dev dependencies.** An item whose npm dependency
+  ships no type declarations lists them in `devDependencies`, and `dowel add`
+  installs them with `-D`, so the project still type-checks — the install
+  check caught `model-viewer` failing without `@types/three`. The field is
+  optional: older registries parse, and an older CLI ignores it (and leaves
+  the types to be installed by hand). `dowel doctor`, the MCP server and the
+  docs' manual install steps list them too.
 - **The install check runs in CI.** `pnpm install-check` installs every
   registry item into a new Next.js app with this checkout's CLI and builds it,
   on pull requests that touch the library and nightly against the newest
