@@ -11,7 +11,7 @@ export const meta = defineMeta({
   // three ships no type declarations; an installed copy is type-checked by the app.
   devDependencies: ["@types/three"],
   registryDependencies: ["button", "use-in-view", "use-reduced-motion"],
-  files: ["model-viewer.tsx"],
+  files: ["model-viewer.tsx", "model-viewer-scene.ts"],
   a11y:
     'The poster carries the alt text until the model is ready; then a named, focusable region does ("3D model: …"), ' +
     "with a hint that the arrow keys turn it and plus and minus zoom. A status line says when it is loading, ready, " +

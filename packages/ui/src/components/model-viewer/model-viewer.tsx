@@ -1,8 +1,6 @@
 "use client";
 
 // Original design.
-import type * as Three from "three";
-import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   useEffect,
   useId,
@@ -78,26 +76,6 @@ function webglAvailable(): boolean {
 
 const never = () => () => {};
 
-/** Frees every geometry, material and texture under `root`. */
-function dispose(root: Three.Object3D) {
-  root.traverse((object) => {
-    const mesh = object as Three.Mesh;
-    mesh.geometry?.dispose();
-    const materials = Array.isArray(mesh.material)
-      ? mesh.material
-      : mesh.material
-        ? [mesh.material]
-        : [];
-    for (const material of materials) {
-      for (const value of Object.values(material)) {
-        if (value && typeof value === "object" && "isTexture" in value)
-          (value as Three.Texture).dispose();
-      }
-      material.dispose();
-    }
-  });
-}
-
 /** A glTF model people can turn, behind a poster, with three.js loaded only when needed. */
 export function ModelViewer({
   src,
@@ -155,73 +133,14 @@ export function ModelViewer({
 
     void (async () => {
       try {
-        const [THREE, { GLTFLoader }] = await Promise.all([
-          import("three"),
-          import("three/examples/jsm/loaders/GLTFLoader.js"),
-        ]);
+        // three.js comes with the scene module, fetched only now.
+        const { loadModelScene } = await import("./model-viewer-scene");
         if (cancelled) return;
-        const renderer = new THREE.WebGLRenderer({
-          canvas: node,
-          alpha: true,
-          antialias: true,
-        });
-        renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 1000);
-        scene.add(new THREE.HemisphereLight(0xffffff, 0x3a3a46, 1.6));
-        const key = new THREE.DirectionalLight(0xffffff, 2.2);
-        key.position.set(3, 5, 4);
-        scene.add(key);
-        const rim = new THREE.DirectionalLight(0xffffff, 0.8);
-        rim.position.set(-4, 2, -3);
-        scene.add(rim);
-        const pivot = new THREE.Group();
-        scene.add(pivot);
-
-        const gltf: GLTF = await new Promise((resolve, reject) => {
-          new GLTFLoader().load(
-            src,
-            resolve,
-            (event) => {
-              if (event.lengthComputable && event.total > 0)
-                setProgress(Math.round((event.loaded / event.total) * 100));
-            },
-            reject,
-          );
-        });
-        if (cancelled) {
-          dispose(gltf.scene);
-          renderer.dispose();
-          renderer.forceContextLoss();
-          return;
-        }
-
-        // Centre the model and fit the camera to it.
-        const model = gltf.scene;
-        const box = new THREE.Box3().setFromObject(model);
-        const centre = box.getCenter(new THREE.Vector3());
-        const radius = Math.max(1e-3, box.getSize(new THREE.Vector3()).length() / 2);
-        model.position.sub(centre);
-        pivot.add(model);
-        const distance = radius / Math.sin(((camera.fov / 2) * Math.PI) / 180);
-        camera.near = distance / 100;
-        camera.far = distance * 100;
-
-        const resize = () => {
-          const { width, height } = node.getBoundingClientRect();
-          if (width === 0 || height === 0) return;
-          renderer.setSize(width, height, false);
-          camera.aspect = width / height;
-          camera.updateProjectionMatrix();
-        };
+        const model = await loadModelScene(node, src, setProgress, () => cancelled);
+        if (!model) return;
+        const resize = model.resize;
         const draw = () => {
-          const { yaw, pitch, zoom } = view.current;
-          pivot.rotation.set(pitch, yaw, 0);
-          renderer.toneMappingExposure = motion.current.exposure;
-          camera.position.set(0, 0, distance * 1.08 * zoom);
-          camera.lookAt(0, 0, 0);
-          renderer.render(scene, camera);
+          model.draw({ ...view.current, exposure: motion.current.exposure });
         };
         resize();
         draw();
@@ -259,9 +178,7 @@ export function ModelViewer({
           observer?.disconnect();
           render.current = null;
           start.current = null;
-          dispose(scene);
-          renderer.dispose();
-          renderer.forceContextLoss();
+          model.dispose();
         };
         setPhase("ready");
         callbacks.current.onLoad?.();

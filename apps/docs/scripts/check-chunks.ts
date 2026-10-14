@@ -43,13 +43,28 @@ const ALLOWANCES: { label: string; marker: string; ceiling: number; reason: stri
     // A texture name `postprocessing` sets as a string, so it survives
     // minification and appears in no other library.
     marker: "EffectComposer.InputDepth",
-    // About 455 KB today: three.js's WebGL renderer, `postprocessing`, and the
-    // scene. 512 KB is that with room for a three.js minor.
+    // About 107 KB today: `postprocessing` and the scene. It held three.js's
+    // WebGL renderer too (455 KB in all) until the model viewer's previews
+    // also needed the renderer and it moved to a chunk of its own (below).
+    // 512 KB leaves room for the renderer to move back if that preview goes.
     ceiling: 512 * 1024,
     reason:
       "fetched only once a page has a hero to draw the field behind, after first paint, " +
       "and only on a device the renderer profile says can run it. Splitting it would not " +
       "make it smaller, only later: the scene cannot start until all of it has arrived.",
+  },
+  {
+    label: "three.js's WebGL renderer, shared",
+    // A warning three.js logs by this name, so it survives minification and
+    // appears only in the renderer.
+    marker: "THREE.WebGLRenderer",
+    // About 347 KB today, tree-shaken to what the star field and the model
+    // viewer use. 384 KB is that with room for a three.js minor.
+    ceiling: 384 * 1024,
+    reason:
+      "the renderer both the star field and the model viewer's previews draw with, split out " +
+      "so they share one copy. Each fetches it on demand — the field after first paint, the " +
+      "viewer only once a model is wanted — and neither can draw anything without all of it.",
   },
 ];
 
