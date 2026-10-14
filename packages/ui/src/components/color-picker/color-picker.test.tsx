@@ -209,6 +209,20 @@ describe("colour maths", () => {
     }
   });
 
+  it("allows space inside the parentheses, and stays fast on hostile input", () => {
+    expect(parseColor("rgb(  10 ,  20 , 30  )")).toEqual({ r: 10, g: 20, b: 30, a: 1 });
+    expect(parseColor("oklch(  100%   0   0  )")).toEqual({ r: 255, g: 255, b: 255, a: 1 });
+    expect(parseColor("color(  srgb   1 0.5 0 )")).toEqual({ r: 255, g: 128, b: 0, a: 1 });
+    expect(parseColor("color(srgbx 1 0 0)")).toBeUndefined();
+    // Long runs of spaces with no closing parenthesis once backtracked polynomially.
+    const started = performance.now();
+    for (const prefix of ["rgb(", "oklch(", "color(srgb "]) {
+      expect(parseColor(`${prefix}${" ".repeat(200)}x`)).toBeUndefined();
+      expect(parseColor(`${prefix}${" ".repeat(50_000)}`)).toBeUndefined();
+    }
+    expect(performance.now() - started).toBeLessThan(100);
+  });
+
   it("round-trips through HSV", () => {
     for (const hex of ["#5b5bd6", "#000000", "#ffffff", "#12ab34", "#808080"]) {
       const rgba = parseColor(hex);

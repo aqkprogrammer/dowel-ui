@@ -41,6 +41,9 @@ function round(value: number, places = 0): number {
  * undefined, not a guess.
  */
 export function parseColor(input: string): Rgba | undefined {
+  // Typed by people: no colour is longer than this, and refusing more keeps
+  // every pattern below cheap whatever is pasted in.
+  if (input.length > 256) return undefined;
   const text = input.trim().toLowerCase();
 
   const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(text)?.[1];
@@ -61,7 +64,9 @@ export function parseColor(input: string): Rgba | undefined {
     };
   }
 
-  const rgb = /^rgba?\(\s*([^)]*)\)$/.exec(text)?.[1];
+  // One quantifier per pattern: `\s*` before `[^)]*` matched the same spaces
+  // twice over and backtracked polynomially. The split drops stray spaces.
+  const rgb = /^rgba?\(([^)]*)\)$/.exec(text)?.[1];
   if (rgb) {
     const parts = rgb.split(/[\s,/]+/).filter(Boolean);
     if (parts.length !== 3 && parts.length !== 4) return undefined;
@@ -86,7 +91,7 @@ export function parseColor(input: string): Rgba | undefined {
     };
   }
 
-  const oklch = /^oklch\(\s*([^)]*)\)$/.exec(text)?.[1];
+  const oklch = /^oklch\(([^)]*)\)$/.exec(text)?.[1];
   if (oklch) {
     const parts = oklch.split(/[\s/]+/).filter(Boolean);
     if (parts.length !== 3 && parts.length !== 4) return undefined;
@@ -102,7 +107,9 @@ export function parseColor(input: string): Rgba | undefined {
   }
 
   // What browsers report for some computed colours, color-mix() among them.
-  const srgb = /^color\(\s*srgb\s+([^)]*)\)$/.exec(text)?.[1];
+  const inner = /^color\(([^)]*)\)$/.exec(text)?.[1]?.trim();
+  const srgb =
+    inner?.startsWith("srgb") && /\s/.test(inner.charAt(4)) ? inner.slice(5) : undefined;
   if (srgb) {
     const parts = srgb.split(/[\s/]+/).filter(Boolean);
     if (parts.length !== 3 && parts.length !== 4) return undefined;
