@@ -59,8 +59,8 @@
   "devDependencies": {
     "@dowel-ui/config": "workspace:*",
     "tailwindcss": "4.3.3",
-    "tsdown": "0.23.0",
+    "tsdown": "0.23.1",
     "typescript": "6.0.3",
-    "vitest": "5.0.2"
+    "vitest": "5.0.4"
   }
 }
