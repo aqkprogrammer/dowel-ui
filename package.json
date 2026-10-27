@@ -47,13 +47,13 @@
   "devDependencies": {
     "@changesets/cli": "3.0.3",
     "@dowel-ui/config": "workspace:*",
-    "@types/node": "26.6.3",
+    "@types/node": "26.6.5",
     "eslint": "10.9.1",
-    "prettier": "3.9.9",
+    "prettier": "3.9.10",
     "prettier-plugin-tailwindcss": "0.8.1",
     "tsx": "4.23.15",
-    "turbo": "2.11.5",
+    "turbo": "2.11.9",
     "typescript": "6.0.3",
-    "vitest": "5.0.2"
+    "vitest": "5.0.5"
   }
 }
