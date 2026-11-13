@@ -67,9 +67,17 @@
   --glass: color-mix(in oklab, var(--background) 68%, transparent);
   --glow-blue: color-mix(in oklab, var(--cosmic-blue) 20%, transparent);
   --glow-orange: color-mix(in oklab, var(--cosmic-orange) 14%, transparent);
+
+  /* The route's colour: the scroll trail, the reading progress and every
+   * "next stop" share the guide's lime, so they read as one idea. */
+  --trail: #b4f000;
+  --trail-ink: #14210a;
 }
 
 :root:not(.dark) {
+  /* Lime on white has no weight; the light theme takes the leaf under it. */
+  --trail: #58a700;
+  --trail-ink: #ffffff;
   --cosmic-navy: #b9cde3;
   --cosmic-star: #1b2333;
   --glow-blue: color-mix(in oklab, var(--cosmic-blue) 26%, transparent);

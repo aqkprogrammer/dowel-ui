@@ -32,6 +32,7 @@ import {
 } from "~/components/showcase/component-showcase";
 import { CodePanel } from "~/components/site/code-panel";
 import { Reveal } from "~/components/site/reveal";
+import { ScrollTrail } from "~/components/site/scroll-trail";
 import { SectionHeader } from "~/components/site/section-header";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
@@ -325,7 +326,10 @@ export default async function HomePage() {
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
 
-      <main id="content" className="flex-1">
+      <main id="content" className="relative flex-1">
+        {/* The route through the sections below the hero, in the margins
+            either side of the column; the guide speaks each section's line. */}
+        <ScrollTrail span={1152} />
         {/* The galaxy and the statement over it. Labels off: the heading is the
           words here, and two headlines side by side would compete. */}
         <AstraHero leftLabel="" rightLabel="" veil={0.72}>
@@ -397,6 +401,8 @@ export default async function HomePage() {
         <section
           data-astra-intro="true"
           aria-labelledby="why"
+          data-trail-label="Why Dowel"
+          data-guide="Here's the idea: components arrive as source files, so every line is yours to change."
           className="mx-auto w-full max-w-6xl px-4 pt-28 pb-24 sm:px-6 sm:pt-36"
         >
           {/* Spelled out rather than a SectionHeader: the heading itself has
@@ -444,6 +450,8 @@ export default async function HomePage() {
         {/* 3 — the source-first workflow, beside the stars forming the prompt. */}
         <section
           aria-labelledby="workflow"
+          data-trail-label="Source-first"
+          data-guide="Three steps: install, compose, own. That first command is copyable."
           className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pb-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr]"
         >
           <div>
@@ -511,6 +519,8 @@ export default async function HomePage() {
         {/* 4 — the live component showcase. */}
         <section
           aria-labelledby="showcase"
+          data-trail-label="Live components"
+          data-guide="These aren't screenshots. Drag the toggle, sweep the dock, turn the dial!"
           className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6"
         >
           <SectionHeader
@@ -529,7 +539,12 @@ export default async function HomePage() {
         </section>
 
         {/* 5 — AI. */}
-        <section aria-labelledby="ai" className="relative isolate py-24">
+        <section
+          aria-labelledby="ai"
+          data-trail-label="AI interfaces"
+          data-guide="Building an AI product? That chat is live — open its reasoning or a source."
+          className="relative isolate py-24"
+        >
           <div
             aria-hidden="true"
             className="absolute inset-x-0 top-1/2 -z-10 h-[38rem] -translate-y-1/2 bg-[radial-gradient(50%_50%_at_70%_50%,var(--glow-blue),transparent_70%)]"
@@ -603,6 +618,8 @@ export default async function HomePage() {
         {/* 6 — blocks. */}
         <section
           aria-labelledby="blocks"
+          data-trail-label="Blocks"
+          data-guide="Blocks are whole screens. Same command, and you still own the code."
           className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6"
         >
           <SectionHeader
@@ -671,6 +688,8 @@ export default async function HomePage() {
         {/* 7 — themes. */}
         <section
           aria-labelledby="themes"
+          data-trail-label="Themes"
+          data-guide="Pick a preset and watch the whole system follow it."
           className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6"
         >
           <SectionHeader
@@ -702,6 +721,8 @@ export default async function HomePage() {
         {/* 8 — the playground, in miniature. */}
         <section
           aria-labelledby="playground"
+          data-trail-label="Playground"
+          data-guide="Turn the knobs here and the code underneath keeps up."
           className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6"
         >
           <SectionHeader
@@ -717,6 +738,8 @@ export default async function HomePage() {
         {/* 9 — developer experience, and the numbers. */}
         <section
           aria-labelledby="developers"
+          data-trail-label="Developer experience"
+          data-guide="These numbers are counted from the registry, not typed in."
           className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6"
         >
           <SectionHeader
@@ -770,6 +793,8 @@ export default async function HomePage() {
         {/* 10 — the close, where the stars gather into the dowel. */}
         <section
           aria-labelledby="start"
+          data-trail-label="Start building"
+          data-guide="That's the tour! One command and you're building."
           className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-16 pb-8 sm:px-6 lg:grid-cols-2"
         >
           <div>

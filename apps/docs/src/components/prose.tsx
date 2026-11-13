@@ -1,5 +1,42 @@
 import { cn } from "@dowel-ui/react";
-import type { ComponentPropsWithRef } from "react";
+import {
+  Children,
+  cloneElement,
+  Fragment,
+  isValidElement,
+  type ComponentPropsWithRef,
+  type ReactNode,
+} from "react";
+
+/** The text a node renders, for naming a heading after what it says. */
+function textOf(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join("");
+  if (isValidElement<{ children?: ReactNode }>(node)) return textOf(node.props.children);
+  return "";
+}
+
+/**
+ * Gives every section heading an id made from its own words.
+ *
+ * A heading with an id can be linked to, and is a stop the sidebar's timeline
+ * and the reading progress can point at. Done here, while rendering, so the
+ * link works before any script runs.
+ */
+function withHeadingIds(children: ReactNode): ReactNode {
+  return Children.map(children, (child) => {
+    if (!isValidElement<{ id?: string; children?: ReactNode }>(child)) return child;
+    if (child.type === Fragment) {
+      return <Fragment key={child.key}>{withHeadingIds(child.props.children)}</Fragment>;
+    }
+    if (child.type !== "h2" || child.props.id) return child;
+    const id = textOf(child.props.children)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    return id ? cloneElement(child, { id }) : child;
+  });
+}
 
 /**
  * Long-form typography.
@@ -8,9 +45,10 @@ import type { ComponentPropsWithRef } from "react";
  * come from the library's own tokens, so the documentation is itself an example
  * of the design system rather than a separately-styled island.
  */
-export function Prose({ className, ...props }: ComponentPropsWithRef<"div">) {
+export function Prose({ className, children, ...props }: ComponentPropsWithRef<"div">) {
   return (
     <div
+      data-prose=""
       className={cn(
         "max-w-none",
         "[&_h2]:mt-14 [&_h2]:scroll-mt-24 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-foreground",
@@ -27,6 +65,8 @@ export function Prose({ className, ...props }: ComponentPropsWithRef<"div">) {
         className,
       )}
       {...props}
-    />
+    >
+      {withHeadingIds(children)}
+    </div>
   );
 }

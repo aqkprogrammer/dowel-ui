@@ -9,6 +9,8 @@ import { useDeferredValue, useId, useState, type ReactNode } from "react";
 import type { NavLink } from "~/lib/navigation";
 import type { SidebarSection, SidebarTree } from "~/lib/sidebar";
 
+import { SidebarSections } from "./site/sidebar-sections";
+
 /**
  * The documentation navigation.
  *
@@ -210,7 +212,7 @@ function Links({
               {active ? (
                 <span
                   aria-hidden="true"
-                  className="absolute top-1/2 -left-px h-3.5 w-0.5 -translate-y-1/2 rounded-full bg-[var(--cosmic-blue)] shadow-[0_0_8px_var(--cosmic-blue)]"
+                  className="absolute top-1/2 -left-px h-3.5 w-0.5 -translate-y-1/2 rounded-full bg-[var(--trail)] shadow-[0_0_8px_var(--trail)]"
                 />
               ) : null}
               <span className="truncate">{item.title}</span>
@@ -220,6 +222,8 @@ function Links({
                 </span>
               ) : null}
             </Link>
+            {/* Where on the page, under which page. */}
+            {active ? <SidebarSections onNavigate={onNavigate} /> : null}
           </li>
         );
       })}
