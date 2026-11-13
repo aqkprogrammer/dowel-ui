@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 
 import { DocsContinue } from "~/components/site/docs-continue";
 import { DocsProgress } from "~/components/site/docs-progress";
+import { DocsResume } from "~/components/site/docs-resume";
+import { DocsShortcuts } from "~/components/site/docs-shortcuts";
 import { ScrollTrail } from "~/components/site/scroll-trail";
 import { SidebarNav } from "~/components/sidebar-nav";
 import { SiteFooter } from "~/components/site-footer";
@@ -47,6 +49,8 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
           {/* The same tree object the sidebar is given, so the payload carries
               it once. */}
           <DocsContinue tree={tree} />
+          <DocsShortcuts tree={tree} />
+          <DocsResume />
         </main>
       </div>
 

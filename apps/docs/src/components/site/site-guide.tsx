@@ -87,6 +87,10 @@ interface Prefs {
   roam: boolean;
 }
 
+/** The flight's spring: how hard it pulls to where it is going, and how it settles. */
+const STIFFNESS = 120;
+const DAMPING = 2 * Math.sqrt(STIFFNESS) * 0.8;
+
 const DEFAULT_PREFS: Prefs = { dock: "br", roam: true };
 
 function readPrefs(): Prefs {
@@ -295,16 +299,20 @@ export function SiteGuide() {
     let at: Place["at"] | undefined;
     let settled = false;
     let flown = 0;
+    let vx = 0;
+    let vy = 0;
+    let last = 0;
     let sides = "";
     let drag: { dx: number; dy: number; x: number; y: number; moved: boolean } | undefined;
 
-    const hop = () => {
-      // Restart the hop: the same class, removed and put back across a reflow.
+    /** Play one of the body's gestures from its start, whatever it was doing. */
+    const play = (gesture: string | undefined) => {
       const hopper = hopRef.current;
-      if (!hopper) return;
-      hopper.classList.remove(styles.hopping ?? "");
+      if (!hopper || !gesture) return;
+      hopper.classList.remove(styles.hopping ?? "", styles.landing ?? "");
+      // Across a reflow, so putting the class back restarts its animation.
       void hopper.offsetWidth;
-      hopper.classList.add(styles.hopping ?? "");
+      hopper.classList.add(gesture);
     };
 
     const follow = () => {
@@ -363,17 +371,26 @@ export function SiteGuide() {
       // hop is the whole announcement and a tap opens the line.
       // Nor on the card that ends the page: it says the same thing itself,
       // and the bubble would sit on top of it.
-      if (ended) setOpen(false);
+      // And on a page that is being read rather than toured, only at its
+      // first stop and its last: a bubble at every heading is an interruption
+      // by the third. In between it lands quietly, and speaks when clicked.
+      const touring = pathname === "/" || index <= 0 || index === stops.length - 1;
+      if (ended || !touring) setOpen(false);
       else if (window.innerWidth >= 640) {
         setOpen(true);
         linger();
       }
-      hop();
+      // Staying put, a hop is the greeting; setting off, the flight is.
+      if (!prefsRef.current.roam || window.innerWidth < 640) play(styles.hopping);
     };
 
-    const tick = () => {
+    const tick = (now: number) => {
       frame = 0;
       follow();
+      // Seconds since the last frame, capped: a tab that was in the background
+      // comes back with one long frame, which must not fling the guide.
+      const dt = Math.min(0.034, last === 0 ? 1 / 60 : (now - last) / 1000);
+      last = now;
 
       const viewport = { w: document.documentElement.clientWidth, h: window.innerHeight };
       const wide = viewport.w >= 640;
@@ -395,8 +412,10 @@ export function SiteGuide() {
         flown = Math.hypot(goal.x - x, goal.y - y);
       }
 
-      let lean = 0;
+      let lift = 0;
       if (drag?.moved) {
+        vx = (drag.x - x) / dt;
+        vy = (drag.y - y) / dt;
         x = drag.x;
         y = drag.y;
         scale += (1 - scale) * 0.2;
@@ -406,52 +425,97 @@ export function SiteGuide() {
         x = goal.x;
         y = goal.y;
         scale = goal.scale;
+        vx = 0;
+        vy = 0;
         settled = true;
       } else {
-        const dx = goal.x - x;
-        const dy = goal.y - y;
-        x += dx * 0.14;
-        y += dy * 0.14;
-        scale += (goal.scale - scale) * 0.14;
-        lean = Math.max(-18, Math.min(18, dx * 0.22));
-        if (Math.hypot(dx, dy) < 0.7) {
+        // A spring, a little under-damped: it sets off gently, carries speed
+        // through the middle of the flight and eases in with the faintest
+        // overshoot — and it is measured in seconds, so a fast display and a
+        // slow one fly the same path.
+        vx += (STIFFNESS * (goal.x - x) - DAMPING * vx) * dt;
+        vy += (STIFFNESS * (goal.y - y) - DAMPING * vy) * dt;
+        x += vx * dt;
+        y += vy * dt;
+        scale += (goal.scale - scale) * Math.min(1, dt * 9);
+        const left = Math.hypot(goal.x - x, goal.y - y);
+        if (left < 0.5 && Math.hypot(vx, vy) < 12) {
           x = goal.x;
           y = goal.y;
           scale = goal.scale;
+          vx = 0;
+          vy = 0;
           settled = true;
-          lean = 0;
-          if (flown > 60) hop();
+          if (flown > 60) play(styles.landing);
+        } else if (flown > 120) {
+          // Not a straight line: a long flight rises over the page between
+          // where it left and where it lands, highest at the middle.
+          const along = Math.max(0, Math.min(1, 1 - left / flown));
+          lift = Math.min(64, flown * 0.14) * Math.sin(Math.PI * along);
         }
       }
 
-      root.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      // What the speed does to the body: it leans the way it is going, draws
+      // out a little along the flight, and looks where it is headed.
+      const speed = Math.hypot(vx, vy);
+      const airborne = !settled && flown > 60;
+      const lean = Math.max(-22, Math.min(22, vx * 0.028));
+      const stretch = airborne ? Math.min(0.14, speed / 5200) : 0;
+      root.style.transform = `translate3d(${x.toFixed(1)}px, ${(y - lift).toFixed(1)}px, 0)`;
       root.style.setProperty("--scale", scale.toFixed(3));
       root.style.setProperty("--lean", `${lean.toFixed(1)}deg`);
+      root.style.setProperty("--stretch-x", (1 - stretch * 0.5).toFixed(3));
+      root.style.setProperty("--stretch-y", (1 + stretch).toFixed(3));
       root.style.setProperty("--size", `${String(width)}px`);
-      root.toggleAttribute("data-flying", !settled && !drag?.moved && flown > 60);
+      if (airborne && speed > 40) {
+        root.style.setProperty(
+          "--look-x",
+          `${Math.max(-3, Math.min(3, vx / 160)).toFixed(2)}px`,
+        );
+        root.style.setProperty(
+          "--look-y",
+          `${Math.max(-2.4, Math.min(2.4, vy / 160)).toFixed(2)}px`,
+        );
+      }
+      root.toggleAttribute("data-flying", airborne && !drag?.moved);
       root.toggleAttribute("data-perched", settled && typeof at !== "string");
-      // The bubble is as wide as its stylesheet says, hangs from the side of
-      // the guide nearer the window's edge, and is slid back in if it would
-      // leave the window; the tail stays over the guide's head regardless.
+
+      // Where the bubble goes. It keeps to the window, and to whichever side
+      // of the guide leaves the words under it readable: beside a heading the
+      // guide is standing at, if there is room there; otherwise above it, or
+      // below when it is near the top. Decided on the ground — in the air the
+      // bubble is put away, and changing sides mid-flight would only flicker.
       const bubble = Math.min(wide ? 280 : 240, viewport.w - (wide ? 40 : 24));
       const head = x + (width * scale) / 2;
-      const wanted = head > viewport.w / 2 ? head - bubble + 36 : head - 36;
+      const edge = x + width * scale;
+      const beside =
+        typeof at !== "string" && at !== undefined && !at.matches(TERMINUS)
+          ? viewport.w - edge - 30 >= bubble
+          : false;
+      const wanted = beside
+        ? edge + 22
+        : head > viewport.w / 2
+          ? head - bubble + 36
+          : head - 36;
       const left = Math.max(8, Math.min(viewport.w - bubble - 8, wanted));
       root.style.setProperty("--bubble-x", `${(left - x).toFixed(1)}px`);
       root.style.setProperty(
         "--tail-x",
         `${Math.max(18, Math.min(bubble - 18, head - left)).toFixed(1)}px`,
       );
-      // The bubble opens towards the middle of the window, whichever way that is.
-      const next = `${x + width / 2 > viewport.w / 2 ? "left" : "right"} ${y < 190 ? "below" : "above"}`;
-      if (next !== sides) {
-        sides = next;
-        const [across = "left", down = "above"] = next.split(" ");
-        root.dataset.across = across;
-        root.dataset.down = down;
+      if (!airborne) {
+        const across = beside || head <= viewport.w / 2 ? "right" : "left";
+        const down = beside ? "beside" : y < 190 ? "below" : "above";
+        const next = `${across} ${down}`;
+        if (next !== sides) {
+          sides = next;
+          root.dataset.across = across;
+          root.dataset.down = down;
+        }
       }
 
-      if (!settled) frame = requestAnimationFrame(tick);
+      if (settled) last = 0;
+      else frame = requestAnimationFrame(tick);
     };
     const request = () => {
       if (frame === 0) frame = requestAnimationFrame(tick);
