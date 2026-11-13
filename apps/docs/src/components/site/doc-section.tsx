@@ -30,6 +30,7 @@ export function DocSection({
         <div>
           <h2
             id={id}
+            data-trail-stop=""
             className="group flex scroll-mt-24 items-center gap-2 text-xl font-semibold tracking-tight"
           >
             {title}

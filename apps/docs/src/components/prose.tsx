@@ -11,6 +11,7 @@ import type { ComponentPropsWithRef } from "react";
 export function Prose({ className, ...props }: ComponentPropsWithRef<"div">) {
   return (
     <div
+      data-prose=""
       className={cn(
         "max-w-none",
         "[&_h2]:mt-14 [&_h2]:scroll-mt-24 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-foreground",

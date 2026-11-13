@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { ScrollTrail } from "~/components/site/scroll-trail";
 import { SidebarNav } from "~/components/sidebar-nav";
 import { SiteFooter } from "~/components/site-footer";
 import { SiteHeader } from "~/components/site-header";
@@ -27,7 +28,16 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
           <SidebarNav tree={tree} />
         </aside>
 
-        <main id="content" className="min-w-0 flex-1 pb-24">
+        <main id="content" className="relative min-w-0 flex-1 pb-24">
+          {/* The route through the page's headings, in the gap beside the
+              sidebar; only where the sidebar, and so the gap, exists. */}
+          <ScrollTrail
+            stops="[data-trail-stop], [data-prose] > h2"
+            lead={28}
+            inset={20}
+            minViewport={1024}
+            weight="fine"
+          />
           {children}
         </main>
       </div>

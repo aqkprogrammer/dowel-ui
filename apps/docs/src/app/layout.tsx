@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { AnimatedFavicon } from "~/components/animated-favicon";
 import { CosmicHue } from "~/components/site/cosmic-hue";
+import { SiteGuide } from "~/components/site/site-guide";
 import { AstraExperience } from "~/components/astra";
 import { JsonLd } from "~/components/json-ld";
 import { ThemeProvider } from "~/components/theme-provider";
@@ -149,6 +150,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 still scrolls when something focuses or scrolls into view. The
                 page headers' light bleeds past the column on purpose. */}
             <div className="overflow-x-clip">{children}</div>
+            <SiteGuide />
           </AstraExperience>
         </ThemeProvider>
       </body>
