@@ -1,0 +1,571 @@
+/*
+ * The reading journey through the documentation: the sidebar's section
+ * timeline, the compact progress bar that stands in for it on a small screen,
+ * and the hand-off to the next page at the end of each one.
+ *
+ * All of it in the route's lime (`--trail`), with the scroll trail.
+ */
+
+/* --- Section timeline ------------------------------------------------------ */
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  margin: 0.25rem 0 0.375rem 0.6875rem;
+  padding: 0;
+  list-style: none;
+  animation: journey-unfold 320ms var(--ease-out-quint) both;
+}
+
+.section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding: 0.1875rem 0.5rem 0.1875rem 1.125rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  outline: none;
+  transition: color 200ms;
+}
+
+.section:hover {
+  color: var(--foreground);
+}
+
+.section:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent);
+}
+
+/* The rail: one segment a row, so the lit part is simply the rows passed. */
+.section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0.25rem;
+  width: 1px;
+  background: var(--hairline-strong);
+  transition: background-color 300ms;
+}
+
+li:first-child > .section::before {
+  top: 50%;
+}
+
+li:last-child > .section::before {
+  bottom: 50%;
+}
+
+/* The stop on the rail. */
+.section::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0.25rem;
+  width: 0.3125rem;
+  height: 0.3125rem;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  background: var(--background);
+  box-shadow: 0 0 0 1px var(--hairline-strong);
+  transition:
+    background-color 300ms,
+    box-shadow 300ms,
+    scale 300ms var(--ease-out-quint);
+}
+
+.section[data-state="done"]::before,
+.section[data-state="current"]::before {
+  background: var(--trail);
+}
+
+/* Lit down to the current stop, and no further. */
+.section[data-state="current"]::before {
+  bottom: 50%;
+}
+
+.section[data-state="done"] {
+  color: color-mix(in oklab, var(--foreground) 78%, transparent);
+}
+
+.section[data-state="done"]::after {
+  background: var(--trail);
+  box-shadow: none;
+}
+
+.section[data-state="current"] {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.section[data-state="current"]::after {
+  scale: 1.5;
+  background: var(--trail);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--trail) 22%, transparent),
+    0 0 0.625rem var(--trail);
+}
+
+/* --- Compact progress bar -------------------------------------------------- */
+
+.progress {
+  position: sticky;
+  top: 3.5rem;
+  /* Under the header and its menus, over the page. */
+  z-index: calc(var(--z-sticky) - 1);
+  border-bottom: 1px solid var(--hairline);
+  --glass: color-mix(in oklab, var(--background) 92%, transparent);
+}
+
+/* Open, it is a list to read, and nothing should show through it. */
+.progress:has(details[open]) {
+  --glass: var(--background);
+  box-shadow: 0 1.5rem 2.5rem -1.5rem rgb(0 0 0 / 0.5);
+}
+
+.progressSummary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.25rem;
+  padding: 0 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+  outline: none;
+}
+
+.progressSummary::-webkit-details-marker {
+  display: none;
+}
+
+.progressSummary:focus-visible {
+  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent);
+}
+
+.progressDot {
+  flex: none;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 9999px;
+  background: var(--trail);
+  box-shadow: 0 0 0.5rem var(--trail);
+}
+
+.progressCount {
+  flex: none;
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.progressChevron {
+  flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--muted-foreground);
+  transition: rotate 200ms var(--ease-out-quint);
+}
+
+.progressDetails[open] .progressChevron {
+  rotate: 180deg;
+}
+
+.progressList {
+  display: flex;
+  flex-direction: column;
+  max-height: 50dvh;
+  margin: 0;
+  padding: 0.25rem 1rem 0.75rem 1.125rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.progressList .section {
+  min-height: 2.25rem;
+  font-size: 0.8125rem;
+}
+
+.progressTrack {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--trail);
+  box-shadow: 0 0 0.5rem var(--trail);
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform;
+}
+
+:global([dir="rtl"]) .progressFill {
+  transform-origin: right;
+}
+
+/* --- The end of the page --------------------------------------------------- */
+
+.continue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  max-width: 48rem;
+  margin-top: 6rem;
+}
+
+.nextCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  --pull: 0;
+
+  padding: 1.5rem 5.5rem 1.5rem 1.5rem;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 1.125rem;
+  background:
+    radial-gradient(
+      120% 140% at 0% 0%,
+      color-mix(in srgb, var(--trail) 9%, transparent),
+      transparent 55%
+    ),
+    var(--pane);
+  outline: none;
+  transition:
+    border-color 300ms var(--ease-out-quint),
+    box-shadow 500ms var(--ease-out-quint),
+    transform 300ms var(--ease-out-quint);
+}
+
+.nextCard:hover,
+.nextCard:focus-visible {
+  border-color: color-mix(in srgb, var(--trail) 55%, transparent);
+  box-shadow: 0 1.5rem 3.5rem -2rem color-mix(in srgb, var(--trail) 70%, transparent);
+  transform: translateY(-2px);
+}
+
+.nextCard:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--trail);
+}
+
+.nextEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.nextPip {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 9999px;
+  background: var(--trail);
+  box-shadow: 0 0 0.625rem var(--trail);
+}
+
+.nextTitle {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.nextHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+/* The way on, as a button-sized target for the eye; the card is the link. */
+.nextBadge {
+  position: absolute;
+  top: 50%;
+  right: 1.5rem;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  translate: 0 -50%;
+  border-radius: 9999px;
+  background: var(--trail);
+  color: var(--trail-ink);
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--trail) 18%, transparent),
+    0 0 1.75rem color-mix(in srgb, var(--trail) 55%, transparent);
+  transition: scale 300ms var(--ease-out-quint);
+}
+
+.nextCard:hover .nextBadge,
+.nextCard:focus-visible .nextBadge {
+  scale: 1.08;
+}
+
+.nextArrow {
+  width: 1.125rem;
+  height: 1.125rem;
+  animation: journey-nudge 1.8s ease-in-out infinite;
+}
+
+/* The same fill as the meter, as a ring closing round the badge. */
+.nextRing {
+  position: absolute;
+  inset: -9px;
+  border-radius: 9999px;
+  background: conic-gradient(var(--trail) calc(var(--pull) * 360deg), transparent 0);
+  -webkit-mask: radial-gradient(
+    closest-side,
+    transparent calc(100% - 3px),
+    #000 calc(100% - 2.5px)
+  );
+  mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+}
+
+.nextSpark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.3125rem;
+  height: 0.3125rem;
+  margin: -0.15625rem;
+  border-radius: 9999px;
+  background: var(--trail);
+  opacity: 0;
+  rotate: var(--angle);
+}
+
+.nextCard[data-arrived] .nextSpark {
+  animation: journey-spark 900ms var(--ease-out-quint) 250ms both;
+}
+
+.nextCard[data-arrived] .nextBadge {
+  animation: journey-arrive 700ms cubic-bezier(0.3, 1.5, 0.5, 1) 150ms both;
+}
+
+/* What was read, above what is next. */
+.nextRecap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.625rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px dashed var(--hairline-strong);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.nextDots {
+  display: inline-flex;
+  align-items: center;
+}
+
+.nextDot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--hairline-strong);
+  transition:
+    background-color 300ms,
+    box-shadow 300ms,
+    scale 400ms cubic-bezier(0.3, 1.6, 0.5, 1);
+  transition-delay: calc(var(--i) * 70ms + 200ms);
+}
+
+/* The line between two lights. */
+.nextDot + .nextDot {
+  margin-left: 0.625rem;
+}
+
+.nextDot + .nextDot::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  width: 0.625rem;
+  height: 1px;
+  background: var(--hairline-strong);
+}
+
+.nextCard[data-arrived] .nextDot {
+  scale: 1.15;
+  background: var(--trail);
+  box-shadow: 0 0 0.5rem var(--trail);
+}
+
+.nextCard[data-arrived] {
+  border-color: color-mix(in srgb, var(--trail) 45%, transparent);
+  box-shadow: 0 1.5rem 4rem -2.25rem color-mix(in srgb, var(--trail) 80%, transparent);
+}
+
+.previousLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  align-self: flex-start;
+  max-width: 100%;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  outline: none;
+  transition: color 200ms;
+}
+
+.previousLink:hover {
+  color: var(--foreground);
+}
+
+.previousLink:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent);
+}
+
+/* --- The meter ------------------------------------------------------------- */
+
+/* A pill that rises from the edge being pushed against, and fills. */
+.meter {
+  --pull: 0;
+
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  max-width: calc(100vw - 7rem);
+  height: 2.25rem;
+  padding: 0 1.125rem;
+  border: 1px solid color-mix(in srgb, var(--trail) 55%, transparent);
+  border-radius: 9999px;
+  background: var(--background);
+  box-shadow: 0 0.75rem 2.5rem -0.75rem color-mix(in srgb, var(--trail) 65%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  translate: -50% 1rem;
+  transition:
+    opacity 200ms,
+    translate 300ms var(--ease-out-quint);
+}
+
+.meter[data-towards="previous"] {
+  top: 4.5rem;
+  bottom: auto;
+  translate: -50% -1rem;
+}
+
+.meter[data-active] {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.meterFill {
+  position: absolute;
+  inset: 0;
+  background: var(--trail);
+  transform: scaleX(var(--pull));
+  transform-origin: left;
+  transition: transform 140ms linear;
+}
+
+.meter[data-gone] .meterFill {
+  transform: scaleX(1);
+}
+
+.meterLabel {
+  position: relative;
+  display: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Reads on the pill and on the fill crossing it. */
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
+.meter:not([data-towards="previous"]) .meterLabel[data-for="next"],
+.meter[data-towards="previous"] .meterLabel[data-for="previous"] {
+  display: block;
+}
+
+/* --- Motion ---------------------------------------------------------------- */
+
+@keyframes journey-unfold {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes journey-spark {
+  0% {
+    opacity: 1;
+    transform: translateX(1.25rem) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(3.5rem) scale(0.2);
+  }
+}
+
+@keyframes journey-arrive {
+  0% {
+    scale: 0.6;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes journey-nudge {
+  0%,
+  100% {
+    translate: 0 -2px;
+  }
+  50% {
+    translate: 0 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sections,
+  .nextArrow,
+  .nextCard[data-arrived] .nextSpark,
+  .nextCard[data-arrived] .nextBadge {
+    animation: none;
+  }
+
+  .nextCard,
+  .nextBadge,
+  .nextDot,
+  .meter,
+  .meterFill {
+    transition: none;
+  }
+}

@@ -55,6 +55,7 @@ interface TrailOptions {
   lead: number;
   inset: number;
   minViewport: number;
+  terminus?: string;
 }
 
 function build(container: HTMLElement, options: TrailOptions): Geometry | null {
@@ -133,9 +134,39 @@ function build(container: HTMLElement, options: TrailOptions): Geometry | null {
     y = cross + RADIUS;
   }
 
-  d += ` V${String(endY)}`;
-  length += endY - y;
-  knots.push([endY, length]);
+  // Where the route arrives, when the page has somewhere for it to: the line
+  // runs on past the last section, turns in over that element and comes down
+  // onto its top edge, a little way in from the side it came from.
+  const terminus = options.terminus
+    ? container.querySelector<HTMLElement>(options.terminus)
+    : null;
+  const dock = terminus?.offsetParent ? terminus.getBoundingClientRect() : undefined;
+  const from = lane(stops.length - 1);
+  const dockTop = dock ? round(dock.top - frame.top) : 0;
+  const cross = dockTop - 44;
+  const dockLeft = dock ? dock.left - frame.left : 0;
+  const dockRight = dock ? dock.right - frame.left : 0;
+  const into = round(
+    Math.abs(from - dockLeft) < Math.abs(from - dockRight) ? dockLeft + 46 : dockRight - 46,
+  );
+
+  if (dock && cross - y > BAND * 2 && Math.abs(into - from) > RADIUS * 2) {
+    const direction = into > from ? 1 : -1;
+    length += cross - RADIUS - y;
+    knots.push([cross - BAND, length - (BAND - RADIUS)]);
+    d +=
+      ` V${String(cross - RADIUS)}` +
+      ` A${String(RADIUS)} ${String(RADIUS)} 0 0 ${direction > 0 ? "0" : "1"} ${String(from + direction * RADIUS)} ${String(cross)}` +
+      ` H${String(into - direction * RADIUS)}` +
+      ` A${String(RADIUS)} ${String(RADIUS)} 0 0 ${direction > 0 ? "1" : "0"} ${String(into)} ${String(cross + RADIUS)}` +
+      ` V${String(dockTop)}`;
+    length += QUARTER * 2 + Math.abs(into - from) - RADIUS * 2 + (dockTop - cross - RADIUS);
+    knots.push([dockTop, length]);
+  } else {
+    d += ` V${String(endY)}`;
+    length += endY - y;
+    knots.push([endY, length]);
+  }
 
   return {
     d,
@@ -171,8 +202,11 @@ export function ScrollTrail({
   inset = 36,
   minViewport = 1280,
   weight = "bold",
+  terminus,
   className,
 }: {
+  /** Selector for the element the route ends at, if the page has one. */
+  terminus?: string;
   /** Selector for the stops, resolved inside the trail's parent. */
   stops?: string;
   /** Width of the page's content column, when the stops themselves are full-bleed. */
@@ -202,7 +236,7 @@ export function ScrollTrail({
     let frame = 0;
     const measure = () => {
       frame = 0;
-      const next = build(container, { stops, span, lead, inset, minViewport });
+      const next = build(container, { stops, span, lead, inset, minViewport, terminus });
       setGeometry((current) =>
         current?.d === next?.d && current?.height === next?.height ? current : next,
       );
@@ -219,7 +253,7 @@ export function ScrollTrail({
       observer.disconnect();
       window.removeEventListener("resize", request);
     };
-  }, [pathname, stops, span, lead, inset, minViewport]);
+  }, [pathname, stops, span, lead, inset, minViewport, terminus]);
 
   // Travel: the lit length follows the middle of the viewport, eased, written
   // straight to the elements — a scroll never passes through React.
@@ -254,7 +288,13 @@ export function ScrollTrail({
     const tick = () => {
       frame = 0;
       const top = host.getBoundingClientRect().top;
-      const goal = lengthAt(geometry.knots, window.innerHeight * 0.5 - top);
+      // At the foot of the document the middle of the viewport can go no
+      // further down the page, so the route is simply finished.
+      const ended =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      const goal = ended
+        ? geometry.total
+        : lengthAt(geometry.knots, window.innerHeight * 0.5 - top);
       current = current < 0 || still ? goal : current + (goal - current) * 0.16;
       if (Math.abs(goal - current) < 0.4) current = goal;
       paint(current);

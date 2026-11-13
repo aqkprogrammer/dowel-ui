@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { DocsContinue } from "~/components/site/docs-continue";
+import { DocsProgress } from "~/components/site/docs-progress";
 import { ScrollTrail } from "~/components/site/scroll-trail";
 import { SidebarNav } from "~/components/sidebar-nav";
 import { SiteFooter } from "~/components/site-footer";
@@ -20,6 +22,8 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <SiteHeader />
+      {/* The sidebar's stand-in below the breakpoint that hides it. */}
+      <DocsProgress className="lg:hidden" />
 
       <div className="mx-auto flex w-full max-w-[88rem] flex-1 gap-10 px-4 sm:px-6">
         {/* Its own scroll container, so the nav does not scroll away with the
@@ -37,8 +41,12 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
             inset={20}
             minViewport={1024}
             weight="fine"
+            terminus="[data-trail-terminus]"
           />
           {children}
+          {/* The same tree object the sidebar is given, so the payload carries
+              it once. */}
+          <DocsContinue tree={tree} />
         </main>
       </div>
 

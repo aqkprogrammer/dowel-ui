@@ -5,19 +5,10 @@
  * character who walks it are one idea, and read as one colour.
  */
 .trail {
-  --trail: #b4f000;
-  --trail-ink: #14210a;
-
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-}
-
-/* Lime on white has no weight; the light theme takes the leaf under it. */
-:global(:root:not(.dark)) .trail {
-  --trail: #58a700;
-  --trail-ink: #ffffff;
 }
 
 .canvas {
@@ -143,6 +134,26 @@
   will-change: transform;
 }
 
+/* Beside prose the marker sits a few pixels from the text: smaller, and with
+ * a ring that stays out of the words. */
+.trail[data-weight="fine"] .head {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: -0.5625rem 0 0 -0.5625rem;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--trail) 24%, transparent),
+    0 0 1rem color-mix(in srgb, var(--trail) 70%, transparent);
+}
+
+.trail[data-weight="fine"] .head svg {
+  width: 9px;
+  height: 9px;
+}
+
+.trail[data-weight="fine"] .head::after {
+  animation-name: trail-ping-fine;
+}
+
 .head[data-live] {
   opacity: 1;
 }
@@ -164,6 +175,17 @@
   to {
     opacity: 0;
     transform: scale(2.1);
+  }
+}
+
+@keyframes trail-ping-fine {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.6);
   }
 }
 
