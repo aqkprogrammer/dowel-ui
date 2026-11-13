@@ -153,6 +153,17 @@
     );
   }
 
+  /* The route takes the preset's own colour: its primary, lifted to the
+   * brightness the lime has so it still reads as light on the page. The
+   * default preset sets nothing, and the route stays lime. */
+  :root[data-cosmic-tinted] {
+    --trail: oklch(from var(--primary) 0.84 c h);
+  }
+
+  :root[data-cosmic-tinted]:not(.dark) {
+    --trail: oklch(from var(--primary) 0.56 c h);
+  }
+
   :root[data-cosmic-tinted]:not(.dark) {
     --cosmic-navy: oklch(
       from #b9cde3 l calc(c * var(--cosmic-chroma, 1)) calc(h + var(--cosmic-hue-shift, 0))
@@ -619,6 +630,29 @@
   mix-blend-mode: normal;
 }
 
+/*
+ * Turning a documentation page by scrolling past its end, or with n and p.
+ *
+ * The page moves the way the reader was going: the one being left slides off
+ * ahead of them and the next rises into its place, so two routes read as one
+ * column. The header and the sidebar are named above and stay where they are.
+ */
+:root:active-view-transition-type(docs-forward)::view-transition-old(root) {
+  animation: 200ms var(--ease-in-quint) both vt-leave-up;
+}
+
+:root:active-view-transition-type(docs-forward)::view-transition-new(root) {
+  animation: 460ms var(--ease-out-quint) 90ms both vt-enter-up;
+}
+
+:root:active-view-transition-type(docs-back)::view-transition-old(root) {
+  animation: 200ms var(--ease-in-quint) both vt-leave-down;
+}
+
+:root:active-view-transition-type(docs-back)::view-transition-new(root) {
+  animation: 460ms var(--ease-out-quint) 90ms both vt-enter-down;
+}
+
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-old(*),
@@ -643,5 +677,33 @@
 @keyframes vt-via-blur {
   35% {
     filter: blur(4px);
+  }
+}
+
+@keyframes vt-leave-up {
+  to {
+    opacity: 0;
+    transform: translateY(-2.5rem);
+  }
+}
+
+@keyframes vt-enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(4rem);
+  }
+}
+
+@keyframes vt-leave-down {
+  to {
+    opacity: 0;
+    transform: translateY(2.5rem);
+  }
+}
+
+@keyframes vt-enter-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4rem);
   }
 }

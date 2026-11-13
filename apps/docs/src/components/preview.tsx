@@ -220,7 +220,9 @@ export function Preview({
           <button
             type="button"
             aria-pressed={controlsOn}
-            aria-controls={`${component}-controls`}
+            // Only while the panel exists: naming an element that is not in the
+            // document is an invalid reference, which Lighthouse measured.
+            aria-controls={controlsOn ? `${component}-controls` : undefined}
             onClick={() => {
               setControlsOn((value) => !value);
             }}

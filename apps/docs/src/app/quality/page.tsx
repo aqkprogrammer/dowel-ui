@@ -9,6 +9,7 @@ import { PageHeader } from "~/components/site/page-header";
 import { SiteShell } from "~/components/site/site-shell";
 import { branding } from "~/lib/branding";
 import { pageMetadata } from "~/lib/site";
+import lighthouse from "~/lib/lighthouse.json";
 import { averageQuality, componentQuality } from "~/lib/quality.generated";
 import { getBlocks, getComponents, getRegistryIndex } from "~/lib/registry";
 
@@ -24,6 +25,17 @@ export const metadata: Metadata = pageMetadata({
     "react component bundle size",
   ],
 });
+
+const LIGHTHOUSE_COLUMNS = [
+  "Performance",
+  "Accessibility",
+  "Best practices",
+  "SEO",
+  "LCP",
+  "TBT",
+  "CLS",
+  "Measured",
+];
 
 const ICON = { pass: Check, fail: X, "not-applicable": Minus } as const;
 const TONE = {
@@ -83,6 +95,97 @@ export default function QualityPage() {
           </div>
         ))}
       </dl>
+
+      {/* The site itself, measured the same way: by a tool, on a date, with the
+          unflattering figures left in. `scripts/lighthouse.ts` writes them. */}
+      <section aria-labelledby="site-speed" className="mt-12">
+        <h2 id="site-speed" className="text-xl font-semibold tracking-tight">
+          This site, under Lighthouse
+        </h2>
+        <p className="mt-1.5 max-w-2xl text-sm text-pretty text-muted-foreground">
+          One run a page against the live site, with Lighthouse&rsquo;s mobile emulation: a
+          mid-range phone on a throttled connection, which is where a slow page shows. Scores
+          move a few points between runs, so each is shown with the day it was taken.
+        </p>
+        <div className="mt-5 overflow-x-auto rounded-xl border border-border">
+          <table className="w-full border-collapse text-sm">
+            <caption className="sr-only">
+              Lighthouse scores and loading metrics for three pages of this site
+            </caption>
+            <thead>
+              <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                <th scope="col" className="px-4 py-2 text-left font-medium text-foreground">
+                  Page
+                </th>
+                {LIGHTHOUSE_COLUMNS.map((column) => (
+                  <th
+                    key={column}
+                    scope="col"
+                    className="px-3 py-2 text-right font-medium whitespace-nowrap"
+                  >
+                    {column}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {lighthouse.pages.map((page) => (
+                <tr key={page.id} className="border-b border-border last:border-0">
+                  <th scope="row" className="px-4 py-2 text-left font-normal whitespace-nowrap">
+                    <Link
+                      href={page.path}
+                      className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/55"
+                    >
+                      {page.label}
+                    </Link>
+                    <span className="ms-2 font-mono text-xs text-muted-foreground">
+                      {page.path}
+                    </span>
+                  </th>
+                  {[
+                    page.scores.performance,
+                    page.scores.accessibility,
+                    page.scores.bestPractices,
+                    page.scores.seo,
+                  ].map((score, index) => (
+                    <td
+                      key={index}
+                      className={cn(
+                        "px-3 py-2 text-right font-mono tabular-nums",
+                        score >= 90
+                          ? "text-success"
+                          : score >= 50
+                            ? "text-foreground"
+                            : "text-destructive",
+                      )}
+                    >
+                      {score}
+                    </td>
+                  ))}
+                  <td className="px-3 py-2 text-right font-mono text-muted-foreground tabular-nums">
+                    {(page.metrics.lcp / 1000).toFixed(1)} s
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-muted-foreground tabular-nums">
+                    {page.metrics.tbt} ms
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-muted-foreground tabular-nums">
+                    {page.metrics.cls}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono text-xs whitespace-nowrap text-muted-foreground">
+                    {page.measured}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 max-w-2xl text-xs text-pretty text-muted-foreground">
+          Lighthouse {lighthouse.pages[0]?.version}. LCP is the largest contentful paint, TBT
+          the total time the main thread was blocked, CLS the cumulative layout shift.
+          Performance is the open gap: most of the blocked time is the page hydrating on a
+          throttled processor, and the home page adds a WebGL star field to that.
+        </p>
+      </section>
 
       {gaps.length > 0 ? (
         <div className="mt-8 rounded-lg border border-border bg-muted/40 p-4">

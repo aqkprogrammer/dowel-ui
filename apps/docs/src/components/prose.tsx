@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { SectionLink } from "./site/section-link";
+
 /** The text a node renders, for naming a heading after what it says. */
 function textOf(node: ReactNode): string {
   if (typeof node === "string" || typeof node === "number") return String(node);
@@ -25,16 +27,25 @@ function textOf(node: ReactNode): string {
  */
 function withHeadingIds(children: ReactNode): ReactNode {
   return Children.map(children, (child) => {
-    if (!isValidElement<{ id?: string; children?: ReactNode }>(child)) return child;
+    if (!isValidElement<{ id?: string; className?: string; children?: ReactNode }>(child))
+      return child;
     if (child.type === Fragment) {
       return <Fragment key={child.key}>{withHeadingIds(child.props.children)}</Fragment>;
     }
     if (child.type !== "h2" || child.props.id) return child;
-    const id = textOf(child.props.children)
+    const title = textOf(child.props.children);
+    const id = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
-    return id ? cloneElement(child, { id }) : child;
+    if (!id) return child;
+    // With its link to itself beside it, as a section heading has.
+    return cloneElement(
+      child,
+      { id, className: cn(child.props.className, "group flex items-center gap-2") },
+      child.props.children,
+      <SectionLink id={id} title={title} />,
+    );
   });
 }
 

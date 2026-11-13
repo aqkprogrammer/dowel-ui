@@ -1,11 +1,14 @@
 "use client";
 
 import { ArrowDown, ArrowLeft } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import type { SidebarTree } from "~/lib/sidebar";
+
+import { useNearViewport } from "../live-stage";
 
 import styles from "./docs-journey.module.css";
 import { usePageStops } from "./page-stops";
@@ -47,11 +50,29 @@ const PATIENCE = 900;
 const SPARKS = [0, 36, 72, 108, 144, 180, 216, 252, 288, 324];
 const LAND_KEY = "docs-land-at-end";
 
+/** The next page's component, live. Fetched only when an end card wants one. */
+const NextPreview = dynamic(() => import("./next-preview"), { ssr: false });
+
+/** One line about each page, by path: fetched once, by the first card to need it. */
+let blurbs: Promise<Record<string, string>> | undefined;
+function loadBlurbs(): Promise<Record<string, string>> {
+  blurbs ??= fetch("/docs/next-stops.json")
+    .then((response) =>
+      response.ok ? (response.json() as Promise<Record<string, string>>) : {},
+    )
+    .catch(() => {
+      // Asked again next time rather than remembered as empty.
+      blurbs = undefined;
+      return {};
+    });
+  return blurbs;
+}
+
 // Across navigations on purpose: the fling that turned the page is still
 // delivering wheel events when the next page mounts.
 let lastWheelAt = 0;
 
-function neighbours(tree: SidebarTree, pathname: string) {
+export function neighbours(tree: SidebarTree, pathname: string) {
   const components = tree.components.flatMap((section) =>
     section.items.map((item) => ({ title: item.title, href: item.href, group: section.label })),
   );
@@ -78,7 +99,7 @@ function neighbours(tree: SidebarTree, pathname: string) {
   return { current: undefined, previous: undefined, next: undefined };
 }
 
-function typing(target: EventTarget | null): boolean {
+export function typing(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   return (
     target.isContentEditable ||
@@ -92,7 +113,9 @@ export function DocsContinue({ tree }: { tree: SidebarTree }) {
   const pathname = usePathname();
   const router = useRouter();
   const meterRef = useRef<HTMLDivElement | null>(null);
-  const cardRef = useRef<HTMLAnchorElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const [nearRef, near] = useNearViewport<HTMLElement>("700px");
+  const [about, setAbout] = useState<Record<string, string>>({});
   const { current, previous, next } = useMemo(
     () => neighbours(tree, pathname),
     [tree, pathname],
@@ -119,6 +142,18 @@ export function DocsContinue({ tree }: { tree: SidebarTree }) {
       clearTimeout(timer);
     };
   }, [pathname]);
+
+  // What the next page is for, once the end of this one is in reach.
+  useEffect(() => {
+    if (!near) return;
+    let wanted = true;
+    void loadBlurbs().then((all) => {
+      if (wanted) setAbout(all);
+    });
+    return () => {
+      wanted = false;
+    };
+  }, [near]);
 
   // Arrival: the card lights once it is properly in view — the stops count in,
   // the badge throws its sparks, and the guide comes over to sit on it.
@@ -190,7 +225,9 @@ export function DocsContinue({ tree }: { tree: SidebarTree }) {
           // Lands at the top instead.
         }
       }
-      router.push(href);
+      // Typed, so the stylesheet can move the pages the way the scroll was
+      // going: the next one rises from below, the previous comes down.
+      router.push(href, { transitionTypes: [towards > 0 ? "docs-forward" : "docs-back"] });
     };
     const add = (direction: 1 | -1, amount: number) => {
       if (gone) return;
@@ -290,43 +327,65 @@ export function DocsContinue({ tree }: { tree: SidebarTree }) {
 
   if (!next && !previous) return null;
 
+  const item = next?.href.match(/^\/docs\/(components|blocks)\/([^/]+)$/);
+  const preview = item
+    ? {
+        kind: item[1] === "blocks" ? ("block" as const) : ("component" as const),
+        name: item[2] ?? "",
+      }
+    : undefined;
+  const blurb = next ? about[next.href] : undefined;
+  const title = next ? <span className={styles.nextTitle}>{next.title}</span> : null;
+
   return (
     <>
-      <nav aria-label="Continue reading" className={styles.continue}>
+      <nav ref={nearRef} aria-label="Continue reading" className={styles.continue}>
         {next ? (
-          <Link
+          <div
             ref={cardRef}
-            href={next.href}
             className={styles.nextCard}
+            data-preview={preview ? "" : undefined}
             data-trail-terminus=""
             data-guide={`End of the line! Keep scrolling and I'll take you on to ${next.title}.`}
           >
-            {/* What was just read: one light a section, counting in on arrival. */}
-            {stops.length > 1 ? (
-              <span className={styles.nextRecap}>
-                <span className={styles.nextDots} aria-hidden="true">
-                  {stops.map((stop, index) => (
-                    <span
-                      key={stop.id}
-                      className={styles.nextDot}
-                      style={{ "--i": index } as CSSProperties}
-                    />
-                  ))}
+            <div className={styles.nextText}>
+              {/* What was just read: one light a section, counting in on arrival. */}
+              {stops.length > 1 ? (
+                <span className={styles.nextRecap}>
+                  <span className={styles.nextDots} aria-hidden="true">
+                    {stops.map((stop, index) => (
+                      <span
+                        key={stop.id}
+                        className={styles.nextDot}
+                        style={{ "--i": index } as CSSProperties}
+                      />
+                    ))}
+                  </span>
+                  <span>
+                    {current ? `${current.title} · ` : ""}
+                    {stops.length} sections read
+                  </span>
                 </span>
-                <span>
-                  {current ? `${current.title} · ` : ""}
-                  {stops.length} sections read
-                </span>
+              ) : null}
+              <span className={styles.nextEyebrow}>
+                <span className={styles.nextPip} aria-hidden="true" />
+                Next stop · {next.group}
               </span>
+              {/* The link is the title, and reaches the whole card through its
+                  ::after — the live preview beside it cannot sit inside an <a>. */}
+              <Link href={next.href} className={styles.nextLink}>
+                {title}
+              </Link>
+              {blurb ? <span className={styles.nextBlurb}>{blurb}</span> : null}
+              <span className={styles.nextHint}>
+                Keep scrolling past the end of the page to carry on
+              </span>
+            </div>
+            {preview ? (
+              <div className={`${styles.nextStage ?? ""} stage-surface`} aria-hidden="true">
+                {near ? <NextPreview name={preview.name} kind={preview.kind} /> : null}
+              </div>
             ) : null}
-            <span className={styles.nextEyebrow}>
-              <span className={styles.nextPip} aria-hidden="true" />
-              Next stop · {next.group}
-            </span>
-            <span className={styles.nextTitle}>{next.title}</span>
-            <span className={styles.nextHint}>
-              Keep scrolling past the end of the page to carry on
-            </span>
             <span className={styles.nextBadge} aria-hidden="true">
               <span className={styles.nextRing} />
               {SPARKS.map((angle) => (
@@ -338,7 +397,7 @@ export function DocsContinue({ tree }: { tree: SidebarTree }) {
               ))}
               <ArrowDown className={styles.nextArrow} />
             </span>
-          </Link>
+          </div>
         ) : null}
         {previous ? (
           <Link href={previous.href} className={styles.previousLink}>
@@ -346,6 +405,10 @@ export function DocsContinue({ tree }: { tree: SidebarTree }) {
             <span className="truncate">Previous: {previous.title}</span>
           </Link>
         ) : null}
+        <p className={styles.keysHint}>
+          <kbd>j</kbd> <kbd>k</kbd> sections · <kbd>n</kbd> <kbd>p</kbd> pages · <kbd>?</kbd>{" "}
+          all shortcuts
+        </p>
       </nav>
 
       {/* The meter: what a continued scroll is filling, and what it leads to.

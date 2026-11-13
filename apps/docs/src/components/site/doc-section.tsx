@@ -1,6 +1,7 @@
 import { cn } from "@dowel-ui/react";
-import { Hash } from "lucide-react";
 import type { ReactNode } from "react";
+
+import { SectionLink } from "./section-link";
 
 /**
  * A titled section of a documentation page, with a link to itself.
@@ -34,13 +35,7 @@ export function DocSection({
             className="group flex scroll-mt-24 items-center gap-2 text-xl font-semibold tracking-tight"
           >
             {title}
-            <a
-              href={`#${id}`}
-              aria-label={`Link to ${title}`}
-              className="rounded text-muted-foreground/0 transition-colors outline-none group-hover:text-muted-foreground focus-visible:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/55"
-            >
-              <Hash aria-hidden="true" className="size-4" />
-            </a>
+            <SectionLink id={id} title={title} />
           </h2>
           {description ? (
             <p className="mt-1.5 max-w-2xl text-sm text-pretty text-muted-foreground">

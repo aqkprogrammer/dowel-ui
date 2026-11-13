@@ -1,0 +1,62 @@
+{
+  "site": "https://dowel-eight.vercel.app",
+  "pages": [
+    {
+      "id": "home",
+      "label": "Home",
+      "path": "/",
+      "version": "12.8.2",
+      "measured": "2026-11-13",
+      "scores": {
+        "performance": 54,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp": 1527,
+        "lcp": 3649,
+        "tbt": 4709,
+        "cls": 0
+      }
+    },
+    {
+      "id": "docs",
+      "label": "A guide",
+      "path": "/docs/installation",
+      "version": "12.8.2",
+      "measured": "2026-11-13",
+      "scores": {
+        "performance": 69,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp": 1376,
+        "lcp": 3326,
+        "tbt": 1152,
+        "cls": 0
+      }
+    },
+    {
+      "id": "component",
+      "label": "A component",
+      "path": "/docs/components/button",
+      "version": "12.8.2",
+      "measured": "2026-11-13",
+      "scores": {
+        "performance": 82,
+        "accessibility": 95,
+        "bestPractices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp": 1527,
+        "lcp": 3627,
+        "tbt": 336,
+        "cls": 0
+      }
+    }
+  ]
+}

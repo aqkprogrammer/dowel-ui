@@ -33,7 +33,7 @@ export type CardSize = "hero" | "wide" | "tall" | "base";
  * so there is something to scroll through, which scales it to nothing. Both
  * are shown on their own pages, where there is room for what they do.
  */
-const NO_THUMBNAIL = new Set(["session-expiry", "scroll-reveal-text"]);
+export const NO_THUMBNAIL = new Set(["session-expiry", "scroll-reveal-text"]);
 
 const STATUS_LABEL: Record<string, string> = {
   experimental: "Experimental",
