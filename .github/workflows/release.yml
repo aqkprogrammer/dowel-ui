@@ -31,11 +31,11 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -56,7 +56,7 @@ jobs:
           pnpm release pack "$GITHUB_REF_NAME" release/tarballs
           pnpm release notes "$GITHUB_REF_NAME" release/notes.md
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release
           path: release
@@ -78,14 +78,14 @@ jobs:
 
     steps:
       # For scripts/publish-tarballs.ts only. Nothing is installed in this job.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # No registry-url: it writes an .npmrc that overrides trusted publishing
       # and turns every publish into a 404. No package-manager cache either:
       # v5 turns it on when package.json names pnpm, and looks for a pnpm that
       # this job, which installs nothing, does not have — v0.14.0's run
       # stopped here.
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           package-manager-cache: false
@@ -94,7 +94,7 @@ jobs:
       - name: Update npm
         run: npm install -g npm@11 && npm --version
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: release
           path: release
