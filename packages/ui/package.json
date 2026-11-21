@@ -113,7 +113,7 @@
     "lucide-react": "1.48.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "storybook": "10.6.0",
+    "storybook": "10.6.2",
     "tailwindcss": "4.3.3",
     "three": "0.185.1",
     "tsdown": "0.23.0",
