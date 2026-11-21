@@ -14,6 +14,10 @@ export default [
       // project and typed linting cannot parse it. There is nothing to lint:
       // the file is a single re-export of the real CLI.
       "packages/cli-alias/bin.js",
+      // Loaded by path by next-server at runtime, outside the bundler, so it
+      // has to stay CommonJS JavaScript and belongs to no tsconfig project.
+      // cache-handler.test.ts covers it.
+      "apps/docs/cache-handler.cjs",
       // Scaffolder payload, not source. These files import `@/components/ui/*`,
       // which does not exist until the CLI has written it into a generated
       // project, and they carry `__PLACEHOLDER__` tokens — so they belong to no
