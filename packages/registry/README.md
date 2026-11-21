@@ -11,7 +11,7 @@
 
 ---
 
-Build tooling for [Dowel](https://dowel-eight.vercel.app). It turns component
+Build tooling for [Dowel](https://dowelui.com). It turns component
 source and metadata into the static JSON that
 [`@dowel-ui/cli`](https://www.npmjs.com/package/@dowel-ui/cli) installs from.
 
@@ -39,7 +39,7 @@ twice and diffing.
 
 <div align="center">
 
-[**Read the docs →**](https://dowel-eight.vercel.app)
+[**Read the docs →**](https://dowelui.com)
 
 MIT licensed
 

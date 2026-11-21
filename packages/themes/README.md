@@ -7,13 +7,13 @@
 [![npm](https://img.shields.io/npm/v/@dowel-ui/themes?color=5b5bd6)](https://www.npmjs.com/package/@dowel-ui/themes)
 [![license](https://img.shields.io/npm/l/@dowel-ui/themes?color=5b5bd6)](https://github.com/aqkprogrammer/dowel-ui/blob/main/LICENSE)
 
-[**Themes documentation**](https://dowel-eight.vercel.app/docs/themes)
+[**Themes documentation**](https://dowelui.com/docs/themes)
 
 </div>
 
 ---
 
-The token layer behind [Dowel](https://dowel-eight.vercel.app). No config file,
+The token layer behind [Dowel](https://dowelui.com). No config file,
 no JavaScript theme object — just CSS custom properties you can read and edit.
 
 ```css
@@ -63,7 +63,7 @@ fails in use.
 
 <div align="center">
 
-[**Read the docs →**](https://dowel-eight.vercel.app/docs/themes)
+[**Read the docs →**](https://dowelui.com/docs/themes)
 
 MIT licensed
 
