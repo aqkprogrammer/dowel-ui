@@ -16,7 +16,7 @@
   "dependencies": {
     "@dowel-ui/config": "workspace:*",
     "eslint": "10.9.1",
-    "zod": "4.5.4"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@dowel-ui/cli": "workspace:*",
