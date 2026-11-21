@@ -12,6 +12,9 @@ on:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
+  # Run by hand to ask npm whether it will accept this workflow for every
+  # package — trusted publishing — without building or publishing anything.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -27,6 +30,7 @@ env:
 jobs:
   build:
     name: Check the release and pack it
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -110,6 +114,14 @@ jobs:
             npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
           fi
 
+      # Without this, a trusted-publishing failure is a bare ENEEDAUTH from
+      # npm (0.14.1). This asks npm first and says which side refused.
+      - name: Check npm accepts this workflow
+        if: env.NPM_TOKEN == ''
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: node scripts/check-npm-oidc.ts release/tarballs
+
       - name: Publish
         run: node scripts/publish-tarballs.ts release/tarballs
 
@@ -125,3 +137,29 @@ jobs:
             gh release create "$GITHUB_REF_NAME" --verify-tag --latest \
               --title "${GITHUB_REF_NAME#v}" --notes-file release/notes.md
           fi
+
+  oidc-check:
+    name: Check npm trusted publishing
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # The same environment and permission as `publish`: npm's trusted
+    # publisher for each package names both.
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Ask npm
+        run: >-
+          node scripts/check-npm-oidc.ts
+          create-dowel-app @dowel-ui/cli @dowel-ui/mcp
+          @dowel-ui/react @dowel-ui/registry @dowel-ui/themes
