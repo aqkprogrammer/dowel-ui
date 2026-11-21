@@ -3,6 +3,15 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## 0.14.1
+
+### Changed
+
+- **Docs live at [dowelui.com](https://dowelui.com).** Every package's
+  `homepage` and README now link there instead of `dowel-eight.vercel.app`. No
+  code changed: the CLI and MCP server still read the registry from
+  `https://dowel-eight.vercel.app/r`, which stays up.
+
 ## 0.14.0
 
 ### Added
