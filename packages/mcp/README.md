@@ -7,7 +7,7 @@
 [![npm](https://img.shields.io/npm/v/@dowel-ui/mcp?color=5b5bd6)](https://www.npmjs.com/package/@dowel-ui/mcp)
 [![license](https://img.shields.io/npm/l/@dowel-ui/mcp?color=5b5bd6)](https://github.com/aqkprogrammer/dowel-ui/blob/main/LICENSE)
 
-[**Documentation**](https://dowel-eight.vercel.app/docs/ai-agents) · [**Components**](https://dowel-eight.vercel.app/docs/components)
+[**Documentation**](https://dowelui.com/docs/ai-agents) · [**Components**](https://dowelui.com/docs/components)
 
 </div>
 
@@ -231,7 +231,7 @@ The server never sends or reads a licence key. Authentication is the CLI's.
 
 <div align="center">
 
-[**Read the docs →**](https://dowel-eight.vercel.app/docs/ai-agents)
+[**Read the docs →**](https://dowelui.com/docs/ai-agents)
 
 MIT licensed
 
