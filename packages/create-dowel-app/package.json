@@ -1,6 +1,6 @@
 {
   "name": "create-dowel-app",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "type": "module",
   "description": "Creates a Next.js application wired to Dowel: design tokens, path aliases and the blocks for the kind of product you are building, installed as source you own.",
   "keywords": [
@@ -20,7 +20,7 @@
     "dowel"
   ],
   "license": "MIT",
-  "homepage": "https://dowel-eight.vercel.app",
+  "homepage": "https://dowelui.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aqkprogrammer/dowel-ui.git",
