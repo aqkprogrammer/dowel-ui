@@ -3,6 +3,24 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## 0.14.1
+
+### Changed
+
+- **The registry moved to `https://dowelui.com/r`.** The CLI, the MCP server
+  and `create-dowel-app` resolve components from the new address, and every
+  package's homepage points at `https://dowelui.com`.
+
+### Fixed
+
+- **Projects created before the move keep working, licence included.** `init`
+  writes the registry URL into `components.json`, so existing projects still
+  name `dowel-eight.vercel.app`. The CLI now reads that address as
+  `https://dowelui.com/r` before making any request, rather than following a
+  redirect that would drop the licence key, and says once per run that the
+  `registry` field can be updated. It does not change the file. A licence key
+  stored for the old address is used for the new one.
+
 ## 0.14.0
 
 ### Added
