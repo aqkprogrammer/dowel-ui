@@ -10,7 +10,7 @@
 [![CI](https://github.com/aqkprogrammer/dowel-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/aqkprogrammer/dowel-ui/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/@dowel-ui/react?color=5b5bd6)](LICENSE)
 
-[**Documentation**](https://dowel-eight.vercel.app) · [**Components**](https://dowel-eight.vercel.app/docs/components) · [**CLI**](https://dowel-eight.vercel.app/docs/cli)
+[**Documentation**](https://dowelui.com) · [**Components**](https://dowelui.com/docs/components) · [**CLI**](https://dowelui.com/docs/cli)
 
 <br>
 
@@ -38,11 +38,11 @@ npx @dowel-ui/cli add button
 That second command writes `button.tsx` into your project. Open it. Change it.
 It is your file now — there is no package standing between you and the markup.
 
-**Live:** [dowel-eight.vercel.app](https://dowel-eight.vercel.app) — docs, every
+**Live:** [dowelui.com](https://dowelui.com) — docs, every
 component, and the registry the CLI reads. Also a
-[playground](https://dowel-eight.vercel.app/playground), a
-[theme studio](https://dowel-eight.vercel.app/theme-studio) that checks contrast
-as you pick, and [per-component quality](https://dowel-eight.vercel.app/quality).
+[playground](https://dowelui.com/playground), a
+[theme studio](https://dowelui.com/theme-studio) that checks contrast
+as you pick, and [per-component quality](https://dowelui.com/quality).
 **Published:** `@dowel-ui/react`, `@dowel-ui/cli`, `@dowel-ui/themes`,
 `@dowel-ui/registry`, `@dowel-ui/mcp`, `create-dowel-app`.
 
@@ -295,7 +295,7 @@ Flags: `--template`, `--theme`, `--pm`, `--yes`, `--skip-install`.
 npx @dowel-ui/cli list          # what exists
 ```
 
-[**dowel-eight.vercel.app/generate**](https://dowel-eight.vercel.app/generate) —
+[**dowelui.com/generate**](https://dowelui.com/generate) —
 describe a screen, get the components that build it, the install command, and a
 brief to paste into your coding agent. The MCP server exposes the same thing as
 `plan_ui`, so an agent can ask for it directly, and so does the CLI:
@@ -343,7 +343,7 @@ still shows up in `list`, in the agent docs and in the MCP server, with what it
 is and how to get it.
 
 Pricing, and what a licence covers, is on the site:
-[dowel-eight.vercel.app/pricing](https://dowel-eight.vercel.app/pricing).
+[dowelui.com/pricing](https://dowelui.com/pricing).
 
 ## Your own registry
 
@@ -359,7 +359,7 @@ const result = await buildCustomRegistry(
     root: "src",
     generatedFrom: "@acme/ui@1.0.0",
     // One URL that serves both your components and everything upstream.
-    extends: "https://dowel-eight.vercel.app/r",
+    extends: "https://dowelui.com/r",
     items: [
       {
         name: "acme-callout",
@@ -444,8 +444,8 @@ is confused with, and its props), `get_guide`, `install_command`, `plan_ui`, and
 `dowel audit` before anyone sees it.
 
 **llms.txt.** For an agent that can fetch a URL but not run a server, the site
-serves [`/llms.txt`](https://dowel-eight.vercel.app/llms.txt) (the index) and
-[`/llms-full.txt`](https://dowel-eight.vercel.app/llms-full.txt) (everything in
+serves [`/llms.txt`](https://dowelui.com/llms.txt) (the index) and
+[`/llms-full.txt`](https://dowelui.com/llms-full.txt) (everything in
 one request), generated at build time from the same registry.
 
 ## Development

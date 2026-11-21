@@ -12,6 +12,7 @@ import {
 
 import { credentialsFor, TOKEN_ENV, TOKEN_REGISTRY_ENV } from "./auth";
 import { CliError } from "./errors";
+import { canonicalRegistry } from "./registry-url";
 
 /**
  * Reads the registry over HTTP, or from a directory on disk.
@@ -67,7 +68,9 @@ async function readJson(
     }
   }
 
-  const url = `${baseUrl.replace(/\/$/, "")}/${file}`;
+  // Never through the old host's redirect: a cross-origin redirect drops the
+  // Authorization header, so a licensed request would arrive without its key.
+  const url = `${canonicalRegistry(baseUrl).replace(/\/$/, "")}/${file}`;
   const credentials = options.authenticated ? credentialsFor(baseUrl) : undefined;
 
   async function request(token: string | undefined): Promise<Response> {

@@ -16,7 +16,7 @@ export const branding = {
    */
   cliPackage: "@dowel-ui/cli",
   packageScope: "@dowel-ui",
-  registryUrl: "https://dowel-eight.vercel.app/r",
+  registryUrl: "https://dowelui.com/r",
   repository: "aqkprogrammer/dowel-ui",
   description:
     "A modern, source-first React UI library for building beautiful SaaS, AI and enterprise applications.",

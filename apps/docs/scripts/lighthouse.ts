@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
  * move a few points between runs, which is why the date is shown with them.
  */
 
-const SITE = "https://dowel-eight.vercel.app";
+const SITE = "https://dowelui.com";
 const PAGES = [
   { id: "home", label: "Home", path: "/" },
   { id: "docs", label: "A guide", path: "/docs/installation" },

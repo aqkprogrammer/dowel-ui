@@ -7,7 +7,7 @@
 [![npm](https://img.shields.io/npm/v/@dowel-ui/cli?color=5b5bd6)](https://www.npmjs.com/package/@dowel-ui/cli)
 [![license](https://img.shields.io/npm/l/@dowel-ui/cli?color=5b5bd6)](https://github.com/aqkprogrammer/dowel-ui/blob/main/LICENSE)
 
-[**Documentation**](https://dowel-eight.vercel.app/docs/cli) · [**Components**](https://dowel-eight.vercel.app/docs/components)
+[**Documentation**](https://dowelui.com/docs/cli) · [**Components**](https://dowelui.com/docs/components)
 
 </div>
 
@@ -59,7 +59,7 @@ whose it is.
 
 <div align="center">
 
-[**Read the docs →**](https://dowel-eight.vercel.app/docs/cli)
+[**Read the docs →**](https://dowelui.com/docs/cli)
 
 MIT licensed
 
