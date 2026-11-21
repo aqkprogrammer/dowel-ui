@@ -8,5 +8,5 @@ export const branding = {
   libraryName: "Dowel",
   cliPackage: "@dowel-ui/cli",
   packageScope: "@dowel-ui",
-  registryUrl: "https://dowel-eight.vercel.app/r",
+  registryUrl: "https://dowelui.com/r",
 } as const;

@@ -209,7 +209,7 @@ A run is local until someone chooses to publish it. To publish:
 3. Commit it.
 
 `results/` is gitignored except for `published/`. The docs site's
-[/agentbench](https://dowel-eight.vercel.app/agentbench) page shows published
+[/agentbench](https://dowelui.com/agentbench) page shows published
 summaries and nothing else; with none published it says so.
 
 ## Threats to validity

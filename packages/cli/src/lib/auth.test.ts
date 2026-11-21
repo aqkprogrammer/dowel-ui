@@ -225,6 +225,31 @@ describe("credentialsFor", () => {
   });
 });
 
+describe("the default registry's previous host", () => {
+  it("treats a key stored for the old host as the current registry's key", () => {
+    const env = scratchEnv();
+    writeToken("pro-key", env, "https://dowel-eight.vercel.app/r");
+
+    expect(credentialsFor(branding.registryUrl, env)?.token).toBe("pro-key");
+  });
+
+  it("sends the current registry's key to a project that still names the old host", () => {
+    const env = scratchEnv();
+    writeToken("pro-key", env, branding.registryUrl);
+
+    expect(credentialsFor("https://dowel-eight.vercel.app/r", env)?.token).toBe("pro-key");
+  });
+
+  it("still refuses every other host", () => {
+    const env = scratchEnv();
+    writeToken("pro-key", env, "https://dowel-eight.vercel.app/r");
+
+    expect(() => credentialsFor("https://attacker.example/r", env)).toThrow(
+      /Not sending your licence key/,
+    );
+  });
+});
+
 describe("one key per registry", () => {
   it("keeps a key for each registry, and sends each only to its own", () => {
     const env = scratchEnv();

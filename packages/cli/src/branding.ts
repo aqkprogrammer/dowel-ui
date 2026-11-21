@@ -15,5 +15,5 @@ export const branding = {
    * binary the package installs.
    */
   cliPackage: "@dowel-ui/cli",
-  registryUrl: "https://dowel-eight.vercel.app/r",
+  registryUrl: "https://dowelui.com/r",
 } as const;

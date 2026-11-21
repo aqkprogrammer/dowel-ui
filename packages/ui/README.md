@@ -10,7 +10,7 @@
 [![license](https://img.shields.io/npm/l/@dowel-ui/react?color=5b5bd6)](https://github.com/aqkprogrammer/dowel-ui/blob/main/LICENSE)
 [![types](https://img.shields.io/badge/types-included-5b5bd6)](https://www.typescriptlang.org)
 
-[**Documentation**](https://dowel-eight.vercel.app) · [**Components**](https://dowel-eight.vercel.app/docs/components) · [**GitHub**](https://github.com/aqkprogrammer/dowel-ui)
+[**Documentation**](https://dowelui.com) · [**Components**](https://dowelui.com/docs/components) · [**GitHub**](https://github.com/aqkprogrammer/dowel-ui)
 
 </div>
 
@@ -194,7 +194,7 @@ export function Save() {
 
 <div align="center">
 
-[**Read the docs →**](https://dowel-eight.vercel.app)
+[**Read the docs →**](https://dowelui.com)
 
 MIT licensed
 
