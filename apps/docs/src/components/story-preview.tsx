@@ -94,7 +94,10 @@ export function StoryPreview({ component, story, fallback, args }: StoryPreviewP
   const storyModule = useStoryModule(component);
   if (!storyModule) return <>{fallback}</>;
 
-  const name = story ?? getStoryNames(component)[0];
+  // A card shows the plain component: "Default" when there is one, even if a
+  // showcase story leads the component's own page (switch opens on Scenes).
+  const names = getStoryNames(component);
+  const name = story ?? (names.includes("Default") ? "Default" : names[0]);
   if (name === undefined) return <>{fallback}</>;
 
   return <StoryRender module={storyModule} story={name} fallback={fallback} args={args} />;
