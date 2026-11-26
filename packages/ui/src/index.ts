@@ -185,6 +185,15 @@ export * from "./components/neon-sign-switch";
 export * from "./components/origami-switch";
 export * from "./components/eclipse-switch";
 export * from "./components/sleepy-blob-switch";
+export * from "./components/signature-pad";
+export * from "./components/wheel-picker";
+export * from "./components/elastic-slider";
+export * from "./components/flap-board";
+export * from "./components/falling-text";
+export * from "./components/magnetic-letters";
+export * from "./components/dust-delete";
+export * from "./components/page-peel";
+export * from "./components/heart-rate";
 export * from "./components/animated-checklist";
 export * from "./components/now-playing";
 export * from "./components/notify-button";
@@ -326,6 +335,7 @@ export * from "./components/pull-cord";
 export * from "./components/elastic-slider";
 export * from "./components/align-toggle";
 export * from "./components/morph-blob";
+export * from "./components/bubble-slider";
 // model-viewer is not re-exported here: it loads `three`, an optional peer.
 // Import it from "@dowel-ui/react/model-viewer", or install it with the CLI.
 

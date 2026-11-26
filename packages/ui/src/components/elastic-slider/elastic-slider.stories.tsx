@@ -1,56 +1,66 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { useEffect, useState } from "react";
+import { Sun, SunDim, Volume1, Volume2 } from "lucide-react";
+import { useState } from "react";
 
 import { ElasticSlider } from "./elastic-slider";
 
-const meta = {
+const meta: Meta<typeof ElasticSlider> = {
   title: "Form/Elastic Slider",
   component: ElasticSlider,
-  args: { size: "md", defaultValue: 12, "aria-label": "Volume" },
+  args: {
+    "aria-label": "Volume",
+    defaultValue: 60,
+    maxStretch: 16,
+    size: "md",
+    showValue: true,
+    disabled: false,
+  },
   argTypes: {
-    size: { control: "select", options: ["sm", "md", "lg"] },
-    ticks: { control: { type: "number", min: 0, max: 21 } },
+    size: { control: "select", options: ["sm", "md"] },
+    maxStretch: { control: { type: "range", min: 0, max: 40, step: 2 } },
   },
   parameters: { layout: "centered" },
-} satisfies Meta<typeof ElasticSlider>;
+  decorators: [
+    (Story) => (
+      <div className="w-72 pt-8">
+        <Story />
+      </div>
+    ),
+  ],
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+/** Drag the thumb past either end and let go. */
+export const Default: Story = {
+  args: { startIcon: <Volume1 />, endIcon: <Volume2 /> },
+};
 
-/** The values the reference steps through, a quarter second apart. */
-const SEQUENCE = [12, 22, 78, 92, 92, 82, 26, 12];
-
-function Demo() {
-  const [step, setStep] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => {
-      setStep((current) => (current + 1) % SEQUENCE.length);
-    }, 250);
-    return () => clearInterval(id);
-  }, []);
+function Brightness() {
+  const [value, setValue] = useState(70);
   return (
-    <div className="dark flex size-56 flex-col items-center justify-center gap-6 rounded-3xl bg-[#161618] p-10 text-white [--color-background:#161618]">
-      <ElasticSlider aria-label="Level" value={SEQUENCE[step] ?? 12} />
-      <span className="text-sm font-medium">Elastic Slider</span>
+    <div className="flex flex-col gap-3">
+      <ElasticSlider
+        aria-label="Brightness"
+        value={value}
+        onValueChange={setValue}
+        startIcon={<SunDim />}
+        endIcon={<Sun />}
+        formatValue={(v) => `${String(v)}%`}
+      />
+      <p className="text-center text-sm text-muted-foreground tabular-nums">{value}%</p>
     </div>
   );
 }
 
-/** Plays itself like the reference tile. */
-export const DemoStory: Story = {
-  name: "Demo",
+/** Controlled, with a percentage in the floating label and the spoken value. */
+export const Controlled: Story = {
   parameters: { controls: { disable: true } },
-  render: () => <Demo />,
+  render: () => <Brightness />,
 };
 
-/** With units, spoken and shown. */
-export const WithUnits: Story = {
-  args: {
-    size: "lg",
-    defaultValue: 40,
-    className: "w-64",
-    formatValue: (value: number) => `${String(value)}%`,
-  },
+/** Small and stiff: less stretch, no floating value. */
+export const Small: Story = {
+  args: { size: "sm", maxStretch: 8, showValue: false },
 };

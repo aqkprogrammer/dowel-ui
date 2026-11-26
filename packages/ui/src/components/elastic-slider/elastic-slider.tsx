@@ -1,64 +1,49 @@
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
-import { Slider as SliderPrimitive } from "radix-ui";
 import {
-  useEffect,
+  MotionConfig,
+  animate,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+} from "motion/react";
+import { Direction, Slider as SliderPrimitive } from "radix-ui";
+import {
+  useRef,
   useState,
   type ComponentPropsWithRef,
-  type CSSProperties,
   type PointerEvent,
+  type ReactNode,
 } from "react";
 
 import { focusRing } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 /*
- * A slider whose thumb is a pill bubble showing the value, with a double
- * outline and a row of ticks beneath the track.
+ * A slider made of rubber. Drag past either end and the track stretches after
+ * the pointer, harder the further you pull, with the thumb riding the
+ * stretched end and the icon on that side pushed outwards; let go and it
+ * springs back. While held, the thumb swells and its value floats above it.
  *
- * The bubble is elastic in two ways:
- *
- * - Velocity: each change widens it in proportion to how far the value jumped
- *   (a fast drag or a Page Up stretches it more than one arrow step), and a
- *   moment later it is let go and springs back to round on an overshooting
- *   transition.
- * - Rubber band: dragging past either end of the track pulls the bubble on
- *   after the pointer with diminishing give, stretched toward it, and releasing
- *   snaps it home.
- *
- * Both are a transform on an inner element, so the thumb Radix positions (and
- * measures) never changes size. Every duration runs through --motion-scale, so
- * under reduced motion the bubble moves without stretching or springing.
- *
- * Built on the Radix slider: the thumb is role="slider" with aria-valuenow,
- * min and max, and Arrow keys, Page Up/Down, Home and End all work. It has no
- * visible label, so name it with aria-label or aria-labelledby. The number in
- * the bubble and the ticks are aria-hidden; the value is exposed on the thumb,
- * with `formatValue` supplying aria-valuetext for units. Radix mirrors the
- * slider in right-to-left layouts.
+ * The stretch is a displacement with resistance — the pointer's overshoot
+ * through an exponential that approaches `maxStretch` — and the return is a
+ * spring, which is what `motion` is here for. Everything that makes it a
+ * slider is Radix's: the role="slider" thumb, arrow keys, Home/End, Page
+ * Up/Down, right-to-left and a form input. Under reduced motion it never
+ * stretches.
  */
 
-const s = (seconds: number) => `calc(${String(seconds)}s * var(--motion-scale, 1))`;
-
-/** How long a stretch is held before the bubble is let go, in ms. */
-const HOLD = 90;
-/** Furthest the bubble follows a pointer past the end of the track, in px. */
-const MAX_PULL = 14;
-
-const elasticSliderVariants = cva(
-  "relative flex w-40 touch-none items-center select-none data-disabled:opacity-55",
-  {
-    variants: {
-      size: {
-        sm: "h-10 text-[0.625rem] [--elastic-thumb-h:1.5rem] [--elastic-thumb-w:2.25rem]",
-        md: "h-14 text-xs [--elastic-thumb-h:1.875rem] [--elastic-thumb-w:2.875rem]",
-        lg: "h-16 text-sm [--elastic-thumb-h:2.25rem] [--elastic-thumb-w:3.5rem]",
-      },
+const elasticSliderVariants = cva("flex w-full touch-none items-center select-none", {
+  variants: {
+    size: {
+      sm: "gap-2 [--elastic-thumb:1rem] [--elastic-track:0.375rem]",
+      md: "gap-3 [--elastic-thumb:1.25rem] [--elastic-track:0.5rem]",
     },
-    defaultVariants: { size: "md" },
   },
-);
+  defaultVariants: { size: "md" },
+});
 
 type RootProps = ComponentPropsWithRef<typeof SliderPrimitive.Root>;
 
@@ -76,176 +61,210 @@ export interface ElasticSliderProps
       | "children"
     >,
     VariantProps<typeof elasticSliderVariants> {
-  /** Controlled value. */
   value?: number;
-  /** Initial value when uncontrolled. Defaults to `min`. */
   defaultValue?: number;
-  /** Called on every change while dragging or keying. */
   onValueChange?: (value: number) => void;
-  /** Called when an interaction ends: pointer released or key pressed. */
   onValueCommit?: (value: number) => void;
-  /** Number of ticks under the track. 0 hides them. Defaults to 11. */
-  ticks?: number;
-  /** Text shown in the bubble and spoken as aria-valuetext, e.g. for units. */
+  /** Shown at the inline start; nudged outwards when the track is pulled past it. */
+  startIcon?: ReactNode;
+  /** Shown at the inline end; nudged outwards when the track is pulled past it. */
+  endIcon?: ReactNode;
+  /** The furthest the track stretches past an end, in px. */
+  maxStretch?: number;
+  /** Float the value above the thumb while it is held. Default true. */
+  showValue?: boolean;
+  /** Formats the floating value and the spoken `aria-valuetext`. */
   formatValue?: (value: number) => string;
 }
 
-/** A slider with a pill thumb that shows its value and stretches with speed. */
+const clamp = (value: number, lo: number, hi: number) => Math.min(Math.max(value, lo), hi);
+
+/** Overshoot with resistance: grows quickly, then ever more slowly, to `max`. */
+export function rubberBand(overshoot: number, max: number) {
+  if (max <= 0 || overshoot === 0) return 0;
+  return Math.sign(overshoot) * max * (1 - Math.exp(-Math.abs(overshoot) / (max * 2.5)));
+}
+
 export function ElasticSlider({
   className,
   size,
   value: valueProp,
-  defaultValue,
+  defaultValue = 50,
   onValueChange,
   onValueCommit,
   min = 0,
   max = 100,
   step = 1,
-  ticks = 11,
-  formatValue,
+  startIcon,
+  endIcon,
+  maxStretch = 16,
+  showValue = true,
+  formatValue = String,
   disabled,
+  dir: dirProp,
+  onPointerDown,
   onPointerMove,
   onPointerUp,
-  onPointerCancel,
-  onLostPointerCapture,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
   "aria-valuetext": ariaValueText,
   ...props
 }: ElasticSliderProps) {
-  const [uncontrolled, setUncontrolled] = useState(defaultValue ?? min);
-  const value = valueProp ?? uncontrolled;
-  const range = max - min || 1;
+  const dir = Direction.useDirection(dirProp);
+  const reduce = useReducedMotion();
+  const [uncontrolled, setUncontrolled] = useState(defaultValue);
+  const controlled = valueProp !== undefined;
+  const value = clamp(controlled ? valueProp : uncontrolled, min, max);
+  const [held, setHeld] = useState(false);
 
-  // Stretch with the size of each jump, however it arrives (drag, key or a
-  // controlled prop); the effect below lets go of it a moment later.
-  const [shown, setShown] = useState(value);
-  const [stretch, setStretch] = useState(1);
-  if (shown !== value) {
-    setShown(value);
-    setStretch(1 + Math.min((Math.abs(value - shown) / range) * 6, 0.5));
+  const track = useRef<HTMLSpanElement>(null);
+  /** Signed stretch in physical px: positive pulls to the right. */
+  const stretch = useMotionValue(0);
+  const width = useRef(1);
+  const scaleX = useTransform(stretch, (s) => 1 + Math.abs(s) / width.current);
+  const scaleY = useTransform(stretch, (s) => 1 - Math.min(0.35, Math.abs(s) / 60));
+  const originX = useTransform(stretch, (s) => (s >= 0 ? 0 : 1));
+  const rightNudge = useTransform(stretch, (s) => Math.max(0, s));
+  const leftNudge = useTransform(stretch, (s) => Math.min(0, s));
+
+  function update(next: number) {
+    if (next === value) return;
+    if (!controlled) setUncontrolled(next);
+    onValueChange?.(next);
   }
-  useEffect(() => {
-    if (stretch === 1) return;
-    const id = setTimeout(() => {
-      setStretch(1);
-    }, HOLD);
-    return () => clearTimeout(id);
-  }, [stretch, shown]);
 
-  const [pull, setPull] = useState(0);
+  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
+    onPointerDown?.(event);
+    if (disabled || event.defaultPrevented) return;
+    setHeld(true);
+  }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
     onPointerMove?.(event);
-    if (disabled || (event.buttons & 1) === 0) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const past =
-      event.clientX < rect.left
-        ? event.clientX - rect.left
-        : event.clientX > rect.right
-          ? event.clientX - rect.right
+    if (!held || reduce || !track.current) return;
+    const rect = track.current.getBoundingClientRect();
+    width.current = Math.max(1, rect.width);
+    const overshoot =
+      event.clientX > rect.right
+        ? event.clientX - rect.right
+        : event.clientX < rect.left
+          ? event.clientX - rect.left
           : 0;
-    setPull(Math.sign(past) * MAX_PULL * (1 - Math.exp(-Math.abs(past) / 60)));
+    stretch.set(rubberBand(overshoot, maxStretch));
   }
 
-  function release() {
-    setPull(0);
+  function release(event: PointerEvent<HTMLDivElement>) {
+    onPointerUp?.(event);
+    setHeld(false);
+    if (stretch.get() !== 0) {
+      void animate(stretch, 0, { type: "spring", stiffness: 520, damping: 14, mass: 0.6 });
+    }
   }
 
-  const text = formatValue ? formatValue(value) : String(value);
-  const widen = stretch + Math.abs(pull) / 40;
-  const spring = `transform ${s(0.45)} cubic-bezier(.34,1.56,.64,1)`;
-  const bubble: CSSProperties = {
-    transform: `translateX(${pull.toFixed(2)}px) scaleX(${widen.toFixed(3)})`,
-    transition: spring,
-  };
-  // The number is counter-scaled, so the pill stretches and the digits do not.
-  const digits: CSSProperties = {
-    transform: `scaleX(${(1 / widen).toFixed(3)})`,
-    transition: spring,
-  };
+  // The icon on the physical right is the end icon, or the start one in RTL.
+  const startNudge = dir === "rtl" ? rightNudge : leftNudge;
+  const endNudge = dir === "rtl" ? leftNudge : rightNudge;
+  const iconClass =
+    "flex shrink-0 items-center text-muted-foreground transition-colors [&_svg]:size-4";
 
   return (
-    <SliderPrimitive.Root
-      data-slot="elastic-slider"
-      value={[value]}
-      min={min}
-      max={max}
-      step={step}
-      disabled={disabled}
-      onValueChange={([next]) => {
-        if (next === undefined || next === value) return;
-        if (valueProp === undefined) setUncontrolled(next);
-        onValueChange?.(next);
-      }}
-      onValueCommit={([next]) => {
-        if (next !== undefined) onValueCommit?.(next);
-      }}
-      onPointerMove={handlePointerMove}
-      onPointerUp={(event) => {
-        onPointerUp?.(event);
-        release();
-      }}
-      onPointerCancel={(event) => {
-        onPointerCancel?.(event);
-        release();
-      }}
-      onLostPointerCapture={(event) => {
-        onLostPointerCapture?.(event);
-        release();
-      }}
-      className={cn(elasticSliderVariants({ size }), className)}
-      {...props}
-    >
-      <SliderPrimitive.Track className="relative h-[3px] grow overflow-hidden rounded-full bg-muted-foreground/35">
-        <SliderPrimitive.Range className="absolute h-full rounded-full bg-muted-foreground/70" />
-      </SliderPrimitive.Track>
-
-      {ticks > 0 ? (
-        <span
-          aria-hidden="true"
-          data-slot="elastic-slider-ticks"
-          className="pointer-events-none absolute inset-x-[calc(var(--elastic-thumb-w)/2)] top-[calc(50%_+_var(--elastic-thumb-h)/2_+_0.375rem)] flex justify-between"
-        >
-          {Array.from({ length: ticks }, (_, index) => (
-            <span
-              key={index}
-              className={cn(
-                "block w-px rounded-full bg-muted-foreground/60",
-                index % 5 === 0 ? "h-2" : "h-1.5",
-              )}
-            />
-          ))}
-        </span>
-      ) : null}
-
-      <SliderPrimitive.Thumb
-        data-slot="elastic-slider-thumb"
-        aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledBy}
-        aria-valuetext={ariaValueText ?? formatValue?.(value)}
+    <MotionConfig reducedMotion="user">
+      <div
+        data-slot="elastic-slider-root"
+        dir={dirProp}
         className={cn(
-          "block h-(--elastic-thumb-h) w-(--elastic-thumb-w) cursor-grab rounded-full active:cursor-grabbing",
-          "data-disabled:cursor-not-allowed",
-          focusRing,
+          elasticSliderVariants({ size }),
+          disabled && "cursor-not-allowed opacity-55",
+          className,
         )}
       >
-        <span
-          aria-hidden="true"
-          data-slot="elastic-slider-bubble"
-          className={cn(
-            "flex size-full items-center justify-center rounded-full border-2 border-foreground bg-background",
-            "font-semibold text-foreground tabular-nums",
-            "shadow-[0_0_0_2px_var(--color-background),0_0_0_3.5px_var(--color-foreground)]",
-          )}
-          style={bubble}
+        {startIcon ? (
+          <motion.span
+            aria-hidden="true"
+            data-slot="elastic-slider-icon"
+            className={iconClass}
+            style={{ x: startNudge }}
+          >
+            {startIcon}
+          </motion.span>
+        ) : null}
+        <SliderPrimitive.Root
+          data-slot="elastic-slider"
+          data-held={held ? "" : undefined}
+          value={[value]}
+          min={min}
+          max={max}
+          step={step}
+          disabled={disabled}
+          dir={dirProp}
+          onValueChange={([next]) => next !== undefined && update(next)}
+          onValueCommit={([next]) => next !== undefined && onValueCommit?.(next)}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={release}
+          onPointerCancel={release}
+          className="relative flex h-(--elastic-thumb) grow items-center"
+          {...props}
         >
-          <span className="block" style={digits}>
-            {text}
-          </span>
-        </span>
-      </SliderPrimitive.Thumb>
-    </SliderPrimitive.Root>
+          <SliderPrimitive.Track asChild>
+            <motion.span
+              ref={track}
+              data-slot="elastic-slider-track"
+              className="relative h-(--elastic-track) grow overflow-hidden rounded-full bg-muted"
+              style={{ scaleX, scaleY, originX }}
+            >
+              <SliderPrimitive.Range
+                data-slot="elastic-slider-range"
+                className="absolute h-full rounded-full bg-primary"
+              />
+            </motion.span>
+          </SliderPrimitive.Track>
+          <SliderPrimitive.Thumb asChild>
+            <motion.span
+              data-slot="elastic-slider-thumb"
+              data-held={held ? "" : undefined}
+              aria-label={ariaLabel}
+              aria-labelledby={ariaLabelledBy}
+              aria-valuetext={ariaValueText ?? formatValue(value)}
+              className={cn(
+                "group/thumb relative block size-(--elastic-thumb) rounded-full border-2 border-primary bg-background shadow-sm",
+                "transition-[scale] duration-[var(--duration-fast)] ease-[var(--ease-overshoot)]",
+                "data-[disabled]:pointer-events-none data-[held]:scale-125",
+                focusRing,
+              )}
+              // The thumb rides the stretched end, so it only moves at an end.
+              style={{ x: value === max || value === min ? stretch : 0 }}
+            >
+              {showValue ? (
+                <span
+                  aria-hidden="true"
+                  data-slot="elastic-slider-value"
+                  className={cn(
+                    "pointer-events-none absolute start-1/2 bottom-full mb-2 -translate-x-1/2 rtl:translate-x-1/2",
+                    "rounded-md bg-foreground px-1.5 py-0.5 text-xs font-medium whitespace-nowrap text-background tabular-nums",
+                    "scale-75 opacity-0 transition-[opacity,scale] duration-[var(--duration-fast)] ease-[var(--ease-out-quint)]",
+                    "group-data-[held]/thumb:scale-100 group-data-[held]/thumb:opacity-100",
+                    "group-focus-visible/thumb:scale-100 group-focus-visible/thumb:opacity-100",
+                  )}
+                >
+                  {formatValue(value)}
+                </span>
+              ) : null}
+            </motion.span>
+          </SliderPrimitive.Thumb>
+        </SliderPrimitive.Root>
+        {endIcon ? (
+          <motion.span
+            aria-hidden="true"
+            data-slot="elastic-slider-icon"
+            className={iconClass}
+            style={{ x: endNudge }}
+          >
+            {endIcon}
+          </motion.span>
+        ) : null}
+      </div>
+    </MotionConfig>
   );
 }
 

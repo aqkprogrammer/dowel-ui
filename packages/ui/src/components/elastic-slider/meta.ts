@@ -4,27 +4,25 @@ export const meta = defineMeta({
   name: "elastic-slider",
   title: "Elastic Slider",
   description:
-    "A slider whose pill thumb shows the value, stretches with speed and rubber-bands past the ends of the track.",
+    "A slider made of rubber: pull past either end and the track stretches after you, pushing the icon aside, then springs back.",
   category: "form",
   status: "beta",
-  dependencies: ["class-variance-authority", "radix-ui"],
+  dependencies: ["class-variance-authority", "motion", "radix-ui"],
   registryDependencies: [],
   files: ["elastic-slider.tsx"],
   a11y:
-    'Built on the Radix slider: the thumb is role="slider" with aria-valuenow, aria-valuemin and aria-valuemax, ' +
-    "and responds to Arrow keys, Page Up/Down, Home and End, with a visible focus ring. It has no visible label, " +
-    "so name it with aria-label or aria-labelledby. The number drawn in the bubble and the ticks are aria-hidden; " +
-    "`formatValue` sets both the bubble text and aria-valuetext, so units are spoken. Radix mirrors the slider in " +
-    "right-to-left layouts. Under reduced motion the bubble neither stretches nor springs.",
+    'Built on the Radix slider: a role="slider" thumb with arrow keys, Home/End, Page Up/Down, right-to-left ' +
+    "and a hidden form input. Name it with aria-label or aria-labelledby; formatValue sets the spoken " +
+    "aria-valuetext as well as the floating label. The floating value also shows on keyboard focus. The stretch " +
+    "is decoration on top of an ordinary slider and never happens under reduced motion; the icons are aria-hidden.",
   guidance: {
     useWhen: [
-      "a single value where seeing the exact number on the thumb matters, such as a percentage or a level",
-      "a playful settings panel where the slider can take some room",
+      "a volume, brightness or zoom control where a little physical feedback at the limits suits the product",
     ],
     avoidWhen: [
       "a range with two thumbs — use slider",
-      "a handful of named stops — use a segmented control or radio-group",
+      "a value that must be exact — use quantity-input",
     ],
-    alternatives: ["slider", "slosh-slider", "exposure-slider"],
+    alternatives: ["slider", "slosh-slider", "scrubber"],
   },
 });

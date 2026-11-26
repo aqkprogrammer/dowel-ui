@@ -329,6 +329,15 @@ import { meta as pullCordMeta } from "@/components/pull-cord/meta";
 import { meta as elasticSliderMeta } from "@/components/elastic-slider/meta";
 import { meta as alignToggleMeta } from "@/components/align-toggle/meta";
 import { meta as morphBlobMeta } from "@/components/morph-blob/meta";
+import { meta as signaturePadMeta } from "@/components/signature-pad/meta";
+import { meta as wheelPickerMeta } from "@/components/wheel-picker/meta";
+import { meta as flapBoardMeta } from "@/components/flap-board/meta";
+import { meta as fallingTextMeta } from "@/components/falling-text/meta";
+import { meta as magneticLettersMeta } from "@/components/magnetic-letters/meta";
+import { meta as dustDeleteMeta } from "@/components/dust-delete/meta";
+import { meta as pagePeelMeta } from "@/components/page-peel/meta";
+import { meta as heartRateMeta } from "@/components/heart-rate/meta";
+import { meta as bubbleSliderMeta } from "@/components/bubble-slider/meta";
 
 /**
  * Every component in the registry.
@@ -671,6 +680,15 @@ export const componentMetas: ComponentMeta[] = [
   elasticSliderMeta,
   alignToggleMeta,
   morphBlobMeta,
+  signaturePadMeta,
+  wheelPickerMeta,
+  flapBoardMeta,
+  fallingTextMeta,
+  magneticLettersMeta,
+  dustDeleteMeta,
+  pagePeelMeta,
+  heartRateMeta,
+  bubbleSliderMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block and hook

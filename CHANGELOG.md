@@ -18,7 +18,7 @@ per-package changelogs, whatever an earlier version of this line claimed.
   story that plays it on its own:
   - Form: `like-counter`, `segmented-pill`, `day-night-switch`,
     `upload-button`, `star-rating`, `bulge-volume`, `notch-slider`,
-    `quantity-stepper`, `plan-picker`, `pull-cord`, `elastic-slider`,
+    `quantity-stepper`, `plan-picker`, `pull-cord`, `bubble-slider`,
     `align-toggle`.
   - Navigation: `tab-bar`, `step-track`.
   - Display and data: `mini-player`, `cover-flow`, `glass-tilt-card`,
@@ -29,6 +29,35 @@ per-package changelogs, whatever an earlier version of this line claimed.
     motion).
   - Effects: `radar`, `magnetic-orb`, `text-reveal`, `breath-orb`,
     `morph-blob`.
+## 0.16.0
+
+### Added
+
+- **Nine interaction components**, each written for Dowel from the interaction
+  alone:
+  - **`signature-pad`**: draw a signature with a velocity-weighted stroke, with
+    Undo, Clear and a "Type instead" mode; reports a PNG and fills a hidden
+    input inside forms.
+  - **`wheel-picker`**: a scrolling drum that turns its rows on a cylinder, a
+    listbox to assistive technology with arrows, Page Up/Down, Home/End and
+    type-ahead.
+  - **`elastic-slider`**: a slider whose track stretches like rubber when
+    pulled past either end and springs back, nudging the end icon.
+  - **`flap-board`**: a split-flap display whose cells flip through the
+    character set to each new value, read once through a polite live region.
+  - **`falling-text`**: words or letters that drop out of the line and pile up
+    on hover, click, scroll into view or command.
+  - **`magnetic-letters`**: letters drawn towards, or pushed away from, the
+    pointer.
+  - **`dust-delete`**: an item that disintegrates into drifting dust before
+    its row closes.
+  - **`page-peel`**: a surface whose corner curls on hover and can be peeled
+    back to reveal what lies beneath.
+  - **`heart-rate`**: a live ECG trace and pulsing heart, synced to `bpm`, with
+    warning and critical tones.
+
+  Every one uses theme tokens, works from the keyboard where it is
+  interactive, and keeps still under reduced motion.
 
 ## 0.15.0
 
