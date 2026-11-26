@@ -54,7 +54,7 @@ they want to change something.
 
 ## What is in it
 
-**292 components** and **59 blocks**, every one keyboard-operable and audited for
+**329 components** and **59 blocks**, every one keyboard-operable and audited for
 contrast.
 
 **AI** — the reason this library exists
