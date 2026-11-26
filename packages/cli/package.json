@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/cli",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "type": "module",
   "description": "Installs Dowel components into your project as source you own, with dependencies resolved and imports rewritten to your path aliases.",
   "keywords": [
@@ -19,7 +19,7 @@
     "dowel"
   ],
   "license": "MIT",
-  "homepage": "https://dowel-eight.vercel.app",
+  "homepage": "https://dowelui.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aqkprogrammer/dowel-ui.git",

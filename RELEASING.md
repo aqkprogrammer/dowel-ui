@@ -4,7 +4,7 @@ Two things ship independently: the **packages** on npm, and the **documentation
 site**, which is also the registry the CLI reads.
 
 They are coupled in one direction. The CLI resolves components from
-`https://dowel-eight.vercel.app/r`, so **the site must be deployed before the CLI
+`https://dowelui.com/r`, so **the site must be deployed before the CLI
 is published** — otherwise `dowel add button` points at a URL that returns
 nothing. The registry URL is compiled into each published version, so a version
 shipped against a dead URL stays broken: npm versions are immutable.
@@ -63,7 +63,7 @@ same three steps on every deployment of this site:
 4. **Confirm it took**, without buying anything:
 
    ```bash
-   curl -s https://dowel-eight.vercel.app/r/license/health
+   curl -s https://dowelui.com/r/license/health
    ```
 
    `{"provider":"polar","ready":true,...}` means keys will be validated
@@ -136,8 +136,8 @@ for anything else.
 all, per ten minutes) is counted in memory, per server instance, and a
 serverless host runs several instances and recycles them. It stops a tab in a
 loop, not a determined caller. Before pointing traffic at the demo, add a rate
-limit rule for `/api/agent-demo` at the host's edge (on Vercel: Firewall →
-Rate Limiting), and set a monthly spend limit on the API key's workspace in
+limit rule for `/api/agent-demo` at the edge (Cloudflare, in front of the
+site: Security → WAF → Rate limiting rules), and set a monthly spend limit on the API key's workspace in
 the Claude Console. Those two are the real ceiling.
 
 ## Before the first release
@@ -177,11 +177,26 @@ entirely, which is why `@dowel-ui/cli` is safe.
 
 The npm organisation `dowel-ui` exists and is owned by `aqkprogrammer`.
 
-The site is deployed at `dowel-eight.vercel.app`, which is the registry URL the
-published CLI resolves against. `dowel.dev` has not been bought yet; when it is,
-link it in the Vercel dashboard and the `.vercel.app` alias keeps working
-alongside it, so nothing already published breaks. Switching the CLI's default
-to the custom domain is then a normal release, not a migration.
+The site is served at `dowelui.com`, which is the registry URL the published CLI
+resolves against.
+
+**`dowel-eight.vercel.app` must keep answering, forever.** It was the registry
+URL up to 0.14.0, and `init` writes the registry URL into every project's
+`components.json`, so every project created before the move still names it —
+whichever CLI later reads that file. Two things keep those projects working:
+
+- **CLIs from the release after 0.14.0 on** rewrite that host to `dowelui.com`
+  before making any request (`canonicalRegistry` in
+  `packages/cli/src/lib/registry-url.ts`), and print a one-line note. They do
+  not go through the redirect, because a cross-origin redirect drops the
+  `Authorization` header and a licensed install would arrive without its key.
+- **Older CLIs** keep reading the Vercel project `dowel`. It still serves the
+  full site until the first release with the new URL is out; after that, replace
+  it with a redirect-only deployment sending every path to
+  `https://dowelui.com/$1`, and never deploy anything else to it.
+
+**Never delete the Vercel project.** Deleting it frees the `dowel-eight` name,
+and whoever claims it next serves code to every old install.
 
 The repository lives at `aqkprogrammer/dowel-ui`. If it later moves to a
 `dowel-ui` organisation, GitHub redirects the old URL, so links and remotes
@@ -210,6 +225,16 @@ Exits non-zero if any placeholder survived the rename.
 The site is a Next.js app at `apps/docs` that also serves the registry from
 `public/r`.
 
+It runs on Railway — project `dowelui`, service `docs` —
+behind Cloudflare, which holds the `dowelui.com` DNS. **Every merge to `main`
+deploys it**, once CI on that commit has passed (Railway's "Wait for CI"), so
+deploying the site before publishing happens without a separate step: merge the
+release PR, wait for the deploy, then tag.
+
+To deploy something that is not on `main` — a hotfix being tried, say — run
+`railway up --service docs` from a clean checkout of it. The next merge
+replaces it.
+
 ### What the build does
 
 `pnpm --filter @dowel-ui/docs build` runs `scripts/prepare.ts` first, which:
@@ -223,6 +248,9 @@ regenerates the registry first. A bare `next build` will trip the staleness
 guard, which is the point.
 
 ### Settings for any host
+
+Railway holds these as the service's `RAILPACK_BUILD_CMD` and start command;
+another host needs the same.
 
 | Setting        | Value                             |
 | -------------- | --------------------------------- |
@@ -251,7 +279,7 @@ without it, and the CLI is unaffected either way.
 ### Verify the deployment
 
 ```bash
-curl -s https://dowel-eight.vercel.app/r/index.json | head -5
+curl -s https://dowelui.com/r/index.json | head -5
 ```
 
 Then install into a scratch project against the live registry, before
@@ -261,7 +289,7 @@ publishing anything:
 mkdir /tmp/dowel-smoke && cd /tmp/dowel-smoke
 # a React 19 + Tailwind v4 + TypeScript project
 pnpm dlx tsx path/to/dowel/packages/cli/src/index.ts \
-  --registry https://dowel-eight.vercel.app/r init --yes
+  --registry https://dowelui.com/r init --yes
 ```
 
 ---

@@ -7,7 +7,7 @@
 [![npm](https://img.shields.io/npm/v/@dowel-ui/mcp?color=5b5bd6)](https://www.npmjs.com/package/@dowel-ui/mcp)
 [![license](https://img.shields.io/npm/l/@dowel-ui/mcp?color=5b5bd6)](https://github.com/aqkprogrammer/dowel-ui/blob/main/LICENSE)
 
-[**Documentation**](https://dowel-eight.vercel.app/docs/ai-agents) · [**Components**](https://dowel-eight.vercel.app/docs/components)
+[**Documentation**](https://dowelui.com/docs/ai-agents) · [**Components**](https://dowelui.com/docs/components)
 
 </div>
 
@@ -63,10 +63,10 @@ Node 20 or later.
 Each option is a flag or an environment variable. The flag wins when both are
 set.
 
-| Flag            | Environment         | Default                            | What it does                                                                                                                                                                                                                     |
-| --------------- | ------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--registry`    | `DOWEL_REGISTRY`    | `https://dowel-eight.vercel.app/r` | Where the registry is. An `http(s)://` URL, a `file:` URL, or a directory on disk — a fork, an internal mirror, or a local build.                                                                                                |
-| `--import-from` | `DOWEL_IMPORT_FROM` | `@dowel-ui/react`                  | What the project imports components from, used in `get_component`'s import line and in what `plan_ui` returns. The server cannot see your project's path aliases, so set this to the alias your components were installed under. |
+| Flag            | Environment         | Default                 | What it does                                                                                                                                                                                                                     |
+| --------------- | ------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--registry`    | `DOWEL_REGISTRY`    | `https://dowelui.com/r` | Where the registry is. An `http(s)://` URL, a `file:` URL, or a directory on disk — a fork, an internal mirror, or a local build.                                                                                                |
+| `--import-from` | `DOWEL_IMPORT_FROM` | `@dowel-ui/react`       | What the project imports components from, used in `get_component`'s import line and in what `plan_ui` returns. The server cannot see your project's path aliases, so set this to the alias your components were installed under. |
 
 As flags, they go after the package name in `args`:
 
@@ -231,7 +231,7 @@ The server never sends or reads a licence key. Authentication is the CLI's.
 
 <div align="center">
 
-[**Read the docs →**](https://dowel-eight.vercel.app/docs/ai-agents)
+[**Read the docs →**](https://dowelui.com/docs/ai-agents)
 
 MIT licensed
 

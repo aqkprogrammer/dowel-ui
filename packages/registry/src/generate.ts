@@ -808,7 +808,7 @@ export function blocksPathFor(importFrom: string): string {
 export function renderPlan(plan: UiPlan, options: RenderOptions = {}): string {
   const {
     importFrom = "@/components/ui",
-    docsUrl = "https://dowel-eight.vercel.app",
+    docsUrl = "https://dowelui.com",
     blocksImportFrom = blocksPathFor(importFrom),
   } = options;
 
@@ -863,7 +863,7 @@ ${body}
 export function renderBrief(plan: UiPlan, options: RenderOptions = {}): string {
   const {
     cliPackage = "@dowel-ui/cli",
-    docsUrl = "https://dowel-eight.vercel.app",
+    docsUrl = "https://dowelui.com",
     importFrom = "@/components/ui",
   } = options;
 

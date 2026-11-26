@@ -3,6 +3,8 @@ import { join } from "node:path";
 import { z } from "zod";
 
 import { CliError } from "./errors";
+import { logger } from "./logger";
+import { canonicalRegistry, isLegacyRegistry } from "./registry-url";
 
 export const CONFIG_FILE = "components.json";
 
@@ -88,6 +90,23 @@ export function configExists(cwd: string): boolean {
   return existsSync(configPath(cwd));
 }
 
+let legacyNoted = false;
+
+/**
+ * Says, once per run, that the project names the registry's previous host.
+ *
+ * The value is left as it is: commands that write components.json back would
+ * otherwise change the file as a side effect of `add`. Requests already go to
+ * the current host (see `canonicalRegistry`), so this is advice, not a fix.
+ */
+function noteLegacyRegistry(registry: string): void {
+  if (legacyNoted || !isLegacyRegistry(registry)) return;
+  legacyNoted = true;
+  logger.warn(
+    `${CONFIG_FILE} names the registry's old address, ${registry}. Using ${canonicalRegistry(registry)}; update "registry" in ${CONFIG_FILE} to silence this.`,
+  );
+}
+
 export function readConfig(cwd: string): Config {
   const path = configPath(cwd);
 
@@ -113,6 +132,7 @@ export function readConfig(cwd: string): Config {
     throw new CliError(`${CONFIG_FILE} is not valid:\n${issues}`);
   }
 
+  noteLegacyRegistry(parsed.data.registry);
   return parsed.data;
 }
 

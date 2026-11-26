@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { branding } from "../branding";
 import { CliError } from "./errors";
+import { canonicalRegistry } from "./registry-url";
 
 /**
  * Where a licence key lives, and how it is read.
@@ -94,7 +95,9 @@ export interface ResolvedToken {
 
 function originOf(url: string): string | undefined {
   try {
-    return new URL(url).origin;
+    // Canonical first: a key stored for the registry's previous host belongs
+    // to the same registry, and must neither be refused nor sent elsewhere.
+    return new URL(canonicalRegistry(url)).origin;
   } catch {
     return undefined;
   }

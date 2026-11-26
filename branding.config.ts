@@ -23,7 +23,7 @@ export const branding = {
    */
   cliPackage: "@dowel-ui/cli",
   /** Base URL the CLI resolves registry items from. */
-  registryUrl: "https://dowel-eight.vercel.app/r",
+  registryUrl: "https://dowelui.com/r",
   /** Documentation site title. */
   docsTitle: "Dowel — source-first React UI for SaaS and AI products",
   /** One-line description used in package.json files and the README. */

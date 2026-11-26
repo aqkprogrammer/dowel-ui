@@ -1,6 +1,13 @@
+import { fileURLToPath } from "node:url";
+
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
+  // Runtime renders stay in Next's in-memory LRU and are never written to
+  // disk, because Railway bills the page cache of written files as RAM. See
+  // cache-handler.cjs.
+  cacheHandler: fileURLToPath(new URL("./cache-handler.cjs", import.meta.url)),
+
   // The docs render components straight from the library's TypeScript source,
   // so previews can never drift from what the registry publishes.
   //

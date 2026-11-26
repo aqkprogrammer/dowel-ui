@@ -1,6 +1,6 @@
 {
   "name": "@dowel-ui/themes",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "type": "module",
   "description": "Two-tier OKLCH design tokens in plain CSS for Dowel, with thirteen presets that all pass WCAG AA contrast in light and dark.",
   "keywords": [
@@ -19,7 +19,7 @@
     "dowel"
   ],
   "license": "MIT",
-  "homepage": "https://dowel-eight.vercel.app",
+  "homepage": "https://dowelui.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aqkprogrammer/dowel-ui.git",

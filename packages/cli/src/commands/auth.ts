@@ -14,6 +14,7 @@ import {
 import { CliError } from "../lib/errors";
 import { logger, pc } from "../lib/logger";
 import { REQUEST_TIMEOUT_MS } from "../lib/registry-client";
+import { canonicalRegistry } from "../lib/registry-url";
 
 /**
  * Signing in, out, and asking who you are.
@@ -44,7 +45,7 @@ interface LicenseResponse {
 
 /** Where the registry answers questions about a licence. */
 function licenseEndpoint(registry: string): string {
-  return `${registry.replace(/\/$/, "")}/license`;
+  return `${canonicalRegistry(registry).replace(/\/$/, "")}/license`;
 }
 
 /**
