@@ -20,7 +20,15 @@ export const meta = defineMeta({
       "a choice staged until the form is saved — use checkbox",
       "a pressed state on a toolbar button, such as bold — use toggle",
     ],
-    alternatives: ["checkbox", "toggle", "liquid-toggle", "theme-toggle"],
+    alternatives: [
+      "checkbox",
+      "toggle",
+      "liquid-toggle",
+      "boulder-run-switch",
+      "reactor-switch",
+      "sleepy-blob-switch",
+      "theme-toggle",
+    ],
   },
   composesWith: ["label"],
 });

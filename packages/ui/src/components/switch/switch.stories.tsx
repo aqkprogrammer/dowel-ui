@@ -1,7 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Moon, Sun } from "lucide-react";
 
+import { BoulderRunSwitch } from "@/components/boulder-run-switch";
+import { DotMatrixSwitch } from "@/components/dot-matrix-switch";
+import { EclipseSwitch } from "@/components/eclipse-switch";
 import { Label } from "@/components/label";
+import { MercurySwitch } from "@/components/mercury-switch";
+import { NeonSignSwitch } from "@/components/neon-sign-switch";
+import { OrigamiSwitch } from "@/components/origami-switch";
+import { ReactorSwitch } from "@/components/reactor-switch";
+import { SleepyBlobSwitch } from "@/components/sleepy-blob-switch";
+import { SnowGlobeSwitch } from "@/components/snow-globe-switch";
+import { SymbioteSwitch } from "@/components/symbiote-switch";
+import { TideSwitch } from "@/components/tide-switch";
 
 import { Switch } from "./switch";
 
@@ -99,6 +110,44 @@ export const AnimatedToggle: Story = {
         />
         <Label htmlFor="toggle-icon">Icon</Label>
       </div>
+    </div>
+  ),
+};
+
+const SCENES = [
+  ["Symbiote", "symbiote-switch", SymbioteSwitch],
+  ["Snow Globe", "snow-globe-switch", SnowGlobeSwitch],
+  ["Mercury", "mercury-switch", MercurySwitch],
+  ["Dot Matrix", "dot-matrix-switch", DotMatrixSwitch],
+  ["Boulder Run", "boulder-run-switch", BoulderRunSwitch],
+  ["Tide", "tide-switch", TideSwitch],
+  ["Neon Sign", "neon-sign-switch", NeonSignSwitch],
+  ["Reactor", "reactor-switch", ReactorSwitch],
+  ["Origami", "origami-switch", OrigamiSwitch],
+  ["Eclipse", "eclipse-switch", EclipseSwitch],
+  ["Sleepy Blob", "sleepy-blob-switch", SleepyBlobSwitch],
+] as const;
+
+/**
+ * Eleven illustrated switches, each a tiny world. Every one is its own
+ * component — install it by the name under it, e.g. `npx @dowel-ui/cli add tide-switch`.
+ */
+export const Scenes: Story = {
+  parameters: { controls: { disable: true }, layout: "padded" },
+  render: () => (
+    <div className="grid grid-cols-1 justify-items-center gap-x-6 gap-y-8 sm:grid-cols-2">
+      {SCENES.map(([title, name, Scene], index) => (
+        <figure key={name} className="flex flex-col items-center gap-3">
+          <Scene aria-label={title} size="md" />
+          <figcaption className="flex flex-col items-center gap-0.5 text-center">
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {String(index + 1).padStart(2, "0")} / {SCENES.length}
+            </span>
+            <span className="text-sm font-medium">{title}</span>
+            <code className="font-mono text-xs text-muted-foreground">{name}</code>
+          </figcaption>
+        </figure>
+      ))}
     </div>
   ),
 };
