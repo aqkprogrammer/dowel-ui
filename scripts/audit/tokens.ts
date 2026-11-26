@@ -50,9 +50,31 @@ function sourceFiles(): string[] {
   return files.sort();
 }
 
+/**
+ * Illustrated components whose artwork is the point: a scene with its own
+ * palette, like a brand mark. Their colours live in one CSS string as custom
+ * properties (`--boulder-run-*`, `--reactor-*` and so on) that a project can re-tint
+ * from a class, so they stay overridable without following the theme.
+ */
+const ILLUSTRATIONS = new Set([
+  "boulder-run-switch/boulder-run-switch.tsx",
+  "reactor-switch/reactor-switch.tsx",
+  "symbiote-switch/symbiote-switch.tsx",
+  "snow-globe-switch/snow-globe-switch.tsx",
+  "mercury-switch/mercury-switch.tsx",
+  "dot-matrix-switch/dot-matrix-switch.tsx",
+  "tide-switch/tide-switch.tsx",
+  "neon-sign-switch/neon-sign-switch.tsx",
+  "origami-switch/origami-switch.tsx",
+  "eclipse-switch/eclipse-switch.tsx",
+  "sleepy-blob-switch/sleepy-blob-switch.tsx",
+]);
+
 const findings: Finding[] = [];
 
-for (const file of sourceFiles()) {
+for (const file of sourceFiles().filter(
+  (file) => ![...ILLUSTRATIONS].some((allowed) => file.endsWith(allowed)),
+)) {
   const lines = readFileSync(file, "utf8").split("\n");
 
   lines.forEach((line, index) => {

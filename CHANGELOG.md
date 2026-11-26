@@ -3,6 +3,22 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## 0.15.0
+
+### Added
+
+- **Eleven illustrated switches**, each a tiny world drawn in SVG on the Radix
+  switch primitive: `symbiote-switch`, `snow-globe-switch`, `mercury-switch`,
+  `dot-matrix-switch`, `boulder-run-switch`, `tide-switch`, `neon-sign-switch`,
+  `reactor-switch` (with an optional charging `readout`), `origami-switch`,
+  `eclipse-switch` and `sleepy-blob-switch`. Each is one file with no
+  dependencies beyond `radix-ui` and `class-variance-authority`, in `sm`, `md`
+  and `lg`. The thumb's position carries the state; the artwork is
+  `aria-hidden`; one-off scenes only play after a toggle and ambient motion
+  stops under reduced motion. Each scene's palette is a set of CSS custom
+  properties, so it can be re-tinted from a class.
+- **Docs:** the Switch page has a new **Scenes** example showing all eleven.
+
 ## 0.14.1
 
 ### Changed

@@ -281,6 +281,17 @@ import { meta as imageRingMeta } from "@/components/image-ring/meta";
 import { meta as deviceMockupMeta } from "@/components/device-mockup/meta";
 import { meta as globeMeta } from "@/components/globe/meta";
 import { meta as modelViewerMeta } from "@/components/model-viewer/meta";
+import { meta as boulderRunSwitchMeta } from "@/components/boulder-run-switch/meta";
+import { meta as reactorSwitchMeta } from "@/components/reactor-switch/meta";
+import { meta as symbioteSwitchMeta } from "@/components/symbiote-switch/meta";
+import { meta as snowGlobeSwitchMeta } from "@/components/snow-globe-switch/meta";
+import { meta as mercurySwitchMeta } from "@/components/mercury-switch/meta";
+import { meta as dotMatrixSwitchMeta } from "@/components/dot-matrix-switch/meta";
+import { meta as tideSwitchMeta } from "@/components/tide-switch/meta";
+import { meta as neonSignSwitchMeta } from "@/components/neon-sign-switch/meta";
+import { meta as origamiSwitchMeta } from "@/components/origami-switch/meta";
+import { meta as eclipseSwitchMeta } from "@/components/eclipse-switch/meta";
+import { meta as sleepyBlobSwitchMeta } from "@/components/sleepy-blob-switch/meta";
 
 /**
  * Every component in the registry.
@@ -575,6 +586,17 @@ export const componentMetas: ComponentMeta[] = [
   deviceMockupMeta,
   globeMeta,
   modelViewerMeta,
+  boulderRunSwitchMeta,
+  reactorSwitchMeta,
+  symbioteSwitchMeta,
+  snowGlobeSwitchMeta,
+  mercurySwitchMeta,
+  dotMatrixSwitchMeta,
+  tideSwitchMeta,
+  neonSignSwitchMeta,
+  origamiSwitchMeta,
+  eclipseSwitchMeta,
+  sleepyBlobSwitchMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block and hook
