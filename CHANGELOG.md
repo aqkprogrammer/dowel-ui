@@ -3,6 +3,32 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Added
+
+- **`dot-matrix-loader`**, an AI "thinking" pill: a 9×9 LED dot matrix beside
+  a shimmering label in a black capsule. Eight rhythms — `life` (Game of
+  Life), `ring`, `orbit`, `face`, `spiral`, `arrow`, `ribbon` and `glider` —
+  each with its own tone (`ember`, `azure`, `amber`, `violet`, `rose`), drawn
+  on a canvas that pauses off screen. One `role="status"` region; under
+  reduced motion it runs at half speed rather than freezing.
+- **UI Moments, 36 micro-interactions** recreated from a reference set, each
+  a standalone component on semantic tokens (light and dark), with a `Demo`
+  story that plays it on its own:
+  - Form: `like-counter`, `segmented-pill`, `day-night-switch`,
+    `upload-button`, `star-rating`, `bulge-volume`, `notch-slider`,
+    `quantity-stepper`, `plan-picker`, `pull-cord`, `bubble-slider`,
+    `align-toggle`.
+  - Navigation: `tab-bar`, `step-track`.
+  - Display and data: `mini-player`, `cover-flow`, `glass-tilt-card`,
+    `story-viewer`, `message-thread`, `heartbeat`, `swipe-actions`.
+  - Feedback: `breath-rings`, `face-id`, `pill-toast`, `shimmer-skeleton`,
+    `cart-badge`, and the loaders `arc-breath`, `wave-bars`, `orbit-dots`,
+    `ring-dots`, `pulse-dots` (which slow rather than freeze under reduced
+    motion).
+  - Effects: `radar`, `magnetic-orb`, `text-reveal`, `breath-orb`,
+    `morph-blob`.
 ## 0.16.0
 
 ### Added

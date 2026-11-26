@@ -48,7 +48,7 @@ as you pick, and [per-component quality](https://dowelui.com/quality).
 
 ## What is in it
 
-**301 components** and **59 blocks**, every one keyboard-operable and audited for
+**338 components** and **59 blocks**, every one keyboard-operable and audited for
 contrast in light and dark.
 
 **AI** — Conversation · Message · Response · Prompt Input · Tool Call ·

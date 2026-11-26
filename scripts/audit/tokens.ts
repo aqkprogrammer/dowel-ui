@@ -68,6 +68,7 @@ const ILLUSTRATIONS = new Set([
   "origami-switch/origami-switch.tsx",
   "eclipse-switch/eclipse-switch.tsx",
   "sleepy-blob-switch/sleepy-blob-switch.tsx",
+  "dot-matrix-loader/dot-matrix-loader.tsx",
 ]);
 
 const findings: Finding[] = [];

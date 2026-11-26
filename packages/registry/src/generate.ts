@@ -178,6 +178,7 @@ const SYNONYMS: Record<string, string[]> = {
     "text-loader",
     "grid-loader",
     "ai-loader",
+    "dot-matrix-loader",
   ],
   loaders: [
     "dots-loader",

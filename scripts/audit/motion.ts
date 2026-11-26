@@ -40,6 +40,15 @@ const ALLOWED_INDICATORS = new Set([
   "shape-loader/shape-loader.tsx",
   "text-loader/text-loader.tsx",
   "grid-loader/grid-loader.tsx",
+  // An AI thinking pill whose matrix is a loader in the same family.
+  "dot-matrix-loader/dot-matrix-loader.tsx",
+  // UI Moments loaders: each only says "still working", so each slows rather
+  // than freezing under reduced motion.
+  "arc-breath/arc-breath.tsx",
+  "orbit-dots/orbit-dots.tsx",
+  "pulse-dots/pulse-dots.tsx",
+  "ring-dots/ring-dots.tsx",
+  "wave-bars/wave-bars.tsx",
 ]);
 
 function walk(directory: string, extensions: string[]): string[] {

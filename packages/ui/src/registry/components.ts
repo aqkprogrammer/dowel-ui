@@ -292,15 +292,52 @@ import { meta as neonSignSwitchMeta } from "@/components/neon-sign-switch/meta";
 import { meta as origamiSwitchMeta } from "@/components/origami-switch/meta";
 import { meta as eclipseSwitchMeta } from "@/components/eclipse-switch/meta";
 import { meta as sleepyBlobSwitchMeta } from "@/components/sleepy-blob-switch/meta";
+import { meta as dotMatrixLoaderMeta } from "@/components/dot-matrix-loader/meta";
+import { meta as breathRingsMeta } from "@/components/breath-rings/meta";
+import { meta as likeCounterMeta } from "@/components/like-counter/meta";
+import { meta as segmentedPillMeta } from "@/components/segmented-pill/meta";
+import { meta as dayNightSwitchMeta } from "@/components/day-night-switch/meta";
+import { meta as tabBarMeta } from "@/components/tab-bar/meta";
+import { meta as arcBreathMeta } from "@/components/arc-breath/meta";
+import { meta as uploadButtonMeta } from "@/components/upload-button/meta";
+import { meta as starRatingMeta } from "@/components/star-rating/meta";
+import { meta as radarMeta } from "@/components/radar/meta";
+import { meta as miniPlayerMeta } from "@/components/mini-player/meta";
+import { meta as coverFlowMeta } from "@/components/cover-flow/meta";
+import { meta as glassTiltCardMeta } from "@/components/glass-tilt-card/meta";
+import { meta as faceIdMeta } from "@/components/face-id/meta";
+import { meta as storyViewerMeta } from "@/components/story-viewer/meta";
+import { meta as pillToastMeta } from "@/components/pill-toast/meta";
+import { meta as waveBarsMeta } from "@/components/wave-bars/meta";
+import { meta as messageThreadMeta } from "@/components/message-thread/meta";
+import { meta as magneticOrbMeta } from "@/components/magnetic-orb/meta";
+import { meta as shimmerSkeletonMeta } from "@/components/shimmer-skeleton/meta";
+import { meta as textRevealMeta } from "@/components/text-reveal/meta";
+import { meta as orbitDotsMeta } from "@/components/orbit-dots/meta";
+import { meta as cartBadgeMeta } from "@/components/cart-badge/meta";
+import { meta as heartbeatMeta } from "@/components/heartbeat/meta";
+import { meta as swipeActionsMeta } from "@/components/swipe-actions/meta";
+import { meta as bulgeVolumeMeta } from "@/components/bulge-volume/meta";
+import { meta as ringDotsMeta } from "@/components/ring-dots/meta";
+import { meta as stepTrackMeta } from "@/components/step-track/meta";
+import { meta as breathOrbMeta } from "@/components/breath-orb/meta";
+import { meta as notchSliderMeta } from "@/components/notch-slider/meta";
+import { meta as quantityStepperMeta } from "@/components/quantity-stepper/meta";
+import { meta as pulseDotsMeta } from "@/components/pulse-dots/meta";
+import { meta as planPickerMeta } from "@/components/plan-picker/meta";
+import { meta as pullCordMeta } from "@/components/pull-cord/meta";
+import { meta as elasticSliderMeta } from "@/components/elastic-slider/meta";
+import { meta as alignToggleMeta } from "@/components/align-toggle/meta";
+import { meta as morphBlobMeta } from "@/components/morph-blob/meta";
 import { meta as signaturePadMeta } from "@/components/signature-pad/meta";
 import { meta as wheelPickerMeta } from "@/components/wheel-picker/meta";
-import { meta as elasticSliderMeta } from "@/components/elastic-slider/meta";
 import { meta as flapBoardMeta } from "@/components/flap-board/meta";
 import { meta as fallingTextMeta } from "@/components/falling-text/meta";
 import { meta as magneticLettersMeta } from "@/components/magnetic-letters/meta";
 import { meta as dustDeleteMeta } from "@/components/dust-delete/meta";
 import { meta as pagePeelMeta } from "@/components/page-peel/meta";
 import { meta as heartRateMeta } from "@/components/heart-rate/meta";
+import { meta as bubbleSliderMeta } from "@/components/bubble-slider/meta";
 
 /**
  * Every component in the registry.
@@ -606,15 +643,52 @@ export const componentMetas: ComponentMeta[] = [
   origamiSwitchMeta,
   eclipseSwitchMeta,
   sleepyBlobSwitchMeta,
+  dotMatrixLoaderMeta,
+  breathRingsMeta,
+  likeCounterMeta,
+  segmentedPillMeta,
+  dayNightSwitchMeta,
+  tabBarMeta,
+  arcBreathMeta,
+  uploadButtonMeta,
+  starRatingMeta,
+  radarMeta,
+  miniPlayerMeta,
+  coverFlowMeta,
+  glassTiltCardMeta,
+  faceIdMeta,
+  storyViewerMeta,
+  pillToastMeta,
+  waveBarsMeta,
+  messageThreadMeta,
+  magneticOrbMeta,
+  shimmerSkeletonMeta,
+  textRevealMeta,
+  orbitDotsMeta,
+  cartBadgeMeta,
+  heartbeatMeta,
+  swipeActionsMeta,
+  bulgeVolumeMeta,
+  ringDotsMeta,
+  stepTrackMeta,
+  breathOrbMeta,
+  notchSliderMeta,
+  quantityStepperMeta,
+  pulseDotsMeta,
+  planPickerMeta,
+  pullCordMeta,
+  elasticSliderMeta,
+  alignToggleMeta,
+  morphBlobMeta,
   signaturePadMeta,
   wheelPickerMeta,
-  elasticSliderMeta,
   flapBoardMeta,
   fallingTextMeta,
   magneticLettersMeta,
   dustDeleteMeta,
   pagePeelMeta,
   heartRateMeta,
+  bubbleSliderMeta,
 ];
 
 // This file is the `@dowel-ui/react/registry` entry point, so the block and hook
