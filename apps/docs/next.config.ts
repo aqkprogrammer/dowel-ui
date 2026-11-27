@@ -25,6 +25,21 @@ const config: NextConfig = {
   typedRoutes: false,
 
   /**
+   * One host. `www.dowelui.com` answered 200 with the same bytes as the apex,
+   * which is a second copy of every page for a crawler to find. The canonical
+   * tag already names the apex, but a canonical is a hint and a redirect is
+   * not, so the www host now sends everything across, path and query intact.
+   */
+  redirects: () => [
+    {
+      source: "/:path*",
+      has: [{ type: "host", value: "www.dowelui.com" }],
+      destination: "https://dowelui.com/:path*",
+      permanent: true,
+    },
+  ],
+
+  /**
    * Caching for the public registry.
    *
    * The registry is immutable per release: `index.json` and every item are

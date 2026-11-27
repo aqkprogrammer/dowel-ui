@@ -20,7 +20,7 @@ import { manualInstallFor } from "~/lib/manual-install";
 import { proPreviews } from "~/lib/pro-previews.generated";
 import { componentProps } from "~/lib/props.generated";
 import { getBlocks, getComponents, getRegistryItem, isLicensed } from "~/lib/registry";
-import { componentKeywords } from "~/lib/site";
+import { componentKeywords, inProse } from "~/lib/site";
 import { breadcrumbSchema, componentSchema, graph } from "~/lib/structured-data";
 import { slotsFor, usageFor } from "~/lib/usage";
 
@@ -36,6 +36,9 @@ interface PageProps {
   params: Promise<{ name: string }>;
 }
 
+/** Every block is known at build time; any other name is a 404, not a render. */
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return getBlocks().map((block) => ({ name: block.name }));
 }
@@ -47,8 +50,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   // A block is a whole screen, and that is how it is searched for — "react
   // dashboard template", not "dashboard". The title says which of the two it is.
-  const title = `React ${block.title.toLowerCase()} template`;
-  const description = `${block.description} A ready-made React ${block.title.toLowerCase()} UI built from accessible ${branding.libraryName} components with Tailwind CSS — installed as source you own with "${branding.cliName} add ${block.name}".`;
+  const title = `React ${inProse(block.title)} template`;
+  const description = `${block.description} A ready-made React ${inProse(block.title)} UI built from accessible ${branding.libraryName} components with Tailwind CSS — installed as source you own with "${branding.cliName} add ${block.name}".`;
   const path = `/docs/blocks/${block.name}`;
 
   return {

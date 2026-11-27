@@ -11,7 +11,7 @@ import { commerceLinks, supportMailto } from "~/lib/commerce";
 import { getBlocks, getComponents } from "~/lib/registry";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Pricing — free React components, Pro application surfaces",
+  title: "Pricing — free React components, paid Pro blocks",
   description:
     "Every core React component is free and MIT-licensed, forever. Pro adds whole application surfaces — CRM, command center, AI workspace, admin console — and Teams adds a private registry of your own.",
   path: "/pricing",

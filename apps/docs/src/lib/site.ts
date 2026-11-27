@@ -40,6 +40,20 @@ export function absoluteUrl(path: string): string {
 }
 
 /**
+ * A registry title as it reads mid-sentence.
+ *
+ * Titles are sentence case ("AI dashboard", "CRM"), so a blanket lowercase turns
+ * acronyms into "ai dashboard" and "crm" — which is how they then appear in a
+ * search result's headline. Words that are all capitals stay as they are.
+ */
+export function inProse(title: string): string {
+  return title
+    .split(" ")
+    .map((word) => (/^[A-Z0-9]{2,}s?$/.test(word) ? word : word.toLowerCase()))
+    .join(" ");
+}
+
+/**
  * The terms this site is trying to be found for.
  *
  * Head terms ("react ui library") are here for completeness, not because a new

@@ -120,6 +120,14 @@ describe("llmsTxt", () => {
     expect(doc).toContain("(https://example.test/docs/components/button)");
     expect(doc).not.toMatch(/\]\(\/docs/);
   });
+
+  it("states caller-supplied facts under About, and omits the heading when there are none", () => {
+    const withAbout = llmsTxt({ ...context([entry()]), about: ["Free under MIT."] });
+    const without = llmsTxt(context([entry()]));
+
+    expect(withAbout).toContain("## About\n\n- Free under MIT.\n");
+    expect(without).not.toContain("## About");
+  });
 });
 
 describe("upsertAgentsSection", () => {
