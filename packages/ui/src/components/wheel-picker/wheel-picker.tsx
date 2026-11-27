@@ -13,7 +13,6 @@ import {
   type PointerEvent,
 } from "react";
 
-import { focusRing } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 /*
@@ -43,9 +42,11 @@ const ROW = { sm: 32, md: 40 } as const;
 const wheelPickerVariants = cva(
   cn(
     "relative w-full overflow-hidden rounded-lg bg-card text-card-foreground select-none",
-    "outline-none [perspective:600px]",
+    "[perspective:600px]",
     "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-55",
-    focusRing,
+    // The focusable listbox is the scroller inside; the frame shows its ring.
+    "has-[[data-slot=wheel-picker-viewport]:focus-visible]:ring-2 has-[[data-slot=wheel-picker-viewport]:focus-visible]:ring-ring/55",
+    "has-[[data-slot=wheel-picker-viewport]:focus-visible]:ring-offset-2 has-[[data-slot=wheel-picker-viewport]:focus-visible]:ring-offset-background",
   ),
   {
     variants: {
@@ -94,6 +95,10 @@ export function WheelPicker({
   name,
   disabled = false,
   onKeyDown,
+  ref,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
+  "aria-describedby": ariaDescribedBy,
   ...props
 }: WheelPickerProps) {
   const id = useId();
@@ -322,15 +327,10 @@ export function WheelPicker({
 
   return (
     <div
-      role="listbox"
-      tabIndex={disabled ? -1 : 0}
-      aria-activedescendant={current ? optionId(selected) : undefined}
-      aria-disabled={disabled || undefined}
       data-slot="wheel-picker"
       data-disabled={disabled ? "" : undefined}
       className={cn(wheelPickerVariants({ size }), className)}
       style={{ height: row * visible }}
-      onKeyDown={handleKeyDown}
       {...props}
     >
       {/* The selection band, behind the rows. */}
@@ -339,11 +339,28 @@ export function WheelPicker({
         data-slot="wheel-picker-band"
         className="pointer-events-none absolute inset-x-1.5 top-1/2 h-(--wheel-row) -translate-y-1/2 rounded-md bg-muted"
       />
+      {/*
+       * The scroller is the listbox, so the element that scrolls is the one
+       * that takes focus (axe: scrollable-region-focusable). It owns the keys too;
+       * a consumer's onKeyDown runs first, as before.
+       */}
       <div
-        ref={scroller}
+        ref={(node) => {
+          scroller.current = node;
+          if (typeof ref === "function") return ref(node);
+          if (ref) ref.current = node;
+        }}
+        role="listbox"
+        tabIndex={disabled ? -1 : 0}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        aria-describedby={ariaDescribedBy}
+        aria-activedescendant={current ? optionId(selected) : undefined}
+        aria-disabled={disabled || undefined}
         data-slot="wheel-picker-viewport"
+        onKeyDown={handleKeyDown}
         className={cn(
-          "relative size-full snap-y snap-mandatory [scrollbar-width:none] overflow-y-scroll overscroll-contain [&::-webkit-scrollbar]:hidden",
+          "relative size-full snap-y snap-mandatory [scrollbar-width:none] overflow-y-scroll overscroll-contain outline-none [&::-webkit-scrollbar]:hidden",
           "[mask-image:linear-gradient(to_bottom,transparent,var(--color-foreground)_35%,var(--color-foreground)_65%,transparent)]",
           disabled ? "pointer-events-none" : "cursor-grab active:cursor-grabbing",
         )}

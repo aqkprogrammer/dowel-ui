@@ -83,7 +83,7 @@ function Controlled() {
       >
         <div className="flex h-44 flex-col justify-end p-6">
           <span className="text-2xl font-bold">You&apos;re invited</span>
-          <span className="text-sm opacity-80">Peel to reveal your access code</span>
+          <span className="text-sm">Peel to reveal your access code</span>
         </div>
       </PagePeel>
       <p className="text-sm text-muted-foreground">{peeled ? "Peeled" : "Flat"}</p>

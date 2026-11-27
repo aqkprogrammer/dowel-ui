@@ -3,6 +3,38 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Fixed
+
+- **`wheel-picker`** passes axe `scrollable-region-focusable` (WCAG 2.1.1).
+  The element that scrolls is now the focusable `listbox`. Before, focus sat
+  on a wrapper around the scroller. It looks and behaves the same: the frame
+  shows the focus ring when the drum has keyboard focus, and the keys,
+  type-ahead and dragging are unchanged. `ref`, `aria-label`,
+  `aria-labelledby`, `aria-describedby` and `onKeyDown` now go to the
+  listbox. `className`, `style` and every other prop stay on the frame.
+  **Re-run `dowel add wheel-picker`** to pick this up. If your code reached
+  the listbox through `ref`, it still does. If it found the scroller with
+  `[data-slot=wheel-picker-viewport]`, that is now the listbox itself.
+- **`plan-picker`** passes axe `color-contrast` (WCAG 1.4.3). A price on an
+  unchosen card was `text-muted-foreground` at 70% opacity, 2.83:1 in light
+  and 4.0–4.19:1 in dark. It now keeps the muted tone at full strength, and
+  only the chosen card, in full foreground, softens its price. **Re-run
+  `dowel add plan-picker`** to pick this up.
+- **Stage and story contrast** (axe `color-contrast`, WCAG 1.4.3). Only story
+  markup changed in this item, not the components:
+  - The `sleepy-blob-switch` and `origami-switch` Stage captions go from 60%
+    to 75% opacity: 3.44:1 → 5.15:1 and 4.01:1 → 6.38:1.
+  - The `snow-globe-switch` Stage caption goes from `text-stone-500` to
+    `text-stone-600`: 3.81:1 → 6.08:1.
+  - The subtitle in `page-peel`'s PrimarySurface story drops its 80% opacity:
+    3.9:1 → 5.14:1 in light, 4.45:1 → 5.73:1 in dark.
+  - Reactor's dark Stage now carries `dark`, so the readout's `text-warning`
+    uses the dark theme's amber instead of the light theme's `#9b5e00`
+    (3.76:1 on near-black). If you put `ReactorSwitch readout` on a dark
+    surface inside a light theme, add `dark` the same way.
+
 ## 0.17.0
 
 ### Added

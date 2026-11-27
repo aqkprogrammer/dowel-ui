@@ -22,7 +22,7 @@ export const Stage: Story = {
   render: () => (
     <div className="flex flex-col items-center gap-5 rounded-2xl bg-[#fbeee4] px-10 py-12 text-[#3b1d12]">
       <OrigamiSwitch size="lg" aria-label="Origami" />
-      <p className="font-mono text-xs tracking-[0.3em] opacity-60">09 / 11</p>
+      <p className="font-mono text-xs tracking-[0.3em] opacity-75">09 / 11</p>
       <h3 className="-mt-3 text-3xl font-bold tracking-tight">Origami</h3>
       <span className="h-1 w-16 rounded-full bg-orange-500" />
     </div>
