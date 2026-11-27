@@ -19,7 +19,7 @@
     "@dowel-ui/registry": "workspace:*",
     "@dowel-ui/themes": "workspace:*",
     "lucide-react": "1.48.0",
-    "next": "16.4.5",
+    "next": "16.4.6",
     "postprocessing": "6.39.6",
     "react": "19.3.1",
     "react-dom": "19.3.1",
