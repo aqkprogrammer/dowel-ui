@@ -52,6 +52,17 @@ export const react = tseslint.config(
       "@typescript-eslint/no-non-null-assertion": "off",
     },
   },
+  {
+    // Stories are linted without type information. Storybook's `Meta` and
+    // `StoryObj` types expand every component's full props into args and
+    // argTypes, so type-checking packages/ui's ~800 story files takes over half
+    // the checker's memory and 70% of its check time (7.3M instantiations with
+    // stories, 1.3M without). Linting them type-aware ran CI out of heap.
+    // `pnpm typecheck` still type-checks every story; only the typed lint rules
+    // are skipped here, and the a11y, hooks and Storybook rules still run.
+    files: ["**/*.stories.{ts,tsx}"],
+    extends: [tseslint.configs.disableTypeChecked],
+  },
 );
 
 export default react;
