@@ -19,23 +19,23 @@
     "@dowel-ui/registry": "workspace:*",
     "@dowel-ui/themes": "workspace:*",
     "lucide-react": "1.48.0",
-    "next": "16.3.8",
-    "postprocessing": "6.39.5",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "next": "16.4.5",
+    "postprocessing": "6.39.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "three": "0.185.1"
   },
   "devDependencies": {
     "@dowel-ui/agentbench": "workspace:*",
     "@dowel-ui/config": "workspace:*",
-    "@tailwindcss/postcss": "4.3.3",
-    "@types/node": "26.6.3",
+    "@tailwindcss/postcss": "4.3.5",
+    "@types/node": "26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/three": "0.185.4",
-    "tailwindcss": "4.3.3",
+    "tailwindcss": "4.3.5",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
-    "vitest": "5.0.2"
+    "vitest": "5.1.1"
   }
 }

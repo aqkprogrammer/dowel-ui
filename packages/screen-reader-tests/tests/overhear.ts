@@ -4,7 +4,9 @@ import { dirname, join } from "node:path";
 import { connect } from "node:tls";
 import { promisify } from "node:util";
 
-import { getNVDAInstallationPath } from "@guidepup/guidepup/lib/windows/NVDA/getNVDAInstallationPath.js";
+// Guidepup 0.40 split this into the portable NVDA it installs (this one) and a
+// user-installed NVDA (getUserNVDAInstallationPath). The relay is the portable one's.
+import { getGuidepupNVDAInstallationPath } from "@guidepup/guidepup/lib/windows/NVDA/getGuidepupNVDAInstallationPath.js";
 
 /**
  * Everything a screen reader says from now on, commanded or not.
@@ -77,7 +79,7 @@ const JOIN = { type: "join", connection_type: "master", channel: "guidepup" };
 const PROTOCOL = { type: "protocol_version", version: 2 };
 
 function nvdaCertificate(): Buffer {
-  const executable = getNVDAInstallationPath();
+  const executable = getGuidepupNVDAInstallationPath();
   if (!executable) throw new Error("NVDA is not installed: run `npx @guidepup/setup`.");
   const root = dirname(executable);
   for (const path of [
