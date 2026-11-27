@@ -19,13 +19,13 @@ no `<img>` without `alt`, and no orphan pages.
 
 ## 2. Technical issues found and fixed
 
-| # | Issue (live, before) | Impact | Fix | File |
-|---|---|---|---|---|
-| 1 | `/docs/components/<unknown>` and `/docs/blocks/<unknown>` answered **500**, not 404 | Crawlers read a 5xx as the server failing and slow down crawling. Any mistyped or removed slug looked like an outage. | `export const dynamicParams = false`. Every slug comes from the registry at build time, so an unknown one now returns 404 without rendering. | `apps/docs/src/app/docs/{components,blocks}/[name]/page.tsx` |
-| 2 | `/quality` linked all 59 blocks as `/docs/components/<block>`, and each of those links hit #1 (500) | 59 broken internal links from an indexable page | Blocks now link to `/docs/blocks/<name>`. | `apps/docs/src/app/quality/page.tsx` |
-| 3 | `www.dowelui.com` answered 200 with a full copy of the site | Every page existed on two hosts. The canonical tag pointed at the apex, but a canonical is only a hint. | Permanent (308) host redirect from www to the apex, keeping path and query | `apps/docs/next.config.ts` |
-| 4 | Block titles were lowercased in full, giving "React crm template" and "React ai dashboard template" | These titles are the headlines shown in search results | New `inProse()` helper keeps all-caps words (CRM, AI, API, OTP) and lowercases the rest. Also used in component descriptions. | `apps/docs/src/lib/site.ts`, both `[name]` pages |
-| 5 | Three titles ran past 65 characters (ai-agents 74, agentbench 76, pricing 68) | Truncated in search results | Shortened, keeping the same meaning | `docs/ai-agents`, `agentbench`, `pricing` pages |
+| #   | Issue (live, before)                                                                                | Impact                                                                                                                | Fix                                                                                                                                          | File                                                         |
+| --- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| 1   | `/docs/components/<unknown>` and `/docs/blocks/<unknown>` answered **500**, not 404                 | Crawlers read a 5xx as the server failing and slow down crawling. Any mistyped or removed slug looked like an outage. | `export const dynamicParams = false`. Every slug comes from the registry at build time, so an unknown one now returns 404 without rendering. | `apps/docs/src/app/docs/{components,blocks}/[name]/page.tsx` |
+| 2   | `/quality` linked all 59 blocks as `/docs/components/<block>`, and each of those links hit #1 (500) | 59 broken internal links from an indexable page                                                                       | Blocks now link to `/docs/blocks/<name>`.                                                                                                    | `apps/docs/src/app/quality/page.tsx`                         |
+| 3   | `www.dowelui.com` answered 200 with a full copy of the site                                         | Every page existed on two hosts. The canonical tag pointed at the apex, but a canonical is only a hint.               | Permanent (308) host redirect from www to the apex, keeping path and query                                                                   | `apps/docs/next.config.ts`                                   |
+| 4   | Block titles were lowercased in full, giving "React crm template" and "React ai dashboard template" | These titles are the headlines shown in search results                                                                | New `inProse()` helper keeps all-caps words (CRM, AI, API, OTP) and lowercases the rest. Also used in component descriptions.                | `apps/docs/src/lib/site.ts`, both `[name]` pages             |
+| 5   | Three titles ran past 65 characters (ai-agents 74, agentbench 76, pricing 68)                       | Truncated in search results                                                                                           | Shortened, keeping the same meaning                                                                                                          | `docs/ai-agents`, `agentbench`, `pricing` pages              |
 
 ### Reviewed and left alone, on purpose
 
@@ -44,7 +44,7 @@ no `<img>` without `alt`, and no orphan pages.
 - **robots.txt allows training crawlers** (GPTBot, ClaudeBot, CCBot, Google-Extended and
   others) as well as search and retrieval bots. The existing comment in `robots.ts` says
   this is deliberate: the site's audience reaches it through coding assistants. That is a
-  business decision, so I kept it. If you want to stay in AI *search* but out of *training*,
+  business decision, so I kept it. If you want to stay in AI _search_ but out of _training_,
   remove `GPTBot`, `ClaudeBot`, `anthropic-ai`, `CCBot`, `Google-Extended`,
   `Applebot-Extended`, `Bytespider`, `meta-externalagent` and `cohere-ai`, and give them
   `disallow: "/"`.
@@ -83,20 +83,20 @@ Console were not connected), so the map below is built from search intent. The t
 unvalidated targets, not measured opportunities. Check them against Search Console query
 data once it builds up.
 
-| Intent cluster | Primary target | URL |
-|---|---|---|
-| Brand / navigational | dowel ui | `/` |
-| Category: source-first library | source-first react component library, copy paste react components, shadcn alternative | `/`, `/docs` |
-| Component catalogue | react ui components, react component library | `/docs/components` |
-| Per-component (long tail) | react {component} component, e.g. "react data table component" | `/docs/components/{name}` (338) |
-| Screen templates | react {screen} template, e.g. "react dashboard template", "react login page" | `/docs/blocks/{name}` (59) |
-| AI UI | react ai chat components, ai agent ui components, tool calling ui | `/docs/components/ai-*`, `/docs/blocks/ai-chat`, `/docs/blocks/agent-console`, `/agent-demo` |
-| Coding agents | mcp server react components, claude code ui library | `/docs/ai-agents` |
-| Theming | tailwind react themes, oklch theme generator | `/docs/themes`, `/theme-studio` |
-| Backgrounds | react animated backgrounds | `/docs/backgrounds` |
-| Install / how-to | install react components cli | `/docs/installation`, `/docs/cli` |
-| Accessibility | accessible react components | `/docs/accessibility`, `/quality` |
-| Commercial | react ui library pricing, premium react components | `/pricing` |
+| Intent cluster                 | Primary target                                                                        | URL                                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Brand / navigational           | dowel ui                                                                              | `/`                                                                                          |
+| Category: source-first library | source-first react component library, copy paste react components, shadcn alternative | `/`, `/docs`                                                                                 |
+| Component catalogue            | react ui components, react component library                                          | `/docs/components`                                                                           |
+| Per-component (long tail)      | react {component} component, e.g. "react data table component"                        | `/docs/components/{name}` (338)                                                              |
+| Screen templates               | react {screen} template, e.g. "react dashboard template", "react login page"          | `/docs/blocks/{name}` (59)                                                                   |
+| AI UI                          | react ai chat components, ai agent ui components, tool calling ui                     | `/docs/components/ai-*`, `/docs/blocks/ai-chat`, `/docs/blocks/agent-console`, `/agent-demo` |
+| Coding agents                  | mcp server react components, claude code ui library                                   | `/docs/ai-agents`                                                                            |
+| Theming                        | tailwind react themes, oklch theme generator                                          | `/docs/themes`, `/theme-studio`                                                              |
+| Backgrounds                    | react animated backgrounds                                                            | `/docs/backgrounds`                                                                          |
+| Install / how-to               | install react components cli                                                          | `/docs/installation`, `/docs/cli`                                                            |
+| Accessibility                  | accessible react components                                                           | `/docs/accessibility`, `/quality`                                                            |
+| Commercial                     | react ui library pricing, premium react components                                    | `/pricing`                                                                                   |
 
 There is no cannibalisation: each cluster maps to exactly one page type.
 
@@ -106,14 +106,14 @@ No pages were generated in this pass. Writing technically accurate guides, with 
 code, takes a person who knows the components, and mass-generated pages would be doorway
 pages. Candidates, in priority order:
 
-| Priority | Page | Intent | Links to |
-|---|---|---|---|
-| P1 | Build an AI chat interface in React | how-to | ai-chat, ai-prompt-input, ai-reasoning, ai-tool, blocks/ai-chat |
-| P1 | Source-first UI vs. npm component libraries | comparison / definition | /docs, /docs/cli |
-| P1 | Building tool-call and approval UIs for AI agents | how-to | ai-tool, ai-approval-request, agent-approvals, permission-prompt |
-| P2 | Build a SaaS dashboard with React and Tailwind | how-to | blocks/dashboard, analytics, billing, settings |
-| P2 | Customising Tailwind CSS 4 components with OKLCH tokens | how-to | /docs/themes, /theme-studio |
-| P3 | Accessible React components: what WCAG 2.2 AA requires | educational | /docs/accessibility, /quality |
+| Priority | Page                                                    | Intent                  | Links to                                                         |
+| -------- | ------------------------------------------------------- | ----------------------- | ---------------------------------------------------------------- |
+| P1       | Build an AI chat interface in React                     | how-to                  | ai-chat, ai-prompt-input, ai-reasoning, ai-tool, blocks/ai-chat  |
+| P1       | Source-first UI vs. npm component libraries             | comparison / definition | /docs, /docs/cli                                                 |
+| P1       | Building tool-call and approval UIs for AI agents       | how-to                  | ai-tool, ai-approval-request, agent-approvals, permission-prompt |
+| P2       | Build a SaaS dashboard with React and Tailwind          | how-to                  | blocks/dashboard, analytics, billing, settings                   |
+| P2       | Customising Tailwind CSS 4 components with OKLCH tokens | how-to                  | /docs/themes, /theme-studio                                      |
+| P3       | Accessible React components: what WCAG 2.2 AA requires  | educational             | /docs/accessibility, /quality                                    |
 
 A `/guides/` section with `TechArticle` + `BreadcrumbList` schema, linked from the
 sidebar, would hold these.
