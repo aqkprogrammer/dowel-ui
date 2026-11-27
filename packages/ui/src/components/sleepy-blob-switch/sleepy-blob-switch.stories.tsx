@@ -22,7 +22,7 @@ export const Stage: Story = {
   render: () => (
     <div className="flex flex-col items-center gap-5 rounded-2xl bg-[#fbe3ee] px-10 py-12 text-[#4a2a3a]">
       <SleepyBlobSwitch size="lg" aria-label="Sleepy blob" />
-      <p className="font-mono text-xs tracking-[0.3em] opacity-60">11 / 11</p>
+      <p className="font-mono text-xs tracking-[0.3em] opacity-75">11 / 11</p>
       <h3 className="-mt-3 text-3xl font-bold tracking-tight">Sleepy Blob</h3>
       <span className="h-1 w-16 rounded-full bg-rose-400" />
     </div>

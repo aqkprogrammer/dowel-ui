@@ -3,6 +3,20 @@
 This is the changelog. Releases are cut by hand and recorded here; there are no
 per-package changelogs, whatever an earlier version of this line claimed.
 
+## Unreleased
+
+### Fixed
+
+- **`sleepy-blob-switch`, `origami-switch` and `reactor-switch` Stage
+  stories** now pass axe `color-contrast` (WCAG 1.4.3). The `11 / 11` and
+  `09 / 11` captions under the Sleepy Blob and Origami switches drop from
+  60% to 75% opacity: 3.44:1 → 5.15:1 and 4.01:1 → 6.38:1. Reactor's dark
+  stage now carries `dark`, so the readout's `text-warning` resolves to the
+  dark-theme amber instead of the light-theme `#9b5e00` (3.76:1 on
+  near-black). The components themselves are unchanged. If you place
+  `ReactorSwitch readout` on a dark surface inside a light theme, do the
+  same.
+
 ## 0.17.0
 
 ### Added

@@ -25,7 +25,7 @@ export const Readout: Story = {
 export const Stage: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <div className="flex flex-col items-center gap-5 rounded-2xl bg-neutral-950 px-10 py-12 text-white">
+    <div className="dark flex flex-col items-center gap-5 rounded-2xl bg-neutral-950 px-10 py-12 text-white">
       <ReactorSwitch size="lg" aria-label="Reactor" readout />
       <h3 className="text-3xl font-bold tracking-tight">Reactor</h3>
       <span className="h-1 w-16 rounded-full bg-cyan-400" />

@@ -69,8 +69,25 @@ describe("ReactorSwitch", () => {
     expect(ref.current).toBe(screen.getByRole("switch"));
   });
 
+  // The readout sits outside the plating, on the page, so it takes the theme's
+  // status tokens rather than the plating's fixed palette: those are the ones
+  // contrast-checked against the theme's background. A dark stage in a light
+  // theme has to opt into the dark tokens (`className="dark"`), as the Stage
+  // story does.
+  it("colours the readout with the theme's status tokens", () => {
+    render(<ReactorSwitch aria-label="Reactor" readout />);
+    const readout = document.querySelector('[data-slot="reactor-switch-readout"]');
+    expect(readout).toHaveClass("text-warning");
+    expect(readout?.getAttribute("style") ?? "").not.toMatch(/color/);
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(<ReactorSwitch aria-label="Reactor" readout />);
+    await expectNoA11yViolations(container);
+  });
+
+  it("has no accessibility violations with the readout on", async () => {
+    const { container } = render(<ReactorSwitch aria-label="Reactor" readout defaultChecked />);
     await expectNoA11yViolations(container);
   });
 });
