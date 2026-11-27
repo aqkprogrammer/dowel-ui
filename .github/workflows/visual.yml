@@ -44,11 +44,11 @@ jobs:
     timeout-minutes: 45
     steps:
       # All of history: the base commit is found from it below.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -79,7 +79,7 @@ jobs:
       # request reuse it until the base branch moves.
       - name: Restore the base Storybook
         id: base-storybook
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.BASE_STORYBOOK }}
           key: visual-storybook-${{ runner.os }}-${{ steps.base.outputs.sha }}
@@ -144,7 +144,7 @@ jobs:
 
       # The report holds the expected, actual and diff image of every story
       # that changed, and a screenshot of every new one.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: visual-report
