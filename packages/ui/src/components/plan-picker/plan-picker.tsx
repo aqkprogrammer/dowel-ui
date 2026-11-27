@@ -65,7 +65,7 @@ const planPickerVariants = cva("relative isolate grid", {
 
 const planCardVariants = cva(
   cn(
-    "flex cursor-pointer flex-col items-start rounded-xl border border-border bg-muted/50 text-start",
+    "group flex cursor-pointer flex-col items-start rounded-xl border border-border bg-muted/50 text-start",
     "text-muted-foreground hover:bg-muted data-[state=checked]:text-foreground",
     "disabled:cursor-not-allowed disabled:opacity-55",
     focusRing,
@@ -162,7 +162,13 @@ export function PlanPicker({
           <span className="font-semibold text-foreground">{plan.label}</span>
           {/* A space, so the accessible name reads "Pro $4/mo", not "Pro$4/mo". */}
           {plan.price ? " " : null}
-          {plan.price ? <span className="text-[0.9em] opacity-70">{plan.price}</span> : null}
+          {/* Muted cards already use the muted tone; fading it further fails contrast.
+              Only the selected card, in full foreground, softens its price. */}
+          {plan.price ? (
+            <span className="text-[0.9em] group-data-[state=checked]:opacity-70">
+              {plan.price}
+            </span>
+          ) : null}
         </RadioGroupPrimitive.Item>
       ))}
 

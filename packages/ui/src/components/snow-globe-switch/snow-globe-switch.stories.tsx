@@ -22,7 +22,7 @@ function Scene() {
   return (
     <div className="flex flex-col items-center gap-5 rounded-2xl bg-stone-200 px-10 py-12 text-stone-900">
       <SnowGlobeSwitch size="lg" aria-label="Snow globe" checked={on} onCheckedChange={setOn} />
-      <p className="font-mono text-xs font-bold tracking-[0.3em] text-stone-500">02 / 11</p>
+      <p className="font-mono text-xs font-bold tracking-[0.3em] text-stone-600">02 / 11</p>
       <h3 className="-mt-3 text-3xl font-bold tracking-tight">Snow Globe</h3>
       <span className="h-1 w-16 rounded-full bg-amber-400" />
     </div>

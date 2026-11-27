@@ -91,8 +91,27 @@ describe("PlanPicker", () => {
     expect(ref.current).toHaveClass("w-80", "grid");
   });
 
+  // jsdom cannot measure contrast, so this pins the rule the browser suite
+  // checks: an unchosen card's price is the muted tone at full strength (a
+  // faded muted tone fails 4.5:1); only the chosen card's softens.
+  it("fades a price only on the chosen card", () => {
+    render(<PlanPicker />);
+    const price = (name: RegExp) =>
+      screen.getByRole("radio", { name }).querySelector("span:last-child");
+    for (const name of [/Basic/, /Pro/, /Team/]) {
+      expect(price(name)).toHaveClass("group-data-[state=checked]:opacity-70");
+      expect(price(name)).not.toHaveClass("opacity-70");
+    }
+    expect(screen.getByRole("radio", { name: /Basic/ })).toHaveClass("group");
+  });
+
   it("has no accessibility violations", async () => {
     const { container } = render(<PlanPicker />);
+    await expectNoA11yViolations(container);
+  });
+
+  it("has no accessibility violations with another plan chosen", async () => {
+    const { container } = render(<PlanPicker defaultValue="team" />);
     await expectNoA11yViolations(container);
   });
 });
