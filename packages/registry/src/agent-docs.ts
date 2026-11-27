@@ -42,6 +42,15 @@ export interface AgentDocsContext {
    * agent told the wrong one writes imports that do not resolve.
    */
   importFrom: string;
+  /**
+   * Plain facts about the library — what it is, what it costs, what it runs
+   * on — rendered under an "About" heading in llms.txt.
+   *
+   * Optional and supplied by the caller, because this module also renders
+   * llms.txt for registries that are not this one, and their licensing is not
+   * ours to state. Each entry is one line of markdown.
+   */
+  about?: string[];
 }
 
 /** Ordered by curation where curated, alphabetical for anything new. */
@@ -484,6 +493,9 @@ export function llmsTxt(context: AgentDocsContext): string {
     "",
     `Generated from ${index.generatedFrom}.`,
     "",
+    ...(context.about && context.about.length > 0
+      ? ["## About", "", ...context.about.map((line) => `- ${line}`), ""]
+      : []),
     "## Start here",
     "",
     `- [Everything, in one file](${docsUrl}/llms-full.txt): the complete catalogue with descriptions, accessibility notes and conventions`,

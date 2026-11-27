@@ -18,7 +18,7 @@ import { benchMetrics, benchRuns, benchTasks } from "~/lib/agentbench.generated"
 import { pageMetadata } from "~/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "AgentBench: does agent support change what a coding agent builds?",
+  title: "AgentBench: do agent docs change what coding agents build?",
   description:
     "A reproducible harness that runs the same prompts with and without the agent files and MCP server, and scores both diffs with automated checks. Only published runs are shown.",
   path: "/agentbench",

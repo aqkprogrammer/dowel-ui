@@ -30,7 +30,7 @@ import {
   getRegistryItem,
   isLicensed,
 } from "~/lib/registry";
-import { componentKeywords } from "~/lib/site";
+import { componentKeywords, inProse } from "~/lib/site";
 import { breadcrumbSchema, componentSchema, graph } from "~/lib/structured-data";
 import { usageFor } from "~/lib/usage";
 
@@ -61,6 +61,9 @@ const TIER_LABELS = {
   webgl: "Renders with WebGL",
 } as const;
 
+/** Every component is known at build time; any other name is a 404, not a render. */
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return getComponents().map((item) => ({ name: item.name }));
 }
@@ -75,7 +78,7 @@ export function generateStaticParams() {
  * the code is copied rather than depended on.
  */
 function describe(item: { title: string; description: string; name: string }): string {
-  return `${item.description} A free, accessible React ${item.title.toLowerCase()} component built with TypeScript and Tailwind CSS. Copy the source or install it with "${branding.cliName} add ${item.name}".`;
+  return `${item.description} A free, accessible React ${inProse(item.title)} component built with TypeScript and Tailwind CSS. Copy the source or install it with "${branding.cliName} add ${item.name}".`;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

@@ -49,6 +49,11 @@ export default function QualityPage() {
   const components = getComponents();
   const blocks = getBlocks();
   const index = getRegistryIndex();
+  // The assessment covers blocks as well as components, and they live under
+  // different paths: a block linked as a component is a page that does not exist.
+  const blockNames = new Set(blocks.map((block) => block.name));
+  const docsPath = (name: string) =>
+    blockNames.has(name) ? `/docs/blocks/${name}` : `/docs/components/${name}`;
 
   const assessed = Object.entries(componentQuality).sort(
     ([nameA, a], [nameB, b]) => a.score - b.score || nameA.localeCompare(nameB),
@@ -228,7 +233,7 @@ export default function QualityPage() {
               <tr key={name} className="border-b border-border last:border-0">
                 <th scope="row" className="px-4 py-2 text-left font-normal whitespace-nowrap">
                   <Link
-                    href={`/docs/components/${name}`}
+                    href={docsPath(name)}
                     className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring/55"
                   >
                     {name}

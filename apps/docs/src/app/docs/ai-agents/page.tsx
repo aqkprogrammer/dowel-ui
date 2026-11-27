@@ -18,7 +18,7 @@ import { pageMetadata } from "~/lib/site";
 import { getBlocks, getComponents } from "~/lib/registry";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Use this React UI library with Claude, Cursor and coding agents",
+  title: "React components for Claude Code, Cursor and AI agents",
   description:
     "One command writes the component catalogue and conventions into your repository for Claude Code, Cursor and anything reading AGENTS.md, and an MCP server answers live — so your agent stops writing a second Button.",
   path: "/docs/ai-agents",
