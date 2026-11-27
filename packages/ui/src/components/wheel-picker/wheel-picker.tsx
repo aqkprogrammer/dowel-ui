@@ -45,8 +45,10 @@ const wheelPickerVariants = cva(
     "[perspective:600px]",
     "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-55",
     // The focusable listbox is the scroller inside; the frame shows its ring.
-    "has-[[data-slot=wheel-picker-viewport]:focus-visible]:ring-2 has-[[data-slot=wheel-picker-viewport]:focus-visible]:ring-ring/55",
-    "has-[[data-slot=wheel-picker-viewport]:focus-visible]:ring-offset-2 has-[[data-slot=wheel-picker-viewport]:focus-visible]:ring-offset-background",
+    // It is the only focusable descendant (options use aria-activedescendant),
+    // so `has-focus-visible` is exactly "the listbox has keyboard focus".
+    "has-focus-visible:ring-2 has-focus-visible:ring-ring/55",
+    "has-focus-visible:ring-offset-2 has-focus-visible:ring-offset-background",
   ),
   {
     variants: {
