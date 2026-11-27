@@ -16,7 +16,7 @@
     "@dowel-ui/config": "workspace:*",
     "@guidepup/guidepup": "0.40.0",
     "@guidepup/playwright": "0.21.0",
-    "@playwright/test": "1.65.1",
+    "@playwright/test": "1.63.0",
     "@types/node": "26.6.6",
     "typescript": "6.0.3"
   }
