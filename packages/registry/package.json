@@ -56,7 +56,7 @@
     "clean": "rm -rf dist .turbo r"
   },
   "dependencies": {
-    "zod": "4.6.6"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@dowel-ui/config": "workspace:*",
